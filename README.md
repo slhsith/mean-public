@@ -4,4 +4,4 @@ A fullstack JavaScript Starter Template powered by MongoDB, ExpressJS, AngularJS
 
 Just run:
 
-gulp
+'gulp'
