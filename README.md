@@ -44,3 +44,5 @@ Things Left to do:
 * Make Public Profile Search
 * Make User Events and Purchasing
 * Make BrainTree item purchasing
+* Allow users to Follow Eachother
+* Allow users to see the users they follow
