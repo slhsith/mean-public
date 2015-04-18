@@ -17,7 +17,7 @@ Install NodeJS:
 
 Install Mongo Database:
 
-`brew install mongodb --with-openssl'
+`brew install mongodb --with-openssl`
 
 `sudo mkdir -p /data/db`
 
