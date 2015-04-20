@@ -1,6 +1,6 @@
 # mean
 
-##A fullstack JavaScript Starter Template powered by MongoDB, ExpressJS, AngularJS, NodeJS.
+##A fullstack JavaScript Starter Template powered by MongoDB, ExpressJS, AngularJS, and NodeJS.
 
 
 ###For OSX just run:
@@ -14,6 +14,10 @@ Install Homebrew:
 Install NodeJS:
 
 `brew install node`
+
+Install Node Dependencies:
+
+`npm install`
 
 Install Mongo Database:
 
