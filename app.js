@@ -53,13 +53,23 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render('error', {
-    message: err.message,
-    error: {}
-  });
-});
+app.use(function(err, req, res, next){
+  res.status(err.status || 500, 400, 401, 403, 404);
 
+  // respond with html page
+  if (req.accepts('html')) {
+    res.render('404', { url: 'views/404.html' });
+    return;
+  }
+
+  // respond with json
+  if (req.accepts('json')) {
+    res.send({ error: 'Not found' });
+    return;
+  }
+
+  // default to plain-text. send()
+  res.type('txt').send('Not found');
+});
 
 module.exports = app;
