@@ -1,5 +1,6 @@
-var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
+var passport = require('passport')
+  , LocalStrategy = require('passport-local').Strategy
+  , FacebookStrategy = require('passport-facebook').Strategy;
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 
@@ -14,6 +15,19 @@ passport.use(new LocalStrategy(
         return done(null, false, { message: 'Incorrect password.' });
       }
       return done(null, user);
+    });
+  }
+));
+
+passport.use(new FacebookStrategy({
+    clientID: "692480267528460",
+    clientSecret: "5291485b14fff8e81428d10c9a0c164a",
+    callbackURL: "http://localhost:3000/auth/facebook/callback",
+    enableProof: false
+  },
+  function(accessToken, refreshToken, profile, done) {
+    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+      return done(err, user);
     });
   }
 ));

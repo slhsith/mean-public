@@ -124,7 +124,7 @@ router.post('/login', function(req, res, next){
     return res.status(400).json({message: 'Please fill out all fields'});
   }
 
-  passport.authenticate('local', function(err, user, info){
+  passport.authenticate(['local', 'facebook'], function(err, user, info){
     if(err){ return next(err); }
 
     if(user){
@@ -134,3 +134,10 @@ router.post('/login', function(req, res, next){
     }
   })(req, res, next);
 });
+
+
+//Facebook Integration
+router.get('/auth/facebook', passport.authenticate('facebook'));
+router.get('/auth/facebook/callback', 
+  passport.authenticate('facebook', { successRedirect: '/',
+                                      failureRedirect: '/login' }));
