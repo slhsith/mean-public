@@ -110,6 +110,13 @@ gulp.task('adminmarkup', function () {
         .pipe(gulp.dest("client/admin/dist"))
 });
 
+// run karma unit testing
+gulp.task('test', function(done) {
+    karma.start({
+        configFile: 'test/karma.conf.js'
+    }, done);
+});
+
 // Watch Files For Changes
 gulp.task('watch', function() {
 
