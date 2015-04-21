@@ -29,6 +29,10 @@ Install Mongo Database:
 
 Build Project Template:
 
+`npm install gulp`
+
+`npm install`
+
 `gulp`
 
 
