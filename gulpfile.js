@@ -24,53 +24,53 @@ var exec = require('child_process').exec;
 
 // Lint Task
 gulp.task('lint', function() {
-    return gulp.src(['public/app.js','public/js/controllers.js','public/js/models.js'])
+    return gulp.src(['client/app.js','client/js/controllers.js','client/js/models.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
 });
 
 // Concatenate & Minify JS
 gulp.task('scripts', function() {
-    return gulp.src(['public/app.js','public/js/controllers.js','public/js/models.js'])
+    return gulp.src(['client/app.js','client/js/controllers.js','client/js/models.js'])
         .pipe(concat('all.js'))
-        .pipe(gulp.dest('public/dist'))
+        .pipe(gulp.dest('client/dist'))
         .pipe(rename('all.min.js'))
         .pipe(ngAnnotate())
         .pipe(uglify())
-        .pipe(gulp.dest('public/dist'));
+        .pipe(gulp.dest('client/dist'));
 });
 
 // Minify CSS
 gulp.task('styles', function () {
-    gulp.src('public/css/*.css')
+    gulp.src('client/css/*.css')
         .pipe(concat('all.css'))
-        .pipe(gulp.dest('public/dist'))
+        .pipe(gulp.dest('client/dist'))
         .pipe(minifyCSS())
         .pipe(rename('all.min.css'))
-        .pipe(gulp.dest('public/dist'));
+        .pipe(gulp.dest('client/dist'));
 });
 
 // Minify, Cache and Compile Markup
 gulp.task('markup', function () {
-    gulp.src(['public/*.html','public/views/*.html'])
+    gulp.src(['client/*.html','client/views/*.html'])
         .pipe(htmlify())
         .pipe(templateCache({standalone:true}))
-        .pipe(gulp.dest("public/dist"))
+        .pipe(gulp.dest("client/dist"))
 });
 
 // Watch Files For Changes
 gulp.task('watch', function() {
 
     // javascript
-    gulp.watch('public/js/*.js', ['lint', 'scripts']);
-    gulp.watch('public/views/*.js', ['lint', 'scripts']);
+    gulp.watch('client/js/*.js', ['lint', 'scripts']);
+    gulp.watch('client/views/*.js', ['lint', 'scripts']);
 
     // markup
-    gulp.watch('public/*.html', ['markup']);
-    gulp.watch('public/views/*.html', ['markup']);
+    gulp.watch('client/*.html', ['markup']);
+    gulp.watch('client/views/*.html', ['markup']);
 
     // stylesheets
-    gulp.watch('public/css/*.css', ['styles']);
+    gulp.watch('client/css/*.css', ['styles']);
 });
 
 gulp.task('server', function (cb) {
