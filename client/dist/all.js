@@ -1,4 +1,10 @@
-var app = angular.module('mainApp', ['templates']);
+var app = angular.module('mainApp', [
+	'templates',
+	'mainApp.models',
+	'mainApp.controllers',
+	]);
+var app = angular.module('mainApp.controllers', []);
+
 app.controller('MainCtrl', [
 '$scope',
 'posts',
@@ -43,8 +49,6 @@ function($scope, posts, post, auth){
   };
 }]);
 
-
-
 app.controller('AuthCtrl', [
 '$scope',
 '$state',
@@ -68,6 +72,7 @@ function($scope, $state, auth){
     });
   };
 }]);
+
 app.controller('NavCtrl', [
 '$scope',
 'auth',
@@ -76,6 +81,8 @@ function($scope, auth){
   $scope.currentUser = auth.currentUser;
   $scope.logOut = auth.logOut;
 }]);
+var app = angular.module('mainApp.models', []);
+
 app.factory('posts', ['$http', 'auth', function($http, auth){
   var o = {
     posts: []

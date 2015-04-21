@@ -1,3 +1,5 @@
+var app = angular.module('mainApp.models', []);
+
 app.factory('posts', ['$http', 'auth', function($http, auth){
   var o = {
     posts: []

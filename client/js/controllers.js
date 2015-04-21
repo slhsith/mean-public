@@ -1,3 +1,5 @@
+var app = angular.module('mainApp.controllers', []);
+
 app.controller('MainCtrl', [
 '$scope',
 'posts',
@@ -42,8 +44,6 @@ function($scope, posts, post, auth){
   };
 }]);
 
-
-
 app.controller('AuthCtrl', [
 '$scope',
 '$state',
@@ -67,6 +67,7 @@ function($scope, $state, auth){
     });
   };
 }]);
+
 app.controller('NavCtrl', [
 '$scope',
 'auth',
