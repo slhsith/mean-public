@@ -23,7 +23,8 @@
     "passport-facebook": "^1.0.3",
     "passport-local": "^1.0.0",
     "serve-favicon": "~2.2.0",
-    "braintree":"~1.23.0"
+    "braintree":"~1.23.0",
+    "mandrill-api":"~1.0.45"
   },
   "devDependencies": {
     "expect.js": "0.3.1",

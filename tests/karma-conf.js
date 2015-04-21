@@ -1,3 +1,4 @@
+// Karma configuration
 module.exports = function(config){
     config.set({
     //  root path location that will be used to resolve all relative paths in files and exclude sections, should be the root of your project
