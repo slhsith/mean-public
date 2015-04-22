@@ -63,7 +63,7 @@
     <span>{{ error.message }}</span>
   </div>
 
-  <form ng-submit="register()"
+  <form ng-model="register" ng-submit="register()"
     style="margin-top:30px;">
     <h3>Register</h3>
 
@@ -80,30 +80,30 @@
       ng-model="user.password"></input>
     </div>
     <button type="submit" class="btn btn-primary">Register</button>
-    <a href="/auth/facebook">Login with Facebook</a>
   </form>
 
 
-  <form ng-submit="logIn()"
+  <form ng-model="login" ng-submit="logIn()"
     style="margin-top:30px;">
     <h3>Log In</h3>
 
     <div class="form-group">
-      <input type="text"
+      <input id="login" type="text"
       class="form-control"
       placeholder="Username"
-      ng-model="user.username"></input>
+      ng-model="login.username"></input>
     </div>
     <div class="form-group">
-      <input type="password"
+      <input id="login" type="password"
       class="form-control"
       placeholder="Password"
-      ng-model="user.password"></input>
+      ng-model="login.password"></input>
     </div>
     <button type="submit" class="btn btn-primary">Log In</button>
   </form>
 
     </div>
+    <a href="/auth/facebook">Login with Facebook</a>
 </div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>

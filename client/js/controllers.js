@@ -1,19 +1,18 @@
-app.controller('MainCtrl', ['$scope','auth',function($scope, auth){
+app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, auth, $location) {
   $scope.user = {};
-
-  $scope.register = function(){
-    auth.register($scope.user).error(function(error){
+  $scope.register = function () {
+    auth.register($scope.user).error(function (error) {
       $scope.error = error;
-    }).then(function(){
-      //$state.go('home'); //this needs to go, replace with URL redirect
+    }).then(function () {
+      window.location = "http://localhost:3000/user/#/home";
     });
   };
 
-  $scope.logIn = function(){
-    auth.logIn($scope.user).error(function(error){
+  $scope.logIn = function () {
+    auth.logIn($scope.user).error(function (error) {
       $scope.error = error;
-    }).then(function(){
-      //$state.go('home'); //this needs to go, replace with URL redirect
+    }).then(function () {
+      window.location = "http://localhost:3000/user/#/home";
     });
   };
 
