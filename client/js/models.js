@@ -1,11 +1,11 @@
 app.factory('auth', ['$http', '$window', function($http, $window){
    var auth = {};
    auth.saveToken = function (token){
-      $window.localStorage['flapper-news-token'] = token;
+      $window.localStorage['admin-token'] = token;
     };
 
     auth.getToken = function (){
-      return $window.localStorage['flapper-news-token'];
+      return $window.localStorage['admin-token'];
     };
     auth.isLoggedIn = function(){
       var token = auth.getToken();
@@ -27,17 +27,17 @@ app.factory('auth', ['$http', '$window', function($http, $window){
       }
     };
     auth.register = function(user){
-      return $http.post('/register', user).success(function(data){
+      return $http.post('/api/register', user).success(function(data){
         auth.saveToken(data.token);
       });
     };
     auth.logIn = function(user){
-      return $http.post('/login', user).success(function(data){
+      return $http.post('/api/login', user).success(function(data){
         auth.saveToken(data.token);
       });
     };
     auth.logOut = function(){
-      $window.localStorage.removeItem('flapper-news-token');
+      $window.localStorage.removeItem('admin-token');
     };
   return auth;
 }]);
