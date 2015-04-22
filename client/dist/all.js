@@ -10,7 +10,7 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
   };
 
   $scope.logIn = function () {
-    auth.logIn($scope.user).error(function (error) {
+    auth.logIn($scope.login).error(function (error) {
       $scope.error = error;
     }).then(function () {
       window.location = "http://localhost:3000/user/#/home";
