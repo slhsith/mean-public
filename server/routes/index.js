@@ -9,14 +9,14 @@ var jwt = require('express-jwt');
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/api', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
 module.exports = router;
 
 
-router.get('/posts', function(req, res, next) {
+router.get('/api/posts', function(req, res, next) {
   Post.find(function(err, posts){
     if(err){ return next(err); }
 
@@ -24,7 +24,7 @@ router.get('/posts', function(req, res, next) {
   });
 });
 
-router.post('/posts', auth, function(req, res, next) {
+router.post('/api/posts', auth, function(req, res, next) {
   var post = new Post(req.body);
   post.author = req.payload.username;
 
@@ -35,7 +35,7 @@ router.post('/posts', auth, function(req, res, next) {
   });
 });
 
-router.param('post', function(req, res, next, id) {
+router.param('/api/post', function(req, res, next, id) {
   var query = Post.findById(id);
 
   query.exec(function (err, post){
@@ -47,7 +47,7 @@ router.param('post', function(req, res, next, id) {
   });
 });
 
-router.get('/posts/:post', function(req, res, next) {
+router.get('/api/posts/:post', function(req, res, next) {
   req.post.populate('comments', function(err, post) {
     if (err) { return next(err); }
 
@@ -56,7 +56,7 @@ router.get('/posts/:post', function(req, res, next) {
 });
 
 
-router.put('/posts/:post/upvote', auth, function(req, res, next) {
+router.put('/api/posts/:post/upvote', auth, function(req, res, next) {
   req.post.upvote(function(err, post){
     if (err) { return next(err); }
 
@@ -64,7 +64,7 @@ router.put('/posts/:post/upvote', auth, function(req, res, next) {
   });
 });
 
-router.post('/posts/:post/comments', auth, function(req, res, next) {
+router.post('/api/posts/:post/comments', auth, function(req, res, next) {
   var comment = new Comment(req.body);
   comment.post = req.post;
   comment.author = req.payload.username;
@@ -81,7 +81,7 @@ router.post('/posts/:post/comments', auth, function(req, res, next) {
   });
 });
 
-router.put('/posts/:post/comments/:comment/upvote', auth, function(req, res, next) {
+router.put('/api/posts/:post/comments/:comment/upvote', auth, function(req, res, next) {
   req.post.upvote(function(err, post){
     if (err) { return next(err); }
 
@@ -101,7 +101,7 @@ router.param('comment', function(req, res, next, id) {
   });
 });
 
-router.post('/register', function(req, res, next){
+router.post('/api/register', function(req, res, next){
   if(!req.body.username || !req.body.password){
     return res.status(400).json({message: 'Please fill out all fields'});
   }
@@ -119,7 +119,7 @@ router.post('/register', function(req, res, next){
   });
 });
 
-router.post('/login', function(req, res, next){
+router.post('/api/login', function(req, res, next){
   if(!req.body.username || !req.body.password){
     return res.status(400).json({message: 'Please fill out all fields'});
   }
