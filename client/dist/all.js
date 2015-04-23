@@ -2,11 +2,13 @@ var app = angular.module('mainApp', ['templates']);
 app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, auth, $location) {
   $scope.user = {};
   $scope.register = function () {
-    auth.register($scope.user).error(function (error) {
-      $scope.error = error;
-    }).then(function () {
-      window.location = "http://localhost:3000/user/#/home";
-    });
+    if ($scope.registerForm.$valid){
+      auth.register($scope.user).error(function (error) {
+        $scope.error = error;
+      }).then(function () {
+        window.location = "http://localhost:3000/user/#/home";
+      });
+    }
   };
 
   $scope.logIn = function () {

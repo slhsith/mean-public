@@ -102,14 +102,14 @@ router.param('comment', function(req, res, next, id) {
 });
 
 router.post('/api/register', function(req, res, next){
-  if(!req.body.username || !req.body.password || !req.body.email){
+  if(!req.body.username || !req.body.password){
     return res.status(400).json({message: 'Please fill out all fields'});
   }
 
   var user = new User();
 
   user.username = req.body.username;
-  user.email = req.body.email;
+
   user.setPassword(req.body.password)
 
   user.save(function (err){
@@ -120,15 +120,16 @@ router.post('/api/register', function(req, res, next){
 });
 
 router.post('/api/login', function(req, res, next){
-  if(!req.body.email || !req.body.password){
+  if(!req.body.username || !req.body.password){
     return res.status(400).json({message: 'Please fill out all fields'});
   }
 
-  passport.authenticate(['local'], function(err, user, info){
+  passport.authenticate(['local', 'facebook'], function(err, user, info){
     if(err){ return next(err); }
 
     if(user){
       return res.json({token: user.generateJWT()});
+      mailer.send();
     } else {
       return res.status(401).json(info);
     }
@@ -137,7 +138,7 @@ router.post('/api/login', function(req, res, next){
 
 
 //Facebook Integration
-// router.get('/auth/facebook', passport.authenticate('facebook'));
-// router.get('/auth/facebook/callback', 
-//   passport.authenticate('facebook', { successRedirect: '/',
-//                                       failureRedirect: '/login' }));
+router.get('/auth/facebook', passport.authenticate('facebook'));
+router.get('/auth/facebook/callback', 
+  passport.authenticate('facebook', { successRedirect: '/',
+                                      failureRedirect: '/login' }));
