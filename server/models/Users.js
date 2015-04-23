@@ -4,9 +4,10 @@ var jwt = require('jsonwebtoken');
 var UserSchema = new mongoose.Schema({
   username: {type: String, lowercase: true, unique: true},
   hash: String,
-  email: {type: String, unique: true},
   salt: String,
   permissions: String,
+  resetPasswordToken: String,
+  resetPasswordExpires: Date
 });
 UserSchema.methods.setPassword = function(password){
   this.salt = crypto.randomBytes(16).toString('hex');
@@ -32,3 +33,4 @@ UserSchema.methods.generateJWT = function() {
   }, 'SECRET');
 };
 mongoose.model('User', UserSchema);
+mongoose.set('debug', true);

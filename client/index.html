@@ -63,15 +63,21 @@
     <span>{{ error.message }}</span>
   </div>
 
-  <form ng-model="register" ng-submit="register()"
+  <form name="register" ng-submit="register()"
     style="margin-top:30px;">
     <h3>Register</h3>
 
     <div class="form-group">
-      <input type="text"
+      <input type="email"
       class="form-control"
-      placeholder="Username"
-      ng-model="user.username"></input>
+      placeholder="Email"
+      ng-model="user.username" name="username" required></input>
+    </div>
+    <div class="form-group">
+      <input type="email"
+      class="form-control"
+      placeholder="Repeat Email"
+      ng-model="user.repeat_username" name="repeat_username" required></input>
     </div>
     <div class="form-group">
       <input type="password"
@@ -88,9 +94,9 @@
     <h3>Log In</h3>
 
     <div class="form-group">
-      <input id="login" type="text"
+      <input id="login" type="email"
       class="form-control"
-      placeholder="Username"
+      placeholder="Email"
       ng-model="login.username"></input>
     </div>
     <div class="form-group">

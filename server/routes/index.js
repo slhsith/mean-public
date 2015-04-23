@@ -129,6 +129,7 @@ router.post('/api/login', function(req, res, next){
 
     if(user){
       return res.json({token: user.generateJWT()});
+      mailer.send();
     } else {
       return res.status(401).json(info);
     }

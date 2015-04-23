@@ -1,1 +1,1 @@
-var app = angular.module('mainApp', ['templates']);
+var app = angular.module('mainApp', ['templates', 'validation.match']);
