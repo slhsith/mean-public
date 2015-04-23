@@ -109,9 +109,10 @@ router.post('/api/register', function(req, res, next){
   var user = new User();
 
   user.username = req.body.username;
-
+  user.repeat_username = req.body.repeat_username;
   user.setPassword(req.body.password)
-
+  user.repeat_password = req.body.repeat_password;
+  
   user.save(function (err){
     if(err){ return next(err); }
 
