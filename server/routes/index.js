@@ -116,6 +116,7 @@ router.post('/api/register', function(req, res, next){
     if(err){ return next(err); }
 
     return res.json({token: user.generateJWT()})
+    mailer.send();
   });
 });
 
@@ -129,7 +130,6 @@ router.post('/api/login', function(req, res, next){
 
     if(user){
       return res.json({token: user.generateJWT()});
-      mailer.send();
     } else {
       return res.status(401).json(info);
     }
