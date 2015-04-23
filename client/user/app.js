@@ -25,6 +25,26 @@ function($stateProvider, $urlRouterProvider) {
           return posts.get($stateParams.id);
         }]
       }
+    })
+    .state('items', {
+      url: '/items/{id}',
+      templateUrl: 'items.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        item: ['$stateParams', 'items', function($stateParams, items) {
+          return items.get($stateParams.id);
+        }]
+      }
+    })
+    .state('shop', {
+      url: '/shop',
+      templateUrl: 'shop.html',
+      controller: 'MainCtrl',
+      resolve: {
+        itemPromise: ['items', function(items){
+          return items.getAll();
+        }]
+      }
     });
 
   $urlRouterProvider.otherwise('home');

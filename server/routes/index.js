@@ -3,6 +3,7 @@ var router = express.Router();
 var mongoose = require('mongoose');
 var Post = mongoose.model('Post');
 var Comment = mongoose.model('Comment');
+var Item = mongoose.model('Item');
 var passport = require('passport');
 var User = mongoose.model('User');
 var jwt = require('express-jwt');
@@ -98,6 +99,52 @@ router.param('comment', function(req, res, next, id) {
 
     req.comment = comment;
     return next();
+  });
+});
+
+//Items
+router.get('/api/items', function(req, res, next) {
+  Item.find(function(err, items){
+    if(err){ return next(err); }
+
+    res.json(items);
+  });
+});
+
+router.post('/api/items', auth, function(req, res, next) {
+  var item = new Item(req.body);
+  item.author = req.payload.username;
+
+  item.save(function(err, item){
+    if(err){ return next(err); }
+
+    res.json(item);
+  });
+});
+
+router.param('/api/item', function(req, res, next, id) {
+  var query = Item.findById(id);
+
+  query.exec(function (err, item){
+    if (err) { return next(err); }
+    if (!item) { return next(new Error('can\'t find item')); }
+
+    req.item = item;
+    return next();
+  });
+});
+
+router.get('/api/items/:item', function(req, res, next) {
+
+    res.json(item);
+});
+
+
+router.put('/api/items/:item/upvote', auth, function(req, res, next) {
+  req.item.upvote(function(err, item){
+    if (err) { return next(err); }
+
+    res.json(item);
   });
 });
 

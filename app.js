@@ -8,9 +8,10 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 require('./server/models/Posts');
 require('./server/models/Comments');
+require('./server/models/Items');
 require('./server/models/Users');
 require('./server/config/passport');
-mongoose.connect('mongodb://localhost/news');
+mongoose.connect('mongodb://localhost/mean');
 
 
 var routes = require('./server/routes/index');

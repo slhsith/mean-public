@@ -1,8 +1,9 @@
 app.controller('MainCtrl', [
 '$scope',
 'posts',
+'items',
 'auth',
-function($scope, posts, auth){
+function($scope, posts, items, auth){
   $scope.posts = posts.posts;
   $scope.addPost = function(){
     if(!$scope.title || $scope.title === '') { return; }
@@ -14,10 +15,22 @@ function($scope, posts, auth){
     $scope.link = '';
   };
   $scope.incrementUpvotes = function(post) {
-  posts.upvote(post);
+    posts.upvote(post);
   };
+  $scope.items = items.items;
+  $scope.addItem = function(){
+    if(!$scope.title || $scope.title === '') { return; }
+    item.create({
+      name: $scope.title,
+      link: $scope.link,
+    });
+    $scope.title = '';
+    $scope.link = '';
+  };
+
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
+
 app.controller('PostsCtrl', [
 '$scope',
 'posts',
@@ -39,6 +52,19 @@ function($scope, posts, post, auth){
   };
   $scope.incrementUpvotes = function(comment){
     posts.upvoteComment(post, comment);
+  };
+}]);
+
+app.controller('ItemsCtrl', [
+'$scope',
+'items',
+'item',
+'auth',
+function($scope, items, item, auth){
+  $scope.items = items.items;
+  $scope.item = item;
+  $scope.incrementUpvotes = function(comment){
+    items.upvoteItem(item);
   };
 }]);
 
