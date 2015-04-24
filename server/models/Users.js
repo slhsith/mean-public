@@ -8,7 +8,9 @@ var UserSchema = new mongoose.Schema({
   permissions: String,
   repeat_username: String,
   repeat_password: String,
+  confirmation: Boolean,
 });
+UserSchema.set(confirmation, false);
 UserSchema.methods.setPassword = function(password){
   this.salt = crypto.randomBytes(16).toString('hex');
 
@@ -33,6 +35,9 @@ UserSchema.methods.generateJWT = function() {
     repeat_password: this.repeat_password,
     exp: parseInt(exp.getTime() / 1000),
   }, 'SECRET');
+};
+UserSchema.methods.confirmEmail = function () {
+  UserSchema.set(confirmation, true);
 };
 mongoose.model('User', UserSchema);
 mongoose.set('debug', true);
