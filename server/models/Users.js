@@ -4,9 +4,10 @@ var jwt = require('jsonwebtoken');
 var UserSchema = new mongoose.Schema({
   username: {type: String, lowercase: true, unique: true},
   hash: String,
-  email: {type: String, unique: true},
   salt: String,
   permissions: String,
+  repeat_username: String,
+  repeat_password: String,
 });
 UserSchema.methods.setPassword = function(password){
   this.salt = crypto.randomBytes(16).toString('hex');
@@ -28,7 +29,10 @@ UserSchema.methods.generateJWT = function() {
   return jwt.sign({
     _id: this._id,
     username: this.username,
+    repeat_username: this.repeat_username,
+    repeat_password: this.repeat_password,
     exp: parseInt(exp.getTime() / 1000),
   }, 'SECRET');
 };
 mongoose.model('User', UserSchema);
+mongoose.set('debug', true);

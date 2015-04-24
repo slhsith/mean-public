@@ -70,14 +70,26 @@
     <div class="form-group">
       <input type="text"
       class="form-control"
-      placeholder="Username"
+      placeholder="Email"
       ng-model="user.username"></input>
+    </div>
+    <div class="form-group">
+      <input type="text"
+      class="form-control"
+      placeholder="Repeat Email"
+      ng-model="user.repeat_username"></input>
     </div>
     <div class="form-group">
       <input type="password"
       class="form-control"
       placeholder="Password"
       ng-model="user.password"></input>
+    </div>
+    <div class="form-group">
+      <input type="password"
+      class="form-control"
+      placeholder="Repeat Password"
+      ng-model="user.repeat_password"></input>
     </div>
     <button type="submit" class="btn btn-primary">Register</button>
   </form>
@@ -90,7 +102,7 @@
     <div class="form-group">
       <input id="login" type="text"
       class="form-control"
-      placeholder="Username"
+      placeholder="Email"
       ng-model="login.username"></input>
     </div>
     <div class="form-group">
