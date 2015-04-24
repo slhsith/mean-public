@@ -102,17 +102,23 @@ router.param('comment', function(req, res, next, id) {
 });
 
 router.post('/api/register', function(req, res, next){
-  if(!req.body.username || !req.body.password){
+  if(!req.body.username || !req.body.password || !req.body.repeat_username || !req.body.repeat_password){
     return res.status(400).json({message: 'Please fill out all fields'});
+  }
+  if(req.body.username !== req.body.repeat_username){
+    return res.status(400).json({message: 'Emails do not match'});
+  }
+  if(req.body.password !== req.body.repeat_password){
+    return res.status(400).json({message: 'Passwords do not match'});
   }
 
   var user = new User();
 
   user.username = req.body.username;
   user.repeat_username = req.body.repeat_username;
-  user.setPassword(req.body.password)
+  user.setPassword(req.body.password);
   user.repeat_password = req.body.repeat_password;
-  
+
   user.save(function (err){
     if(err){ return next(err); }
 
