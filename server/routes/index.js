@@ -166,12 +166,32 @@ router.post('/api/register', function(req, res, next){
   user.setPassword(req.body.password);
   user.repeat_password = req.body.repeat_password;
 
+  var mailer   = require("mailer")
+  , username = "trainersvault"
+  , password = "BGkIPqtGVLNL2JAGAmwHMw";
+
   user.save(function (err){
     if(err){ return next(err); }
-
     return res.json({token: user.generateJWT()})
-    mailer.send();
   });
+    mailer.send(
+    { host:           "smtp.mandrillapp.com"
+    , port:           587
+    , to:             "thomas@trainersvault.com"
+    , from:           "contact@trainersvault.com"
+    , subject:        "Mandrill knows Javascript!"
+    , body:           "Welcome to your new profile {{ currentUser() }}!"
+    , authentication: "login"
+    , username:       "trainersvault"
+    , password:       "BGkIPqtGVLNL2JAGAmwHMw"
+    }, function(err, result){
+      if(err){
+        console.log(err);
+      } else {
+        console.log('Success!');
+      }
+    }
+  );
 });
 
 router.post('/api/login', function(req, res, next){
@@ -184,6 +204,38 @@ router.post('/api/login', function(req, res, next){
 
     if(user){
       return res.json({token: user.generateJWT()});
+    } else {
+      return res.status(401).json(info);
+    }
+  })(req, res, next);
+});
+
+router.post('/api/forgot', function(req, res, next){
+  if(!req.body.username){
+    return res.status(400).json({message: 'Please enter an email'});
+  }
+
+  var mailer   = require("mailer")
+  , username = "trainersvault"
+  , password = "BGkIPqtGVLNL2JAGAmwHMw";
+
+  passport.authenticate('local', function(err, user, info){
+    if(err){ return next(err); }
+
+    if(user){
+      mailer.send(
+        { host:           "smtp.mandrillapp.com"
+        , port:           587
+        , to:             "thomas@trainersvault.com"
+        , from:           "contact@trainersvault.com"
+        , subject:        "Email conf!"
+        , body:           "Some new email conf"
+        , authentication: "login"
+        , username:       "trainersvault"
+        , password:       "BGkIPqtGVLNL2JAGAmwHMw"
+        }
+      );
+      return res.status(200).json({message: 'Success!'});
     } else {
       return res.status(401).json(info);
     }

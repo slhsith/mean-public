@@ -21,6 +21,14 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
     });
   };
 
+  $scope.forgot = function () {
+    auth.forgot($scope.forgot).error(function (error) {
+      $scope.error = error;
+    }).then(function (){
+      window.location = "http://localhost:3000/";
+    });
+  };
+
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.currentUser = auth.currentUser;
   $scope.logOut = auth.logOut;
@@ -66,6 +74,11 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     };
     auth.logOut = function(){
       $window.localStorage.removeItem('admin-token');
+    };
+    auth.forgot = function(user){
+      return $http.post('/api/forgot', user).success(function(data){
+        auth.saveToken(data.token);
+      });
     };
   return auth;
 }]);

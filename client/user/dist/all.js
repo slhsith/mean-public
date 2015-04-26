@@ -18,7 +18,7 @@ function($stateProvider, $urlRouterProvider) {
     })
     .state('posts', {
       url: '/posts/{id}',
-      templateUrl: 'posts.html',
+      templateUrl: '/views/posts.html',
       controller: 'PostsCtrl',
       resolve: {
         post: ['$stateParams', 'posts', function($stateParams, posts) {
@@ -47,7 +47,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     });
 
-  $urlRouterProvider.otherwise('home');
+  // $urlRouterProvider.otherwise('home');
 }]);
 app.controller('MainCtrl', [
 '$scope',
