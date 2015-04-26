@@ -9,9 +9,15 @@ var passport = require('passport');
 require('./server/config/mailer')
 require('./server/models/Posts');
 require('./server/models/Comments');
+require('./server/models/Items');
 require('./server/models/Users');
 require('./server/config/passport');
-mongoose.connect('mongodb://localhost/news');
+
+mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/mean');
+
+var db = mongoose.connection;
+
+db.on('error', console.error.bind(console, 'connection error:'));
 
 
 var routes = require('./server/routes/index');

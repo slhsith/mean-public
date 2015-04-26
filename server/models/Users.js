@@ -8,6 +8,7 @@ var UserSchema = new mongoose.Schema({
   permissions: String,
   repeat_username: String,
   repeat_password: String,
+  confirmation: Boolean,
 });
 UserSchema.methods.setPassword = function(password){
   this.salt = crypto.randomBytes(16).toString('hex');

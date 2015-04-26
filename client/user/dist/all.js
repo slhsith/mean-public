@@ -25,6 +25,26 @@ function($stateProvider, $urlRouterProvider) {
           return posts.get($stateParams.id);
         }]
       }
+    })
+    .state('items', {
+      url: '/items/{id}',
+      templateUrl: 'items.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        item: ['$stateParams', 'items', function($stateParams, items) {
+          return items.get($stateParams.id);
+        }]
+      }
+    })
+    .state('shop', {
+      url: '/shop',
+      templateUrl: 'shop.html',
+      controller: 'MainCtrl',
+      resolve: {
+        itemPromise: ['items', function(items){
+          return items.getAll();
+        }]
+      }
     });
 
   $urlRouterProvider.otherwise('home');
@@ -32,8 +52,9 @@ function($stateProvider, $urlRouterProvider) {
 app.controller('MainCtrl', [
 '$scope',
 'posts',
+'items',
 'auth',
-function($scope, posts, auth){
+function($scope, posts, items, auth){
   $scope.posts = posts.posts;
   $scope.addPost = function(){
     if(!$scope.title || $scope.title === '') { return; }
@@ -45,10 +66,22 @@ function($scope, posts, auth){
     $scope.link = '';
   };
   $scope.incrementUpvotes = function(post) {
-  posts.upvote(post);
+    posts.upvote(post);
   };
+  $scope.items = items.items;
+  $scope.addItem = function(){
+    if(!$scope.title || $scope.title === '') { return; }
+    item.create({
+      name: $scope.title,
+      link: $scope.link,
+    });
+    $scope.title = '';
+    $scope.link = '';
+  };
+
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
+
 app.controller('PostsCtrl', [
 '$scope',
 'posts',
@@ -70,6 +103,19 @@ function($scope, posts, post, auth){
   };
   $scope.incrementUpvotes = function(comment){
     posts.upvoteComment(post, comment);
+  };
+}]);
+
+app.controller('ItemsCtrl', [
+'$scope',
+'items',
+'item',
+'auth',
+function($scope, items, item, auth){
+  $scope.items = items.items;
+  $scope.item = item;
+  $scope.incrementUpvotes = function(comment){
+    items.upvoteItem(item);
   };
 }]);
 
@@ -125,6 +171,38 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
   };
   return o;
 }]);
+
+app.factory('items', ['$http', 'auth', function($http, auth){
+  var o = {
+    items: []
+  };
+  o.getAll = function() {
+    return $http.get('/api/items').success(function(data){
+      angular.copy(data, o.items);
+    });
+  };
+  o.create = function(item) {
+    return $http.post('/api/items', post, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      o.items.push(data);
+    });
+  };
+  o.upvote = function(item) {
+    return $http.put('/api/items/' + item._id + '/upvote', null, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      item.upvotes += 1;
+    });
+  };
+  o.get = function(id) {
+    return $http.get('/api/items/' + id).then(function(res){
+      return res.data;
+    });
+  };
+  return o;
+}]);
+
 
 app.factory('auth', ['$http', '$window', function($http, $window){
    var auth = {};

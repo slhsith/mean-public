@@ -41,6 +41,38 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
   return o;
 }]);
 
+app.factory('items', ['$http', 'auth', function($http, auth){
+  var o = {
+    items: []
+  };
+  o.getAll = function() {
+    return $http.get('/api/items').success(function(data){
+      angular.copy(data, o.items);
+    });
+  };
+  o.create = function(item) {
+    return $http.post('/api/items', post, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      o.items.push(data);
+    });
+  };
+  o.upvote = function(item) {
+    return $http.put('/api/items/' + item._id + '/upvote', null, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      item.upvotes += 1;
+    });
+  };
+  o.get = function(id) {
+    return $http.get('/api/items/' + id).then(function(res){
+      return res.data;
+    });
+  };
+  return o;
+}]);
+
+
 app.factory('auth', ['$http', '$window', function($http, $window){
    var auth = {};
    auth.saveToken = function (token){
