@@ -1,8 +1,4 @@
-var app = angular.module('mainApp', [
-	'templates',
-	'mainApp.models',
-	'mainApp.controllers',
-	]);
+var app = angular.module('mainApp', ['templates']);
 app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, auth, $location) {
   $scope.user = {};
   $scope.register = function () {
