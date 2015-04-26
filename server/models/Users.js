@@ -35,5 +35,6 @@ UserSchema.methods.generateJWT = function() {
     exp: parseInt(exp.getTime() / 1000),
   }, 'SECRET');
 };
+
 mongoose.model('User', UserSchema);
 mongoose.set('debug', true);

@@ -113,6 +113,18 @@
     </div>
     <button type="submit" class="btn btn-primary">Log In</button>
   </form>
+  <form ng-model="forgot" ng-submit="forgot()"
+    style="margin-top:30px;">
+    <h3>Reset Password</h3>
+
+    <div class="form-group">
+      <input type="text"
+      class="form-control"
+      placeholder="Please Enter Your Email"
+      ng-model="forgot.username"></input>
+    </div>
+    <button type="submit" class="btn btn-primary">Send Recovery Email</button>
+  </form>
 
     </div>
     <a href="/auth/facebook">Login with Facebook</a>
