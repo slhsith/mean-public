@@ -13,7 +13,7 @@ require('./server/models/Items');
 require('./server/models/Users');
 require('./server/config/passport');
 
-mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/mean');
+mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/news');
 
 var db = mongoose.connection;
 
