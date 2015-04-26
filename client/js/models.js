@@ -39,7 +39,7 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
   auth.logOut = function () {
     $window.localStorage.removeItem('admin-token');
   };
-  auth.forgot = function (user) {
+  auth.forgotPassword = function (user) {
     return $http.post('/api/forgot', user).success(function (data) {
       auth.saveToken(data.token);
     });
