@@ -213,20 +213,33 @@ router.post('/api/forgot', function(req, res, next){
   if(!req.body.username){
     return res.status(400).json({message: 'Please enter an email'});
   }
-  
-  user.validEmail(req.body.username);
-  if(user.validEmail){
-    console.log('Success!');
+
+  var validEmail = function () {
+    User.findOne({ username: req.body.username }, function (err, user) {
+      if (!user) { return res.status(400).json({message:'Email not found'});return false; }
+      else {return true;}
+    });
   }
+
+  // validEmail();
+
+  if(validEmail === true){
+    resetToken();
+  }
+
+  // user.validEmail(req.body.username);
+  // if(user.validEmail){
+  //   console.log('Success!');
+  // }
 
   // var mailer   = require("mailer")
   // , username = "trainersvault"
   // , password = "BGkIPqtGVLNL2JAGAmwHMw";
 
-  // resetToken = function(user){
-  //     // this should save to the DB
-  //     user.user_token = user.generateUserToken();
-  // };
+  resetToken = function(user){
+      user.generateUserToken();
+      return res.json({token: user.generateUserToken()})
+  };
 
   // resetPassword = function(user){
   //     mailer.send(
@@ -252,7 +265,12 @@ router.post('/api/forgot', function(req, res, next){
   // }
 
 
-  });
+});
+
+//reset password
+router.get('/resetPassword/:username/:token', function(req, res, next) {
+  res.render('index', { title: 'Express' });
+});
 
 
 //Facebook Integration
