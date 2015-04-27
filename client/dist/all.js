@@ -20,6 +20,7 @@ app.controller('MainCtrl', ['$scope', 'auth', 'confirmEmail', '$location', funct
   $scope.forgotPassword = function () {
     auth.forgotPassword($scope.forgot).error(function (error) {
       $scope.error = error;
+<<<<<<< HEAD
     });
   };
 
@@ -29,6 +30,8 @@ app.controller('MainCtrl', ['$scope', 'auth', 'confirmEmail', '$location', funct
       $scope.showSuccessAlert = true;
     }).then(function () {
       window.location = "http://localhost:3000/user/#/home";
+=======
+>>>>>>> origin/master
     });
   };
 
