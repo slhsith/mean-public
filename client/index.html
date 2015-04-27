@@ -115,17 +115,17 @@
   </form>
 
   
-  <form ng-model="forgot" ng-submit="forgot()"
+  <form ng-model="forgot" ng-submit="forgotPassword()"
     style="margin-top:30px;">
-    <h3>Reset Password</h3>
+    <h3>Log In</h3>
 
     <div class="form-group">
-      <input type="email"
+      <input id="forgot" type="email"
       class="form-control"
-      placeholder="Please Enter Your Email"
+      placeholder="Enter Email"
       ng-model="forgot.username"></input>
     </div>
-    <button type="submit" class="btn btn-primary">Send Recovery Email</button>
+    <button type="submit" class="btn btn-primary">Reset Your Password</button>
   </form>
 
     </div>

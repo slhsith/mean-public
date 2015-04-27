@@ -21,7 +21,7 @@ UserSchema.methods.validPassword = function(password) {
 };
 
 UserSchema.methods.validEmail = function(email) {
-  var validEmail = User.username;
+  var validEmail = user.username;
   return this.email === validEmail;
 };
 
