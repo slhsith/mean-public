@@ -23,7 +23,7 @@ UserSchema.methods.validPassword = function(password) {
 };
 
 UserSchema.methods.validEmail = function (email) {
-  User.findOne({ username: email }, 'username', function (err, user) {
+  User.findOne({ username: email }, function (err, user) {
     if (err) { return err, false; }
     console.log('Success!');
     return true;
