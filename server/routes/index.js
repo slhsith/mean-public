@@ -216,7 +216,7 @@ router.post('/api/forgot', function(req, res, next){
   
   user.validEmail(req.body.username);
   if(user.validEmail){
-    console.log('Success!')
+    console.log('Success!');
   }
 
   // var mailer   = require("mailer")

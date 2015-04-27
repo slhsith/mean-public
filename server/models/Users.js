@@ -9,8 +9,6 @@ var UserSchema = new mongoose.Schema({
   confirmation: Boolean,
   user_token: {type: String, lowercase: true, unique: true}
 });
-mongoose.model('User', UserSchema);
-var User = mongoose.model('User', UserSchema);
 
 UserSchema.methods.setPassword = function(password){
   this.salt = crypto.randomBytes(16).toString('hex');
@@ -25,7 +23,7 @@ UserSchema.methods.validPassword = function(password) {
 };
 
 UserSchema.methods.validEmail = function (email) {
-  User.findOne({ username: this.email }, 'username', function (err, user) {
+  User.findOne({ username: email }, 'username', function (err, user) {
     if (err) { return err, false; }
     console.log('Success!');
     return true;
@@ -73,5 +71,5 @@ UserSchema.methods.generateJWT = function() {
   }, 'SECRET');
 };
 
-
+mongoose.model('User', UserSchema);
 mongoose.set('debug', true);
