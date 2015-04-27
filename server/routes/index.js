@@ -214,18 +214,19 @@ router.post('/api/forgot', function(req, res, next){
     return res.status(400).json({message: 'Please enter an email'});
   }
 
+
   var validEmail = function () {
     User.findOne({ username: req.body.username }, function (err, user) {
       if (!user) { return res.status(400).json({message:'Email not found'});return false; }
-      else {return true;}
+      else {
+        return true;
+        console.log('Success!');
+        resetToken(user);
+      }
     });
   }
 
-  // validEmail();
-
-  if(validEmail === true){
-    resetToken();
-  }
+  validEmail();
 
   // user.validEmail(req.body.username);
   // if(user.validEmail){
@@ -236,9 +237,8 @@ router.post('/api/forgot', function(req, res, next){
   // , username = "trainersvault"
   // , password = "BGkIPqtGVLNL2JAGAmwHMw";
 
-  resetToken = function(user){
+  var resetToken = function(user){
       user.generateUserToken();
-      return res.json({token: user.generateUserToken()})
   };
 
   // resetPassword = function(user){
