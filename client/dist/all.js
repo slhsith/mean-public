@@ -20,8 +20,6 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
   $scope.forgotPassword = function () {
     auth.forgotPassword($scope.forgot).error(function (error) {
       $scope.error = error;
-    }).then(function () {
-      window.location = "http://localhost:3000/user/#/home";
     });
   };
 
