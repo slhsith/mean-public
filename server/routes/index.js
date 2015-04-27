@@ -214,17 +214,17 @@ router.post('/api/forgot', function(req, res, next){
     return res.status(400).json({message: 'Please enter an email'});
   }
 
-  validEmail = function () {
+  var validEmail = function () {
     User.findOne({ username: req.body.username }, function (err, user) {
-      if (err) { return err, false; }
-      return true;
+      if (!user) { return res.status(400).json({message:'Email not found'});return false; }
+      else {return true;}
     });
   }
 
   // validEmail();
 
-  if(validEmail()){
-    generateUserToken(user);
+  if(validEmail === true){
+    resetToken();
   }
 
   // user.validEmail(req.body.username);
