@@ -49,8 +49,6 @@ UserSchema.methods.generateUserToken = function(){
   this.user_token = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 30);
 }
 
-
-
 UserSchema.methods.generateJWT = function() {
 
   // set expiration to 60 days

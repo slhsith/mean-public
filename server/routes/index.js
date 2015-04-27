@@ -174,23 +174,23 @@ router.post('/api/register', function(req, res, next){
     return res.json({token: user.generateJWT()})
   });
     mailer.send(
-    { host:           "smtp.mandrillapp.com"
-    , port:           587
-    , to:             user.username
-    , from:           "contact@trainersvault.com"
-    , subject:        "Welcome to Trainersvault"
-    , body:           "Welcome to your new profile {{ currentUser() }}! Please Click this link to validate your email! \n Link: http://localhost:3000/emailverify/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!"
-    , authentication: "login"
-    , username:       "trainersvault"
-    , password:       "BGkIPqtGVLNL2JAGAmwHMw"
-    }, function(err, result){
-      if(err){
-        console.log(err);
-      } else {
-        console.log('Success!');
+      { host:           "smtp.mandrillapp.com"
+      , port:           587
+      , to:             "thomas@trainersvault.com"
+      , from:           "contact@trainersvault.com"
+      , subject:        "Welcome to Trainersvault"
+      , body:           "Welcome to your new profile" + user.username + "! Please Click this link to validate your email! \n Link: http://localhost:3000/emailverify/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!"
+      , authentication: "login"
+      , username:       "trainersvault"
+      , password:       "BGkIPqtGVLNL2JAGAmwHMw"
+      }, function(err, result){
+        if(err){
+          console.log(err);
+        } else {
+          console.log('Success!');
+        }
       }
-    }
-  );
+    );    
 });
 
 router.post('/api/login', function(req, res, next){
@@ -218,58 +218,31 @@ router.post('/api/forgot', function(req, res, next){
   var validEmail = function () {
     User.findOne({ username: req.body.username }, function (err, user) {
       if (!user) { return res.status(400).json({message:'Email not found'});return false; }
-      else {
-        return true;
-        console.log('Success!');
-        resetToken(user);
-      }
-    });
+      if (user){ console.log(user.token) }
+    })
   }
 
-  validEmail();
+  var mailer   = require("mailer")
+  , username = "trainersvault"
+  , password = "BGkIPqtGVLNL2JAGAmwHMw";
 
-  // user.validEmail(req.body.username);
-  // if(user.validEmail){
-  //   console.log('Success!');
-  // }
-
-  // var mailer   = require("mailer")
-  // , username = "trainersvault"
-  // , password = "BGkIPqtGVLNL2JAGAmwHMw";
-
-  var resetToken = function(user){
-      user.generateUserToken();
+  var resetPassword = function(user){
+    mailer.send(
+      { host:           "smtp.mandrillapp.com"
+      , port:           587
+      , to:             user.username
+      , from:           "contact@trainersvault.com"
+      , subject:        "Trainersvault Reset Password"
+      , body:           "Please Click this link to reset your password! \n Link: http://localhost:3000/passwordreset/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!" 
+      , authentication: "login"
+      , username:       "trainersvault"
+      , password:       "BGkIPqtGVLNL2JAGAmwHMw"
+      });
+    return res.status(200).json({message: 'Check your email for reset password!'});
   };
 
-  // resetPassword = function(user){
-  //     mailer.send(
-  //       { host:           "smtp.mandrillapp.com"
-  //       , port:           587
-  //       , to:             user.username
-  //       , from:           "contact@trainersvault.com"
-  //       , subject:        "Trainersvault Reset Password"
-  //       , body:           "Please Click this link to reset your password! \n Link: http://localhost:3000/passwordreset/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!" 
-  //       , authentication: "login"
-  //       , username:       "trainersvault"
-  //       , password:       "BGkIPqtGVLNL2JAGAmwHMw"
-  //       });
-  //     return res.status(200).json({message: 'Check your email for reset password!'});
-  //   };
-
-  // if(user.check){
-  //   resetToken(user).then(
-  //     resetPassword(user)
-  //   )
-  // }else{
-  //   return res.status(400).json({message: 'Sorry, email does not exist'});
-  // }
-
-
-});
-
-//reset password
-router.get('/resetPassword/:username/:token', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  validEmail();
+  resetPassword();
 });
 
 
