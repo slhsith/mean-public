@@ -144,11 +144,11 @@ gulp.task('server', function (cb) {
     console.log(stderr);
     cb(err);
   });
-  exec('mongod', function (err, stdout, stderr) {
-    console.log(stdout);
-    console.log(stderr);
-    cb(err);
-  });
+  // exec('mongod', function (err, stdout, stderr) {
+  //   console.log(stdout);
+  //   console.log(stderr);
+  //   cb(err);
+  // });
   exec('npm start', function (err, stdout, stderr) {
     console.log(stdout);
     console.log(stderr);

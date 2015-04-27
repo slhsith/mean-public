@@ -213,43 +213,43 @@ router.post('/api/forgot', function(req, res, next){
   if(!req.body.username){
     return res.status(400).json({message: 'Please enter an email'});
   }
-
-  user.username = req.body.username;
-  user.check = user.validEmail(user.username);
-
-  var mailer   = require("mailer")
-  , username = "trainersvault"
-  , password = "BGkIPqtGVLNL2JAGAmwHMw";
-
-  resetToken = function(user){
-      // this should save to the DB
-      user.user_token = user.generateUserToken();
-  };
-
-  resetPassword = function(user){
-      mailer.send(
-        { host:           "smtp.mandrillapp.com"
-        , port:           587
-        , to:             user.username
-        , from:           "contact@trainersvault.com"
-        , subject:        "Trainersvault Reset Password"
-        , body:           "Please Click this link to reset your password! \n Link: http://localhost:3000/passwordreset/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!" 
-        , authentication: "login"
-        , username:       "trainersvault"
-        , password:       "BGkIPqtGVLNL2JAGAmwHMw"
-        });
-      return res.status(200).json({message: 'Check your email for reset password!'});
-    };
-
-  if(user.check){
-    // this needs to save the token to the database
-    // you will need a new function in the model to call for this
-    resetToken(user).then(){
-      resetPassword(user);
-    }
-  }else{
-    return res.status(400).json({message: 'Sorry, email does not exist'});
+  
+  user.validEmail(req.body.username);
+  if(user.validEmail){
+    console.log('Success!')
   }
+
+  // var mailer   = require("mailer")
+  // , username = "trainersvault"
+  // , password = "BGkIPqtGVLNL2JAGAmwHMw";
+
+  // resetToken = function(user){
+  //     // this should save to the DB
+  //     user.user_token = user.generateUserToken();
+  // };
+
+  // resetPassword = function(user){
+  //     mailer.send(
+  //       { host:           "smtp.mandrillapp.com"
+  //       , port:           587
+  //       , to:             user.username
+  //       , from:           "contact@trainersvault.com"
+  //       , subject:        "Trainersvault Reset Password"
+  //       , body:           "Please Click this link to reset your password! \n Link: http://localhost:3000/passwordreset/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!" 
+  //       , authentication: "login"
+  //       , username:       "trainersvault"
+  //       , password:       "BGkIPqtGVLNL2JAGAmwHMw"
+  //       });
+  //     return res.status(200).json({message: 'Check your email for reset password!'});
+  //   };
+
+  // if(user.check){
+  //   resetToken(user).then(
+  //     resetPassword(user)
+  //   )
+  // }else{
+  //   return res.status(400).json({message: 'Sorry, email does not exist'});
+  // }
 
 
   });

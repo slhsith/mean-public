@@ -9,6 +9,8 @@ var UserSchema = new mongoose.Schema({
   confirmation: Boolean,
   user_token: {type: String, lowercase: true, unique: true}
 });
+mongoose.model('User', UserSchema);
+var User = mongoose.model('User', UserSchema);
 
 UserSchema.methods.setPassword = function(password){
   this.salt = crypto.randomBytes(16).toString('hex');
@@ -22,18 +24,12 @@ UserSchema.methods.validPassword = function(password) {
   return this.hash === hash;
 };
 
-UserSchema.methods.validEmail = function(email) {
-  // var validEmail = user.username;
-  // user.findOne({ username: this.email }, function (err, docs) {
-  // if (err){
-  //    return err
-  // }
-  // if(docs.username === validEmail){
-  //    return true
-  // }else{
-  //    return false
-  // }
-  // });
+UserSchema.methods.validEmail = function (email) {
+  User.findOne({ username: this.email }, 'username', function (err, user) {
+    if (err) { return err, false; }
+    console.log('Success!');
+    return true;
+  });
 };
 
 UserSchema.methods.validateUserEmailToken = function(email, token) {
@@ -58,9 +54,10 @@ UserSchema.methods.resetUserPassword = function(email, token, password) {
 };
 
 UserSchema.methods.generateUserToken = function(){
-  // var randomToken = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 30);
-  // return randomToken
+  var randomToken = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 30);
+  return randomToken;
 }
+
 
 UserSchema.methods.generateJWT = function() {
 
@@ -76,5 +73,5 @@ UserSchema.methods.generateJWT = function() {
   }, 'SECRET');
 };
 
-mongoose.model('User', UserSchema);
+
 mongoose.set('debug', true);
