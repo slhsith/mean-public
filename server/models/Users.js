@@ -7,23 +7,47 @@ var UserSchema = new mongoose.Schema({
   salt: String,
   permissions: String,
   confirmation: Boolean,
-  user_token: String,
+  user_token: {type: String, lowercase: true, unique: true}
 });
+
 UserSchema.methods.setPassword = function(password){
   this.salt = crypto.randomBytes(16).toString('hex');
 
   this.hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64).toString('hex');
 };
+
 UserSchema.methods.validPassword = function(password) {
   var hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64).toString('hex');
 
   return this.hash === hash;
 };
 
-UserSchema.methods.validEmail = function(email) {
-  var validEmail = user.username;
-  return this.email === validEmail;
+
+
+UserSchema.methods.validateUserEmailToken = function(email, token) {
+  // user.findOne({ username: this.email, user_token: this.token }, function (err, docs) {
+  // if (err){
+  //    return err
+  // }else{
+  //    docs.confirmation = true;
+  //    docs.save();
+  // }
+  // });
 };
+
+UserSchema.methods.resetUserPassword = function(email, token, password) {
+  // user.findOne({ username: this.email, user_token: this.token }, function (err, docs) {
+  // if (err){
+  //    return err
+  // }else{
+  //    docs.setPassword(this.password);
+  // }
+  // });
+};
+
+UserSchema.methods.generateUserToken = function(){
+  this.user_token = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 30);
+}
 
 UserSchema.methods.generateJWT = function() {
 

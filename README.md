@@ -38,18 +38,17 @@ Build Project Template:
 
 Things Left to do:
 
-* Add Fields to Register + Facebook
-* Add Facebook Login
-* Add Login and Register to HomePage
-* Add User Profile Settings Form with Image Upload
-* Make HomePage StandAlone
-* Make public folder only for the User Dashboard
+* Email Verification and Reset Password
+* Add Profile Settings Form with Image Upload
 * Make Admin Dashboard with User Management
+
 * Make Standalone public profile pages
 * Make Messanger system
+
 * Make Notifications system
 * Make Support ticket system with zendesk
 * Make Public Profile Search
+
 * Make User Events and Purchasing
 * Make BrainTree item purchasing
 * Allow users to Follow Eachother
