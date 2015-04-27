@@ -217,10 +217,14 @@ router.post('/api/forgot', function(req, res, next){
   user.username = req.body.username;
   user.check = user.validEmail(user.username);
 
+  var mailer   = require("mailer")
+  , username = "trainersvault"
+  , password = "BGkIPqtGVLNL2JAGAmwHMw";
+
   resetToken = function(user){
       // this should save to the DB
       user.user_token = user.generateUserToken();
-  }
+  };
 
   resetPassword = function(user){
       mailer.send(
@@ -246,10 +250,6 @@ router.post('/api/forgot', function(req, res, next){
   }else{
     return res.status(400).json({message: 'Sorry, email does not exist'});
   }
-  var mailer   = require("mailer")
-  , username = "trainersvault"
-  , password = "BGkIPqtGVLNL2JAGAmwHMw";
-
 
 
   });
