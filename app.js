@@ -6,7 +6,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var passport = require('passport');
-require('./server/config/mailer')
 require('./server/models/Posts');
 require('./server/models/Comments');
 require('./server/models/Items');

@@ -22,18 +22,12 @@ UserSchema.methods.validPassword = function(password) {
   return this.hash === hash;
 };
 
-UserSchema.methods.validEmail = function(email) {
-  // var validEmail = user.username;
-  // user.findOne({ username: this.email }, function (err, docs) {
-  // if (err){
-  //    return err
-  // }
-  // if(docs.username === validEmail){
-  //    return true
-  // }else{
-  //    return false
-  // }
-  // });
+UserSchema.methods.validEmail = function (email) {
+  User.findOne({ username: email }, function (err, user) {
+    if (err) { return err, false; }
+    console.log('Success!');
+    return true;
+  });
 };
 
 UserSchema.methods.validateUserEmailToken = function(email, token) {
@@ -58,9 +52,10 @@ UserSchema.methods.resetUserPassword = function(email, token, password) {
 };
 
 UserSchema.methods.generateUserToken = function(){
-  // var randomToken = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 30);
-  // return randomToken
+  var randomToken = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 30);
+  return randomToken;
 }
+
 
 UserSchema.methods.generateJWT = function() {
 
