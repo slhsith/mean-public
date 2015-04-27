@@ -17,8 +17,8 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('posts', {
-      url: '/posts/{id}',
-      templateUrl: '/views/posts.html',
+      url: '#/posts/{id}',
+      templateUrl: 'posts.html',
       controller: 'PostsCtrl',
       resolve: {
         post: ['$stateParams', 'posts', function($stateParams, posts) {
@@ -39,7 +39,7 @@ function($stateProvider, $urlRouterProvider) {
     .state('shop', {
       url: '/shop',
       templateUrl: 'shop.html',
-      controller: 'MainCtrl',
+      controller: 'ShopCtrl',
       resolve: {
         itemPromise: ['items', function(items){
           return items.getAll();

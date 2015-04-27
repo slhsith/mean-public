@@ -17,7 +17,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('posts', {
-      url: '/posts/{id}',
+      url: 'user/#/posts/{id}',
       templateUrl: '/views/posts.html',
       controller: 'PostsCtrl',
       resolve: {
@@ -39,7 +39,7 @@ function($stateProvider, $urlRouterProvider) {
     .state('shop', {
       url: '/shop',
       templateUrl: 'shop.html',
-      controller: 'MainCtrl',
+      controller: 'ShopCtrl',
       resolve: {
         itemPromise: ['items', function(items){
           return items.getAll();
@@ -52,9 +52,8 @@ function($stateProvider, $urlRouterProvider) {
 app.controller('MainCtrl', [
 '$scope',
 'posts',
-'items',
 'auth',
-function($scope, posts, items, auth){
+function($scope, posts, auth){
   $scope.posts = posts.posts;
   $scope.addPost = function(){
     if(!$scope.title || $scope.title === '') { return; }
@@ -68,17 +67,6 @@ function($scope, posts, items, auth){
   $scope.incrementUpvotes = function(post) {
     posts.upvote(post);
   };
-  $scope.items = items.items;
-  $scope.addItem = function(){
-    if(!$scope.title || $scope.title === '') { return; }
-    item.create({
-      name: $scope.title,
-      link: $scope.link,
-    });
-    $scope.title = '';
-    $scope.link = '';
-  };
-
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
@@ -104,7 +92,30 @@ function($scope, posts, post, auth){
   $scope.incrementUpvotes = function(comment){
     posts.upvoteComment(post, comment);
   };
+  $scope.isLoggedIn = auth.isLoggedIn;
 }]);
+
+app.controller('ShopCtrl', [
+'$scope',
+'items',
+'auth',
+function($scope, posts, auth){
+  $scope.items = items.items;
+  $scope.addItem = function(){
+    if(!$scope.title || $scope.title === '') { return; }
+    items.create({
+      title: $scope.title,
+      link: $scope.link,
+    });
+    $scope.title = '';
+    $scope.link = '';
+  };
+  $scope.incrementUpvotes = function(comment){
+    items.upvoteItem(item);
+  };  
+  $scope.isLoggedIn = auth.isLoggedIn;
+}]);
+
 
 app.controller('ItemsCtrl', [
 '$scope',
@@ -117,6 +128,7 @@ function($scope, items, item, auth){
   $scope.incrementUpvotes = function(comment){
     items.upvoteItem(item);
   };
+  $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
 app.controller('NavCtrl', [

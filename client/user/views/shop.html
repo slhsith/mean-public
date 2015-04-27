@@ -6,7 +6,7 @@
       <div ng-repeat="item in items | orderBy:'-upvotes'">
         <span class="glyphicon glyphicon-thumbs-up"
           ng-click="incrementUpvotes(item)"></span>
-        {{item.upvotes}}
+           {{item.upvotes}}
         <span style="font-size:20px; margin-left:10px;">
           <a ng-show="item.link" href="{{item.link}}">
             {{item.title}}
@@ -16,7 +16,7 @@
           </span>
         </span>
         <span>
-          <a href="/#/items/{{item._id}}">Go to Item Page</a>
+          <a href="#/items/{{item._id}}">Go to Item Page</a>
         </span>
       </div>
       <form ng-submit="addItem()"
