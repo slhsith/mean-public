@@ -68,13 +68,13 @@
     <h3>Register</h3>
 
     <div class="form-group">
-      <input type="text"
+      <input type="email"
       class="form-control"
       placeholder="Email"
       ng-model="user.username"></input>
     </div>
     <div class="form-group">
-      <input type="text"
+      <input type="email"
       class="form-control"
       placeholder="Repeat Email"
       ng-model="user.repeat_username"></input>
@@ -100,7 +100,7 @@
     <h3>Log In</h3>
 
     <div class="form-group">
-      <input id="login" type="text"
+      <input id="login" type="email"
       class="form-control"
       placeholder="Email"
       ng-model="login.username"></input>
@@ -112,6 +112,20 @@
       ng-model="login.password"></input>
     </div>
     <button type="submit" class="btn btn-primary">Log In</button>
+  </form>
+
+  
+  <form ng-model="forgot" ng-submit="forgotPassword()"
+    style="margin-top:30px;">
+    <h3>Log In</h3>
+
+    <div class="form-group">
+      <input id="forgot" type="email"
+      class="form-control"
+      placeholder="Enter Email"
+      ng-model="forgot.username"></input>
+    </div>
+    <button type="submit" class="btn btn-primary">Reset Your Password</button>
   </form>
 
     </div>

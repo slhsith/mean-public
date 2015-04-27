@@ -162,16 +162,34 @@ router.post('/api/register', function(req, res, next){
   var user = new User();
 
   user.username = req.body.username;
-  user.repeat_username = req.body.repeat_username;
   user.setPassword(req.body.password);
-  user.repeat_password = req.body.repeat_password;
+
+  var mailer   = require("mailer")
+  , username = "trainersvault"
+  , password = "BGkIPqtGVLNL2JAGAmwHMw";
 
   user.save(function (err){
     if(err){ return next(err); }
-
     return res.json({token: user.generateJWT()})
-    mailer.send();
   });
+    mailer.send(
+    { host:           "smtp.mandrillapp.com"
+    , port:           587
+    , to:             user.username
+    , from:           "contact@trainersvault.com"
+    , subject:        "Mandrill knows Javascript!"
+    , body:           "Welcome to your new profile {{ currentUser() }}!"
+    , authentication: "login"
+    , username:       "trainersvault"
+    , password:       "BGkIPqtGVLNL2JAGAmwHMw"
+    }, function(err, result){
+      if(err){
+        console.log(err);
+      } else {
+        console.log('Success!');
+      }
+    }
+  );
 });
 
 router.post('/api/login', function(req, res, next){
@@ -188,6 +206,41 @@ router.post('/api/login', function(req, res, next){
       return res.status(401).json(info);
     }
   })(req, res, next);
+});
+
+router.post('/api/forgot', function(req, res, next){
+  if(!req.body.username){
+    return res.status(400).json({message: 'Please enter an email'});
+  }
+
+  user.username = req.body.username;
+  user.check = user.validEmail(user.username);
+
+  if(user.check){
+    user.generateJWT.then(
+      resetPassword(user)
+    )
+  }
+
+  var mailer   = require("mailer")
+  , username = "trainersvault"
+  , password = "BGkIPqtGVLNL2JAGAmwHMw";
+
+
+  resetPassword = function(user){
+      mailer.send(
+        { host:           "smtp.mandrillapp.com"
+        , port:           587
+        , to:             user.username
+        , from:           "contact@trainersvault.com"
+        , subject:        "Trainersvault Reset Password"
+        , body:           "Please Click this link to reset your password! \n Link: http://localhost:3000/passwordreset/" + user.username + "/" + auth.getToken() + "\n Thank you for using Trainersvault!" 
+        , authentication: "login"
+        , username:       "trainersvault"
+        , password:       "BGkIPqtGVLNL2JAGAmwHMw"
+        });
+      return res.status(200).json({message: 'Check your email for reset password!'});
+    };
 });
 
 

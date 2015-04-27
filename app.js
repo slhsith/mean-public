@@ -12,7 +12,12 @@ require('./server/models/Comments');
 require('./server/models/Items');
 require('./server/models/Users');
 require('./server/config/passport');
-mongoose.connect('mongodb://localhost/mean');
+
+mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/news');
+
+var db = mongoose.connection;
+
+db.on('error', console.error.bind(console, 'connection error:'));
 
 
 var routes = require('./server/routes/index');

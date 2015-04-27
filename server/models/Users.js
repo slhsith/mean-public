@@ -6,11 +6,9 @@ var UserSchema = new mongoose.Schema({
   hash: String,
   salt: String,
   permissions: String,
-  repeat_username: String,
-  repeat_password: String,
   confirmation: Boolean,
+  user_token: String,
 });
-UserSchema.set(confirmation, false);
 UserSchema.methods.setPassword = function(password){
   this.salt = crypto.randomBytes(16).toString('hex');
 
@@ -21,6 +19,12 @@ UserSchema.methods.validPassword = function(password) {
 
   return this.hash === hash;
 };
+
+UserSchema.methods.validEmail = function(email) {
+  var validEmail = user.username;
+  return this.email === validEmail;
+};
+
 UserSchema.methods.generateJWT = function() {
 
   // set expiration to 60 days
@@ -31,13 +35,9 @@ UserSchema.methods.generateJWT = function() {
   return jwt.sign({
     _id: this._id,
     username: this.username,
-    repeat_username: this.repeat_username,
-    repeat_password: this.repeat_password,
     exp: parseInt(exp.getTime() / 1000),
   }, 'SECRET');
 };
-UserSchema.methods.confirmEmail = function () {
-  UserSchema.set(confirmation, true);
-};
+
 mongoose.model('User', UserSchema);
 mongoose.set('debug', true);
