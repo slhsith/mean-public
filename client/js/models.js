@@ -46,11 +46,11 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
   };
   return auth;
 }]);
-app.factory('confirmEmail',['$http', '$window', function ($http, $window) {
-  var confirmEmail = {};
-  confirmEmail.confirm = function (user) {
-    return $http.put('/api/emailverify/:username/:token').success(function (data) {
-    });
-  };
-  return confirmEmail;
-}]);
+// app.factory('confirmEmail',['$http', '$window', function ($http, $window) {
+//   var confirmEmail = {};
+//   confirmEmail.confirm = function (user) {
+//     return $http.put('/api/emailverify/:username/:token').success(function (data) {
+//     });
+//   };
+//   return confirmEmail;
+// }]);

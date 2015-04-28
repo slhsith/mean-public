@@ -217,10 +217,10 @@ router.post('/api/forgot', function(req, res, next){
 
   var validEmail = function () {
     User.findOne({ username: req.body.username }, function (err, user) {
-      if (!user) { return res.status(400).json({message:'Email not found'});return false; }
+      if (!user) { return res.status(400).json({message:'Email not found'}); return false; }
       if (user){ console.log(user.token) }
     })
-  }
+  };
 
   var mailer   = require("mailer")
   , username = "trainersvault"
@@ -238,17 +238,18 @@ router.post('/api/forgot', function(req, res, next){
       , username:       "trainersvault"
       , password:       "BGkIPqtGVLNL2JAGAmwHMw"
       });
-    return res.status(200).json({message: 'Check your email for reset password!'});
+    console.log('Success');
+    // return res.status(200).json({message: 'Check your email for reset password!'});
   };
 
-  validEmail();
-  resetPassword();
+  // validEmail();
+  if (validEmail()){resetPassword()}
 });
 
-router.put('/emailverify/:username/:token', function(req, res, next){
-  user.validateUserEmailToken()
-  window.location = "http://localhost:3000/user/#/home";
-});
+// router.put('/emailverify/:username/:token', function(req, res, next){
+//   user.validateUserEmailToken()
+//   window.location = "http://localhost:3000/user/#/home";
+// });
 
 
 //Facebook Integration
