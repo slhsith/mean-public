@@ -1,8 +1,7 @@
 var mongoose = require('mongoose');
 
 var ItemSchema = new mongoose.Schema({
-  title: String,
-  link: String,
+  name: String,
   upvotes: {type: Number, default: 0}
 });
 ItemSchema.methods.upvote = function(cb) {

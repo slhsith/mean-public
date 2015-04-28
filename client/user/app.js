@@ -17,7 +17,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('posts', {
-      url: '/posts/{id}',
+      url: '#/posts/{id}',
       templateUrl: 'posts.html',
       controller: 'PostsCtrl',
       resolve: {
@@ -31,7 +31,7 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'items.html',
       controller: 'ItemsCtrl',
       resolve: {
-        item: ['$stateParams', 'items', function($stateParams, items) {
+        post: ['$stateParams', 'items', function($stateParams, items) {
           return items.get($stateParams.id);
         }]
       }

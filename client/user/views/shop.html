@@ -8,11 +8,8 @@
           ng-click="incrementUpvotes(item)"></span>
            {{item.upvotes}}
         <span style="font-size:20px; margin-left:10px;">
-          <a ng-show="item.link" href="{{item.link}}">
-            {{item.title}}
-          </a>
-          <span ng-hide="item.link">
-            {{item.title}}
+          <span>
+            {{item.name}}
           </span>
         </span>
         <span>
@@ -29,7 +26,14 @@
           <input type="text"
             class="form-control"
             placeholder="Item Desc..."
-            ng-model="itemName"></input>
+            ng-model="name"></input>
         </div>
         <button type="submit" class="btn btn-primary">Post</button>
       </form>
+
+      <br />
+      <div>
+        <span>
+          <a href="#/home">Home Page</a>
+        </span>
+      </div>    

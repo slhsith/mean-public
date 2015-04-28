@@ -17,7 +17,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('posts', {
-      url: '/posts/{id}',
+      url: '#/posts/{id}',
       templateUrl: 'posts.html',
       controller: 'PostsCtrl',
       resolve: {
@@ -41,7 +41,7 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'shop.html',
       controller: 'ShopCtrl',
       resolve: {
-        postPromise: ['items', function(items){
+        itemPromise: ['items', function(items){
           return items.getAll();
         }]
       }
@@ -87,7 +87,6 @@ function($scope, posts, post, auth){
       $scope.post.comments.push(comment);
     });
     $scope.body = '';
-
   };
   $scope.incrementUpvotes = function(comment){
     posts.upvoteComment(post, comment);
@@ -106,9 +105,9 @@ function($scope, items, auth){
     // items.create({
     //   itemName: $scope.name,
     // });
-    $scope.items.push({ itemName: $scope.itemName });
-    $scope.itemName = '';
-    $scope.item.save();
+    $scope.items.push({ name: $scope.name });
+    $scope.item = '';
+    $scope.item = item.$save();
   };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
@@ -137,6 +136,7 @@ app.controller('NavCtrl', [
 '$location',
 function($scope, auth){
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.home = auth.isLoggedIn;
   $scope.currentUser = auth.currentUser;
   $scope.logOut = auth.logOut;
 

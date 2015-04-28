@@ -113,9 +113,9 @@ router.get('/api/items', function(req, res, next) {
 
 router.post('/api/items', auth, function(req, res, next) {
   var item = new Item(req.body);
-  post.author = req.payload.username;
+  item.author = req.payload.username;
 
-  post.save(function(err, item){
+  item.save(function(err, item){
     if(err){ return next(err); }
 
     res.json(item);
