@@ -183,6 +183,7 @@ router.post('/api/register', function(req, res, next){
   user.save(function (){
     return res.json({token: user.generateJWT()});
   });
+  
   mailer.send(
     { host:           "smtp.mandrillapp.com"
     , port:           587
