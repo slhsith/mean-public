@@ -161,7 +161,18 @@ router.post('/api/register', function(req, res, next){
 
   var user = new User();
 
+  var checkEmail = function () {
+    User.findOne({ username: req.body.username }, function (err, user) {
+      if (user){ return res.status(400).json({message: 'Email is in use'}) }
+      if (!user){ console.log('Email is good'); return true }
+    })
+  };
   user.username = req.body.username;
+  // if (checkEmail()){
+  // user.setPassword(req.body.password)
+  // user.generateUserToken()
+  // }
+  checkEmail();
   user.setPassword(req.body.password);
   user.generateUserToken();
 
@@ -169,28 +180,27 @@ router.post('/api/register', function(req, res, next){
   , username = "trainersvault"
   , password = "BGkIPqtGVLNL2JAGAmwHMw";
 
-  user.save(function (err){
-    if(err){ return next(err); }
-    return res.json({token: user.generateJWT()})
+  user.save(function (){
+    return res.json({token: user.generateJWT()});
   });
-    mailer.send(
-      { host:           "smtp.mandrillapp.com"
-      , port:           587
-      , to:             "thomas@trainersvault.com"
-      , from:           "contact@trainersvault.com"
-      , subject:        "Welcome to Trainersvault"
-      , body:           "Welcome to your new profile" + user.username + "! Please Click this link to validate your email! \n Link: http://localhost:3000/emailverify/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!"
-      , authentication: "login"
-      , username:       "trainersvault"
-      , password:       "BGkIPqtGVLNL2JAGAmwHMw"
-      }, function(err, result){
-        if(err){
-          console.log(err);
-        } else {
-          console.log('Success!');
-        }
+  mailer.send(
+    { host:           "smtp.mandrillapp.com"
+    , port:           587
+    , to:             "thomas@trainersvault.com"
+    , from:           "contact@trainersvault.com"
+    , subject:        "Welcome to Trainersvault"
+    , body:           "Welcome to your new profile" + user.username + "! Please Click this link to validate your email! \n Link: http://localhost:3000/emailverify/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!"
+    , authentication: "login"
+    , username:       "trainersvault"
+    , password:       "BGkIPqtGVLNL2JAGAmwHMw"
+    }, function(err, result){
+      if(err){
+        console.log(err);
+      } else {
+        console.log('Success!');
       }
-    );    
+    }
+  );    
 });
 
 router.post('/api/login', function(req, res, next){
@@ -217,10 +227,10 @@ router.post('/api/forgot', function(req, res, next){
 
   var validEmail = function () {
     User.findOne({ username: req.body.username }, function (err, user) {
-      if (!user) { return res.status(400).json({message:'Email not found'});return false; }
+      if (!user) { return res.status(400).json({message:'Email not found'}); return false; }
       if (user){ console.log(user.token) }
     })
-  }
+  };
 
   var mailer   = require("mailer")
   , username = "trainersvault"
@@ -238,17 +248,18 @@ router.post('/api/forgot', function(req, res, next){
       , username:       "trainersvault"
       , password:       "BGkIPqtGVLNL2JAGAmwHMw"
       });
-    return res.status(200).json({message: 'Check your email for reset password!'});
+    console.log('Success');
+    // return res.status(200).json({message: 'Check your email for reset password!'});
   };
 
-  validEmail();
-  resetPassword();
+  // validEmail();
+  if (validEmail()){resetPassword()}
 });
 
-router.put('/emailverify/:username/:token', function(req, res, next){
-  user.validateUserEmailToken()
-  window.location = "http://localhost:3000/user/#/home";
-});
+// router.put('/emailverify/:username/:token', function(req, res, next){
+//   user.validateUserEmailToken()
+//   window.location = "http://localhost:3000/user/#/home";
+// });
 
 
 //Facebook Integration

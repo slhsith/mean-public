@@ -22,10 +22,8 @@ UserSchema.methods.validPassword = function(password) {
   return this.hash === hash;
 };
 
-
-
 UserSchema.methods.validateUserEmailToken = function() {
-  this.confirmation = true;
+  // this.confirmation = true;
 };
 
 UserSchema.methods.resetUserPassword = function(email, token, password) {

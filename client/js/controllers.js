@@ -1,4 +1,4 @@
-app.controller('MainCtrl', ['$scope', 'auth', 'confirmEmail', '$location', function ($scope, auth) {
+app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, auth) {
   $scope.user = {};
   $scope.register = function () {
     auth.register($scope.user).error(function (error) {
@@ -22,14 +22,14 @@ app.controller('MainCtrl', ['$scope', 'auth', 'confirmEmail', '$location', funct
     });
   };
 
-  $scope.verifyEmail = function() {
-    confirmEmail.confirm($scope.verify).error(function (error) {
-      $scope.error = error;
-      $scope.showSuccessAlert = true;
-    }).then(function () {
-      window.location = "http://localhost:3000/user/#/home";
-    });
-  };
+  // $scope.verifyEmail = function() {
+  //   confirmEmail.confirm($scope.verify).error(function (error) {
+  //     $scope.error = error;
+  //     $scope.showSuccessAlert = true;
+  //   }).then(function () {
+  //     window.location = "http://localhost:3000/user/#/home";
+  //   });
+  // };
 
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.currentUser = auth.currentUser;
