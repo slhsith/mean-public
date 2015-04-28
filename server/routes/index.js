@@ -245,6 +245,11 @@ router.post('/api/forgot', function(req, res, next){
   resetPassword();
 });
 
+router.put('/emailverify/:username/:token', function(req, res, next){
+  user.validateUserEmailToken()
+  window.location = "http://localhost:3000/user/#/home";
+});
+
 
 //Facebook Integration
 router.get('/auth/facebook', passport.authenticate('facebook'));

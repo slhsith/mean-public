@@ -1,5 +1,5 @@
 var app = angular.module('mainApp', ['templates']);
-app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, auth) {
+app.controller('MainCtrl', ['$scope', 'auth', 'confirmEmail', '$location', function ($scope, auth) {
   $scope.user = {};
   $scope.register = function () {
     auth.register($scope.user).error(function (error) {
@@ -20,8 +20,18 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
   $scope.forgotPassword = function () {
     auth.forgotPassword($scope.forgot).error(function (error) {
       $scope.error = error;
+<<<<<<< HEAD
+    });
+  };
+
+  $scope.verifyEmail = function() {
+    confirmEmail.confirm($scope.verify).error(function (error) {
+      $scope.error = error;
+      $scope.showSuccessAlert = true;
     }).then(function () {
       window.location = "http://localhost:3000/user/#/home";
+=======
+>>>>>>> origin/master
     });
   };
 
@@ -77,4 +87,12 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
     });
   };
   return auth;
+}]);
+app.factory('confirmEmail',['$http', '$window', function ($http, $window) {
+  var confirmEmail = {};
+  confirmEmail.confirm = function (user) {
+    return $http.put('/api/emailverify/:username/:token').success(function (data) {
+    });
+  };
+  return confirmEmail;
 }]);
