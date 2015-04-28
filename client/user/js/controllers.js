@@ -48,18 +48,18 @@ app.controller('ShopCtrl', [
 '$scope',
 'items',
 'auth',
-function($scope, posts, auth){
+function($scope, items, auth){
   $scope.items = items.items;
-  $scope.addItem = function(){
-    if(!$scope.title || $scope.title === '') { return; }
-    items.create({
-      title: $scope.title,
-      link: $scope.link,
-    });
-    $scope.title = '';
-    $scope.link = '';
+  $scope.addItem = function() {
+    // if($scope.name === '') { return; }
+    // items.create({
+    //   itemName: $scope.name,
+    // });
+    $scope.items.push({ itemName: $scope.itemName });
+    $scope.itemName = '';
+    $scope.item.save();
   };
-  $scope.incrementUpvotes = function(comment){
+  $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
   };  
   $scope.isLoggedIn = auth.isLoggedIn;
@@ -74,7 +74,7 @@ app.controller('ItemsCtrl', [
 function($scope, items, item, auth){
   $scope.items = items.items;
   $scope.item = item;
-  $scope.incrementUpvotes = function(comment){
+  $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
   };
   $scope.isLoggedIn = auth.isLoggedIn;

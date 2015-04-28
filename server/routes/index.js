@@ -113,9 +113,9 @@ router.get('/api/items', function(req, res, next) {
 
 router.post('/api/items', auth, function(req, res, next) {
   var item = new Item(req.body);
-  item.author = req.payload.username;
+  post.author = req.payload.username;
 
-  item.save(function(err, item){
+  post.save(function(err, item){
     if(err){ return next(err); }
 
     res.json(item);
@@ -176,8 +176,8 @@ router.post('/api/register', function(req, res, next){
     mailer.send(
       { host:           "smtp.mandrillapp.com"
       , port:           587
-      , to:             "thomas@trainersvault.com"
-      , from:           "contact@trainersvault.com"
+      , to:             "kevincryan23@gmail.com"
+      , from:           "kevincryan23@gmail.com"
       , subject:        "Welcome to Trainersvault"
       , body:           "Welcome to your new profile" + user.username + "! Please Click this link to validate your email! \n Link: http://localhost:3000/emailverify/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!"
       , authentication: "login"

@@ -17,8 +17,8 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('posts', {
-      url: 'user/#/posts/{id}',
-      templateUrl: '/views/posts.html',
+      url: '/posts/{id}',
+      templateUrl: 'posts.html',
       controller: 'PostsCtrl',
       resolve: {
         post: ['$stateParams', 'posts', function($stateParams, posts) {
@@ -31,7 +31,7 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'items.html',
       controller: 'ItemsCtrl',
       resolve: {
-        item: ['$stateParams', 'items', function($stateParams, items) {
+        post: ['$stateParams', 'items', function($stateParams, items) {
           return items.get($stateParams.id);
         }]
       }
@@ -41,7 +41,7 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'shop.html',
       controller: 'ShopCtrl',
       resolve: {
-        itemPromise: ['items', function(items){
+        postPromise: ['items', function(items){
           return items.getAll();
         }]
       }
@@ -99,18 +99,18 @@ app.controller('ShopCtrl', [
 '$scope',
 'items',
 'auth',
-function($scope, posts, auth){
+function($scope, items, auth){
   $scope.items = items.items;
-  $scope.addItem = function(){
-    if(!$scope.title || $scope.title === '') { return; }
-    items.create({
-      title: $scope.title,
-      link: $scope.link,
-    });
-    $scope.title = '';
-    $scope.link = '';
+  $scope.addItem = function() {
+    // if($scope.name === '') { return; }
+    // items.create({
+    //   itemName: $scope.name,
+    // });
+    $scope.items.push({ itemName: $scope.itemName });
+    $scope.itemName = '';
+    $scope.item.save();
   };
-  $scope.incrementUpvotes = function(comment){
+  $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
   };  
   $scope.isLoggedIn = auth.isLoggedIn;
@@ -125,7 +125,7 @@ app.controller('ItemsCtrl', [
 function($scope, items, item, auth){
   $scope.items = items.items;
   $scope.item = item;
-  $scope.incrementUpvotes = function(comment){
+  $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
