@@ -243,7 +243,7 @@ router.post('/api/forgot', function(req, res, next){
           from: 'contact@trainersvault.com', // sender address 
           to: user.username, // list of receivers 
           subject: 'Trainersvault Reset Password', // Subject line 
-          text: "Please Click this link to reset your password! \n Link: http://localhost:3000/passwordreset/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!", // plaintext body 
+          text: "Please Click this link to reset your password! \n Link: http://localhost:3000/passwordReset/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!", // plaintext body 
           html: '<b>Hello world ✔</b>' // html body 
         }; 
         transporter.sendMail(mailOptions, function(error, info){

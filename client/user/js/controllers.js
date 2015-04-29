@@ -78,3 +78,8 @@ function($scope, auth){
   $scope.logOut = auth.logOut;
 
 }]);
+
+app.controller('SettingsCtrl', [
+'$scope',
+function($scope){
+}]);
