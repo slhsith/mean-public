@@ -22,4 +22,4 @@ app.controller('ResetCtrl', ['$scope', '$location', function ($scope) {
       window.location = "http://localhost:3000/user/#/home";
     });
   };
-}])
+}]);

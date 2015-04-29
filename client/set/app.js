@@ -10,18 +10,17 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'emailVerify.html',
       controller: 'MainCtrl',
       resolve: { 
-               RedirectAccount: function() {
+               Redirect: function() {
                    return confirmEmail.confirm();
+               },
+               {
+                //put to the db
                }
     })
     .state('resetPassword', {
       url: '/resetPassword/:email/:token',
       templateUrl: '/views/resetPassword.html',
       controller: 'ResetCtrl',
-      resolve: { 
-               RedirectAccount: function() {
-                   return resetPassword.reset();
-               }
     }); 
   // $urlRouterProvider.otherwise('home');
 }]);
