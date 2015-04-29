@@ -45,6 +45,11 @@ function($stateProvider, $urlRouterProvider) {
           return items.getAll();
         }]
       }
+    })
+    .state('settings', {
+      url: '/settings',
+      templateUrl: 'settings.html',
+      controller: 'SettingsCtrl',
     });
 
   // $urlRouterProvider.otherwise('home');
