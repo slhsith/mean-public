@@ -232,7 +232,6 @@ router.post('/api/forgot', function(req, res, next){
       if (!user) { return res.status(400).json({message:'Email not found'}); return false; }
       if (user){
         var transporter = nodemailer.createTransport({
-          service: 'Mandrill',
           host: 'smtp.mandrillapp.com',
           port: 587,
           auth: {
@@ -242,7 +241,7 @@ router.post('/api/forgot', function(req, res, next){
         });
         var mailOptions = {
           from: 'contact@trainersvault.com', // sender address 
-          to: 'thomas@trainersvault.com', // list of receivers 
+          to: user.username, // list of receivers 
           subject: 'Trainersvault Reset Password', // Subject line 
           text: "Please Click this link to reset your password! \n Link: http://localhost:3000/passwordreset/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!", // plaintext body 
           html: '<b>Hello world ✔</b>' // html body 
