@@ -6,20 +6,13 @@ app.config([
 function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('emailVerify', {
-      url: '/emailVerify/:email/:token',
+      url: '/emailVerify',
       templateUrl: 'emailVerify.html',
-      controller: 'MainCtrl',
-      resolve: { 
-               Redirect: function() {
-                   return confirmEmail.confirm();
-               },
-               {
-                //put to the db
-               }
+      controller: 'MainCtrl'
     })
     .state('resetPassword', {
-      url: '/resetPassword/:email/:token',
-      templateUrl: '/views/resetPassword.html',
+      url: '/resetPassword',
+      templateUrl: 'resetPassword.html',
       controller: 'ResetCtrl',
     }); 
   // $urlRouterProvider.otherwise('home');

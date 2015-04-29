@@ -81,6 +81,7 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
   auth.forgotPassword = function (user) {
     return $http.post('/api/forgot', user).success(function (data) {
       auth.saveToken(data.token);
+      $scope.success = true;
     });
   };
   return auth;

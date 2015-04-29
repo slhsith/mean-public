@@ -8,10 +8,6 @@ app.controller('MainCtrl', ['$scope', '$location', function ($scope) {
     });
   };
 
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.currentUser = auth.currentUser;
-  $scope.logOut = auth.logOut;
-
 }]);
 app.controller('ResetCtrl', ['$scope', '$location', function ($scope) {
   $scope.resetPassword = function() {

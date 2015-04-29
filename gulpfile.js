@@ -24,7 +24,7 @@ var exec = require('child_process').exec;
 
 // Lint Task
 gulp.task('lint', function() {
-    return gulp.src(['client/app.js','client/js/controllers.js','client/js/models.js','client/user/app.js','client/user/js/controllers.js','client/user/js/models.js','client/admin/app.js','client/admin/js/controllers.js','client/admin/js/models.js'])
+    return gulp.src(['client/app.js','client/js/controllers.js','client/js/models.js','client/user/app.js','client/user/js/controllers.js','client/user/js/models.js','client/admin/app.js','client/admin/js/controllers.js','client/admin/js/models.js','client/js/models.js','client/set/app.js','client/set/js/controllers.js','client/set/js/models.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
 });
@@ -60,6 +60,16 @@ gulp.task('adminscripts', function() {
         .pipe(gulp.dest('client/admin/dist'));
 });
 
+gulp.task('setscripts', function() {
+    return gulp.src(['client/set/app.js','client/set/js/controllers.js','client/set/js/models.js'])
+        .pipe(concat('all.js'))
+        .pipe(gulp.dest('client/set/dist'))
+        .pipe(rename('all.min.js'))
+        .pipe(ngAnnotate())
+        .pipe(uglify())
+        .pipe(gulp.dest('client/set/dist'));
+});
+
 // Minify CSS
 gulp.task('styles', function () {
     gulp.src('client/css/*.css')
@@ -88,6 +98,15 @@ gulp.task('adminstyles', function () {
         .pipe(gulp.dest('client/admin/dist'));
 });
 
+gulp.task('setstyles', function () {
+    gulp.src('client/set/css/*.css')
+        .pipe(concat('all.css'))
+        .pipe(gulp.dest('client/set/dist'))
+        .pipe(minifyCSS())
+        .pipe(rename('all.min.css'))
+        .pipe(gulp.dest('client/set/dist'));
+});
+
 // Minify, Cache and Compile Markup
 gulp.task('markup', function () {
     gulp.src(['client/*.html','client/views/*.html'])
@@ -110,6 +129,13 @@ gulp.task('adminmarkup', function () {
         .pipe(gulp.dest("client/admin/dist"))
 });
 
+gulp.task('setmarkup', function () {
+    gulp.src(['client/set/*.html','client/set/views/*.html'])
+        .pipe(htmlify())
+        .pipe(templateCache({standalone:true}))
+        .pipe(gulp.dest("client/set/dist"))
+});
+
 // run karma unit testing
 gulp.task('test', function(done) {
     karma.start({
@@ -124,6 +150,7 @@ gulp.task('watch', function() {
     gulp.watch('client/js/*.js', ['lint', 'scripts']);
     gulp.watch('client/user/js/*.js', ['lint', 'userscripts']);
     gulp.watch('client/admin/js/*.js', ['lint', 'adminscripts']);
+    gulp.watch('client/set/js/*.js', ['lint', 'setscripts']);
 
     // markup
     gulp.watch('client/*.html', ['markup']);
@@ -131,11 +158,14 @@ gulp.task('watch', function() {
     gulp.watch('client/user/views/*.html', ['usermarkup']);
     gulp.watch('client/admin/*.html', ['adminmarkup']);
     gulp.watch('client/admin/views/*.html', ['adminmarkup']);
+    gulp.watch('client/set/*.html', ['setmarkup']);
+    gulp.watch('client/set/views/*.html', ['setmarkup']);
 
     // stylesheets
     gulp.watch('client/css/*.css', ['styles']);
     gulp.watch('client/user/css/*.css', ['userstyles']);
     gulp.watch('client/admin/css/*.css', ['adminstyles']);
+    gulp.watch('client/set/css/*.css', ['setstyles']);
 });
 
 gulp.task('server', function (cb) {
@@ -157,7 +187,7 @@ gulp.task('server', function (cb) {
 });
 
 // Default Task
-gulp.task('default', ['lint', 'scripts', 'userscripts', 'adminscripts', 'styles', 'userstyles', 'adminstyles', 'markup', 'usermarkup', 'adminmarkup', 'server', 'watch']);
+gulp.task('default', ['lint', 'scripts', 'userscripts', 'adminscripts', 'setscripts', 'styles', 'userstyles', 'adminstyles', 'setstyles', 'markup', 'usermarkup', 'adminmarkup', 'setmarkup', 'server', 'watch']);
 
 
 
