@@ -45,6 +45,11 @@ function($stateProvider, $urlRouterProvider) {
           return items.getAll();
         }]
       }
+    })
+    .state('settings', {
+      url: '/settings',
+      templateUrl: 'settings.html',
+      controller: 'SettingsCtrl',
     });
 
   // $urlRouterProvider.otherwise('home');
@@ -129,6 +134,12 @@ function($scope, auth){
   $scope.logOut = auth.logOut;
 
 }]);
+
+app.controller('SettingsCtrl', [
+'$scope',
+function($scope){
+}]);
+
 app.factory('posts', ['$http', 'auth', function($http, auth){
   var o = {
     posts: []
