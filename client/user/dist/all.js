@@ -1,4 +1,4 @@
-var app = angular.module('mainApp', ['ui.router','templates']);
+var app = angular.module('mainApp', ['ui.router','templates', 'ngImgCrop']);
 
 app.config([
 '$stateProvider',
@@ -138,6 +138,20 @@ function($scope, auth){
 app.controller('SettingsCtrl', [
 '$scope',
 function($scope){
+  $scope.myImage='';
+  $scope.myCroppedImage='';
+
+  var handleFileSelect=function(evt) {
+    var file=evt.currentTarget.files[0];
+    var reader = new FileReader();
+    reader.onload = function (evt) {
+      $scope.$apply(function($scope){
+        $scope.myImage=evt.target.result;
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+  angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
 }]);
 
 app.factory('posts', ['$http', 'auth', function($http, auth){
