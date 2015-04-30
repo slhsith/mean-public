@@ -7,7 +7,7 @@
 //   return confirmEmail;
 // }]);
 
-app.factory('resetPassword',['$http','$window', function ($http, $window) {
+app.factory('reset',['$http','$window', function ($http, $window, $stateParams) {
   var resetPassword = {};
   resetPassword.reset = function (user, name, token) {
     return $http.get('/resetPassword/'+ name + '/' + token).success(function (data) {
@@ -16,7 +16,6 @@ app.factory('resetPassword',['$http','$window', function ($http, $window) {
   };
   resetPassword.updatePassword  = function (user, name, token, req) {
     return $http.put('/api/resetPassword/'+ name + '/' + token).success(function (data) {
-      user.password = req.body.password;
       console.log('Success!');
     });
   };
