@@ -270,7 +270,7 @@ router.get('/emailVerify/:username/:user_token', function (req, res, next) {
 });
 
 router.get('/resetPassword/:username/:user_token', function (req, res, next) {
-  User.findOne({ username: req.params.username }, function (err, user) {
+  User.findOne({ username: req.params.username, token: req.params.token }, function (err, user) {
       if (!user) { return res.status(400).json({message:'Email not found'}); return false; }
       if (user){
         return true;
