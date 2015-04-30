@@ -28,13 +28,16 @@ app.controller('MainCtrl', ['$scope', '$location', function ($scope) {
   // };
 
 }]);
-app.controller('ResetCtrl', ['$scope', '$location','resetPassword', function ($scope) {
+app.controller('ResetCtrl', ['$scope', '$location','resetPassword', '$stateParams', function ($scope, $stateParams, resetPassword) {
   $scope.submitPassword = function() {
     console.log($scope.user);
     console.log($stateParam.username);
     console.log($stateParam.token);
-    resetPassword.updatePassword($scope., $stateParam.username, $stateParam.token);
-    updatePassword($scope.user).error(function (error) {
+    resetPassword.updatePassword($scope., $stateParams.username, $stateParams.token).success(function () {
+      // output message
+      // redirect them home
+    })
+    .error(function (error) {
       $scope.error = error;
       $scope.showSuccessAlert = true;
     });
