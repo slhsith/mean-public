@@ -2,9 +2,12 @@ Home Page @ /
 About Page @ /about
 Reset Password @ /public/#/resetpassword/:username/:token
 Verify Email @ /public/#/resetpassword/:username/:token
+
+Search Results @ /public/#/search/:query
 Profile @ /public/#/profile/:link
 
-
+Store @ /public/#/store
+Store Search @ /public/#/store/search/:query
 Item @ /public/#/profile/:link/item/:type/:name
 -purchase
 
@@ -119,5 +122,15 @@ Admin Items Page @ /user/#/item
 Admin Items Page @ /user/#/item/create
 
 Admin Orders Page @ /admin/#/orders
+-item details
+-date/time
+-card used
+-refund request
+-fraud flag
+
+-search
+-filters
 
 Admin Orders Page @ /admin/#/purchases
+
+Admin Orders Page @ /admin/#/purchase/:type/:name
