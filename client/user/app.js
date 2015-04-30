@@ -1,4 +1,4 @@
-var app = angular.module('mainApp', ['ui.router','templates']);
+var app = angular.module('mainApp', ['ui.router','templates', 'ngImgCrop']);
 
 app.config([
 '$stateProvider',
@@ -45,6 +45,11 @@ function($stateProvider, $urlRouterProvider) {
           return items.getAll();
         }]
       }
+    })
+    .state('settings', {
+      url: '/settings',
+      templateUrl: 'settings.html',
+      controller: 'SettingsCtrl',
     });
 
   // $urlRouterProvider.otherwise('home');

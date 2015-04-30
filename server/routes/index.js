@@ -7,7 +7,17 @@ var Item = mongoose.model('Item');
 var passport = require('passport');
 var User = mongoose.model('User');
 var jwt = require('express-jwt');
+var nodemailer = require('nodemailer');
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
+var transporter = nodemailer.createTransport({
+    service: 'Mandrill',
+    host: 'smtp.mandrillapp.com',
+    port: 587,
+    auth: {
+        user: 'trainersvault',
+        pass: 'BGkIPqtGVLNL2JAGAmwHMw'
+    }
+  });
 
 /* GET home page. */
 router.get('/api', function(req, res, next) {
@@ -159,38 +169,41 @@ router.post('/api/register', function(req, res, next){
     return res.status(400).json({message: 'Passwords do not match'});
   }
 
+  // var checkEmail = function () {
+  //   User.findOne({ username: req.body.username }, function (err, user) {
+  //     if (user){ Console.log('email exists'); return true; }
+  //     if (!user){ Console.log('email doesnt exists'); return false; }
+  //   });
+  // };
+
+  // if (checkEmail()){
+  // return res.status(400).json({message: 'Email is in use'});
+  // }
+
   var user = new User();
 
   user.username = req.body.username;
   user.setPassword(req.body.password);
   user.generateUserToken();
 
-  var mailer   = require("mailer")
-  , username = "trainersvault"
-  , password = "BGkIPqtGVLNL2JAGAmwHMw";
-
   user.save(function (err){
     if(err){ return next(err); }
     return res.json({token: user.generateJWT()})
   });
-    mailer.send(
-      { host:           "smtp.mandrillapp.com"
-      , port:           587
-      , to:             "kevincryan23@gmail.com"
-      , from:           "kevincryan23@gmail.com"
-      , subject:        "Welcome to Trainersvault"
-      , body:           "Welcome to your new profile" + user.username + "! Please Click this link to validate your email! \n Link: http://localhost:3000/emailverify/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!"
-      , authentication: "login"
-      , username:       "trainersvault"
-      , password:       "BGkIPqtGVLNL2JAGAmwHMw"
-      }, function(err, result){
-        if(err){
-          console.log(err);
-        } else {
-          console.log('Success!');
-        }
-      }
-    );    
+
+  var mailOptions = {
+    from: 'contact@trainersvault.com', // sender address 
+    to: user.username, // list of receivers 
+    subject: 'Welcome to Your new Profile!', // Subject line 
+    text: "Please Click this link to verify your account! \n Link: http://localhost:3000/set/emailVerify/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!", // plaintext body 
+  };
+  transporter.sendMail(mailOptions, function(error, info){
+    if(error){
+        console.log(error);
+    }else{
+        console.log('Message sent: ' + info.response);
+    }
+  });   
 });
 
 router.post('/api/login', function(req, res, next){
@@ -214,37 +227,68 @@ router.post('/api/forgot', function(req, res, next){
     return res.status(400).json({message: 'Please enter an email'});
   }
 
-
   var validEmail = function () {
     User.findOne({ username: req.body.username }, function (err, user) {
-      if (!user) { return res.status(400).json({message:'Email not found'});return false; }
-      if (user){ console.log(user.token) }
+      if (!user) { return res.status(400).json({message:'Email not found'}); return false; }
+      if (user){
+        var transporter = nodemailer.createTransport({
+          host: 'smtp.mandrillapp.com',
+          port: 587,
+          auth: {
+              user: 'trainersvault',
+              pass: 'BGkIPqtGVLNL2JAGAmwHMw'
+          }
+        });
+        var mailOptions = {
+          from: 'contact@trainersvault.com', // sender address 
+          to: user.username, // list of receivers 
+          subject: 'Trainersvault Reset Password', // Subject line 
+          text: "Please Click this link to reset your password! \n Link: http://localhost:3000/set/#/resetPassword/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!", // plaintext body 
+        }; 
+        transporter.sendMail(mailOptions, function(error, info){
+          if(error){
+              console.log(error);
+          }else{
+              console.log('Message sent: ' + info.response);
+          }
+        });
+      }
     })
-  }
-
-  var mailer   = require("mailer")
-  , username = "trainersvault"
-  , password = "BGkIPqtGVLNL2JAGAmwHMw";
-
-  var resetPassword = function(user){
-    mailer.send(
-      { host:           "smtp.mandrillapp.com"
-      , port:           587
-      , to:             user.username
-      , from:           "contact@trainersvault.com"
-      , subject:        "Trainersvault Reset Password"
-      , body:           "Please Click this link to reset your password! \n Link: http://localhost:3000/passwordreset/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!" 
-      , authentication: "login"
-      , username:       "trainersvault"
-      , password:       "BGkIPqtGVLNL2JAGAmwHMw"
-      });
-    return res.status(200).json({message: 'Check your email for reset password!'});
   };
-
   validEmail();
-  resetPassword();
 });
 
+router.put('/emailverify/:username/:user_token', function (req, res, next) {
+  user.validateUserEmailToken()
+});
+
+router.get('/emailVerify/:username/:user_token', function (req, res, next) {
+  if (!user.username || !user.user_token){
+    false 
+  } else {
+    true
+  }
+});
+
+router.get('/resetPassword/:username/:user_token', function (req, res, next) {
+  User.findOne({ username: req.params.username }, function (err, user) {
+      if (!user) { return res.status(400).json({message:'Email not found'}); return false; }
+      if (user){
+        return true;
+      }
+    })
+});
+
+router.put('/resetPassword/:username/:user_token', function (req, res, next) {
+  if(req.body.password !== req.body.repeat_password){
+    return res.status(400).json({message: 'Passwords do not match'});
+  }
+  req.body.password = user.password;
+  user.save(function (err){
+    if(err){ return next(err); }
+    return res.json({token: user.generateJWT()})
+  });
+});
 
 //Facebook Integration
 router.get('/auth/facebook', passport.authenticate('facebook'));

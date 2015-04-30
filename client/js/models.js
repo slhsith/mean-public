@@ -42,7 +42,16 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
   auth.forgotPassword = function (user) {
     return $http.post('/api/forgot', user).success(function (data) {
       auth.saveToken(data.token);
+      $scope.success = true;
     });
   };
   return auth;
 }]);
+// app.factory('confirmEmail',['$http', '$window', function ($http, $window) {
+//   var confirmEmail = {};
+//   confirmEmail.confirm = function (user) {
+//     return $http.put('/api/emailverify/:username/:token').success(function (data) {
+//     });
+//   };
+//   return confirmEmail;
+// }]);

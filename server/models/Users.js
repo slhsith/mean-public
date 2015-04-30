@@ -22,17 +22,8 @@ UserSchema.methods.validPassword = function(password) {
   return this.hash === hash;
 };
 
-
-
-UserSchema.methods.validateUserEmailToken = function(email, token) {
-  // user.findOne({ username: this.email, user_token: this.token }, function (err, docs) {
-  // if (err){
-  //    return err
-  // }else{
-  //    docs.confirmation = true;
-  //    docs.save();
-  // }
-  // });
+UserSchema.methods.validateUserEmailToken = function() {
+  this.confirmation = true;
 };
 
 UserSchema.methods.resetUserPassword = function(email, token, password) {

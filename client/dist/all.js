@@ -23,6 +23,15 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
     });
   };
 
+  // $scope.verifyEmail = function() {
+  //   confirmEmail.confirm($scope.verify).error(function (error) {
+  //     $scope.error = error;
+  //     $scope.showSuccessAlert = true;
+  //   }).then(function () {
+  //     window.location = "http://localhost:3000/user/#/home";
+  //   });
+  // };
+
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.currentUser = auth.currentUser;
   $scope.logOut = auth.logOut;
@@ -72,7 +81,16 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
   auth.forgotPassword = function (user) {
     return $http.post('/api/forgot', user).success(function (data) {
       auth.saveToken(data.token);
+      $scope.success = true;
     });
   };
   return auth;
 }]);
+// app.factory('confirmEmail',['$http', '$window', function ($http, $window) {
+//   var confirmEmail = {};
+//   confirmEmail.confirm = function (user) {
+//     return $http.put('/api/emailverify/:username/:token').success(function (data) {
+//     });
+//   };
+//   return confirmEmail;
+// }]);

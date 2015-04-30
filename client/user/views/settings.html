@@ -1,0 +1,18 @@
+      <div class="page-header">
+        <h1>Settings</h1>
+
+      </div>
+
+        <span style="font-size:20px; margin-left:10px;">Setting 1</span>
+      <form ng-submit="addPost()"
+        ng-show="isLoggedIn()"
+        style="margin-top:30px;">
+
+        <h3>Add a new post</h3>
+
+        <div>Select an image file: <input type="file" id="fileInput" /></div>
+        <div class="cropArea">
+          <img-crop image="myImage" result-image="myCroppedImage"></img-crop>
+        </div>
+        <div>Cropped Image:</div>
+        <div><img ng-src="{{myCroppedImage}}" /></div>

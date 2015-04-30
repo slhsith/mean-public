@@ -64,6 +64,10 @@
     <span>{{ error.message }}</span>
   </div>
 
+  <div ng-show="success" class="alert alert-success row">
+    <span>Check your email</span>
+  </div>
+
   <form ng-model="register" ng-submit="register()"
     style="margin-top:30px;">
     <h3>Register</h3>
