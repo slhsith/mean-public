@@ -11,7 +11,7 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'MainCtrl'
     })
     .state('resetPassword', {
-      url: '/resetPassword',
+      url: '/resetPassword/:username/:user_token',
       templateUrl: 'resetPassword.html',
       controller: 'ResetCtrl',
     }); 

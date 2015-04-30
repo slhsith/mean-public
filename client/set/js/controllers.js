@@ -11,11 +11,9 @@ app.controller('MainCtrl', ['$scope', '$location', function ($scope) {
 }]);
 app.controller('ResetCtrl', ['$scope', '$location', function ($scope) {
   $scope.resetPassword = function() {
-    resetPassword.reset($scope.verify).error(function (error) {
+    resetPassword.set($scope.user).error(function (error) {
       $scope.error = error;
       $scope.showSuccessAlert = true;
-    }).then(function () {
-      window.location = "http://localhost:3000/user/#/home";
     });
   };
 }]);

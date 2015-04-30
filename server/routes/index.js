@@ -193,9 +193,8 @@ router.post('/api/register', function(req, res, next){
   var mailOptions = {
     from: 'contact@trainersvault.com', // sender address 
     to: user.username, // list of receivers 
-    subject: 'Trainersvault Reset Password', // Subject line 
-    text: 'Please Click this link to reset your password! \n Link: http://localhost:3000/passwordreset/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!', // plaintext body 
-    html: '<b>Hello world ✔</b>' // html body 
+    subject: 'Welcome to Your new Profile!', // Subject line 
+    text: "Please Click this link to verify your account! \n Link: http://localhost:3000/set/emailVerify/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!", // plaintext body 
   };
   transporter.sendMail(mailOptions, function(error, info){
     if(error){
@@ -243,8 +242,7 @@ router.post('/api/forgot', function(req, res, next){
           from: 'contact@trainersvault.com', // sender address 
           to: user.username, // list of receivers 
           subject: 'Trainersvault Reset Password', // Subject line 
-          text: "Please Click this link to reset your password! \n Link: http://localhost:3000/passwordReset/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!", // plaintext body 
-          html: '<b>Hello world ✔</b>' // html body 
+          text: "Please Click this link to reset your password! \n Link: http://localhost:3000/set/#/resetPassword/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!", // plaintext body 
         }; 
         transporter.sendMail(mailOptions, function(error, info){
           if(error){
@@ -259,11 +257,37 @@ router.post('/api/forgot', function(req, res, next){
   validEmail();
 });
 
-// router.put('/emailverify/:username/:token', function(req, res, next){
-//   user.validateUserEmailToken()
-//   window.location = "http://localhost:3000/user/#/home";
-// });
+router.put('/emailverify/:username/:user_token', function (req, res, next) {
+  user.validateUserEmailToken()
+});
 
+router.get('/emailVerify/:username/:user_token', function (req, res, next) {
+  if (!user.username || !user.user_token){
+    false 
+  } else {
+    true
+  }
+});
+
+router.get('/resetPassword/:username/:user_token', function (req, res, next) {
+  User.findOne({ username: req.params.username }, function (err, user) {
+      if (!user) { return res.status(400).json({message:'Email not found'}); return false; }
+      if (user){
+        return true;
+      }
+    })
+});
+
+router.put('/resetPassword/:username/:user_token', function (req, res, next) {
+  if(req.body.password !== req.body.repeat_password){
+    return res.status(400).json({message: 'Passwords do not match'});
+  }
+  req.body.password = user.password;
+  user.save(function (err){
+    if(err){ return next(err); }
+    return res.json({token: user.generateJWT()})
+  });
+});
 
 //Facebook Integration
 router.get('/auth/facebook', passport.authenticate('facebook'));

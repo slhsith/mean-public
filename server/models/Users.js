@@ -23,7 +23,7 @@ UserSchema.methods.validPassword = function(password) {
 };
 
 UserSchema.methods.validateUserEmailToken = function() {
-  // this.confirmation = true;
+  this.confirmation = true;
 };
 
 UserSchema.methods.resetUserPassword = function(email, token, password) {
