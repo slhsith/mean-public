@@ -29,10 +29,11 @@ app.controller('MainCtrl', ['$scope', '$location', function ($scope) {
 
 }]);
 app.controller('ResetCtrl', ['$scope', '$location','resetPassword', function ($scope) {
-  $scope.submitPassword = function(user, username, user_token) {
-    console.log(user);
-    console.log(username);
-    console.log(user_token);
+  $scope.submitPassword = function() {
+    console.log($scope.user);
+    console.log($stateParam.username);
+    console.log($stateParam.token);
+    resetPassword.updatePassword($scope., $stateParam.username, $stateParam.token);
     updatePassword($scope.user).error(function (error) {
       $scope.error = error;
       $scope.showSuccessAlert = true;
@@ -50,13 +51,13 @@ app.controller('ResetCtrl', ['$scope', '$location','resetPassword', function ($s
 
 app.factory('resetPassword',['$http','$window', function ($http, $window) {
   var resetPassword = {};
-  resetPassword.reset = function (user) {
-    return $http.get('/resetPassword/'+ user.username + '/' + user.user_token).success(function (data) {
+  resetPassword.reset = function (user, name, token) {
+    return $http.get('/resetPassword/'+ name + '/' + token).success(function (data) {
       return data;
     });
   };
-  updatePassword  = function (user, req) {
-    return $http.put('/api/resetPassword/'+ user.username + '/' + user.user_token).success(function (data) {
+  resetPassword.updatePassword  = function (user, name, token, req) {
+    return $http.put('/api/resetPassword/'+ name + '/' + token).success(function (data) {
       user.password = req.body.password;
       console.log('Success!');
     });
