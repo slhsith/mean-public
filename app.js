@@ -24,6 +24,17 @@ var routes = require('./server/routes/index');
 var users = require('./server/routes/users');
 
 var app = express();
+var jsonParser = bodyParser.json();
+
+/**
+ * Enable CORS (http://enable-cors.org/server_expressjs.html)
+ * to allow different clients to request data from your server
+ */
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));

@@ -8,6 +8,10 @@ var passport = require('passport');
 var User = mongoose.model('User');
 var jwt = require('express-jwt');
 var nodemailer = require('nodemailer');
+var util = require('util'),
+    braintree = require('braintree');
+var bodyParser = require('body-parser'),    
+    jsonParser = bodyParser.json();    
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 var transporter = nodemailer.createTransport({
     service: 'Mandrill',
@@ -18,6 +22,15 @@ var transporter = nodemailer.createTransport({
         pass: 'BGkIPqtGVLNL2JAGAmwHMw'
     }
   });
+
+
+// /*Initiate Gateway*/
+var gateway = braintree.connect({
+    environment:  braintree.Environment.Sandbox,
+    merchantId:   '9jj2gz6zx8s6724w',
+    publicKey:    'xpd6wnxgxxkt8rbz',
+    privateKey:   'd808befb26ae80250474f9400e2f4c87'
+});
 
 /* GET home page. */
 router.get('/api', function(req, res, next) {
@@ -295,3 +308,65 @@ router.get('/auth/facebook', passport.authenticate('facebook'));
 router.get('/auth/facebook/callback', 
   passport.authenticate('facebook', { successRedirect: '/',
                                       failureRedirect: '/login' }));
+
+//Braintree
+
+/*Payment info from client to server*/
+router.post('/api/transactions', function (req, res) {
+  var nonce = req.body.payment_method_nonce;
+  gateway.transaction.sale({
+    amount: '5.00',
+    creditCard: {
+      number: '5105105105105100',
+      expirationDate: '05/15'
+    }
+  }, function (err, result) {
+    if (err) throw err;
+
+    if (result.success) {
+      util.log('Transaction ID: ' + result.transaction.id);
+    } else {
+      util.log(result.message);
+    }
+  });
+});
+
+/*Request Client Token from Server*/
+router.post('api/transactions/client_token', function (req, res) {
+  gateway.clientToken.generate({
+    customerId: aCustomerId
+  }, function (err, response) {
+    var clientToken = response.clientToken
+  });
+});
+
+/*Server generate Client Token and send to Client*/
+router.get('/api/transactions/client_token', function (req, res) {
+  gateway.clientToken.generate({
+    customerId: aCustomerId
+  }, function (err, response) {
+    res.send(response.clientToken);
+  });
+});
+
+/*Client retrieve transaction from server*/
+router.param('/api/transaction', function(req, res, next, id) {
+  var query = Transaction.findBycustomerId(customerId);
+
+  query.exec(function (err, transaction){
+    if (err) { return next(err); }
+    if (!post) { return next(new Error('can\'t find transaction')); }
+
+    req.transaction = transaction;
+    return next();
+  });
+});  
+
+router.get('/api/transactions', function(req, res, next) {
+  Transaction.find(function(err, transactions){
+    if(err){ return next(err); }
+
+    res.json(transactions);
+  });
+});
+

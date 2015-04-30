@@ -240,6 +240,31 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   return o;
 }]);
 
+app.factory('transactions', ['$http', '$window', 'auth', function($http, $window, auth){
+  var transactions = {};
+  transactions.saveToken = function (token) {
+    $window.localStorage['clientToken'] = token;
+  };
+
+  transactions.getToken = function () {
+    return $window.localStorage['clientToken'];
+  };
+
+  transactions.create = function(transaction) {
+    return $http.post('/api/transactions', post, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).success(function(data){
+      transactions.push(data);
+    });
+  };
+  transactions.get = function(id) {
+    return $http.get('/api/transactions/' + id).then(function(res){
+      return res.data;
+    });
+  };
+  return transactions;
+}]);
+
 
 app.factory('auth', ['$http', '$window', function($http, $window){
    var auth = {};
