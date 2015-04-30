@@ -1,0 +1,123 @@
+Home Page @ /
+About Page @ /about
+Reset Password @ /public/#/resetpassword/:username/:token
+Verify Email @ /public/#/resetpassword/:username/:token
+Profile @ /public/#/profile/:link
+
+
+Item @ /public/#/profile/:link/item/:type/:name
+-purchase
+
+Admin Dashboard Page @ /admin/#/
+-Gross Revenue
+-Gross Expenses
+-Gross Profit
+-Gross Payouts
+-Net Profit
+-Total Users
+-Total Unit Sales
+-Total Site Traffic
+-Top Search Terms
+-Top Sales Locations
+
+-DateRange/Daily/Monthly/Quarterly/Annually Filters
+
+Admin Orders Page @ /admin/#/orders
+-item
+-user
+-owner
+-state
+-total
+-date/time
+
+-search
+-filters
+-refund
+
+Admin Payouts Page @ /admin/#/payouts
+-id
+-user
+-amount
+-approval admin
+-date/time start
+-date/time end
+
+-search
+-filters
+-pay
+
+Admin Dashboard Page @ /admin/#/items
+-name
+-selling user
+-sales
+-cost
+-type
+-date listed
+-date end
+-review rate
+
+-search
+-filters
+-unpublish
+-edit
+
+Admin Dashboard Page @ /admin/#/users
+
+
+-search
+-filters
+-unpublish
+-edit
+
+
+User Dashboard Page @ /user/#/
+-news feed
+-trending items
+-groups
+-featured events
+-searchbar
+
+User Settings Page @ /user/#/settings
+-Profile picture
+-cover photo
+-language (many)
+-gender
+-first name
+-last name
+-address
+-credit card info (many)
+-date of birth
+-profile link url
+-instagram connection
+-facebook connection
+
+User Settings Page @ /user/#/messager
+
+User Settings Page @ /user/#/messager/:id
+
+
+User Search Page @ /user/#/search/:query
+-filters
+-map/list
+-items/friends
+
+Admin Following Page @ /admin/#/following
+-list
+-search
+-filters
+-unfollow/follow
+
+Admin Items Page @ /user/#/items
+-list
+-search
+-filters
+
+Admin Items Page @ /user/#/item
+-edit
+-details
+
+Admin Items Page @ /user/#/item/create
+
+Admin Orders Page @ /admin/#/orders
+
+Admin Orders Page @ /admin/#/purchases
