@@ -9,13 +9,13 @@
 
 app.factory('resetPassword',['$http','$window', function ($http, $window) {
   var resetPassword = {};
-  resetPassword.reset = function (user) {
-    return $http.get('/resetPassword/'+ user.username + '/' + user.user_token).success(function (data) {
+  resetPassword.reset = function (user, name, token) {
+    return $http.get('/resetPassword/'+ name + '/' + token).success(function (data) {
       return data;
     });
   };
-  updatePassword  = function (user, req) {
-    return $http.put('/api/resetPassword/'+ user.username + '/' + user.user_token).success(function (data) {
+  resetPassword.updatePassword  = function (user, name, token, req) {
+    return $http.put('/api/resetPassword/'+ name + '/' + token).success(function (data) {
       user.password = req.body.password;
       console.log('Success!');
     });
