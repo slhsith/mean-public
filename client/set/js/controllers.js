@@ -9,11 +9,11 @@ app.controller('MainCtrl', ['$scope', '$location', function ($scope) {
   // };
 
 }]);
-app.controller('ResetCtrl', ['$scope', '$location','resetPassword', '$stateParams', function ($scope, $stateParams, resetPassword) {
+app.controller('ResetCtrl', ['$scope', '$location','$state', '$stateParams', 'resetPassword', function ($scope, $state, $stateParams, resetPassword) {
   $scope.submitPassword = function() {
     console.log($scope.user);
-    console.log($stateParam.username);
-    console.log($stateParam.token);
+    console.log($stateParams.username);
+    console.log($stateParams.token);
     resetPassword.updatePassword($scope., $stateParams.username, $stateParams.token).success(function () {
       // output message
       // redirect them home
