@@ -13,7 +13,7 @@ function($stateProvider, $urlRouterProvider) {
     .state('resetPassword', {
       url: '/resetPassword/:username/:user_token',
       templateUrl: 'resetPassword.html',
-      controller: 'ResetCtrl',
+      controller: 'ResetCtrl'
     }); 
   // $urlRouterProvider.otherwise('home');
 }]);

@@ -1,4 +1,4 @@
-var app = angular.module('mainApp', ['ui.router','templates', 'ngImgCrop']);
+var app = angular.module('mainApp', ['ui.router','templates', 'ngImgCrop', 'flow']);
 
 app.config([
 '$stateProvider',
