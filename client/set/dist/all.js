@@ -33,8 +33,8 @@ app.controller('ResetCtrl', ['$scope', '$location','$state', '$stateParams', 're
     console.log($scope.user);
     console.log($stateParams.username);
     console.log($stateParams.token);
-    resetPassword.updatePassword($scope., $stateParams.username, $stateParams.token);
-// .success(function () {
+// resetPassword.updatePassword($scope., $stateParams.username, $stateParams.token)
+//    .success(function () {
 //       // output message
 //       // redirect them home
 //     })
