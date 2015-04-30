@@ -9,7 +9,7 @@ app.controller('MainCtrl', ['$scope', '$location', function ($scope) {
   // };
 
 }]);
-app.controller('ResetCtrl', ['$scope', '$location','resetPassword', function ($scope) {
+app.controller('ResetCtrl', ['$scope', '$location','resetPassword', '$stateParam', function ($scope, $stateParam, resetPassword) {
   $scope.submitPassword = function() {
     console.log($scope.user);
     console.log($stateParam.username);
