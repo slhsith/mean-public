@@ -14,13 +14,14 @@ app.controller('ResetCtrl', ['$scope', '$location','$state', '$stateParams', 're
     console.log($scope.user);
     console.log($stateParams.username);
     console.log($stateParams.token);
-    resetPassword.updatePassword($scope., $stateParams.username, $stateParams.token).success(function () {
-      // output message
-      // redirect them home
-    })
-    .error(function (error) {
-      $scope.error = error;
-      $scope.showSuccessAlert = true;
-    });
+    // resetPassword.updatePassword($scope., $stateParams.username, $stateParams.token);
+// .success(function () {
+//       // output message
+//       // redirect them home
+//     })
+//     .error(function (error) {
+//       $scope.error = error;
+//       $scope.showSuccessAlert = true;
+//     });
   }; 
 }]);
