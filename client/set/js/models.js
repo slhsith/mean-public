@@ -7,10 +7,14 @@ app.factory('confirmEmail',['$http', '$window', function ($http, $window) {
   return confirmEmail;
 }]);
 
-app.factory('resetPassword',['$hhtp','$window', function ($http, $window) {
+app.factory('resetPassword',['$http','$window', function ($http, $window) {
   var resetPassword = {};
   resetPassword.reset = function (user) {
-    return $http.put('/api/resetPassword/:email/:token').success(function (data) {
+    return $http.get('/resetPassword/:username/:user_token').success(function (data) {
+    });
+  };
+  resetPassword.set  = function (user) {
+    return $http.get('/resetPassword/:username/:user_token').success(function (data) {
     });
   };
   return resetPassword;

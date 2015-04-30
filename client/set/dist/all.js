@@ -11,7 +11,7 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'MainCtrl'
     })
     .state('resetPassword', {
-      url: '/resetPassword',
+      url: '/resetPassword/:username/:user_token',
       templateUrl: 'resetPassword.html',
       controller: 'ResetCtrl',
     }); 
@@ -30,11 +30,9 @@ app.controller('MainCtrl', ['$scope', '$location', function ($scope) {
 }]);
 app.controller('ResetCtrl', ['$scope', '$location', function ($scope) {
   $scope.resetPassword = function() {
-    resetPassword.reset($scope.verify).error(function (error) {
+    resetPassword.set($scope.user).error(function (error) {
       $scope.error = error;
       $scope.showSuccessAlert = true;
-    }).then(function () {
-      window.location = "http://localhost:3000/user/#/home";
     });
   };
 }]);
@@ -47,10 +45,14 @@ app.factory('confirmEmail',['$http', '$window', function ($http, $window) {
   return confirmEmail;
 }]);
 
-app.factory('resetPassword',['$hhtp','$window', function ($http, $window) {
+app.factory('resetPassword',['$http','$window', function ($http, $window) {
   var resetPassword = {};
   resetPassword.reset = function (user) {
-    return $http.put('/api/resetPassword/:email/:token').success(function (data) {
+    return $http.get('/resetPassword/:username/:user_token').success(function (data) {
+    });
+  };
+  resetPassword.set  = function (user) {
+    return $http.get('/resetPassword/:username/:user_token').success(function (data) {
     });
   };
   return resetPassword;
