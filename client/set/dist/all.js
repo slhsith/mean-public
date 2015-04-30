@@ -55,17 +55,17 @@ app.controller('ResetCtrl', ['$scope', '$location','$state', '$stateParams', 're
 //   return confirmEmail;
 // }]);
 
-app.factory('reset',['$http','$window', function ($http, $window, $stateParams) {
-  var resetPassword = {};
-  resetPassword.reset = function (user, name, token) {
+app.factory('resetPassword',['$http','$window', function ($http, $window) {
+  var o = {};
+  o.reset = function (user, name, token) {
     return $http.get('/resetPassword/'+ name + '/' + token).success(function (data) {
       return data;
     });
   };
-  resetPassword.updatePassword  = function (user, name, token, req) {
+  o.updatePassword  = function (user, name, token) {
     return $http.put('/api/resetPassword/'+ name + '/' + token).success(function (data) {
       console.log('Success!');
     });
   };
-  return resetPassword;
+  return o;
 }]);
