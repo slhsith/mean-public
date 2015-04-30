@@ -9,19 +9,18 @@ app.controller('MainCtrl', ['$scope', '$location', function ($scope) {
   // };
 
 }]);
-app.controller('ResetCtrl', ['$scope', '$location','$state', '$stateParams', 'resetPassword', function ($scope, $state, $stateParams, resetPassword) {
+app.controller('ResetCtrl', ['$scope', '$location','resetPassword', function ($scope) {
   $scope.submitPassword = function() {
     console.log($scope.user);
-    console.log($stateParams.username);
-    console.log($stateParams.token);
-// resetPassword.updatePassword($scope.user, $stateParams.username, $stateParams.token)
-//    .success(function () {
-//       // output message
-//       // redirect them home
-//     })
-//     .error(function (error) {
-//       $scope.error = error;
-//       $scope.showSuccessAlert = true;
-//     });
+    console.log($stateParam.username);
+    console.log($stateParam.token);
+    resetPassword.updatePassword($scope., $stateParam.username, $stateParam.token).success(function () {
+      // output message
+      // redirect them home
+    })
+    .error(function (error) {
+      $scope.error = error;
+      $scope.showSuccessAlert = true;
+    });
   }; 
 }]);
