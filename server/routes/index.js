@@ -278,12 +278,21 @@ router.get('/resetPassword/:username/:user_token', function (req, res, next) {
     })
 });
 
-router.put('/api/resetPassword/:username/:user_token', function (req, res, next) {
+router.put('/api/resetPassword/:username/:token', function (req, res, next) {
   // if(req.body.password !== req.body.repeat_password){
   //   return res.status(400).json({message: 'Passwords do not match'});
   // }
-  console.log(req.body.password);
-  user.resetUserPassword(req.body.password);
+  var validate = function (password) {
+    User.findOne({ username: req.params.username }, function (err, user) {
+      if (!user) { return res.status(400).json({message:'Token expired'}); return false; }
+      if (user){ user.resetUserPassword(password)
+                 user.save(function (err){
+                  if(err){ return next(err); }
+                  return res.json({token: user.generateJWT()})
+                 }) }
+    })
+  };
+  validate();
 });
 
 //Facebook Integration

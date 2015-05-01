@@ -34,7 +34,7 @@ app.controller('ResetCtrl', function ($scope, $state, verification) {
     console.log($state.params.token);
     console.log($scope.user.password);
     console.log($scope.user.repeat_password);
-    verification.updatePassword(user, $state.params.username, $state.params.token).success(function () {
+    verification.updatePassword(user, $state.params.username, $state.params.token, $scope.user.password).success(function () {
       // redirect home
       
     }).error(function (error) {
@@ -54,7 +54,7 @@ app.factory('verification', function ($http, $window) {
           return $http.put('/api/emailverify/'+ name + '/' + token).success(function (data) {
           });
       },
-      updatePassword: function updatePasswordMethod(user, name, token) {
+      updatePassword: function updatePasswordMethod(user, name, token, password) {
           return $http.put('/api/resetPassword/'+ name + '/' + token).success(function (data) {
             console.log('Success!');
           });
