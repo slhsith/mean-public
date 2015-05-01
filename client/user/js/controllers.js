@@ -45,18 +45,18 @@ function($scope, posts, post, auth){
 
 app.controller('ShopCtrl', [
 '$scope',
-'items',
+'items', 
 'auth',
 function($scope, items, auth){
   $scope.items = items.items;
   $scope.addItem = function() {
-    // if($scope.name === '') { return; }
-    // items.create({
-    //   itemName: $scope.name,
-    // });
-    $scope.items.push({ name: $scope.name });
-    $scope.item = '';
-    $scope.item = item.$save();
+    if($scope.name === '') { return; }
+    items.create({
+      name: $scope.name,
+    });
+    // $scope.items.push({ name: $scope.name });
+    $scope.name = '';
+    // $scope.item = item.$save();
   };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
@@ -95,12 +95,8 @@ app.controller('TransCtrl', [
 '$scope',
 'items',
 'item',
-'transactions',
-'transaction',
 'auth',
-function($scope, transaction, transactions, items, item, auth){
-  $scope.transactions = transactions.transactions;
-  $scope.transaction = transaction;
+function($scope, items, item, auth){
   $scope.items = items.items;
   $scope.item = item; 
   // $scope.createTrans = function(){

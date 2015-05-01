@@ -7,7 +7,8 @@ var UserSchema = new mongoose.Schema({
   salt: String,
   permissions: String,
   confirmation: Boolean,
-  user_token: {type: String, lowercase: true, unique: true}
+  user_token: {type: String, lowercase: true, unique: true},
+  customer: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Customer' }]
 });
 
 UserSchema.methods.setPassword = function(password){

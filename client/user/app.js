@@ -17,7 +17,6 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('posts', {
-
       url: '/posts/{id}',
       templateUrl: 'posts.html',
       controller: 'PostsCtrl',
@@ -42,26 +41,35 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'shop.html',
       controller: 'ShopCtrl',
       resolve: {
-        itemPromise: ['items', function(items){
+        postPromise: ['items', function(items){
           return items.getAll();
         }]
       }
     })
     .state('transactions', {
-      url: '/items/transactions',
+      url: '/transactions',
       templateUrl: 'transactions.html',
       controller: 'TransCtrl',
       resolve: {
-        post: ['$stateParams', 'transactions', function($stateParams, transactions) {
-          return transactions.get($stateParams.id);
+        item: ['$stateParams', 'items', function($stateParams, items) {
+          return items.get($stateParams.id);
         }]
-      }
+      }    
     })
+    .state('checkout', {
+      url: '/checkout',
+      templateUrl: 'checkout.html',
+      controller: 'CheckoutCtrl',
+      resolve: {
+        item: ['$stateParams', 'items', function($stateParams, items) {
+          return items.get($stateParams.id);
+        }]    
+      }
+    })  
     .state('settings', {
       url: '/settings',
       templateUrl: 'settings.html',
       controller: 'SettingsCtrl',
     });
-
   // $urlRouterProvider.otherwise('home');
 }]);

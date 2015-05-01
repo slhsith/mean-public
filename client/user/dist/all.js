@@ -41,27 +41,36 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'shop.html',
       controller: 'ShopCtrl',
       resolve: {
-        itemPromise: ['items', function(items){
+        postPromise: ['items', function(items){
           return items.getAll();
         }]
       }
     })
     .state('transactions', {
-      url: '/items/transactions',
+      url: '/transactions',
       templateUrl: 'transactions.html',
       controller: 'TransCtrl',
       resolve: {
-        post: ['$stateParams', 'transactions', function($stateParams, transactions) {
-          return transactions.get($stateParams.id);
+        item: ['$stateParams', 'items', function($stateParams, items) {
+          return items.get($stateParams.id);
         }]
-      }
+      }    
     })
+    .state('checkout', {
+      url: '/checkout',
+      templateUrl: 'checkout.html',
+      controller: 'CheckoutCtrl',
+      resolve: {
+        item: ['$stateParams', 'items', function($stateParams, items) {
+          return items.get($stateParams.id);
+        }]    
+      }
+    })  
     .state('settings', {
       url: '/settings',
       templateUrl: 'settings.html',
       controller: 'SettingsCtrl',
     });
-
   // $urlRouterProvider.otherwise('home');
 }]);
 app.controller('MainCtrl', [
@@ -111,18 +120,18 @@ function($scope, posts, post, auth){
 
 app.controller('ShopCtrl', [
 '$scope',
-'items',
+'items', 
 'auth',
 function($scope, items, auth){
   $scope.items = items.items;
   $scope.addItem = function() {
-    // if($scope.name === '') { return; }
-    // items.create({
-    //   itemName: $scope.name,
-    // });
-    $scope.items.push({ name: $scope.name });
-    $scope.item = '';
-    $scope.item = item.$save();
+    if($scope.name === '') { return; }
+    items.create({
+      name: $scope.name,
+    });
+    // $scope.items.push({ name: $scope.name });
+    $scope.name = '';
+    // $scope.item = item.$save();
   };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
@@ -161,12 +170,8 @@ app.controller('TransCtrl', [
 '$scope',
 'items',
 'item',
-'transactions',
-'transaction',
 'auth',
-function($scope, transaction, transactions, items, item, auth){
-  $scope.transactions = transactions.transactions;
-  $scope.transaction = transaction;
+function($scope, items, item, auth){
   $scope.items = items.items;
   $scope.item = item; 
   // $scope.createTrans = function(){
@@ -245,6 +250,19 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
   return o;
 }]);
 
+
+app.factory('comments', ['$http', 'auth', function($http, auth){
+  var o = {
+    comments: []
+  };
+  o.getAll = function() {
+    return $http.get('/api/comments').success(function(data){
+      angular.copy(data, o.items);
+    });
+  };
+}]);  
+
+
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
     items: []
@@ -255,10 +273,15 @@ app.factory('items', ['$http', 'auth', function($http, auth){
     });
   };
   o.create = function(item) {
-    return $http.post('/api/items', post, {
+    return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data){
       o.items.push(data);
+    });
+  };
+  o.get = function(id) {
+    return $http.get('/api/items/' + id).then(function(res){
+      return res.data;
     });
   };
   o.upvote = function(item) {
@@ -268,38 +291,58 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       item.upvotes += 1;
     });
   };
-  o.get = function(id) {
-    return $http.get('/api/items/' + id).then(function(res){
-      return res.data;
-    });
-  };
-  return o;
-}]);
 
-app.factory('transactions', ['$http', '$window', 'auth', function($http, $window, auth){
-  var transactions = {};
-  transactions.saveToken = function (token) {
-    $window.localStorage['client-Token'] = token;
-  };
-
-  transactions.getToken = function () {
-    return $window.localStorage['client-Token'];
-  };
-
-  transactions.create = function(transaction) {
-    return $http.post('/api/transactions', post, {
+  o.addTransaction = function(item, transaction) {
+    return $http.post('/api/items/' + id + '/transactions', transaction, {
       headers: {Authorization: 'Bearer '+transactions.getToken()}
     }).success(function(data){
       transactions.push(data);
     });
   };
-  transactions.get = function(id) {
+  return o;
+}]);
+
+app.factory('transactions', ['$http', 'auth', function($http, auth){
+  var o = {
+    transactions: []
+  };  
+  // transactions.saveToken = function (token) {
+  //   $window.localStorage['client-Token'] = token;
+  // };
+
+  // transactions.getToken = function () {
+  //   return $window.localStorage['client-Token'];
+  // };
+  o.getAll = function() {
+    return $http.get('/api/transactions').success(function(data){
+      angular.copy(data, o.transactions);
+    });
+  };
+  o.get = function(id) {
     return $http.get('/api/transactions/' + id).then(function(res){
       return res.data;
     });
   };
+  o.addCustomer = function(id, customer) {
+    return $http.post('api/transactions' + id + '/customers', customer, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).success(function(data){
+      transactions.push(data);
+    });
+  };
   return transactions;
 }]);
+
+app.factory('customers', ['$http', 'auth', function($http, auth){
+  var o = {
+    customers: []
+  };  
+  o.get = function(id) {
+    return $http.get('/api/customers/' + id).then(function(res){
+      return res.data;
+    });
+  };
+}]);  
 
 
 app.factory('auth', ['$http', '$window', function($http, $window){
