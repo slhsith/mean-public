@@ -10,12 +10,12 @@ app.controller('MainCtrl', ['$scope', '$location', function ($scope) {
 
 }]);
 app.controller('ResetCtrl', function ($scope, $state, verification) {
-  $scope.submitPassword = function() {
+  $scope.submitPassword = function(user) {
     console.log($state.params.username);
     console.log($state.params.token);
     console.log($scope.user.password);
     console.log($scope.user.repeat_password);
-    verification.updatePassword(user, $state.params.username, $state.params.token).success(function () {
+    verification.updatePassword(user, $state.params.username, $state.params.token, $scope.user.password).success(function () {
       // redirect home
       
     }).error(function (error) {
