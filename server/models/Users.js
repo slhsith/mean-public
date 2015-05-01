@@ -26,14 +26,9 @@ UserSchema.methods.validateUserEmailToken = function() {
   this.confirmation = true;
 };
 
-UserSchema.methods.resetUserPassword = function(email, token, password) {
-  // user.findOne({ username: this.email, user_token: this.token }, function (err, docs) {
-  // if (err){
-  //    return err
-  // }else{
-  //    docs.setPassword(this.password);
-  // }
-  // });
+UserSchema.methods.resetUserPassword = function(password){
+  this.salt = crypto.randomBytes(16).toString('hex');
+  this.hash = crypto.pbkdf2Sync(password, this.salt, 1000, 64).toString('hex');
 };
 
 UserSchema.methods.generateUserToken = function(){

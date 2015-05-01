@@ -284,7 +284,7 @@ router.get('/emailVerify/:username/:user_token', function (req, res, next) {
 });
 
 router.get('/resetPassword/:username/:user_token', function (req, res, next) {
-  User.findOne({ username: req.params.username }, function (err, user) {
+  User.findOne({ username: req.param.username, token: req.param.user_token }, function (err, user) {
       if (!user) { return res.status(400).json({message:'Email not found'}); return false; }
       if (user){
         return true;
@@ -292,15 +292,21 @@ router.get('/resetPassword/:username/:user_token', function (req, res, next) {
     })
 });
 
-router.put('/resetPassword/:username/:user_token', function (req, res, next) {
-  if(req.body.password !== req.body.repeat_password){
-    return res.status(400).json({message: 'Passwords do not match'});
-  }
-  req.body.password = user.password;
-  user.save(function (err){
-    if(err){ return next(err); }
-    return res.json({token: user.generateJWT()})
-  });
+router.put('/api/resetPassword/:username/:token', function (req, res, next) {
+  // if(req.body.password !== req.body.repeat_password){
+  //   return res.status(400).json({message: 'Passwords do not match'});
+  // }
+  var validate = function (password) {
+    User.findOne({ username: req.params.username }, function (err, user) {
+      if (!user) { return res.status(400).json({message:'Token expired'}); return false; }
+      if (user){ user.resetUserPassword(password)
+                 user.save(function (err){
+                  if(err){ return next(err); }
+                  return res.json({token: user.generateJWT()})
+                 }) }
+    })
+  };
+  validate();
 });
 
 //Facebook Integration
