@@ -282,7 +282,7 @@ router.put('/api/resetPassword/:username/:user_token', function (req, res, next)
   if(req.body.password !== req.body.repeat_password){
     return res.status(400).json({message: 'Passwords do not match'});
   }
-  req.body.password = user.password;
+  user.resetUserPassword();
   user.save(function (err){
     if(err){ return next(err); }
     return res.json({token: user.generateJWT()})
