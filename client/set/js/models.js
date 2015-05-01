@@ -14,6 +14,5 @@ app.factory('verification', function ($http, $window) {
             console.log('Success!');
           });
       }
-
   };
 });

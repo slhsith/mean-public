@@ -9,17 +9,18 @@ app.controller('MainCtrl', ['$scope', '$location', function ($scope) {
   // };
 
 }]);
-app.controller('ResetCtrl', function ($scope, $state, $stateParams, verification) {
+app.controller('ResetCtrl', function ($scope, $state, verification) {
   $scope.submitPassword = function() {
-    console.log($stateParams.params.username);
-    console.log($stateParams.params.token);
+    console.log($state.params.username);
+    console.log($state.params.token);
     console.log($scope.user.password);
-    verification.updatePassword(user, $stateParams.params.username, $stateParams.params.token).success(function () {
+    console.log($scope.user.repeat_password);
+    // verification.updatePassword(user, $stateParams.params.username, $stateParams.params.token).success(function () {
       // redirect home
       //
-    }).error(function (error) {
-      $scope.error = error;
-      $scope.showSuccessAlert = true;
-    });
+    // }).error(function (error) {
+    //   $scope.error = error;
+    //   $scope.showSuccessAlert = true;
+    // });
   }; 
 });
