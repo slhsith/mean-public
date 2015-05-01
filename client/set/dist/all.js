@@ -51,7 +51,7 @@ app.factory('verification', function ($http, $window) {
           });
       },
       emailVerify: function emailVerifyMethod(user, name, token) {
-          return $http.put('/api/emailverify/:username/:token').success(function (data) {
+          return $http.put('/api/emailverify/'+ name + '/' + token).success(function (data) {
           });
       },
       updatePassword: function updatePasswordMethod(user, name, token) {
