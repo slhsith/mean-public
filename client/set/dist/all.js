@@ -34,13 +34,13 @@ app.controller('ResetCtrl', function ($scope, $state, verification) {
     console.log($state.params.token);
     console.log($scope.user.password);
     console.log($scope.user.repeat_password);
-    // verification.updatePassword(user, $stateParams.params.username, $stateParams.params.token).success(function () {
+    verification.updatePassword(user, $state.params.username, $state.params.token).success(function () {
       // redirect home
-      //
-    // }).error(function (error) {
-    //   $scope.error = error;
-    //   $scope.showSuccessAlert = true;
-    // });
+      
+    }).error(function (error) {
+      $scope.error = error;
+      $scope.showSuccessAlert = true;
+    });
   }; 
 });
 app.factory('verification', function ($http, $window) {
