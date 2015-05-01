@@ -311,15 +311,35 @@ router.get('/auth/facebook/callback',
 
 //Braintree
 
+
+/*Request Client Token from Server*/
+router.post('api/transactions/client_token', function (req, res) {
+  gateway.clientToken.generate({
+    customerId: aCustomerId
+  }, function (err, response) {
+    var clientToken = response.clientToken
+  });
+});
+
+
+
+/*Server generate Client Token and send to Client*/
+router.get('/api/transactions/client_token', function (req, res) {
+  gateway.clientToken.generate({
+    customerId: aCustomerId
+  }, function (err, response) {
+    res.send(response.clientToken);
+  });
+});
+
+//--> JS SDK communicates with Braintree to get payment method nonce to client
+
 /*Payment info from client to server*/
 router.post('/api/transactions', function (req, res) {
   var nonce = req.body.payment_method_nonce;
   gateway.transaction.sale({
     amount: '5.00',
-    creditCard: {
-      number: '5105105105105100',
-      expirationDate: '05/15'
-    }
+    paymentMethodNonce: 'nonce-from-the-client',
   }, function (err, result) {
     if (err) throw err;
 
@@ -331,23 +351,6 @@ router.post('/api/transactions', function (req, res) {
   });
 });
 
-/*Request Client Token from Server*/
-router.post('api/transactions/client_token', function (req, res) {
-  gateway.clientToken.generate({
-    customerId: aCustomerId
-  }, function (err, response) {
-    var clientToken = response.clientToken
-  });
-});
-
-/*Server generate Client Token and send to Client*/
-router.get('/api/transactions/client_token', function (req, res) {
-  gateway.clientToken.generate({
-    customerId: aCustomerId
-  }, function (err, response) {
-    res.send(response.clientToken);
-  });
-});
 
 /*Client retrieve transaction from server*/
 router.param('/api/transaction', function(req, res, next, id) {

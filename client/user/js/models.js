@@ -75,11 +75,11 @@ app.factory('items', ['$http', 'auth', function($http, auth){
 app.factory('transactions', ['$http', '$window', 'auth', function($http, $window, auth){
   var transactions = {};
   transactions.saveToken = function (token) {
-    $window.localStorage['clientToken'] = token;
+    $window.localStorage['client-Token'] = token;
   };
 
   transactions.getToken = function () {
-    return $window.localStorage['clientToken'];
+    return $window.localStorage['client-Token'];
   };
 
   transactions.create = function(transaction) {

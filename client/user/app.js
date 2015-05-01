@@ -46,6 +46,16 @@ function($stateProvider, $urlRouterProvider) {
         }]
       }
     })
+    .state('transactions', {
+      url: '/items/transactions',
+      templateUrl: 'transactions.html',
+      controller: 'TransCtrl',
+      resolve: {
+        post: ['$stateParams', 'transactions', function($stateParams, transactions) {
+          return transactions.get($stateParams.id);
+        }]
+      }
+    })
     .state('settings', {
       url: '/settings',
       templateUrl: 'settings.html',

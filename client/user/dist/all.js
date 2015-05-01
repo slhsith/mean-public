@@ -46,6 +46,16 @@ function($stateProvider, $urlRouterProvider) {
         }]
       }
     })
+    .state('transactions', {
+      url: '/items/transactions',
+      templateUrl: 'transactions.html',
+      controller: 'TransCtrl',
+      resolve: {
+        post: ['$stateParams', 'transactions', function($stateParams, transactions) {
+          return transactions.get($stateParams.id);
+        }]
+      }
+    })
     .state('settings', {
       url: '/settings',
       templateUrl: 'settings.html',
@@ -147,6 +157,32 @@ function($scope, auth){
 
 }]);
 
+app.controller('TransCtrl', [
+'$scope',
+'items',
+'item',
+'transactions',
+'transaction',
+'auth',
+function($scope, transaction, transactions, items, item, auth){
+  $scope.transactions = transactions.transactions;
+  $scope.transaction = transaction;
+  $scope.items = items.items;
+  $scope.item = item; 
+  // $scope.createTrans = function(){
+  //   if(!$scope.title || $scope.title === '') { return; }
+  //   transactions.create({
+  //     title: $scope.title,
+  //     link: $scope.link,
+  //   });
+  //   $scope.title = '';
+  //   $scope.link = '';
+  // };
+
+  $scope.isLoggedIn = auth.isLoggedIn;
+}]);
+
+
 app.controller('SettingsCtrl', [
 '$scope',
 function($scope){
@@ -243,11 +279,11 @@ app.factory('items', ['$http', 'auth', function($http, auth){
 app.factory('transactions', ['$http', '$window', 'auth', function($http, $window, auth){
   var transactions = {};
   transactions.saveToken = function (token) {
-    $window.localStorage['clientToken'] = token;
+    $window.localStorage['client-Token'] = token;
   };
 
   transactions.getToken = function () {
-    return $window.localStorage['clientToken'];
+    return $window.localStorage['client-Token'];
   };
 
   transactions.create = function(transaction) {
