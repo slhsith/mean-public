@@ -26,23 +26,23 @@ function($stateProvider, $urlRouterProvider) {
         }]
       }
     })
-    .state('items', {
-      url: '/items/{id}',
-      templateUrl: 'items.html',
-      controller: 'ItemsCtrl',
-      resolve: {
-        post: ['$stateParams', 'items', function($stateParams, items) {
-          return items.get($stateParams.id);
-        }]
-      }
-    })
     .state('shop', {
       url: '/shop',
       templateUrl: 'shop.html',
       controller: 'ShopCtrl',
       resolve: {
-        postPromise: ['items', function(items){
+        itemPromise: ['items', function(items){
           return items.getAll();
+        }]
+      }
+    })
+    .state('items', {
+      url: '/items/{id}',
+      templateUrl: 'items.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        item: ['$stateParams', 'items', function($stateParams, items) {
+          return items.get($stateParams.id);
         }]
       }
     })

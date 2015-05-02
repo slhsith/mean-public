@@ -26,23 +26,23 @@ function($stateProvider, $urlRouterProvider) {
         }]
       }
     })
-    .state('items', {
-      url: '/items/{id}',
-      templateUrl: 'items.html',
-      controller: 'ItemsCtrl',
-      resolve: {
-        post: ['$stateParams', 'items', function($stateParams, items) {
-          return items.get($stateParams.id);
-        }]
-      }
-    })
     .state('shop', {
       url: '/shop',
       templateUrl: 'shop.html',
       controller: 'ShopCtrl',
       resolve: {
-        postPromise: ['items', function(items){
+        itemPromise: ['items', function(items){
           return items.getAll();
+        }]
+      }
+    })
+    .state('items', {
+      url: '/items/{id}',
+      templateUrl: 'items.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        item: ['$stateParams', 'items', function($stateParams, items) {
+          return items.get($stateParams.id);
         }]
       }
     })
@@ -98,13 +98,15 @@ app.controller('PostsCtrl', [
 '$scope',
 '$stateParams',
 'posts',
+'comments',
 'auth',
-function($scope, $stateParams, posts, auth){
+function($scope, $stateParams, posts, comments, auth){
   var post = posts.post[$stateParams.id];
-  posts.getPost(post_id);
+  $scope.getPost(post_id);
   $scope.post = posts.post;
+  $scope.comments = comments.comments;
   $scope.addComment = function(){
-    if($scope.body === '') { return; }
+    if(!scope.body || $scope.body === '') { return; }
     posts.addComment(posts.post._id, {
       body: $scope.body,
       author: 'user',
@@ -267,7 +269,8 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
-    items: []
+    items: [],
+    item: {}
   };
   o.getAll = function() {
     return $http.get('/api/items').success(function(data){
@@ -294,7 +297,7 @@ app.factory('items', ['$http', 'auth', function($http, auth){
     });
   };
 
-  o.addTransaction = function(item, transaction) {
+  o.addTransaction = function(id, transaction) {
     return $http.post('/api/items/' + id + '/transactions', transaction, {
       headers: {Authorization: 'Bearer '+transactions.getToken()}
     }).success(function(data){
@@ -308,18 +311,11 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
   var o = {
     transactions: []
   };  
-  // transactions.saveToken = function (token) {
-  //   $window.localStorage['client-Token'] = token;
+  // o.getAll = function() {
+  //   return $http.get('/api/transactions').success(function(data){
+  //     angular.copy(data, o.transactions);
+  //   });
   // };
-
-  // transactions.getToken = function () {
-  //   return $window.localStorage['client-Token'];
-  // };
-  o.getAll = function() {
-    return $http.get('/api/transactions').success(function(data){
-      angular.copy(data, o.transactions);
-    });
-  };
   o.get = function(id) {
     return $http.get('/api/transactions/' + id).then(function(res){
       return res.data;

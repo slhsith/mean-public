@@ -23,13 +23,15 @@ app.controller('PostsCtrl', [
 '$scope',
 '$stateParams',
 'posts',
+'comments',
 'auth',
-function($scope, $stateParams, posts, auth){
+function($scope, $stateParams, posts, comments, auth){
   var post = posts.post[$stateParams.id];
-  posts.getPost(post_id);
+  $scope.getPost(post_id);
   $scope.post = posts.post;
+  $scope.comments = comments.comments;
   $scope.addComment = function(){
-    if($scope.body === '') { return; }
+    if(!scope.body || $scope.body === '') { return; }
     posts.addComment(posts.post._id, {
       body: $scope.body,
       author: 'user',
