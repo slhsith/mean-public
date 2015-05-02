@@ -1,6 +1,7 @@
 app.factory('posts', ['$http', 'auth', function($http, auth){
   var o = {
-    posts: []
+    posts: [],
+    post: {}
   };
   o.getAll = function() {
     return $http.get('/api/posts').success(function(data){

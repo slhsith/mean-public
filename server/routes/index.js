@@ -157,9 +157,8 @@ router.param('/api/item', function(req, res, next, id) {
   });
 });
 
-router.get('/api/items/:item', function(req, res, next) {
-
-    res.json(item);
+router.get('/api/items/:item', function(req, res) {
+    res.json(req.item);
 });
 
 
