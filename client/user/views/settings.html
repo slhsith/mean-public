@@ -28,3 +28,17 @@
             </tr>
           </table>
         </div>
+        <div ng-repeat="language in languages">
+        <span>{{language}}</span>
+        </div>
+        <form ng-submit="addLanguage()"
+        style="margin-top:30px;">
+          <h3>Add a new language</h3>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="Language"
+              ng-model="language.name"></input>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>

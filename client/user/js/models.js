@@ -107,3 +107,17 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     };
   return auth;
 }]);
+
+app.factory('settings', ['$http', '$window', function($http, $window){
+    var o ={
+      settings:[]
+    };
+    o.addLang = function(language){
+      return $http.post('/api/settings/', language, {
+        // headers: {Authorization: 'Bearer '+auth.getToken()}
+      }).success(function(data){
+        o.settings.push(data);
+      });
+    };
+  return o;
+}]);

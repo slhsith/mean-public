@@ -62,7 +62,7 @@ router.get('/api/posts/:post', function(req, res, next) {
   req.post.populate('comments', function(err, post) {
     if (err) { return next(err); }
 
-    res.json(post);
+    res.json(req.post);
   });
 });
 
@@ -294,6 +294,30 @@ router.put('/api/resetPassword/:username/:token', function (req, res, next) {
   };
   validate();
 });
+
+router.get('/api/settings'), function (req, res, next) {
+  Language.find(function(err, posts){
+    if(err){ return next(err); }
+
+    res.json(posts);
+  });
+}
+
+router.post('/api/settings/', function (req, res, next) {
+  var language = new Language(req.body);
+  language.user = req.user;
+
+  language.save(function(err, language){
+    if(err){ return next(err); }
+
+    req.user.languages.push(language);
+    req.user.save(function(err, user) {
+      if(err){ return next(err); }
+
+      res.json(language);
+    });
+  });
+})
 
 //Facebook Integration
 router.get('/auth/facebook', passport.authenticate('facebook'));

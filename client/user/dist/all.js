@@ -137,10 +137,11 @@ function($scope, auth){
 
 app.controller('SettingsCtrl', [
 '$scope',
-function($scope){
+'settings',
+function($scope, settings){
   $scope.myImage='';
   $scope.myCroppedImage='';
-
+  console.log($scope.language);
   var handleFileSelect=function(evt) {
     var file=evt.currentTarget.files[0];
     var reader = new FileReader();
@@ -152,6 +153,9 @@ function($scope){
     reader.readAsDataURL(file);
   };
   angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
+  $scope.addLanguage = function(){
+    settings.addLang($scope.language);
+  };
 }]);
 
 app.factory('posts', ['$http', 'auth', function($http, auth){
@@ -262,4 +266,18 @@ app.factory('auth', ['$http', '$window', function($http, $window){
       $window.location = "http://localhost:3000";
     };
   return auth;
+}]);
+
+app.factory('settings', ['$http', '$window', function($http, $window){
+    var o ={
+      settings:[]
+    };
+    o.addLang = function(language){
+      return $http.post('/api/settings/', language, {
+        // headers: {Authorization: 'Bearer '+auth.getToken()}
+      }).success(function(data){
+        o.settings.push(data);
+      });
+    };
+  return o;
 }]);
