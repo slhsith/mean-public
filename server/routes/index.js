@@ -324,7 +324,7 @@ router.get('/api/settings/', auth, function (req, res, next) {
 
   //   res.json(users);
   // });
-  var sid = req.sessionID;
+  var sid = req.session.id;
   var username = req.payload.username;
 
   users.findOne({username : username}, function(err, result)
