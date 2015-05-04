@@ -304,18 +304,18 @@ router.get('/api/settings/languages'), function (req, res, next) {
 }
 
 router.post('/api/settings/languages', function (req, res, next) {
-  // req.body.name = languageName;
-  // return req.body.name;
-  // test(function () {
-  //   return res.json({message: req.body.name});
-  // });
-  // var language = new Language(req.body.name);
+  req.body.name = languageName;
 
-  // language.save(function(err, item){
-  //   if(err){ return next(err); }
+  test(function () {
+    return res.json({message: req.body.name});
+  });
+  var language = new Language(req.body);
 
-  //   res.json(item);
-  // });
+  language.save(function(err, item){
+    if(err){ return next(err); }
+
+    res.json(item);
+  });
 })
 
 //Facebook Integration
