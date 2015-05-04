@@ -325,11 +325,27 @@ router.get('/api/settings/', auth, function (req, res, next) {
   //   res.json(users);
   // });
   var sid = req.sessionID;
-  var username = req.param.username;
-  var password = req.param.password;
+  var username = req.payload.username;
 
-  users.findOne({username : username, password : password}, function(err, result)
+  users.findOne({username : username}, function(err, result)
   { res.json(settings); })
+});
+
+router.put('/api/settings/', function (req, res, next) {
+  var username = req.payload.username;
+
+  users.findOne({username : username}, function(err, result){
+    user.f_name = req.body.f_name;
+    user.l_name = req.body.l_name;
+    user.address = req.body.address;
+    user.dob = req.body.dob;
+    user.handle = req.body.handle;
+
+    user.save(function (err){
+      if(err){ return next(err); }
+      return res.json({token: user.generateJWT()})
+    });
+  };
 });
 
 //Facebook Integration
