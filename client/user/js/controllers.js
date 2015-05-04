@@ -81,8 +81,9 @@ function($scope, auth){
 
 app.controller('SettingsCtrl', [
 '$scope',
+'languages',
 'settings',
-function($scope, settings){
+function($scope, languages, settings){
   $scope.myImage='';
   $scope.myCroppedImage='';
   var handleFileSelect=function(evt) {
@@ -97,7 +98,10 @@ function($scope, settings){
   };
   angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
   $scope.addLanguage = function(){
-    settings.test($scope.language.name);
-    settings.addLang($scope.language.name);
+    languages.test($scope.language.name);
+    languages.addLang($scope.language.name);
+  };
+  $scope.updateSettings = function() {
+    settings.update($scope.setting);
   };
 }]);

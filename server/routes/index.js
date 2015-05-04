@@ -295,13 +295,13 @@ router.put('/api/resetPassword/:username/:token', function (req, res, next) {
   validate();
 });
 
-router.get('/api/settings/languages'), function (req, res, next) {
-  Language.find(function(err, posts){
+router.get('/api/settings/languages', function (req, res, next) {
+  Language.find(function(err, languages){
     if(err){ return next(err); }
 
-    res.json(posts);
+    res.json(languages);
   });
-}
+});
 
 router.post('/api/settings/languages', function (req, res, next) {
   req.body.name = languageName;
@@ -316,7 +316,21 @@ router.post('/api/settings/languages', function (req, res, next) {
 
     res.json(item);
   });
-})
+});
+
+router.get('/api/settings/', auth, function (req, res, next) {
+  // User.find(function(err, users){
+  //   if(err){ return next(err); }
+
+  //   res.json(users);
+  // });
+  var sid = req.sessionID;
+  var username = req.param.username;
+  var password = req.param.password;
+
+  users.findOne({username : username, password : password}, function(err, result)
+  { res.json(settings); })
+});
 
 //Facebook Integration
 router.get('/auth/facebook', passport.authenticate('facebook'));

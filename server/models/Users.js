@@ -8,7 +8,12 @@ var UserSchema = new mongoose.Schema({
   permissions: String,
   confirmation: Boolean,
   user_token: {type: String, lowercase: true, unique: true},
-  languages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Language' }]
+  languages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Language' }],
+  f_name: String,
+  l_name: String,
+  address: String,
+  dob: String,
+  handle: String
 });
 
 UserSchema.methods.setPassword = function(password){
