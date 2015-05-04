@@ -345,7 +345,7 @@ router.put('/api/settings/', function (req, res, next) {
       if(err){ return next(err); }
       return res.json({token: user.generateJWT()})
     });
-  };
+  });
 });
 
 //Facebook Integration
