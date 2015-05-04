@@ -295,7 +295,7 @@ router.put('/api/resetPassword/:username/:token', function (req, res, next) {
   validate();
 });
 
-router.get('/api/settings'), function (req, res, next) {
+router.get('/api/settings/languages'), function (req, res, next) {
   Language.find(function(err, posts){
     if(err){ return next(err); }
 
@@ -303,20 +303,19 @@ router.get('/api/settings'), function (req, res, next) {
   });
 }
 
-router.post('/api/settings/', function (req, res, next) {
-  var language = new Language(req.body);
-  language.user = req.user;
+router.post('/api/settings/languages', function (req, res, next) {
+  // req.body.name = languageName;
+  // return req.body.name;
+  // test(function () {
+  //   return res.json({message: req.body.name});
+  // });
+  // var language = new Language(req.body.name);
 
-  language.save(function(err, language){
-    if(err){ return next(err); }
+  // language.save(function(err, item){
+  //   if(err){ return next(err); }
 
-    req.user.languages.push(language);
-    req.user.save(function(err, user) {
-      if(err){ return next(err); }
-
-      res.json(language);
-    });
-  });
+  //   res.json(item);
+  // });
 })
 
 //Facebook Integration

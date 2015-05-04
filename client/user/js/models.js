@@ -112,10 +112,11 @@ app.factory('settings', ['$http', '$window', function($http, $window){
     var o ={
       settings:[]
     };
+    o.test = function (language) {
+      console.log(language);
+    };
     o.addLang = function(language){
-      return $http.post('/api/settings/', language, {
-        // headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).success(function(data){
+      return $http.post('/api/settings/languages').success(function(data){
         o.settings.push(data);
       });
     };

@@ -141,7 +141,6 @@ app.controller('SettingsCtrl', [
 function($scope, settings){
   $scope.myImage='';
   $scope.myCroppedImage='';
-  console.log($scope.language);
   var handleFileSelect=function(evt) {
     var file=evt.currentTarget.files[0];
     var reader = new FileReader();
@@ -154,7 +153,8 @@ function($scope, settings){
   };
   angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
   $scope.addLanguage = function(){
-    settings.addLang($scope.language);
+    settings.test($scope.language.name);
+    settings.addLang($scope.language.name);
   };
 }]);
 
@@ -272,10 +272,11 @@ app.factory('settings', ['$http', '$window', function($http, $window){
     var o ={
       settings:[]
     };
+    o.test = function (language) {
+      console.log(language);
+    };
     o.addLang = function(language){
-      return $http.post('/api/settings/', language, {
-        // headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).success(function(data){
+      return $http.post('/api/settings/languages').success(function(data){
         o.settings.push(data);
       });
     };
