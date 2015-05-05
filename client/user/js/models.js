@@ -176,3 +176,44 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     };
   return auth;
 }]);
+
+app.factory('languages', ['$http', '$window', function($http, $window){
+    var o ={
+      languages:[]
+    };
+    o.test = function (language) {
+      console.log(language);
+    };
+    o.getLangs = function (language) {
+      return $http.get('/api/settings/lanuages').success(function(data){
+        angular.copy(data, o.items);
+      });
+    };
+    o.addLang = function(language){
+      return $http.post('/api/settings/languages').success(function(data){
+        o.languages.push(data);
+      });
+    };
+  return o;
+}]);
+app.factory('settings', ['$http', '$window', function($http, $window){
+    var o ={
+      settings:[]
+    };
+    o.test = function (setting) {
+      console.log(setting);
+    };
+    o.getSettings = function () {
+      return $http.get('/api/settings/', {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+        angular.copy(data, o.items);
+      });
+    };
+    o.update = function(){
+      return $http.put('/api/settings/').success(function(data){
+        o.settings.push(data);
+      });
+    };
+  return o;
+}]);

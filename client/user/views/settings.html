@@ -28,3 +28,56 @@
             </tr>
           </table>
         </div>
+        <div ng-repeat="language in languages">
+        <span>{{language}}</span>
+        </div>
+        <form ng-submit="addLanguage()"
+        style="margin-top:30px;">
+          <h3>Add a new language</h3>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="Language"
+              ng-model="language.name"></input>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <form ng-submit="updateSettings()"
+        style="margin-top:30px;">
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="First Name"
+              ng-model="setting.f_name">
+            </input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="Last Name"
+              ng-model="setting.l_name">
+            </input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="Address"
+              ng-model="setting.address">
+            </input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="Dob"
+              ng-model="setting.dob">
+            </input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="Handle"
+              ng-model="setting.handle">
+            </input>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>

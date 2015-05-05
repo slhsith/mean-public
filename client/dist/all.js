@@ -19,6 +19,7 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
 
   $scope.forgotPassword = function () {
     auth.forgotPassword($scope.forgot).error(function (error) {
+      console.log($scope.forgot);
       $scope.error = error;
     });
   };

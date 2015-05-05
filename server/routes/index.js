@@ -61,8 +61,17 @@ router.param('/api/post', function(req, res, next, id) {
   });
 });
 
+<<<<<<< HEAD
 router.get('/api/posts/:post', function(req, res) {
     res.json(req.post);
+=======
+router.get('/api/posts/:post', function(req, res, next) {
+  req.post.populate('comments', function(err, post) {
+    if (err) { return next(err); }
+
+    res.json(req.post);
+  });
+>>>>>>> 1f052075ac27120bb4892e6272379b0ebe4ee085
 });
 
 router.put('/api/posts/:post/upvote', auth, function(req, res, next) {
@@ -365,6 +374,59 @@ router.put('/api/resetPassword/:username/:token', function (req, res, next) {
     })
   };
   validate();
+});
+
+router.get('/api/settings/languages', function (req, res, next) {
+  Language.find(function(err, languages){
+    if(err){ return next(err); }
+
+    res.json(languages);
+  });
+});
+
+router.post('/api/settings/languages', function (req, res, next) {
+  req.body.name = languageName;
+
+  test(function () {
+    return res.json({message: req.body.name});
+  });
+  var language = new Language(req.body);
+
+  language.save(function(err, item){
+    if(err){ return next(err); }
+
+    res.json(item);
+  });
+});
+
+router.get('/api/settings/', auth, function (req, res, next) {
+  // User.find(function(err, users){
+  //   if(err){ return next(err); }
+
+  //   res.json(users);
+  // });
+  var sid = req.session.id;
+  var username = req.payload.username;
+
+  users.findOne({username : username}, function(err, result)
+  { res.json(settings); })
+});
+
+router.put('/api/settings/', function (req, res, next) {
+  var username = req.payload.username;
+
+  users.findOne({username : username}, function(err, result){
+    user.f_name = req.body.f_name;
+    user.l_name = req.body.l_name;
+    user.address = req.body.address;
+    user.dob = req.body.dob;
+    user.handle = req.body.handle;
+
+    user.save(function (err){
+      if(err){ return next(err); }
+      return res.json({token: user.generateJWT()})
+    });
+  });
 });
 
 //Facebook Integration
