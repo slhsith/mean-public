@@ -8,6 +8,8 @@ var passport = require('passport');
 var User = mongoose.model('User');
 var jwt = require('express-jwt');
 var nodemailer = require('nodemailer');
+var bodyParser = require('body-parser'),    
+    jsonParser = bodyParser.json();    
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 var transporter = nodemailer.createTransport({
     service: 'Mandrill',
@@ -26,6 +28,7 @@ router.get('/api', function(req, res, next) {
 
 module.exports = router;
 
+//posts
 
 router.get('/api/posts', function(req, res, next) {
   Post.find(function(err, posts){
@@ -58,14 +61,18 @@ router.param('/api/post', function(req, res, next, id) {
   });
 });
 
+<<<<<<< HEAD
+router.get('/api/posts/:post', function(req, res) {
+    res.json(req.post);
+=======
 router.get('/api/posts/:post', function(req, res, next) {
   req.post.populate('comments', function(err, post) {
     if (err) { return next(err); }
 
     res.json(req.post);
   });
+>>>>>>> 1f052075ac27120bb4892e6272379b0ebe4ee085
 });
-
 
 router.put('/api/posts/:post/upvote', auth, function(req, res, next) {
   req.post.upvote(function(err, post){
@@ -74,6 +81,14 @@ router.put('/api/posts/:post/upvote', auth, function(req, res, next) {
     res.json(post);
   });
 });
+
+//post page & comments
+router.get('/api/posts/:post', function(req, res, next) {
+  req.post.populate('comments', function(err, post) {
+    res.json(req.post);
+  });
+});
+
 
 router.post('/api/posts/:post/comments', auth, function(req, res, next) {
   var comment = new Comment(req.body);
@@ -113,6 +128,7 @@ router.param('comment', function(req, res, next, id) {
 });
 
 //Items
+
 router.get('/api/items', function(req, res, next) {
   Item.find(function(err, items){
     if(err){ return next(err); }
@@ -144,9 +160,8 @@ router.param('/api/item', function(req, res, next, id) {
   });
 });
 
-router.get('/api/items/:item', function(req, res, next) {
-
-    res.json(item);
+router.get('/api/items/:item', function(req, res) {
+    res.json(req.item);
 });
 
 
@@ -157,6 +172,71 @@ router.put('/api/items/:item/upvote', auth, function(req, res, next) {
     res.json(item);
   });
 });
+
+//item page & transaction
+router.post('/api/items/:item/transactions', auth, function(req, res, next) {
+  var transaction = new Transaction(req.id);
+  transaction.item = req.item;
+  transaction.author = req.payload.username;
+
+  transaction.save(function(err, transaction){
+    if(err){ return next(err); }
+
+    req.item.transactions.push(transaction);
+    req.item.save(function(err, item) {
+      if(err){ return next(err); }
+
+      res.json(transaction);
+    });
+  });
+});
+
+//transaction page & create customer
+router.get('/api/transactions', function(req, res, next) {
+  Transaction.find(function(err, transactions){
+    if(err){ return next(err); }
+
+    res.json(transactions);
+  });
+});
+
+router.get('/api/transactions/:transaction', function(req, res) {
+    res.json(req.transaction);
+});
+
+router.post('/api/transaction/:transaction/customers', auth, function(req, res, next) {
+  var customer = new customer(req.id);
+  customer.transaction = req.transaction;
+  customer.author = req.payload.username;
+
+  customer.save(function(err, customer){
+    if(err){ return next(err); }
+
+    req.transaction.customers.push(customer);
+    req.transaction.save(function(err, transaction) {
+      if(err){ return next(err); }
+
+      res.json(customer);
+    });
+  });
+});
+
+//customers
+router.get('/api/customers', function(req, res, next) {
+  Customer.find(function(err, customers){
+    if(err){ return next(err); }
+
+    res.json(customers);
+  });
+});
+
+
+router.get('/api/customers/:customer', function(req, res) {
+    res.json(req.customer);
+});
+
+
+//auth
 
 router.post('/api/register', function(req, res, next){
   if(!req.body.username || !req.body.password || !req.body.repeat_username || !req.body.repeat_password){
@@ -190,6 +270,7 @@ router.post('/api/register', function(req, res, next){
     if(err){ return next(err); }
     return res.json({token: user.generateJWT()})
   });
+
   var mailOptions = {
     from: 'contact@trainersvault.com', // sender address 
     to: user.username, // list of receivers 
@@ -353,3 +434,4 @@ router.get('/auth/facebook', passport.authenticate('facebook'));
 router.get('/auth/facebook/callback', 
   passport.authenticate('facebook', { successRedirect: '/',
                                       failureRedirect: '/login' }));
+

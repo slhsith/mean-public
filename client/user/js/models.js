@@ -1,7 +1,9 @@
 app.factory('posts', ['$http', 'auth', function($http, auth){
   var o = {
-    posts: []
+    posts: [],
+    post: {}
   };
+
   o.getAll = function() {
     return $http.get('/api/posts').success(function(data){
       angular.copy(data, o.posts);
@@ -13,6 +15,7 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
     }).success(function(data){
       o.posts.push(data);
     });
+
   };
   o.upvote = function(post) {
     return $http.put('/api/posts/' + post._id + '/upvote', null, {
@@ -41,20 +44,41 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
   return o;
 }]);
 
+
+app.factory('comments', ['$http', 'auth', function($http, auth){
+  var o = {
+    comments: []
+  };
+  o.getAll = function() {
+    return $http.get('/api/comments').success(function(data){
+      angular.copy(data, o.items);
+    });
+  };
+}]);  
+
+
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
-    items: []
+    items: [],
+    item: {}
   };
+
+
   o.getAll = function() {
     return $http.get('/api/items').success(function(data){
       angular.copy(data, o.items);
     });
   };
   o.create = function(item) {
-    return $http.post('/api/items', post, {
+    return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data){
       o.items.push(data);
+    });
+  };
+  o.get = function(id) {
+    return $http.get('/api/items/' + id).then(function(res){
+      return res.data;
     });
   };
   o.upvote = function(item) {
@@ -64,13 +88,58 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       item.upvotes += 1;
     });
   };
-  o.get = function(id) {
-    return $http.get('/api/items/' + id).then(function(res){
-      return res.data;
+
+  o.addTransaction = function(id, transaction) {
+    return $http.post('/api/items/' + id + '/transactions', transaction, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).success(function(data){
+      transactions.push(data);
     });
   };
   return o;
+  
+  // var t = function(){
+  //   console.log(item.name);
+  // };
+
+
+  // t();
 }]);
+
+app.factory('transactions', ['$http', 'auth', function($http, auth){
+  var o = {
+    transactions: []
+  };  
+  // o.getAll = function() {
+  //   return $http.get('/api/transactions').success(function(data){
+  //     angular.copy(data, o.transactions);
+  //   });
+  // };
+  o.get = function(id) {
+    return $http.get('/api/transactions/' + id).then(function(res){
+      return res.data;
+    });
+  };
+  o.addCustomer = function(id, customer) {
+    return $http.post('api/transactions' + id + '/customers', customer, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).success(function(data){
+      transactions.push(data);
+    });
+  };
+  return transactions;
+}]);
+
+app.factory('customers', ['$http', 'auth', function($http, auth){
+  var o = {
+    customers: []
+  };  
+  o.get = function(id) {
+    return $http.get('/api/customers/' + id).then(function(res){
+      return res.data;
+    });
+  };
+}]);  
 
 
 app.factory('auth', ['$http', '$window', function($http, $window){

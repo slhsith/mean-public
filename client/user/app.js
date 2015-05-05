@@ -26,6 +26,16 @@ function($stateProvider, $urlRouterProvider) {
         }]
       }
     })
+    .state('shop', {
+      url: '/shop',
+      templateUrl: 'shop.html',
+      controller: 'ShopCtrl',
+      resolve: {
+        itemPromise: ['items', function(items){
+          return items.getAll();
+        }]
+      }
+    })
     .state('items', {
       url: '/items/{id}',
       templateUrl: 'items.html',
@@ -36,21 +46,30 @@ function($stateProvider, $urlRouterProvider) {
         }]
       }
     })
-    .state('shop', {
-      url: '/shop',
-      templateUrl: 'shop.html',
-      controller: 'MainCtrl',
+    .state('transactions', {
+      url: '/transactions',
+      templateUrl: 'transactions.html',
+      controller: 'TransCtrl',
       resolve: {
-        itemPromise: ['items', function(items){
-          return items.getAll();
+        item: ['$stateParams', 'items', function($stateParams, items) {
+          return items.get($stateParams.id);
         }]
-      }
+      }    
     })
+    .state('checkout', {
+      url: '/checkout',
+      templateUrl: 'checkout.html',
+      controller: 'CheckoutCtrl',
+      resolve: {
+        item: ['$stateParams', 'items', function($stateParams, items) {
+          return items.get($stateParams.id);
+        }]    
+      }
+    })  
     .state('settings', {
       url: '/settings',
       templateUrl: 'settings.html',
       controller: 'SettingsCtrl',
     });
-
   // $urlRouterProvider.otherwise('home');
 }]);
