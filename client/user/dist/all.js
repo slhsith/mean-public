@@ -215,18 +215,25 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
     posts: [],
     post: {}
   };
+  var t = function(){
+    console.log(post.title);
+  };
+
+
+  // t();
+
   o.getAll = function() {
     return $http.get('/api/posts').success(function(data){
       angular.copy(data, o.posts);
     });
   };
-  o.create = function(post) {
-    return $http.post('/api/posts', post, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      o.posts.push(data);
-    });
-  };
+  // o.create = function(post) {
+  //   return $http.post('/api/posts', post, {
+  //     headers: {Authorization: 'Bearer '+auth.getToken()}
+  //   }).success(function(data){
+  //     o.posts.push(data);
+  //   });
+  // };
   o.upvote = function(post) {
     return $http.put('/api/posts/' + post._id + '/upvote', null, {
       headers: {Authorization: 'Bearer '+auth.getToken()}

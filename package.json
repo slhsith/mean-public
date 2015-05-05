@@ -31,6 +31,7 @@
     "password-reset-nodemailer": "0.0.1",
     "serve-favicon": "^2.2.0",
     "socket.io": "1.3.5",
+    "stripe": "^3.3.4",
     "util": "^0.10.3"
   },
   "devDependencies": {
