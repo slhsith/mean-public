@@ -45,6 +45,9 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
       $scope.success = true;
     });
   };
+  // auth.isGroupMember = function(){
+    
+  // };
   return auth;
 }]);
 // app.factory('confirmEmail',['$http', '$window', function ($http, $window) {

@@ -66,6 +66,36 @@ function($stateProvider, $urlRouterProvider) {
         }]    
       }
     })  
+    .state('/groups', {
+      url: '/groups',
+      templateUrl: 'groups.html',
+      controller: 'GroupsCtrl',
+      resolve: {
+        groupPromise: ['groups', function(groups){
+          return groups.getAll();
+        }]
+      }
+    })
+    .state('/group_home', {
+      url: '/group_home',
+      templateUrl: 'group_home.html',
+      controller: 'GHomeCtrl',
+      resolve: {
+        gpostPromise: ['gposts', function(gposts){
+          return gposts.getAll();
+        }]
+      }
+    })
+    .state('/gposts', {
+      url: '/gposts',
+      templateUrl: 'gposts.html',
+      controller: 'GpostCtrl',
+      resolve: {
+        gcommentPromise: ['gcomments', function(gcomments){
+          return gcomments.getAll();
+        }]
+      }
+    })
     .state('settings', {
       url: '/settings',
       templateUrl: 'settings.html',
@@ -218,6 +248,75 @@ function($scope, languages, settings){
   };
 }]);
 
+app.controller('GroupsCtrl', [
+'$scope',
+'groups',
+'auth',
+function($scope, groups, auth){
+  $scope.groups = groups.groups;
+  $scope.addGroup = function(){
+    if(!$scope.name || $scope.name === '') { return; }
+    groups.create({
+      name: $scope.name,
+    });
+    $scope.name = '';
+  };
+
+  $scope.isLoggedIn = auth.isLoggedIn;
+}]);
+
+app.controller('GhomeCtrl', [
+'$scope',
+'$stateParams',
+'gposts',
+'auth',
+function($scope, $stateParams, gposts, auth){
+  var gpost = gposts.gpost[$stateParams.id];
+  $scope.get(gpost._id);
+  $scope.gpost = gposts.gpost;
+  $scope.addGroupPost = function(){
+    if(!scope.body || $scope.body === '') { return; }
+    groups.addGpost(groups.group._id, {
+      body: $scope.body,
+      author: 'user',
+    }).success(function(gpost) {
+      $scope.group.gpost.push(gpost);
+    });
+    $scope.body = '';
+  };
+  $scope.incrementUpvotes = function(gpost){
+    gposts.upvoteGroupPost(gpost);
+  };
+  $scope.isLoggedIn = auth.isLoggedIn;
+}]);
+
+app.controller('GpostCtrl', [
+'$scope',
+'$stateParams',
+'gposts',
+'gcomments',
+'auth',
+function($scope, $stateParams, gposts, gcomments, auth){
+  var gpost = gposts.gpost[$stateParams.id];
+  $scope.get(gpost._id);
+  $scope.gpost = gposts.gpost;
+  $scope.gcomments = gcomments.gcomments;
+  $scope.addGroupComment = function(){
+    if(!scope.body || $scope.body === '') { return; }
+    gposts.addGroupComment(gposts.gpost._id, {
+      body: $scope.body,
+      author: 'user',
+    }).success(function(gcomment) {
+      $scope.gpost.gcomments.push(gcomment);
+    });
+    $scope.body = '';
+  };
+  $scope.incrementUpvotes = function(gcomment){
+    gposts.upvoteGroupComment(gpost, gcomment);
+  };
+  $scope.isLoggedIn = auth.isLoggedIn;
+}]);
+
 app.factory('posts', ['$http', 'auth', function($http, auth){
   var o = {
     posts: [],
@@ -271,9 +370,10 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
   };
   o.getAll = function() {
     return $http.get('/api/comments').success(function(data){
-      angular.copy(data, o.items);
+      angular.copy(data, o.comments);
     });
   };
+  return o;
 }]);  
 
 
@@ -347,7 +447,7 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
       transactions.push(data);
     });
   };
-  return transactions;
+  return o;
 }]);
 
 app.factory('customers', ['$http', 'auth', function($http, auth){
@@ -359,6 +459,7 @@ app.factory('customers', ['$http', 'auth', function($http, auth){
       return res.data;
     });
   };
+  return o;
 }]);  
 
 
@@ -437,3 +538,81 @@ app.factory('settings', ['$http', '$window', function($http, $window){
     };
   return o;
 }]);
+
+app.factory('groups', ['$http', 'auth', function($http, auth){
+  var o = {
+    groups: [],
+    group: {}
+  };
+
+  o.getAll = function() {
+    return $http.get('/api/groups').success(function(data){
+      angular.copy(data, o.groups);
+    });
+  };
+  o.create = function(group) {
+    return $http.post('/api/groups', group, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      o.groups.push(data);
+    });
+
+  };
+  o.get = function(id) {
+    return $http.get('/api/groups/' + id).then(function(res){
+      return res.data;
+    });
+  };
+  return o;
+}]);
+
+app.factory('gposts', ['$http', 'auth', function($http, auth){
+  var o = {
+    gposts: [],
+    gpost: {}
+  };
+
+  o.getAll = function() {
+    return $http.get('/api/gposts').success(function(data){
+      angular.copy(data, o.gposts);
+    });
+  };
+  o.create = function(gpost) {
+    return $http.post('/api/gposts', gpost, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      o.gposts.push(data);
+    });
+
+  };
+  o.upvote = function(gpost) {
+    return $http.put('/api/gposts/' + post._id + '/upvote', null, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      gpost.upvotes += 1;
+    });
+  };
+  o.get = function(id) {
+    return $http.get('/api/gposts/' + id).then(function(res){
+      return res.data;
+    });
+  };
+  o.addGroupComment = function(id, gcomment) {
+    return $http.post('/api/gposts/' + id + '/gcomments', gcomment, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  return o;
+}]);
+
+app.factory('gcomments', ['$http', 'auth', function($http, auth){
+  var o = {
+    gcomments: []
+  };  
+  o.getAll = function() {
+    return $http.get('/api/gcomments').success(function(data){
+      angular.copy(data, o.gcomments);
+    });
+  };
+  return o;
+}]); 

@@ -4,6 +4,8 @@ var mongoose = require('mongoose');
 var Post = mongoose.model('Post');
 var Comment = mongoose.model('Comment');
 var Item = mongoose.model('Item');
+// var Gpost = mongoose.model('Gpost');
+// var Gcomment = mongoose.model('Gcomment');
 var passport = require('passport');
 var User = mongoose.model('User');
 var jwt = require('express-jwt');
@@ -229,6 +231,103 @@ router.get('/api/customers', function(req, res, next) {
 router.get('/api/customers/:customer', function(req, res) {
     res.json(req.customer);
 });
+
+
+
+//GROUP WALL PAGE
+/////////////////////////////
+
+// router.get('/api/gposts', function(req, res, next) {
+//   Gpost.find(function(err, gposts){
+//     if(err){ return next(err); }
+
+//     res.json(gposts);
+//   });
+// });
+
+// router.post('/api/gposts', auth, function(req, res, next) {
+//   var gpost = new Gpost(req.body);
+//   gpost.author = req.payload.username;
+
+//   gpost.save(function(err, gpost){
+//     if(err){ return next(err); }
+
+//     res.json(gpost);
+//   });
+// });
+
+// router.param('/api/gpost', function(req, res, next, id) {
+//   var query = Gpost.findById(id);
+
+//   query.exec(function (err, gpost){
+//     if (err) { return next(err); }
+//     if (!post) { return next(new Error('can\'t find post')); }
+
+//     req.post = gpost;
+//     return next();
+//   });
+// });
+
+// router.get('/api/gposts/:gpost', function(req, res, next) {
+//   req.gpost.populate('gcomments', function(err, post) {
+//     if (err) { return next(err); }
+
+//     res.json(req.gpost);
+//   });
+// });
+
+// router.put('/api/gposts/:gpost/upvote', auth, function(req, res, next) {
+//   req.gpost.upvote(function(err, gpost){
+//     if (err) { return next(err); }
+
+//     res.json(gpost);
+//   });
+// });
+
+// //post page & comments
+// router.get('/api/gposts/:gpost', function(req, res, next) {
+//   req.gpost.populate('gcomments', function(err, gpost) {
+//     res.json(req.gpost);
+//   });
+// });
+
+
+// router.post('/api/gposts/:gpost/gcomments', auth, function(req, res, next) {
+//   var gcomment = new Gcomment(req.body);
+//   gcomment.gpost = req.gpost;
+//   gcomment.author = req.payload.username;
+
+//   gcomment.save(function(err, gcomment){
+//     if(err){ return next(err); }
+
+//     req.gpost.gcomments.push(gcomment);
+//     req.gpost.save(function(err, post) {
+//       if(err){ return next(err); }
+
+//       res.json(gcomment);
+//     });
+//   });
+// });
+
+// router.put('/api/gposts/:gpost/gcomments/:gcomment/upvote', auth, function(req, res, next) {
+//   req.gpost.upvote(function(err, gpost){
+//     if (err) { return next(err); }
+
+//     res.json(gpost);
+//   });
+// });
+
+// router.param('gcomment', function(req, res, next, id) {
+//   var query = Gcomment.findById(id);
+
+//   query.exec(function (err, gcomment){
+//     if (err) { return next(err); }
+//     if (!gcomment) { return next(new Error('can\'t find comment')); }
+
+//     req.gcomment = gcomment;
+//     return next();
+//   });
+// });
 
 
 //auth

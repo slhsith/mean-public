@@ -142,3 +142,72 @@ function($scope, languages, settings){
     settings.update($scope.setting);
   };
 }]);
+
+app.controller('GroupsCtrl', [
+'$scope',
+'groups',
+'auth',
+function($scope, groups, auth){
+  $scope.groups = groups.groups;
+  $scope.addGroup = function(){
+    if(!$scope.name || $scope.name === '') { return; }
+    groups.create({
+      name: $scope.name,
+    });
+    $scope.name = '';
+  };
+
+  $scope.isLoggedIn = auth.isLoggedIn;
+}]);
+
+app.controller('GhomeCtrl', [
+'$scope',
+'$stateParams',
+'gposts',
+'auth',
+function($scope, $stateParams, gposts, auth){
+  var gpost = gposts.gpost[$stateParams.id];
+  $scope.get(gpost._id);
+  $scope.gpost = gposts.gpost;
+  $scope.addGroupPost = function(){
+    if(!scope.body || $scope.body === '') { return; }
+    groups.addGpost(groups.group._id, {
+      body: $scope.body,
+      author: 'user',
+    }).success(function(gpost) {
+      $scope.group.gpost.push(gpost);
+    });
+    $scope.body = '';
+  };
+  $scope.incrementUpvotes = function(gpost){
+    gposts.upvoteGroupPost(gpost);
+  };
+  $scope.isLoggedIn = auth.isLoggedIn;
+}]);
+
+app.controller('GpostCtrl', [
+'$scope',
+'$stateParams',
+'gposts',
+'gcomments',
+'auth',
+function($scope, $stateParams, gposts, gcomments, auth){
+  var gpost = gposts.gpost[$stateParams.id];
+  $scope.get(gpost._id);
+  $scope.gpost = gposts.gpost;
+  $scope.gcomments = gcomments.gcomments;
+  $scope.addGroupComment = function(){
+    if(!scope.body || $scope.body === '') { return; }
+    gposts.addGroupComment(gposts.gpost._id, {
+      body: $scope.body,
+      author: 'user',
+    }).success(function(gcomment) {
+      $scope.gpost.gcomments.push(gcomment);
+    });
+    $scope.body = '';
+  };
+  $scope.incrementUpvotes = function(gcomment){
+    gposts.upvoteGroupComment(gpost, gcomment);
+  };
+  $scope.isLoggedIn = auth.isLoggedIn;
+}]);

@@ -66,6 +66,36 @@ function($stateProvider, $urlRouterProvider) {
         }]    
       }
     })  
+    .state('/groups', {
+      url: '/groups',
+      templateUrl: 'groups.html',
+      controller: 'GroupsCtrl',
+      resolve: {
+        groupPromise: ['groups', function(groups){
+          return groups.getAll();
+        }]
+      }
+    })
+    .state('/group_home', {
+      url: '/group_home/{group._id}',
+      templateUrl: 'group_home.html',
+      controller: 'GHomeCtrl',
+      resolve: {
+        gpostPromise: ['gposts', function(gposts){
+          return gposts.getAll();
+        }]
+      }
+    })
+    .state('/gposts', {
+      url: '/gposts',
+      templateUrl: 'gposts.html',
+      controller: 'GpostCtrl',
+      resolve: {
+        gcommentPromise: ['gcomments', function(gcomments){
+          return gcomments.getAll();
+        }]
+      }
+    })
     .state('settings', {
       url: '/settings',
       templateUrl: 'settings.html',
