@@ -61,17 +61,12 @@ router.param('/api/post', function(req, res, next, id) {
   });
 });
 
-<<<<<<< HEAD
-router.get('/api/posts/:post', function(req, res) {
-    res.json(req.post);
-=======
 router.get('/api/posts/:post', function(req, res, next) {
   req.post.populate('comments', function(err, post) {
     if (err) { return next(err); }
 
     res.json(req.post);
   });
->>>>>>> 1f052075ac27120bb4892e6272379b0ebe4ee085
 });
 
 router.put('/api/posts/:post/upvote', auth, function(req, res, next) {
