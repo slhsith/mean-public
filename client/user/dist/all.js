@@ -26,6 +26,16 @@ function($stateProvider, $urlRouterProvider) {
         }]
       }
     })
+    .state('shop', {
+      url: '/shop',
+      templateUrl: 'shop.html',
+      controller: 'ShopCtrl',
+      resolve: {
+        itemPromise: ['items', function(items){
+          return items.getAll();
+        }]
+      }
+    })
     .state('items', {
       url: '/items/{id}',
       templateUrl: 'items.html',
@@ -36,30 +46,43 @@ function($stateProvider, $urlRouterProvider) {
         }]
       }
     })
-    .state('shop', {
-      url: '/shop',
-      templateUrl: 'shop.html',
-      controller: 'MainCtrl',
+    .state('transactions', {
+      url: '/transactions',
+      templateUrl: 'transactions.html',
+      controller: 'TransCtrl',
       resolve: {
-        itemPromise: ['items', function(items){
-          return items.getAll();
+        item: ['$stateParams', 'items', function($stateParams, items) {
+          return items.get($stateParams.id);
         }]
-      }
+      }    
     })
+    .state('checkout', {
+      url: '/checkout',
+      templateUrl: 'checkout.html',
+      controller: 'CheckoutCtrl',
+      resolve: {
+        item: ['$stateParams', 'items', function($stateParams, items) {
+          return items.get($stateParams.id);
+        }]    
+      }
+    })  
     .state('settings', {
       url: '/settings',
       templateUrl: 'settings.html',
       controller: 'SettingsCtrl',
+      // resolve: {
+      //   language: ['$stateParams', 'languages', function($stateParams, languages) {
+      //     return languages.get($stateParams.id);
+      //   }]
+      // }
     });
-
   // $urlRouterProvider.otherwise('home');
 }]);
 app.controller('MainCtrl', [
 '$scope',
 'posts',
-'items',
 'auth',
-function($scope, posts, items, auth){
+function($scope, posts, auth){
   $scope.posts = posts.posts;
   $scope.addPost = function(){
     if(!$scope.title || $scope.title === '') { return; }
@@ -73,43 +96,57 @@ function($scope, posts, items, auth){
   $scope.incrementUpvotes = function(post) {
     posts.upvote(post);
   };
-  $scope.items = items.items;
-  $scope.addItem = function(){
-    if(!$scope.title || $scope.title === '') { return; }
-    item.create({
-      name: $scope.title,
-      link: $scope.link,
-    });
-    $scope.title = '';
-    $scope.link = '';
-  };
-
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
 app.controller('PostsCtrl', [
 '$scope',
+'$stateParams',
 'posts',
-'post',
+'comments',
 'auth',
-function($scope, posts, post, auth){
-  $scope.posts = posts.posts;
-  $scope.post = post;
+function($scope, $stateParams, posts, comments, auth){
+  var post = posts.post[$stateParams.id];
+  $scope.getPost(post_id);
+  $scope.post = posts.post;
+  $scope.comments = comments.comments;
   $scope.addComment = function(){
-    if($scope.body === '') { return; }
-    posts.addComment(post._id, {
+    if(!scope.body || $scope.body === '') { return; }
+    posts.addComment(posts.post._id, {
       body: $scope.body,
       author: 'user',
     }).success(function(comment) {
       $scope.post.comments.push(comment);
     });
     $scope.body = '';
-
   };
   $scope.incrementUpvotes = function(comment){
     posts.upvoteComment(post, comment);
   };
+  $scope.isLoggedIn = auth.isLoggedIn;
 }]);
+
+app.controller('ShopCtrl', [
+'$scope',
+'items', 
+'auth',
+function($scope, items, auth){
+  $scope.items = items.items;
+  $scope.addItem = function() {
+    if($scope.name === '') { return; }
+    items.create({
+      name: $scope.name,
+    });
+    // $scope.items.push({ name: $scope.name });
+    $scope.name = '';
+    // $scope.item = item.$save();
+  };
+  $scope.incrementUpvotes = function(item){
+    items.upvoteItem(item);
+  };  
+  $scope.isLoggedIn = auth.isLoggedIn;
+}]);
+
 
 app.controller('ItemsCtrl', [
 '$scope',
@@ -119,9 +156,10 @@ app.controller('ItemsCtrl', [
 function($scope, items, item, auth){
   $scope.items = items.items;
   $scope.item = item;
-  $scope.incrementUpvotes = function(comment){
+  $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
   };
+  $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
 app.controller('NavCtrl', [
@@ -130,17 +168,31 @@ app.controller('NavCtrl', [
 '$location',
 function($scope, auth){
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.home = auth.isLoggedIn;
   $scope.currentUser = auth.currentUser;
   $scope.logOut = auth.logOut;
 
 }]);
 
+app.controller('TransCtrl', [
+'$scope',
+'items',
+'item',
+'auth',
+function($scope, items, item, auth){
+  $scope.items = items.items;
+  $scope.item = item; 
+  $scope.isLoggedIn = auth.isLoggedIn;
+}]);
+
+
 app.controller('SettingsCtrl', [
 '$scope',
-function($scope){
+'languages',
+'settings',
+function($scope, languages, settings){
   $scope.myImage='';
   $scope.myCroppedImage='';
-
   var handleFileSelect=function(evt) {
     var file=evt.currentTarget.files[0];
     var reader = new FileReader();
@@ -152,12 +204,21 @@ function($scope){
     reader.readAsDataURL(file);
   };
   angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
+  $scope.addLanguage = function(){
+    console.log($scope.language.name);
+    languages.addLanguage($scope.language.name);
+  };
+  $scope.updateSettings = function() {
+    settings.update($scope.setting);
+  };
 }]);
 
 app.factory('posts', ['$http', 'auth', function($http, auth){
   var o = {
-    posts: []
+    posts: [],
+    post: {}
   };
+
   o.getAll = function() {
     return $http.get('/api/posts').success(function(data){
       angular.copy(data, o.posts);
@@ -169,6 +230,7 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
     }).success(function(data){
       o.posts.push(data);
     });
+
   };
   o.upvote = function(post) {
     return $http.put('/api/posts/' + post._id + '/upvote', null, {
@@ -197,20 +259,41 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
   return o;
 }]);
 
+
+app.factory('comments', ['$http', 'auth', function($http, auth){
+  var o = {
+    comments: []
+  };
+  o.getAll = function() {
+    return $http.get('/api/comments').success(function(data){
+      angular.copy(data, o.items);
+    });
+  };
+}]);  
+
+
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
-    items: []
+    items: [],
+    item: {}
   };
+
+
   o.getAll = function() {
     return $http.get('/api/items').success(function(data){
       angular.copy(data, o.items);
     });
   };
   o.create = function(item) {
-    return $http.post('/api/items', post, {
+    return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data){
       o.items.push(data);
+    });
+  };
+  o.get = function(id) {
+    return $http.get('/api/items/' + id).then(function(res){
+      return res.data;
     });
   };
   o.upvote = function(item) {
@@ -220,13 +303,58 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       item.upvotes += 1;
     });
   };
-  o.get = function(id) {
-    return $http.get('/api/items/' + id).then(function(res){
-      return res.data;
+
+  o.addTransaction = function(id, transaction) {
+    return $http.post('/api/items/' + id + '/transactions', transaction, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).success(function(data){
+      transactions.push(data);
     });
   };
   return o;
+  
+  // var t = function(){
+  //   console.log(item.name);
+  // };
+
+
+  // t();
 }]);
+
+app.factory('transactions', ['$http', 'auth', function($http, auth){
+  var o = {
+    transactions: []
+  };  
+  // o.getAll = function() {
+  //   return $http.get('/api/transactions').success(function(data){
+  //     angular.copy(data, o.transactions);
+  //   });
+  // };
+  o.get = function(id) {
+    return $http.get('/api/transactions/' + id).then(function(res){
+      return res.data;
+    });
+  };
+  o.addCustomer = function(id, customer) {
+    return $http.post('api/transactions' + id + '/customers', customer, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).success(function(data){
+      transactions.push(data);
+    });
+  };
+  return transactions;
+}]);
+
+app.factory('customers', ['$http', 'auth', function($http, auth){
+  var o = {
+    customers: []
+  };  
+  o.get = function(id) {
+    return $http.get('/api/customers/' + id).then(function(res){
+      return res.data;
+    });
+  };
+}]);  
 
 
 app.factory('auth', ['$http', '$window', function($http, $window){
@@ -262,4 +390,40 @@ app.factory('auth', ['$http', '$window', function($http, $window){
       $window.location = "http://localhost:3000";
     };
   return auth;
+}]);
+
+app.factory('languages', ['$http', '$window', function($http, $window){
+  return {
+    getLanguages: function getLangs(language) {
+      return $http.get('/api/settings/languages').success(function(data){
+        angular.copy(data, o.languages);
+      });
+    },
+    addLanguage: function addLang(language) {
+      console.log(language);
+      return $http.post('/api/settings/languages').success(function(data){
+        o.languages.push(data);
+        console.log('Success!');
+      });
+    }
+  };
+}]);
+app.factory('settings', ['$http', '$window', function($http, $window){
+  return {
+    test: function test(setting){
+      console.log(setting);
+    },
+    getSettings: function getSettings() {
+      return $http.get('/api/settings/', {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      }).success(function(data){
+        angular.copy(data, o.items);
+      });
+    },
+    update: function update(){
+      return $http.put('/api/settings/').success(function(data){
+        o.settings.push(data);
+      });
+    }
+  };
 }]);

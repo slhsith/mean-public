@@ -7,10 +7,12 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var passport = require('passport');
 var nodemailer = require('nodemailer');
+var stripe = require("stripe")("sk_test_z1OaqEIX71PB6nqiDgZ8bfLE");
 require('./server/models/Posts');
 require('./server/models/Comments');
 require('./server/models/Items');
 require('./server/models/Users');
+require('./server/models/Languages');
 require('./server/config/passport');
 
 mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/news');
@@ -24,6 +26,17 @@ var routes = require('./server/routes/index');
 var users = require('./server/routes/users');
 
 var app = express();
+var jsonParser = bodyParser.json();
+
+/**
+ * Enable CORS (http://enable-cors.org/server_expressjs.html)
+ * to allow different clients to request data from your server
+ */
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));

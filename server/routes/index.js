@@ -4,10 +4,14 @@ var mongoose = require('mongoose');
 var Post = mongoose.model('Post');
 var Comment = mongoose.model('Comment');
 var Item = mongoose.model('Item');
+var User = mongoose.model('User');
+var Language = mongoose.model('Language');
 var passport = require('passport');
 var User = mongoose.model('User');
 var jwt = require('express-jwt');
 var nodemailer = require('nodemailer');
+var bodyParser = require('body-parser'),    
+    jsonParser = bodyParser.json();    
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
 var transporter = nodemailer.createTransport({
     service: 'Mandrill',
@@ -26,6 +30,7 @@ router.get('/api', function(req, res, next) {
 
 module.exports = router;
 
+//posts
 
 router.get('/api/posts', function(req, res, next) {
   Post.find(function(err, posts){
@@ -62,10 +67,9 @@ router.get('/api/posts/:post', function(req, res, next) {
   req.post.populate('comments', function(err, post) {
     if (err) { return next(err); }
 
-    res.json(post);
+    res.json(req.post);
   });
 });
-
 
 router.put('/api/posts/:post/upvote', auth, function(req, res, next) {
   req.post.upvote(function(err, post){
@@ -74,6 +78,14 @@ router.put('/api/posts/:post/upvote', auth, function(req, res, next) {
     res.json(post);
   });
 });
+
+//post page & comments
+router.get('/api/posts/:post', function(req, res, next) {
+  req.post.populate('comments', function(err, post) {
+    res.json(req.post);
+  });
+});
+
 
 router.post('/api/posts/:post/comments', auth, function(req, res, next) {
   var comment = new Comment(req.body);
@@ -113,6 +125,7 @@ router.param('comment', function(req, res, next, id) {
 });
 
 //Items
+
 router.get('/api/items', function(req, res, next) {
   Item.find(function(err, items){
     if(err){ return next(err); }
@@ -144,9 +157,8 @@ router.param('/api/item', function(req, res, next, id) {
   });
 });
 
-router.get('/api/items/:item', function(req, res, next) {
-
-    res.json(item);
+router.get('/api/items/:item', function(req, res) {
+    res.json(req.item);
 });
 
 
@@ -157,6 +169,71 @@ router.put('/api/items/:item/upvote', auth, function(req, res, next) {
     res.json(item);
   });
 });
+
+//item page & transaction
+router.post('/api/items/:item/transactions', auth, function(req, res, next) {
+  var transaction = new Transaction(req.id);
+  transaction.item = req.item;
+  transaction.author = req.payload.username;
+
+  transaction.save(function(err, transaction){
+    if(err){ return next(err); }
+
+    req.item.transactions.push(transaction);
+    req.item.save(function(err, item) {
+      if(err){ return next(err); }
+
+      res.json(transaction);
+    });
+  });
+});
+
+//transaction page & create customer
+router.get('/api/transactions', function(req, res, next) {
+  Transaction.find(function(err, transactions){
+    if(err){ return next(err); }
+
+    res.json(transactions);
+  });
+});
+
+router.get('/api/transactions/:transaction', function(req, res) {
+    res.json(req.transaction);
+});
+
+router.post('/api/transaction/:transaction/customers', auth, function(req, res, next) {
+  var customer = new customer(req.id);
+  customer.transaction = req.transaction;
+  customer.author = req.payload.username;
+
+  customer.save(function(err, customer){
+    if(err){ return next(err); }
+
+    req.transaction.customers.push(customer);
+    req.transaction.save(function(err, transaction) {
+      if(err){ return next(err); }
+
+      res.json(customer);
+    });
+  });
+});
+
+//customers
+router.get('/api/customers', function(req, res, next) {
+  Customer.find(function(err, customers){
+    if(err){ return next(err); }
+
+    res.json(customers);
+  });
+});
+
+
+router.get('/api/customers/:customer', function(req, res) {
+    res.json(req.customer);
+});
+
+
+//auth
 
 router.post('/api/register', function(req, res, next){
   if(!req.body.username || !req.body.password || !req.body.repeat_username || !req.body.repeat_password){
@@ -190,6 +267,7 @@ router.post('/api/register', function(req, res, next){
     if(err){ return next(err); }
     return res.json({token: user.generateJWT()})
   });
+
   var mailOptions = {
     from: 'contact@trainersvault.com', // sender address 
     to: user.username, // list of receivers 
@@ -295,8 +373,67 @@ router.put('/api/resetPassword/:username/:token', function (req, res, next) {
   validate();
 });
 
+router.get('/api/settings/languages', function (req, res, next) {
+  Language.find(function(err, languages){
+    if(err){ return next(err); }
+
+    res.json(languages);
+  });
+});
+
+router.post('/api/settings/languages', function (req, res, next) {
+  // req.body.name = languageName;
+
+  // test(function () {
+  //   return res.json({message: req.body.name});
+  // });
+  var language = new Language(req.body);
+  language.user = req.user;
+
+  language.save(function(err, languages){
+    if(err){ return next(err); }
+    req.user.languages.push(language);
+    req.user.save(function(err, post) {
+      if(err){ return next(err); }
+
+      res.json(language);
+    });
+  });
+});
+
+router.get('/api/settings/', auth, function (req, res, next) {
+  // User.find(function(err, users){
+  //   if(err){ return next(err); }
+
+  //   res.json(users);
+  // });
+  var sid = req.session.id;
+  var username = req.payload.username;
+
+  users.findOne({username : username}, function(err, result)
+  { res.json(settings); })
+});
+
+router.put('/api/settings/', function (req, res, next) {
+  var username = req.payload.username;
+
+  users.findOne({username : username}, function(err, result){
+    user.f_name = req.body.f_name;
+    user.l_name = req.body.l_name;
+    user.address = req.body.address;
+    user.dob = req.body.dob;
+    user.handle = req.body.handle;
+
+    user.save(function (err){
+      if(err){ return next(err); }
+      return res.json({token: user.generateJWT()})
+    });
+  });
+});
+
 //Facebook Integration
 router.get('/auth/facebook', passport.authenticate('facebook'));
 router.get('/auth/facebook/callback', 
   passport.authenticate('facebook', { successRedirect: '/',
                                       failureRedirect: '/login' }));
+

@@ -6,17 +6,14 @@
       <div ng-repeat="item in items | orderBy:'-upvotes'">
         <span class="glyphicon glyphicon-thumbs-up"
           ng-click="incrementUpvotes(item)"></span>
-        {{item.upvotes}}
+           {{item.upvotes}}
         <span style="font-size:20px; margin-left:10px;">
-          <a ng-show="item.link" href="{{item.link}}">
-            {{item.title}}
-          </a>
-          <span ng-hide="item.link">
-            {{item.title}}
+          <span>
+            {{item.name}}
           </span>
         </span>
         <span>
-          <a href="/#/items/{{item._id}}">Go to Item Page</a>
+          <a href="#/items/{{item._id}}">Go to Item Page</a>
         </span>
       </div>
       <form ng-submit="addItem()"
@@ -28,14 +25,15 @@
         <div class="form-group">
           <input type="text"
             class="form-control"
-            placeholder="Title"
-            ng-model="title"></input>
-        </div>
-        <div class="form-group">
-          <input type="text"
-          class="form-control"
-          placeholder="Link"
-          ng-model="link"></input>
+            placeholder="Item Desc..."
+            ng-model="name"></input>
         </div>
         <button type="submit" class="btn btn-primary">Post</button>
       </form>
+
+      <br />
+      <div>
+        <span>
+          <a href="#/home">Home Page</a>
+        </span>
+      </div>    
