@@ -70,6 +70,11 @@ function($stateProvider, $urlRouterProvider) {
       url: '/settings',
       templateUrl: 'settings.html',
       controller: 'SettingsCtrl',
+      // resolve: {
+      //   language: ['$stateParams', 'languages', function($stateParams, languages) {
+      //     return languages.get($stateParams.id);
+      //   }]
+      // }
     });
   // $urlRouterProvider.otherwise('home');
 }]);

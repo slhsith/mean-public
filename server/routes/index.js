@@ -4,6 +4,8 @@ var mongoose = require('mongoose');
 var Post = mongoose.model('Post');
 var Comment = mongoose.model('Comment');
 var Item = mongoose.model('Item');
+var User = mongoose.model('User');
+var Language = mongoose.model('Language');
 var passport = require('passport');
 var User = mongoose.model('User');
 var jwt = require('express-jwt');
@@ -380,17 +382,22 @@ router.get('/api/settings/languages', function (req, res, next) {
 });
 
 router.post('/api/settings/languages', function (req, res, next) {
-  req.body.name = languageName;
+  // req.body.name = languageName;
 
-  test(function () {
-    return res.json({message: req.body.name});
-  });
+  // test(function () {
+  //   return res.json({message: req.body.name});
+  // });
   var language = new Language(req.body);
+  language.user = req.user;
 
-  language.save(function(err, item){
+  language.save(function(err, languages){
     if(err){ return next(err); }
+    req.user.languages.push(language);
+    req.user.save(function(err, post) {
+      if(err){ return next(err); }
 
-    res.json(item);
+      res.json(language);
+    });
   });
 });
 

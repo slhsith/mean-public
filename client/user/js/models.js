@@ -178,42 +178,37 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 }]);
 
 app.factory('languages', ['$http', '$window', function($http, $window){
-    var o ={
-      languages:[]
-    };
-    o.test = function (language) {
-      console.log(language);
-    };
-    o.getLangs = function (language) {
-      return $http.get('/api/settings/lanuages').success(function(data){
-        angular.copy(data, o.items);
+  return {
+    getLanguages: function getLangs(language) {
+      return $http.get('/api/settings/languages').success(function(data){
+        angular.copy(data, o.languages);
       });
-    };
-    o.addLang = function(language){
+    },
+    addLanguage: function addLang(language) {
+      console.log(language);
       return $http.post('/api/settings/languages').success(function(data){
         o.languages.push(data);
+        console.log('Success!');
       });
-    };
-  return o;
+    }
+  };
 }]);
 app.factory('settings', ['$http', '$window', function($http, $window){
-    var o ={
-      settings:[]
-    };
-    o.test = function (setting) {
+  return {
+    test: function test(setting){
       console.log(setting);
-    };
-    o.getSettings = function () {
+    },
+    getSettings: function getSettings() {
       return $http.get('/api/settings/', {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      }).success(function(data){
         angular.copy(data, o.items);
       });
-    };
-    o.update = function(){
+    },
+    update: function update(){
       return $http.put('/api/settings/').success(function(data){
         o.settings.push(data);
       });
-    };
-  return o;
+    }
+  };
 }]);

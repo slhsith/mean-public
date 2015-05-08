@@ -102,16 +102,6 @@ app.controller('TransCtrl', [
 function($scope, items, item, auth){
   $scope.items = items.items;
   $scope.item = item; 
-  // $scope.createTrans = function(){
-  //   if(!$scope.title || $scope.title === '') { return; }
-  //   transactions.create({
-  //     title: $scope.title,
-  //     link: $scope.link,
-  //   });
-  //   $scope.title = '';
-  //   $scope.link = '';
-  // };
-
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
@@ -135,8 +125,8 @@ function($scope, languages, settings){
   };
   angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
   $scope.addLanguage = function(){
-    languages.test($scope.language.name);
-    languages.addLang($scope.language.name);
+    console.log($scope.language.name);
+    languages.addLanguage($scope.language.name);
   };
   $scope.updateSettings = function() {
     settings.update($scope.setting);
