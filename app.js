@@ -12,9 +12,9 @@ require('./server/models/Comments');
 require('./server/models/Items');
 require('./server/models/Users');
 require('./server/models/Languages');
-// require('./server/models/Groups');
-// require('./server/models/Gposts');
-// require('./server/models/Gcomments');
+require('./server/models/Groups');
+require('./server/models/Gposts');
+require('./server/models/Gcomments');
 require('./server/config/passport');
 
 mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/news');

@@ -17,7 +17,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('posts', {
-      url: '/posts/{id}',
+      url: '/posts/:post',
       templateUrl: 'posts.html',
       controller: 'PostsCtrl',
       resolve: {
@@ -37,7 +37,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('items', {
-      url: '/items/{id}',
+      url: '/items/:item',
       templateUrl: 'items.html',
       controller: 'ItemsCtrl',
       resolve: {
@@ -66,7 +66,7 @@ function($stateProvider, $urlRouterProvider) {
         }]    
       }
     })  
-    .state('/groups', {
+    .state('groups', {
       url: '/groups',
       templateUrl: 'groups.html',
       controller: 'GroupsCtrl',
@@ -77,7 +77,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('/group_home', {
-      url: '/group_home/{group._id}',
+      url: '/group_home/:group',
       templateUrl: 'group_home.html',
       controller: 'GHomeCtrl',
       resolve: {
@@ -87,7 +87,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('/gposts', {
-      url: '/gposts',
+      url: '/gposts/:gpost',
       templateUrl: 'gposts.html',
       controller: 'GpostCtrl',
       resolve: {

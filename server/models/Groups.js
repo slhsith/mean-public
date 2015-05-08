@@ -8,6 +8,6 @@ var GroupSchema = new mongoose.Schema({
 
 createGroupId = function(){
    this.group_id = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 30);
-}
+};
 
-mongoose.model('Groups', GroupSchema);
+mongoose.model('Group', GroupSchema);

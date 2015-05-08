@@ -27,7 +27,7 @@ app.controller('PostsCtrl', [
 'auth',
 function($scope, $stateParams, posts, comments, auth){
   var post = posts.post[$stateParams.id];
-  $scope.getPost(post_id);
+  $scope.post._id = $routeParams.postId;
   $scope.post = posts.post;
   $scope.comments = comments.comments;
   $scope.addComment = function(){
