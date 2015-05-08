@@ -77,7 +77,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('/group_home', {
-      url: '/group_home',
+      url: '/group_home/{group._id}',
       templateUrl: 'group_home.html',
       controller: 'GHomeCtrl',
       resolve: {
@@ -261,7 +261,6 @@ function($scope, groups, auth){
     });
     $scope.name = '';
   };
-
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 

@@ -156,7 +156,6 @@ function($scope, groups, auth){
     });
     $scope.name = '';
   };
-
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
