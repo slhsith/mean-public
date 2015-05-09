@@ -89,6 +89,7 @@ app.controller('MainCtrl', function($scope, auth){
     //     "$created": $scope.user.created,
     //     "gender" : $scope.user.gender,
     //     "age" : $scope.user.age,
+    //     "type" : $scope.user.permissions,
         "$last_login": new Date()
     });
   $scope.isLoggedIn = auth.isLoggedIn;
