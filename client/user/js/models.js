@@ -173,7 +173,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
       $window.localStorage.removeItem('admin-token');
       $window.location = "http://localhost:3000";
     };
-    auth.getUser = function () {
+    auth.getUser = function (){
       if(auth.isLoggedIn()){
         var token = auth.getToken();
         var payload = JSON.parse($window.atob(token.split('.')[1]));

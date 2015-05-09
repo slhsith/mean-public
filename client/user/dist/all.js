@@ -9,7 +9,7 @@ function($stateProvider, $urlRouterProvider) {
     .state('home', {
       url: '/home',
       templateUrl: 'home.html',
-      controller: 'MainCtrl',
+      controller: 'DashCtrl',
       resolve: {
         postPromise: ['posts', function(posts){
           return posts.getAll();
@@ -78,11 +78,31 @@ function($stateProvider, $urlRouterProvider) {
     });
   // $urlRouterProvider.otherwise('home');
 }]);
-app.controller('MainCtrl', [
+app.controller('MainCtrl', function($scope, auth){
+
+  
+    $scope.user = auth.getUser();
+    console.log($scope.user._id);
+    // console.log(userObj);
+    // mixpanel.identify($scope.user.id);
+    // mixpanel.people.set({
+    //     "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
+    //     "$email": $scope.user.username,
+    //     "$created": $scope.user.created,
+    //     "gender" : $scope.user.gender,
+    //     "age" : $scope.user.age,
+    //     "$last_login": new Date()
+    // });
+  // });
+  $scope.isLoggedIn = auth.isLoggedIn;
+});
+
+app.controller('DashCtrl', [
 '$scope',
 'posts',
 'auth',
 function($scope, posts, auth){
+
   $scope.posts = posts.posts;
   $scope.addPost = function(){
     if(!$scope.title || $scope.title === '') { return; }
@@ -99,18 +119,7 @@ function($scope, posts, auth){
     mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
-  auth.getUser.success(function(data){
-    $scope.user = data;
-    // mixpanel.identify($scope.user.id);
-    // mixpanel.people.set({
-    //     "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
-    //     "$email": $scope.user.username,
-    //     "$created": $scope.user.created,
-    //     "gender" : $scope.user.gender,
-    //     "age" : $scope.user.age,
-    //     "$last_login": new Date()
-    // });
-  });
+
 }]);
 
 app.controller('PostsCtrl', [
@@ -407,7 +416,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
       $window.localStorage.removeItem('admin-token');
       $window.location = "http://localhost:3000";
     };
-    auth.getUser = function () {
+    auth.getUser = function (){
       if(auth.isLoggedIn()){
         var token = auth.getToken();
         var payload = JSON.parse($window.atob(token.split('.')[1]));
