@@ -2,18 +2,15 @@ app.controller('MainCtrl', function($scope, auth){
 
   
     $scope.user = auth.getUser();
-    console.log($scope.user._id);
-    // console.log(userObj);
-    // mixpanel.identify($scope.user.id);
-    // mixpanel.people.set({
+    mixpanel.identify($scope.user._id);
+    mixpanel.people.set({
     //     "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
-    //     "$email": $scope.user.username,
+        "$email": $scope.user.username,
     //     "$created": $scope.user.created,
     //     "gender" : $scope.user.gender,
     //     "age" : $scope.user.age,
-    //     "$last_login": new Date()
-    // });
-  // });
+        "$last_login": new Date()
+    });
   $scope.isLoggedIn = auth.isLoggedIn;
 });
 
