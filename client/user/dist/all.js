@@ -95,13 +95,22 @@ function($scope, posts, auth){
   };
   $scope.incrementUpvotes = function(post) {
     posts.upvote(post);
+    mixpanel.identify($scope.user.id);
+    mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.user = auth.getUser;
-  // user.success(function(data) {
-  //   mixpanel.identify($scope.user);
-  // });
-
+  auth.getUser.success(function(data){
+    $scope.user = data;
+    // mixpanel.identify($scope.user.id);
+    // mixpanel.people.set({
+    //     "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
+    //     "$email": $scope.user.username,
+    //     "$created": $scope.user.created,
+    //     "gender" : $scope.user.gender,
+    //     "age" : $scope.user.age,
+    //     "$last_login": new Date()
+    // });
+  });
 }]);
 
 app.controller('PostsCtrl', [
@@ -189,6 +198,9 @@ function($scope, items, item, auth, transactions){
   $scope.startTrans = function () {
     console.log($scope.card);
     transactions.purchase($scope.card);
+    // mixpanel.identify($scope.user.id);
+    // mixpanel.track("Checkout: Purchase Item");
+    // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
 }]);
 
