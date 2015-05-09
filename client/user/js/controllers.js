@@ -17,11 +17,10 @@ function($scope, posts, auth){
     posts.upvote(post);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.user() = auth.getUser;
-  $scope.user = user();
-  user.success(function(data) {
-    mixpanel.identify($scope.user);
-  });
+  $scope.user = auth.getUser;
+  // user.success(function(data) {
+  //   mixpanel.identify($scope.user);
+  // });
 
 }]);
 
