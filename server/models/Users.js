@@ -13,7 +13,9 @@ var UserSchema = new mongoose.Schema({
   l_name: String,
   address: String,
   dob: String,
-  handle: String
+  handle: String,
+  stripeToken: String,
+  created: Date
 });
 
 UserSchema.methods.setPassword = function(password){

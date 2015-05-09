@@ -17,6 +17,12 @@ function($scope, posts, auth){
     posts.upvote(post);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.user() = auth.getUser;
+  $scope.user = user();
+  user.success(function(data) {
+    mixpanel.identify($scope.user);
+  });
+
 }]);
 
 app.controller('PostsCtrl', [
@@ -99,10 +105,12 @@ app.controller('TransCtrl', [
 'items',
 'item',
 'auth',
-function($scope, items, item, auth){
-  $scope.items = items.items;
-  $scope.item = item; 
-  $scope.isLoggedIn = auth.isLoggedIn;
+'transactions',
+function($scope, items, item, auth, transactions){
+  $scope.startTrans = function () {
+    console.log($scope.card);
+    transactions.purchase($scope.card);
+  };
 }]);
 
 

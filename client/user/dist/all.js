@@ -97,6 +97,11 @@ function($scope, posts, auth){
     posts.upvote(post);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.user() = auth.getUser;
+  user.success(function(data) {
+    mixpanel.identify($scope.user);
+  });
+
 }]);
 
 app.controller('PostsCtrl', [
@@ -179,10 +184,12 @@ app.controller('TransCtrl', [
 'items',
 'item',
 'auth',
-function($scope, items, item, auth){
-  $scope.items = items.items;
-  $scope.item = item; 
-  $scope.isLoggedIn = auth.isLoggedIn;
+'transactions',
+function($scope, items, item, auth, transactions){
+  $scope.startTrans = function () {
+    console.log($scope.card);
+    transactions.purchase($scope.card);
+  };
 }]);
 
 
@@ -335,14 +342,13 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
       return res.data;
     });
   };
-  o.addCustomer = function(id, customer) {
-    return $http.post('api/transactions' + id + '/customers', customer, {
-      headers: {Authorization: 'Bearer '+transactions.getToken()}
-    }).success(function(data){
-      transactions.push(data);
+  o.purchase = function(card) {
+    console.log(card);
+    return $http.post('api/transactions', {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
-  return transactions;
+  return o;
 }]);
 
 app.factory('customers', ['$http', 'auth', function($http, auth){
@@ -388,6 +394,14 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     auth.logOut = function(){
       $window.localStorage.removeItem('admin-token');
       $window.location = "http://localhost:3000";
+    };
+    auth.getUser = function () {
+      if(auth.isLoggedIn()){
+        var token = auth.getToken();
+        var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload;
+      }
     };
   return auth;
 }]);

@@ -120,14 +120,13 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
       return res.data;
     });
   };
-  o.addCustomer = function(id, customer) {
-    return $http.post('api/transactions' + id + '/customers', customer, {
-      headers: {Authorization: 'Bearer '+transactions.getToken()}
-    }).success(function(data){
-      transactions.push(data);
+  o.purchase = function(card) {
+    console.log(card);
+    return $http.post('api/transactions', {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
-  return transactions;
+  return o;
 }]);
 
 app.factory('customers', ['$http', 'auth', function($http, auth){
@@ -173,6 +172,14 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     auth.logOut = function(){
       $window.localStorage.removeItem('admin-token');
       $window.location = "http://localhost:3000";
+    };
+    auth.getUser = function () {
+      if(auth.isLoggedIn()){
+        var token = auth.getToken();
+        var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload;
+      }
     };
   return auth;
 }]);
