@@ -99,18 +99,19 @@ function($scope, posts, auth){
     mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
-  auth.getUser.success(function(data){
-    $scope.user = data;
-    // mixpanel.identify($scope.user.id);
-    // mixpanel.people.set({
-    //     "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
-    //     "$email": $scope.user.username,
-    //     "$created": $scope.user.created,
-    //     "gender" : $scope.user.gender,
-    //     "age" : $scope.user.age,
-    //     "$last_login": new Date()
-    // });
-  });
+  $scope.user = auth.getUser;
+  // auth.getUser.success(function(data){
+  //     $scope.user = data;
+  //     mixpanel.identify($scope.user.id);
+  //     mixpanel.people.set({
+  //         // "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
+  //         "$email": $scope.user.username,
+  //         "$created": $scope.user.created,
+  //         // "gender" : $scope.user.gender,
+  //         // "age" : $scope.user.age,
+  //         "$last_login": new Date()
+  //     });
+  //   });
 }]);
 
 app.controller('PostsCtrl', [
