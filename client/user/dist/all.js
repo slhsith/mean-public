@@ -110,10 +110,12 @@ function($scope, posts, auth){
     });
     $scope.title = '';
     $scope.link = '';
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("User Dashboard: Add Post");
   };
   $scope.incrementUpvotes = function(post) {
     posts.upvote(post);
-    mixpanel.identify($scope.user.id);
+    mixpanel.identify($scope.user._id);
     mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
@@ -205,7 +207,7 @@ function($scope, items, item, auth, transactions){
   $scope.startTrans = function () {
     console.log($scope.card);
     transactions.purchase($scope.card);
-    // mixpanel.identify($scope.user.id);
+    // mixpanel.identify($scope.user._id);
     // mixpanel.track("Checkout: Purchase Item");
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
