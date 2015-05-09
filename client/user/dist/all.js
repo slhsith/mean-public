@@ -163,9 +163,13 @@ function($scope, items, auth){
     // $scope.items.push({ name: $scope.name });
     $scope.name = '';
     // $scope.item = item.$save();
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Shop Page: Added Item");
   };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Shop Page: Upvoted Comment");
   };  
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
@@ -181,6 +185,8 @@ function($scope, items, item, auth){
   $scope.item = item;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Items Page: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
@@ -238,6 +244,8 @@ function($scope, languages, settings){
   };
   $scope.updateSettings = function() {
     settings.update($scope.setting);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Settings: Update User");
   };
 }]);
 
