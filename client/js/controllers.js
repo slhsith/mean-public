@@ -6,6 +6,7 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
     }).then(function () {
       window.location = "http://localhost:3000/user/#/home";
     });
+    mixpanel.track("HomePage: Register");
   };
 
   $scope.logIn = function () {
@@ -14,6 +15,7 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
     }).then(function () {
       window.location = "http://localhost:3000/user/#/home";
     });
+    mixpanel.track("HomePage: Login");
   };
 
   $scope.forgotPassword = function () {
@@ -21,6 +23,7 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
       console.log($scope.forgot);
       $scope.error = error;
     });
+    mixpanel.track("HomePage: Reset Password, Submit Email");
   };
 
   // $scope.verifyEmail = function() {
