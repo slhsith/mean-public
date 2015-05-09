@@ -7,7 +7,6 @@ var Item = mongoose.model('Item');
 var User = mongoose.model('User');
 var Language = mongoose.model('Language');
 var passport = require('passport');
-var User = mongoose.model('User');
 var jwt = require('express-jwt');
 var nodemailer = require('nodemailer');
 var bodyParser = require('body-parser'),    
@@ -22,6 +21,7 @@ var transporter = nodemailer.createTransport({
         pass: 'BGkIPqtGVLNL2JAGAmwHMw'
     }
   });
+var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
 
 /* GET home page. */
 router.get('/api', function(req, res, next) {
@@ -171,20 +171,16 @@ router.put('/api/items/:item/upvote', auth, function(req, res, next) {
 });
 
 //item page & transaction
-router.post('/api/items/:item/transactions', auth, function(req, res, next) {
-  var transaction = new Transaction(req.id);
-  transaction.item = req.item;
-  transaction.author = req.payload.username;
-
-  transaction.save(function(err, transaction){
-    if(err){ return next(err); }
-
-    req.item.transactions.push(transaction);
-    req.item.save(function(err, item) {
-      if(err){ return next(err); }
-
-      res.json(transaction);
-    });
+router.post('/api/transactions', auth, function(req, res, next) {
+  stripe.token.create({
+    card: {
+      "number": '4242424242424242',
+      "exp_month": 12,
+      "exp_year": 2016,
+      "cvc": '123'
+    }
+  }, function(err, token) {
+    // asynchronously called
   });
 });
 
