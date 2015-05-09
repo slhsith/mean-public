@@ -9,7 +9,7 @@ function($stateProvider, $urlRouterProvider) {
     .state('home', {
       url: '/home',
       templateUrl: 'home.html',
-      controller: 'MainCtrl',
+      controller: 'DashCtrl',
       resolve: {
         postPromise: ['posts', function(posts){
           return posts.getAll();
