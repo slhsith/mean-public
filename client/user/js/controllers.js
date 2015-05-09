@@ -1,8 +1,26 @@
-app.controller('MainCtrl', [
+app.controller('MainCtrl', function($scope, auth){
+
+  
+    $scope.user = auth.getUser();
+    mixpanel.identify($scope.user._id);
+    mixpanel.people.set({
+    //     "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
+        "$email": $scope.user.username,
+    //     "$created": $scope.user.created,
+    //     "gender" : $scope.user.gender,
+    //     "age" : $scope.user.age,
+    //     "type" : $scope.user.permissions,
+        "$last_login": new Date()
+    });
+  $scope.isLoggedIn = auth.isLoggedIn;
+});
+
+app.controller('DashCtrl', [
 '$scope',
 'posts',
 'auth',
 function($scope, posts, auth){
+
   $scope.posts = posts.posts;
   $scope.addPost = function(){
     if(!$scope.title || $scope.title === '') { return; }
@@ -12,26 +30,15 @@ function($scope, posts, auth){
     });
     $scope.title = '';
     $scope.link = '';
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("User Dashboard: Add Post");
   };
   $scope.incrementUpvotes = function(post) {
     posts.upvote(post);
-    mixpanel.identify($scope.user.id);
+    mixpanel.identify($scope.user._id);
     mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.user = auth.getUser;
-  // auth.getUser.success(function(data){
-  //     $scope.user = data;
-  //     mixpanel.identify($scope.user.id);
-  //     mixpanel.people.set({
-  //         // "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
-  //         "$email": $scope.user.username,
-  //         "$created": $scope.user.created,
-  //         // "gender" : $scope.user.gender,
-  //         // "age" : $scope.user.age,
-  //         "$last_login": new Date()
-  //     });
-  //   });
 }]);
 
 app.controller('PostsCtrl', [
@@ -75,9 +82,13 @@ function($scope, items, auth){
     // $scope.items.push({ name: $scope.name });
     $scope.name = '';
     // $scope.item = item.$save();
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Shop Page: Added Item");
   };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Shop Page: Upvoted Comment");
   };  
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
@@ -93,6 +104,8 @@ function($scope, items, item, auth){
   $scope.item = item;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Items Page: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
@@ -119,7 +132,7 @@ function($scope, items, item, auth, transactions){
   $scope.startTrans = function () {
     console.log($scope.card);
     transactions.purchase($scope.card);
-    // mixpanel.identify($scope.user.id);
+    // mixpanel.identify($scope.user._id);
     // mixpanel.track("Checkout: Purchase Item");
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
@@ -150,5 +163,7 @@ function($scope, languages, settings){
   };
   $scope.updateSettings = function() {
     settings.update($scope.setting);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Settings: Update User");
   };
 }]);
