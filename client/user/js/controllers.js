@@ -39,7 +39,6 @@ function($scope, posts, auth){
     mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
-
 }]);
 
 app.controller('PostsCtrl', [
