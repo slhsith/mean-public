@@ -6,6 +6,8 @@ var ItemSchema = new mongoose.Schema({
   price: String,
   transaction: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }],
   video: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }],
+  book: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }],
+  podcast: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Podcast' }],
 });
 ItemSchema.methods.upvote = function(cb) {
   this.upvotes += 1;

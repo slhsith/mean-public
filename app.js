@@ -15,6 +15,7 @@ require('./server/models/Users');
 require('./server/models/Languages');
 require('./server/models/Videos');
 require('./server/models/Books');
+require('./server/models/Podcasts');
 require('./server/config/passport');
 
 

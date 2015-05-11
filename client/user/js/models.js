@@ -99,6 +99,13 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o.books.push(data);
     });
   };
+  o.createPodcast = function(podcast) {
+    return $http.post('/api/podcasts', podcast, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      o.podcasts.push(data);
+    });
+  };
   o.get = function(id) {
     return $http.get('/api/items/' + id).then(function(res){
       return res.data;

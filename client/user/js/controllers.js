@@ -97,6 +97,14 @@ function($scope, items, auth){
       isbn: $scope.isbn,
       description: $scope.bookDescription
     });
+    items.createPodcast({
+      duration: $scope.podcastDuration,
+      genre: $scope.podcastGenre,
+      language: $scope.podcastLanguage,
+      year: $scope.podcastYear,
+      studio: $scope.podcastStudio,
+      description: $scope.podcastDescription,
+    });
     // $scope.items.push({ name: $scope.name });
     $scope.name = '';
     $scope.price = '';

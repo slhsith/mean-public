@@ -180,6 +180,14 @@ function($scope, items, auth){
       isbn: $scope.isbn,
       description: $scope.bookDescription
     });
+    items.createPodcast({
+      duration: $scope.podcastDuration,
+      genre: $scope.podcastGenre,
+      language: $scope.podcastLanguage,
+      year: $scope.podcastYear,
+      studio: $scope.podcastStudio,
+      description: $scope.podcastDescription,
+    });
     // $scope.items.push({ name: $scope.name });
     $scope.name = '';
     $scope.price = '';
@@ -384,6 +392,13 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data){
       o.books.push(data);
+    });
+  };
+  o.createPodcast = function(podcast) {
+    return $http.post('/api/podcasts', podcast, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      o.podcasts.push(data);
     });
   };
   o.get = function(id) {

@@ -8,6 +8,7 @@ var User = mongoose.model('User');
 var Language = mongoose.model('Language');
 var Video = mongoose.model('Video');
 var Book = mongoose.model('Book');
+var Podcast = mongoose.model('Podcast');
 var passport = require('passport');
 var jwt = require('express-jwt');
 var nodemailer = require('nodemailer');
@@ -174,6 +175,17 @@ router.post('/api/books', auth, function(req, res, next) {
     if(err){ return next(err); }
 
     res.json(book);
+  });
+});
+
+router.post('/api/podcasts', auth, function(req, res, next) {
+  var podcast = new Podcast(req.body);
+  podcast.author = req.payload.username;
+
+  podcast.save(function(err, podcast){
+    if(err){ return next(err); }
+
+    res.json(podcast);
   });
 });
 
