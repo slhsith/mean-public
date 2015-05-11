@@ -155,9 +155,10 @@ app.controller('ShopCtrl', [
 function($scope, items, auth, item){
   $scope.items = items.items;
   $scope.addItem = function() {
-   items.create($scope.item).success(function(){
+   items.create($scope.item).success(function(data){
        console.log('success');
        console.log($scope.item);
+       $scope.items.push(data);
    }).error(function(){
        console.log('failure');
    });

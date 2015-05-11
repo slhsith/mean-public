@@ -10,8 +10,8 @@
         <span style="font-size:20px; margin-left:10px;">
           <span>
             {{item.name}},
-            {{item.price}},
-            {{item.duration}}
+            {{item.price}}
+            {{item.duration? item.duration + ',' : '' }}
           </span>
         </span>
         <span>

@@ -152,7 +152,7 @@ router.post('/api/items', auth, function(req, res, next) {
       video.save(function(err, video){
         if(err){ return next(err); }
 
-        res.json(video);
+        // res.json(video);
       });
     }
 
@@ -163,7 +163,7 @@ router.post('/api/items', auth, function(req, res, next) {
       book.save(function(err, book){
         if(err){ return next(err); }
 
-        res.json(book);
+        // res.json(book);
       });
     }
 
@@ -174,7 +174,7 @@ router.post('/api/items', auth, function(req, res, next) {
       podcast.save(function(err, podcast){
         if(err){ return next(err); }
 
-        res.json(podcast);
+        // res.json(podcast);
       });
     }
   }) 
