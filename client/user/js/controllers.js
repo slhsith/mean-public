@@ -70,7 +70,7 @@ function($scope, $stateParams, posts, comments, auth){
 
 app.controller('ShopCtrl', [
 '$scope',
-'items', 
+'items',
 'auth',
 function($scope, items, auth){
   $scope.items = items.items;
@@ -78,9 +78,49 @@ function($scope, items, auth){
     if($scope.name === '') { return; }
     items.create({
       name: $scope.name,
+      price: $scope.price,
+    });
+    items.createVideo({
+      duration: $scope.duration,
+      genre: $scope.genre,
+      language: $scope.language,
+      year: $scope.year,
+      studio: $scope.studio,
+      description: $scope.description,
+    });
+    items.createBook({
+      pages: $scope.pages,
+      genre: $scope.bookGenre,
+      language: $scope.bookLanguage,
+      year: $scope.bookYear,
+      publisher: $scope.publisher,
+      isbn: $scope.isbn,
+      description: $scope.bookDescription
+    });
+    items.createPodcast({
+      duration: $scope.podcastDuration,
+      genre: $scope.podcastGenre,
+      language: $scope.podcastLanguage,
+      year: $scope.podcastYear,
+      studio: $scope.podcastStudio,
+      description: $scope.podcastDescription,
     });
     // $scope.items.push({ name: $scope.name });
     $scope.name = '';
+    $scope.price = '';
+    $scope.duration = '';
+    $scope.genre = '';
+    $scope.language = '';
+    $scope.year = '';
+    $scope.studio = '';
+    $scope.description = '';
+    $scope.pages = '';
+    $scope.bookGenre = '';
+    $scope.bookLanguage = '';
+    $scope.bookYear = '';
+    $scope.publisher = '';
+    $scope.isbn = '';
+    $scope.bookDescription = '';
     // $scope.item = item.$save();
     mixpanel.identify($scope.user._id);
     mixpanel.track("Shop Page: Added Item");
@@ -90,7 +130,7 @@ function($scope, items, auth){
     mixpanel.identify($scope.user._id);
     mixpanel.track("Shop Page: Upvoted Comment");
   };  
-  $scope.isLoggedIn = auth.isLoggedIn;
+  // $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
 
@@ -99,15 +139,17 @@ app.controller('ItemsCtrl', [
 'items',
 'item',
 'auth',
-function($scope, items, item, auth){
+function($scope, items, item, videos, video, auth){
   $scope.items = items.items;
+  $scope.videos = videos.videos;
+  $scope.video = video;
   $scope.item = item;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Items Page: Upvoted Comment");
   };
-  $scope.isLoggedIn = auth.isLoggedIn;
+  // $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
 app.controller('NavCtrl', [
@@ -132,8 +174,8 @@ function($scope, items, item, auth, transactions){
   $scope.startTrans = function () {
     console.log($scope.card);
     transactions.purchase($scope.card);
-    // mixpanel.identify($scope.user._id);
-    // mixpanel.track("Checkout: Purchase Item");
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Checkout: Purchase Item");
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
 }]);

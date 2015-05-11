@@ -13,7 +13,11 @@ require('./server/models/Comments');
 require('./server/models/Items');
 require('./server/models/Users');
 require('./server/models/Languages');
+require('./server/models/Videos');
+require('./server/models/Books');
+require('./server/models/Podcasts');
 require('./server/config/passport');
+
 
 mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/news');
 

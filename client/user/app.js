@@ -33,6 +33,9 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: ['items', function(items){
           return items.getAll();
+        }],
+        videoPromise: ['items', function (items) {
+          return items.getAllVideos();
         }]
       }
     })

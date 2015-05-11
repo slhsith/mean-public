@@ -60,7 +60,11 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
     items: [],
-    item: {}
+    item: {},
+    videos: [],
+    video: {},
+    books: [],
+    book: {}
   };
 
 
@@ -69,11 +73,37 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       angular.copy(data, o.items);
     });
   };
+  o.getAllVideos = function () {
+    return $http.get('/api/videos').success(function(data){
+      angular.copy(data, o.videos);
+    });
+  };
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data){
       o.items.push(data);
+    });
+  };
+  o.createVideo = function(video) {
+    return $http.post('/api/videos', video, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      o.videos.push(data);
+    });
+  };
+  o.createBook = function(book) {
+    return $http.post('/api/books', book, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      o.books.push(data);
+    });
+  };
+  o.createPodcast = function(podcast) {
+    return $http.post('/api/podcasts', podcast, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      o.podcasts.push(data);
     });
   };
   o.get = function(id) {
