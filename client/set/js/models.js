@@ -16,3 +16,14 @@ app.factory('verification', function ($http, $window) {
       }
   };
 });
+
+app.factory('search', function ($http) {
+  return {
+    search: function searchMethod(q) {
+    
+      return $http.post('/search/', {query: q} ).success(function (data) {
+        return data;
+      });
+    }
+  };
+});

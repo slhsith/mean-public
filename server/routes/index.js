@@ -140,12 +140,44 @@ router.get('/api/items', function(req, res, next) {
 router.post('/api/items', auth, function(req, res, next) {
   var item = new Item(req.body);
   item.author = req.payload.username;
-
   item.save(function(err, item){
-    if(err){ return next(err); }
+  if(err){ return next(err); }
 
-    res.json(item);
-  });
+  res.json(item);
+  }).then(function () {
+    if (req.body.type === 'Video'){
+      var video = new Video(req.body);
+      video.author = req.payload.username;
+
+      video.save(function(err, video){
+        if(err){ return next(err); }
+
+        // res.json(video);
+      });
+    }
+
+    if (req.body.type === 'Book'){
+      var book = new Book(req.body);
+      book.author = req.payload.username;
+
+      book.save(function(err, book){
+        if(err){ return next(err); }
+
+        // res.json(book);
+      });
+    }
+
+    if (req.body.type === 'Podcast'){
+      var podcast = new Podcast(req.body);
+      podcast.author = req.payload.username;
+
+      podcast.save(function(err, podcast){
+        if(err){ return next(err); }
+
+        // res.json(podcast);
+      });
+    }
+  }) 
 });
 
 router.get('/api/videos', function(req, res, next) {
@@ -157,14 +189,7 @@ router.get('/api/videos', function(req, res, next) {
 });
 
 router.post('/api/videos', auth, function(req, res, next) {
-  var video = new Video(req.body);
-  video.author = req.payload.username;
-
-  video.save(function(err, video){
-    if(err){ return next(err); }
-
-    res.json(video);
-  });
+  
 });
 
 router.post('/api/books', auth, function(req, res, next) {
@@ -470,6 +495,14 @@ router.put('/api/settings/', function (req, res, next) {
     });
   });
 });
+
+//search
+
+router.post('/api/search', function (req, res, next) {
+  var searchQuery = req.payload.search;
+
+
+})
 
 //Facebook Integration
 router.get('/auth/facebook', passport.authenticate('facebook'));

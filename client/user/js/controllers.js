@@ -72,59 +72,19 @@ app.controller('ShopCtrl', [
 '$scope',
 'items',
 'auth',
-function($scope, items, auth){
+function($scope, items, auth, item){
   $scope.items = items.items;
   $scope.addItem = function() {
-    if($scope.name === '') { return; }
-    items.create({
-      name: $scope.name,
-      price: $scope.price,
-    });
-    items.createVideo({
-      duration: $scope.duration,
-      genre: $scope.genre,
-      language: $scope.language,
-      year: $scope.year,
-      studio: $scope.studio,
-      description: $scope.description,
-    });
-    items.createBook({
-      pages: $scope.pages,
-      genre: $scope.bookGenre,
-      language: $scope.bookLanguage,
-      year: $scope.bookYear,
-      publisher: $scope.publisher,
-      isbn: $scope.isbn,
-      description: $scope.bookDescription
-    });
-    items.createPodcast({
-      duration: $scope.podcastDuration,
-      genre: $scope.podcastGenre,
-      language: $scope.podcastLanguage,
-      year: $scope.podcastYear,
-      studio: $scope.podcastStudio,
-      description: $scope.podcastDescription,
-    });
-    // $scope.items.push({ name: $scope.name });
-    $scope.name = '';
-    $scope.price = '';
-    $scope.duration = '';
-    $scope.genre = '';
-    $scope.language = '';
-    $scope.year = '';
-    $scope.studio = '';
-    $scope.description = '';
-    $scope.pages = '';
-    $scope.bookGenre = '';
-    $scope.bookLanguage = '';
-    $scope.bookYear = '';
-    $scope.publisher = '';
-    $scope.isbn = '';
-    $scope.bookDescription = '';
-    // $scope.item = item.$save();
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Shop Page: Added Item");
-  };
+   items.create($scope.item).success(function(data){
+       console.log('success');
+       console.log($scope.item);
+       $scope.items.push(data);
+   }).error(function(){
+       console.log('failure');
+   });
+   mixpanel.identify($scope.user._id);
+   mixpanel.track("Shop Page: Added Item");
+ };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     mixpanel.identify($scope.user._id);
