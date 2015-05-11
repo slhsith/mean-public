@@ -14,6 +14,11 @@ function($stateProvider, $urlRouterProvider) {
       url: '/resetPassword/:username/:token',
       templateUrl: 'resetPassword.html',
       controller: 'ResetCtrl'
-    }); 
+    })
+    .state('search', {
+      url: '/search',
+      templateUrl: 'search.html',
+      controller: 'SearchCtrl'
+    });
   // $urlRouterProvider.otherwise('home');
 }]);

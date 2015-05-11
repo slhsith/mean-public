@@ -33,9 +33,6 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: ['items', function(items){
           return items.getAll();
-        }],
-        videoPromise: ['items', function (items) {
-          return items.getAllVideos();
         }]
       }
     })
@@ -155,59 +152,18 @@ app.controller('ShopCtrl', [
 '$scope',
 'items',
 'auth',
-function($scope, items, auth){
+function($scope, items, auth, item){
   $scope.items = items.items;
   $scope.addItem = function() {
-    if($scope.name === '') { return; }
-    items.create({
-      name: $scope.name,
-      price: $scope.price,
-    });
-    items.createVideo({
-      duration: $scope.duration,
-      genre: $scope.genre,
-      language: $scope.language,
-      year: $scope.year,
-      studio: $scope.studio,
-      description: $scope.description,
-    });
-    items.createBook({
-      pages: $scope.pages,
-      genre: $scope.bookGenre,
-      language: $scope.bookLanguage,
-      year: $scope.bookYear,
-      publisher: $scope.publisher,
-      isbn: $scope.isbn,
-      description: $scope.bookDescription
-    });
-    items.createPodcast({
-      duration: $scope.podcastDuration,
-      genre: $scope.podcastGenre,
-      language: $scope.podcastLanguage,
-      year: $scope.podcastYear,
-      studio: $scope.podcastStudio,
-      description: $scope.podcastDescription,
-    });
-    // $scope.items.push({ name: $scope.name });
-    $scope.name = '';
-    $scope.price = '';
-    $scope.duration = '';
-    $scope.genre = '';
-    $scope.language = '';
-    $scope.year = '';
-    $scope.studio = '';
-    $scope.description = '';
-    $scope.pages = '';
-    $scope.bookGenre = '';
-    $scope.bookLanguage = '';
-    $scope.bookYear = '';
-    $scope.publisher = '';
-    $scope.isbn = '';
-    $scope.bookDescription = '';
-    // $scope.item = item.$save();
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Shop Page: Added Item");
-  };
+   items.create($scope.item).success(function(){
+       console.log('success');
+       console.log($scope.item);
+   }).error(function(){
+       console.log('failure');
+   });
+   mixpanel.identify($scope.user._id);
+   mixpanel.track("Shop Page: Added Item");
+ };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     mixpanel.identify($scope.user._id);
@@ -361,8 +317,6 @@ app.factory('items', ['$http', 'auth', function($http, auth){
     books: [],
     book: {}
   };
-
-
   o.getAll = function() {
     return $http.get('/api/items').success(function(data){
       angular.copy(data, o.items);
@@ -378,27 +332,6 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data){
       o.items.push(data);
-    });
-  };
-  o.createVideo = function(video) {
-    return $http.post('/api/videos', video, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      o.videos.push(data);
-    });
-  };
-  o.createBook = function(book) {
-    return $http.post('/api/books', book, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      o.books.push(data);
-    });
-  };
-  o.createPodcast = function(podcast) {
-    return $http.post('/api/podcasts', podcast, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      o.podcasts.push(data);
     });
   };
   o.get = function(id) {

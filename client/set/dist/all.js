@@ -14,7 +14,12 @@ function($stateProvider, $urlRouterProvider) {
       url: '/resetPassword/:username/:token',
       templateUrl: 'resetPassword.html',
       controller: 'ResetCtrl'
-    }); 
+    })
+    .state('search', {
+      url: '/search',
+      templateUrl: 'search.html',
+      controller: 'SearchCtrl'
+    });
   // $urlRouterProvider.otherwise('home');
 }]);
 app.controller('MainCtrl', ['$scope', '$location', function ($scope) {
@@ -43,6 +48,12 @@ app.controller('ResetCtrl', function ($scope, $state, verification) {
     });
   }; 
 });
+app.controller('SearchCtrl', function ($scope) {
+  $scope.submitSearch = function () {
+    console.log($scope.search);
+    search.query($scope.search);
+  };
+});
 app.factory('verification', function ($http, $window) {
   return {
       getUser: function getUserMethod(user, name, token) {
@@ -59,5 +70,16 @@ app.factory('verification', function ($http, $window) {
             console.log('Success!');
           });
       }
+  };
+});
+
+app.factory('search', function ($http) {
+  return {
+    search: function searchMethod(q) {
+    
+      return $http.post('/search/', {query: q} ).success(function (data) {
+        return data;
+      });
+    }
   };
 });

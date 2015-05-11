@@ -24,3 +24,9 @@ app.controller('ResetCtrl', function ($scope, $state, verification) {
     });
   }; 
 });
+app.controller('SearchCtrl', function ($scope) {
+  $scope.submitSearch = function () {
+    console.log($scope.search);
+    search.query($scope.search);
+  };
+});
