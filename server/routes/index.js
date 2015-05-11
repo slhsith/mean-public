@@ -6,6 +6,8 @@ var Comment = mongoose.model('Comment');
 var Item = mongoose.model('Item');
 var User = mongoose.model('User');
 var Language = mongoose.model('Language');
+var Video = mongoose.model('Video');
+var Book = mongoose.model('Book');
 var passport = require('passport');
 var jwt = require('express-jwt');
 var nodemailer = require('nodemailer');
@@ -142,6 +144,36 @@ router.post('/api/items', auth, function(req, res, next) {
     if(err){ return next(err); }
 
     res.json(item);
+  });
+});
+
+router.get('/api/videos', function(req, res, next) {
+  Video.find(function(err, videos){
+    if(err){ return next(err); }
+
+    res.json(videos);
+  });
+});
+
+router.post('/api/videos', auth, function(req, res, next) {
+  var video = new Video(req.body);
+  video.author = req.payload.username;
+
+  video.save(function(err, video){
+    if(err){ return next(err); }
+
+    res.json(video);
+  });
+});
+
+router.post('/api/books', auth, function(req, res, next) {
+  var book = new Book(req.body);
+  book.author = req.payload.username;
+
+  book.save(function(err, book){
+    if(err){ return next(err); }
+
+    res.json(book);
   });
 });
 

@@ -33,6 +33,9 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: ['items', function(items){
           return items.getAll();
+        }],
+        videoPromise: ['items', function (items) {
+          return items.getAllVideos();
         }]
       }
     })
@@ -150,7 +153,7 @@ function($scope, $stateParams, posts, comments, auth){
 
 app.controller('ShopCtrl', [
 '$scope',
-'items', 
+'items',
 'auth',
 function($scope, items, auth){
   $scope.items = items.items;
@@ -158,9 +161,41 @@ function($scope, items, auth){
     if($scope.name === '') { return; }
     items.create({
       name: $scope.name,
+      price: $scope.price,
+    });
+    items.createVideo({
+      duration: $scope.duration,
+      genre: $scope.genre,
+      language: $scope.language,
+      year: $scope.year,
+      studio: $scope.studio,
+      description: $scope.description,
+    });
+    items.createBook({
+      pages: $scope.pages,
+      genre: $scope.bookGenre,
+      language: $scope.bookLanguage,
+      year: $scope.bookYear,
+      publisher: $scope.publisher,
+      isbn: $scope.isbn,
+      description: $scope.bookDescription
     });
     // $scope.items.push({ name: $scope.name });
     $scope.name = '';
+    $scope.price = '';
+    $scope.duration = '';
+    $scope.genre = '';
+    $scope.language = '';
+    $scope.year = '';
+    $scope.studio = '';
+    $scope.description = '';
+    $scope.pages = '';
+    $scope.bookGenre = '';
+    $scope.bookLanguage = '';
+    $scope.bookYear = '';
+    $scope.publisher = '';
+    $scope.isbn = '';
+    $scope.bookDescription = '';
     // $scope.item = item.$save();
     mixpanel.identify($scope.user._id);
     mixpanel.track("Shop Page: Added Item");
@@ -170,7 +205,7 @@ function($scope, items, auth){
     mixpanel.identify($scope.user._id);
     mixpanel.track("Shop Page: Upvoted Comment");
   };  
-  $scope.isLoggedIn = auth.isLoggedIn;
+  // $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
 
@@ -179,15 +214,17 @@ app.controller('ItemsCtrl', [
 'items',
 'item',
 'auth',
-function($scope, items, item, auth){
+function($scope, items, item, videos, video, auth){
   $scope.items = items.items;
+  $scope.videos = videos.videos;
+  $scope.video = video;
   $scope.item = item;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Items Page: Upvoted Comment");
   };
-  $scope.isLoggedIn = auth.isLoggedIn;
+  // $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
 app.controller('NavCtrl', [
@@ -212,8 +249,8 @@ function($scope, items, item, auth, transactions){
   $scope.startTrans = function () {
     console.log($scope.card);
     transactions.purchase($scope.card);
-    // mixpanel.identify($scope.user._id);
-    // mixpanel.track("Checkout: Purchase Item");
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Checkout: Purchase Item");
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
 }]);
@@ -310,7 +347,11 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
     items: [],
-    item: {}
+    item: {},
+    videos: [],
+    video: {},
+    books: [],
+    book: {}
   };
 
 
@@ -319,11 +360,30 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       angular.copy(data, o.items);
     });
   };
+  o.getAllVideos = function () {
+    return $http.get('/api/videos').success(function(data){
+      angular.copy(data, o.videos);
+    });
+  };
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data){
       o.items.push(data);
+    });
+  };
+  o.createVideo = function(video) {
+    return $http.post('/api/videos', video, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      o.videos.push(data);
+    });
+  };
+  o.createBook = function(book) {
+    return $http.post('/api/books', book, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      o.books.push(data);
     });
   };
   o.get = function(id) {
