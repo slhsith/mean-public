@@ -199,33 +199,22 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 
 app.factory('languages', ['$http', '$window', function($http, $window){
   var lang = {};
-  lang.getAll = function (language) {
+                       // no function parameters -- function ()
+  lang.getAll = function () { 
     return $http.get('/api/languages').success(function(data){
-      console.log(data);
-      angular.copy(data, lang.languages);
+      console.log(data); // <<-- does this print anything?
+      // angular.copy(data, lang.languages);
     });
   };
   lang.addLanguage = function (language) {
     console.log(language);
-    return $http.post('/api/settings/languages').success(function(data){
-      languages.push(data);
-      console.log(data);
-    });
+    // return $http.post('/api/languages').success(function(data){
+    //   lang.push(data);
+    //   console.log(data);
+    // });
   }; 
-  // return {
-  //   // getLanguages: function getLangs(language) {
-  //   //   return $http.get('/api/settings/languages').success(function(data){
-  //   //     angular.copy(data, o.languages);
-  //   //   });
-  //   // },
-  //   addLanguage: function addLang(language) {
-  //     // console.log(language);
-  //     return $http.post('/api/settings/languages').success(function(data){
-  //       // languages.push(data);
-  //       console.log(data);
-  //     });
-  //   }
-  // };
+  
+  return lang; // <------ this factory hasn't returned its methods publically yet
 }]);
 app.factory('settings', ['$http', '$window', function($http, $window){
   return {

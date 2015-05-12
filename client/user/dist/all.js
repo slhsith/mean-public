@@ -67,15 +67,15 @@ function($stateProvider, $urlRouterProvider) {
       }
     })  
     .state('settings', {
-      url: '/settings',
-      templateUrl: 'settings.html',
-      controller: 'SettingsCtrl',
-      // resolve: {
-      //   languagePromise: function (languages) {
-      //     return languages.getAll();
-      //   }
-      // }
-    });
+     url: '/settings',
+     templateUrl: 'settings.html',
+     controller: 'SettingsCtrl',
+     resolve: {
+       languagePromise: function (languages) {
+         return languages.getAll();
+       }
+     }
+   });
   // $urlRouterProvider.otherwise('home');
 }]);
 app.controller('MainCtrl', function ($scope, auth) {
@@ -216,7 +216,7 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
   angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
   $scope.addLanguage = function(){
     console.log($scope.language.name);
-    lang.addLanguage($scope.language.name);
+    languages.addLanguage($scope.language.name);
   };
   $scope.updateSettings = function() {
     settings.update($scope.setting);
@@ -426,33 +426,22 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 
 app.factory('languages', ['$http', '$window', function($http, $window){
   var lang = {};
-  lang.getAll = function (language) {
+                       // no function parameters -- function ()
+  lang.getAll = function () { 
     return $http.get('/api/languages').success(function(data){
-      console.log(data);
+      console.log(data); // <<-- does this print anything?
       angular.copy(data, lang.languages);
     });
   };
   lang.addLanguage = function (language) {
     console.log(language);
-    return $http.post('/api/settings/languages').success(function(data){
-      languages.push(data);
+    return $http.post('/api/languages').success(function(data){
+      lang.push(data);
       console.log(data);
     });
   }; 
-  // return {
-  //   // getLanguages: function getLangs(language) {
-  //   //   return $http.get('/api/settings/languages').success(function(data){
-  //   //     angular.copy(data, o.languages);
-  //   //   });
-  //   // },
-  //   addLanguage: function addLang(language) {
-  //     // console.log(language);
-  //     return $http.post('/api/settings/languages').success(function(data){
-  //       // languages.push(data);
-  //       console.log(data);
-  //     });
-  //   }
-  // };
+  
+  return lang; // <------ this factory hasn't returned its methods publically yet
 }]);
 app.factory('settings', ['$http', '$window', function($http, $window){
   return {

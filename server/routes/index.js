@@ -457,15 +457,15 @@ router.put('/api/resetPassword/:username/:token', function (req, res, next) {
   validate();
 });
 
-router.get('/api/settings/languages', function (req, res, next) {
-  Language.find(function(err, languages){
+router.get('/api/languages', function (req, res, next) {
+  Language.find({}, function(err, languages){
     if(err){ return next(err); }
 
     res.json(languages);
   });
 });
 
-router.post('/api/settings/languages', function (req, res, next) {
+router.post('/api/languages', function (req, res, next) {
   // req.body.name = languageName;
 
   // test(function () {
