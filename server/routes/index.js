@@ -155,7 +155,6 @@ router.post('/api/items', auth, function(req, res, next) {
         });
       });
     }
-
     if (req.body.type === 'Book'){
       var book = new Book(req.body);
       book.author = req.payload.username;
@@ -168,7 +167,6 @@ router.post('/api/items', auth, function(req, res, next) {
         });
       });
     }
-
     if (req.body.type === 'Podcast'){
       var podcast = new Podcast(req.body);
       podcast.author = req.payload.username;
@@ -441,31 +439,22 @@ router.post('/api/languages', function (req, res, next) {
 });
 
 router.get('/api/settings/', auth, function (req, res, next) {
-  // User.find(function(err, users){
-  //   if(err){ return next(err); }
-
-  //   res.json(users);
-  // });
-  var sid = req.session.id;
-  var username = req.payload.username;
-
-  users.findOne({username : username}, function(err, result)
+  User.findOne({username : username}, function(err, result)
   { res.json(settings); })
 });
 
-router.put('/api/settings/', function (req, res, next) {
-  var username = req.payload.username;
+router.put('/api/settings', function (req, res, next) {
+  var f_name = req.body.f_name;
+  var l_name = req.body.l_name;
+  var address = req.body.address;
+  var dob = req.body.dob;
+  var handle = req.body.handle;
 
-  users.findOne({username : username}, function(err, result){
-    user.f_name = req.body.f_name;
-    user.l_name = req.body.l_name;
-    user.address = req.body.address;
-    user.dob = req.body.dob;
-    user.handle = req.body.handle;
-
+  User.findByIdAndUpdate(user.username, { $set: { f_name: f_name, l_name: l_name, address: address,  dob: dob, handle: handle}}, function (err, item) {
+    if (err) { return next(err); }
+    return item;
     user.save(function (err){
       if(err){ return next(err); }
-      return res.json({token: user.generateJWT()})
     });
   });
 });
