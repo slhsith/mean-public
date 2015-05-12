@@ -157,8 +157,8 @@ function($scope, items, auth, item){
   $scope.addItem = function() {
    items.create($scope.item).success(function(data){
        console.log('success');
-       console.log($scope.item);
-       $scope.items.push(data);
+       $scope.items.push( angular.extend($scope.item, data) );
+       console.log(data);
    }).error(function(){
        console.log('failure');
    });
