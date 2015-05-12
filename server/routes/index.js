@@ -141,38 +141,44 @@ router.post('/api/items', auth, function(req, res, next) {
   item.author = req.payload.username;
   item.save(function(err, item){
   if (err) { return next(err); }
-    res.json(item);
+    // res.json(item);
   }).then(function () {
     if (req.body.type === 'Video'){
       var video = new Video(req.body);
       video.author = req.payload.username;
-
+      video.item = [item._id]
       video.save(function(err, video){
         if(err){ return next(err); }
-
-        return video;
+        Item.findByIdAndUpdate(item._id, { $set: { video: [video._id] }}, function (err, item) {
+          if (err) { return next(err); }
+          return item;
+        });
       });
     }
 
     if (req.body.type === 'Book'){
       var book = new Book(req.body);
       book.author = req.payload.username;
-
+      book.item = [item._id]
       book.save(function(err, book){
         if(err){ return next(err); }
-
-        return book;
+        Item.findByIdAndUpdate(item._id, { $set: { video: [book._id] }}, function (err, item) {
+          if (err) { return next(err); }
+          return item;
+        });
       });
     }
 
     if (req.body.type === 'Podcast'){
       var podcast = new Podcast(req.body);
       podcast.author = req.payload.username;
-
+      podcast.item = [item._id]
       podcast.save(function(err, podcast){
         if(err){ return next(err); }
-
-        return podcast;
+        Item.findByIdAndUpdate(item._id, { $set: { video: [video._id] }}, function (err, item) {
+          if (err) { return next(err); }
+          return item;
+        });
       });
     }
   }) 
