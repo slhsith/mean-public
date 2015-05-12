@@ -71,9 +71,9 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'settings.html',
       controller: 'SettingsCtrl',
       // resolve: {
-      //   language: ['$stateParams', 'languages', function($stateParams, languages) {
-      //     return languages.get($stateParams.id);
-      //   }]
+      //   languagePromise: function (languages) {
+      //     return languages.getAll();
+      //   }
       // }
     });
   // $urlRouterProvider.otherwise('home');

@@ -136,7 +136,7 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
   angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
   $scope.addLanguage = function(){
     console.log($scope.language.name);
-    languages.addLanguage($scope.language.name);
+    lang.addLanguage($scope.language.name);
   };
   $scope.updateSettings = function() {
     settings.update($scope.setting);
