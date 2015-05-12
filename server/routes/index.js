@@ -130,8 +130,9 @@ router.param('comment', function(req, res, next, id) {
 //Items
 
 router.get('/api/items', function(req, res, next) {
-  Item.find(function(err, items){
+  Item.find({}, function(err, items){
     if(err){ return next(err); }
+    res.json(items);
   });
 });
 
@@ -139,7 +140,7 @@ router.post('/api/items', auth, function(req, res, next) {
   var item = new Item(req.body);
   item.author = req.payload.username;
   item.save(function(err, item){
-  if(err){ return next(err); }
+  if (err) { return next(err); }
     res.json(item);
   }).then(function () {
     if (req.body.type === 'Video'){
@@ -337,7 +338,10 @@ router.post('/api/register', function(req, res, next){
     from: 'contact@trainersvault.com', // sender address 
     to: user.username, // list of receivers 
     subject: 'Welcome to Your new Profile!', // Subject line 
-    text: "Please Click this link to verify your account! \n Link: http://localhost:3000/set/emailVerify/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!", // plaintext body 
+    generateTextFromHTML: true,
+    html: '<div style="text-align: center">Please Click this link to verify your account!'
+    + '<br/><br/>Link: http://localhost:3000/set/#/emailverify/' + user.username + '/' + user.user_token
+    + '<br/><br/></br>Thank you for using Trainersvault!</div>'
   };
   transporter.sendMail(mailOptions, function(error, info){
     if(error){
@@ -385,7 +389,10 @@ router.post('/api/forgot', function(req, res, next){
           from: 'contact@trainersvault.com', // sender address 
           to: user.username, // list of receivers 
           subject: 'Trainersvault Reset Password', // Subject line 
-          text: "Please Click this link to reset your password! \n Link: http://localhost:3000/set/#/resetPassword/" + user.username + "/" + user.user_token + "\n Thank you for using Trainersvault!", // plaintext body 
+          generateTextFromHTML: true,
+          text: '<div style="text-align=center">Please Click this link to reset your password!'
+          + '<br/><br/>Link: http://localhost:3000/set/#/resetPassword/' + user.username + '/' + user.user_token 
+          + '<br/><br/><br/>Thank you for using Trainersvault!',
         }; 
         transporter.sendMail(mailOptions, function(error, info){
           if(error){
@@ -400,17 +407,22 @@ router.post('/api/forgot', function(req, res, next){
   validEmail();
 });
 
-router.put('/emailverify/:username/:user_token', function (req, res, next) {
-  user.validateUserEmailToken()
+router.put('/api/emailverify/:username/:user_token', function (req, res, next) {
+  User.findOne({ username: req.param.username, user_token: req.param.user_token }, function (err, user) {
+    if (!user) { return res.status(400).json({message:'Email not found'}); return false; }
+    user.validateUserEmailToken();
+    user.generateUserToken();
+    return res.json({'message': 'Successfully verified email address.'});
+  });
 });
 
-router.get('/emailVerify/:username/:user_token', function (req, res, next) {
-  if (!user.username || !user.user_token){
-    false 
-  } else {
-    true
-  }
-});
+// router.get('/api/emailverify/:username/:user_token', function (req, res, next) {
+//   if (!user.username || !user.user_token){
+//     false 
+//   } else {
+//     true
+//   }
+// });
 
 router.get('/resetPassword/:username/:user_token', function (req, res, next) {
   User.findOne({ username: req.param.username, token: req.param.user_token }, function (err, user) {
@@ -418,7 +430,7 @@ router.get('/resetPassword/:username/:user_token', function (req, res, next) {
       if (user){
         return true;
       }
-    })
+  });
 });
 
 router.put('/api/resetPassword/:username/:token', function (req, res, next) {

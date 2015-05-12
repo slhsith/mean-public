@@ -31,9 +31,9 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'shop.html',
       controller: 'ShopCtrl',
       resolve: {
-        itemPromise: ['items', function(items){
+        itemPromise: function (items) {
           return items.getAll();
-        }]
+        }
       }
     })
     .state('items', {

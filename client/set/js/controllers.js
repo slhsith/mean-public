@@ -1,4 +1,4 @@
-app.controller('MainCtrl', ['$scope', '$location', function ($scope) {
+app.controller('MainCtrl', function ($scope) {
   // $scope.verifyEmail = function() {
   //   confirmEmail.confirm($scope.verify).error(function (error) {
   //     $scope.error = error;
@@ -7,8 +7,10 @@ app.controller('MainCtrl', ['$scope', '$location', function ($scope) {
   //     window.location = "http://localhost:3000/user/#/home";
   //   });
   // };
+  console.log('Redirecting to user app');
+  window.location = 'http://localhost:3000/user/#/home';
+});
 
-}]);
 app.controller('ResetCtrl', function ($scope, $state, verification) {
   $scope.submitPassword = function(user) {
     console.log($state.params.username);
@@ -24,6 +26,7 @@ app.controller('ResetCtrl', function ($scope, $state, verification) {
     });
   }; 
 });
+
 app.controller('SearchCtrl', function ($scope) {
   $scope.submitSearch = function () {
     console.log($scope.search);
