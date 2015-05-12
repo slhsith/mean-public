@@ -214,6 +214,7 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
     reader.readAsDataURL(file);
   };
   angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
+  $scope.languages = languages.languages;
   $scope.addLanguage = function(){
     console.log($scope.language.name);
     languages.addLanguage($scope.language.name);
@@ -425,19 +426,19 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 }]);
 
 app.factory('languages', ['$http', '$window', function($http, $window){
-  var lang = {};
+  var lang = { languages : [] };
                        // no function parameters -- function ()
   lang.getAll = function () { 
     return $http.get('/api/languages').success(function(data){
       console.log(data); // <<-- does this print anything?
-      angular.copy(data, lang.languages);
+      // angular.copy(data, lang.languages);
     });
   };
   lang.addLanguage = function (language) {
     console.log(language);
-    return $http.post('/api/languages').success(function(data){
-      lang.push(data);
+    return $http.post('/api/languages', { 'name': language }).success(function(data){
       console.log(data);
+      lang.languages.push(data);
     });
   }; 
   

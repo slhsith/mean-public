@@ -134,6 +134,7 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
     reader.readAsDataURL(file);
   };
   angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
+  $scope.languages = languages.languages;
   $scope.addLanguage = function(){
     console.log($scope.language.name);
     languages.addLanguage($scope.language.name);

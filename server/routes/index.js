@@ -188,40 +188,6 @@ router.post('/api/items', auth, function(req, res, next) {
   });
 });
 
-router.get('/api/videos', function(req, res, next) {
-  Video.find(function(err, videos){
-    if(err){ return next(err); }
-
-    res.json(videos);
-  });
-});
-
-router.post('/api/videos', auth, function(req, res, next) {
-  
-});
-
-router.post('/api/books', auth, function(req, res, next) {
-  var book = new Book(req.body);
-  book.author = req.payload.username;
-
-  book.save(function(err, book){
-    if(err){ return next(err); }
-
-    res.json(book);
-  });
-});
-
-router.post('/api/podcasts', auth, function(req, res, next) {
-  var podcast = new Podcast(req.body);
-  podcast.author = req.payload.username;
-
-  podcast.save(function(err, podcast){
-    if(err){ return next(err); }
-
-    res.json(podcast);
-  });
-});
-
 router.param('/api/item', function(req, res, next, id) {
   var query = Item.findById(id);
 
@@ -466,23 +432,12 @@ router.get('/api/languages', function (req, res, next) {
 });
 
 router.post('/api/languages', function (req, res, next) {
-  // req.body.name = languageName;
-
-  // test(function () {
-  //   return res.json({message: req.body.name});
-  // });
   var language = new Language(req.body);
-  language.user = req.user;
-
-  language.save(function(err, languages){
-    if(err){ return next(err); }
-    req.user.languages.push(language);
-    req.user.save(function(err, post) {
-      if(err){ return next(err); }
-
-      res.json(language);
-    });
-  });
+  // language.user = payload.username;
+  language.save(function(err, language){
+  if (err) { return next(err); }
+    res.json(language);
+  })
 });
 
 router.get('/api/settings/', auth, function (req, res, next) {
