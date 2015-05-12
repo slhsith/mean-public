@@ -132,8 +132,6 @@ router.param('comment', function(req, res, next, id) {
 router.get('/api/items', function(req, res, next) {
   Item.find(function(err, items){
     if(err){ return next(err); }
-
-    res.json(items);
   });
 });
 
@@ -142,8 +140,7 @@ router.post('/api/items', auth, function(req, res, next) {
   item.author = req.payload.username;
   item.save(function(err, item){
   if(err){ return next(err); }
-
-  res.json(item);
+    res.json(item);
   }).then(function () {
     if (req.body.type === 'Video'){
       var video = new Video(req.body);
@@ -152,7 +149,7 @@ router.post('/api/items', auth, function(req, res, next) {
       video.save(function(err, video){
         if(err){ return next(err); }
 
-        // res.json(video);
+        return video;
       });
     }
 
@@ -163,7 +160,7 @@ router.post('/api/items', auth, function(req, res, next) {
       book.save(function(err, book){
         if(err){ return next(err); }
 
-        // res.json(book);
+        return book;
       });
     }
 
@@ -174,10 +171,13 @@ router.post('/api/items', auth, function(req, res, next) {
       podcast.save(function(err, podcast){
         if(err){ return next(err); }
 
-        // res.json(podcast);
+        return podcast;
       });
     }
   }) 
+  .then(function() {
+    res.json(item);
+  });
 });
 
 router.get('/api/videos', function(req, res, next) {
