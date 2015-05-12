@@ -184,6 +184,11 @@ gulp.task('server', function (cb) {
   //   console.log(stderr);
   //   cb(err);
   // });
+// exec('nodemon', function (err, stdout, stderr) {
+//     console.log(stdout);
+//     console.log(stderr);
+//     cb(err);
+//   });
 });
 
 // Default Task

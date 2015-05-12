@@ -28,8 +28,9 @@
             </tr>
           </table>
         </div>
+        <h3>Languages</h3>
         <div ng-repeat="language in languages">
-        <span>{{language}}</span>
+        <span>{{language.name}}</span>
         </div>
         <form ng-submit="addLanguage()"
         style="margin-top:30px;">

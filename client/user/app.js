@@ -67,14 +67,14 @@ function($stateProvider, $urlRouterProvider) {
       }
     })  
     .state('settings', {
-      url: '/settings',
-      templateUrl: 'settings.html',
-      controller: 'SettingsCtrl',
-      // resolve: {
-      //   language: ['$stateParams', 'languages', function($stateParams, languages) {
-      //     return languages.get($stateParams.id);
-      //   }]
-      // }
-    });
+     url: '/settings',
+     templateUrl: 'settings.html',
+     controller: 'SettingsCtrl',
+     resolve: {
+       languagePromise: function (languages) {
+         return languages.getAll();
+       }
+     }
+   });
   // $urlRouterProvider.otherwise('home');
 }]);
