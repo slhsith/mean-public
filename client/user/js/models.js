@@ -79,8 +79,14 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      o.items.push(data);
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, item);
+      o.items.push(extendedItem);
+      // will be added to the appropriate service object subarray
+      // based on submitted type
+      o[item.type + 's'].push(extendedItem);
     });
   };
   o.get = function(id) {
