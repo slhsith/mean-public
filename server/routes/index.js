@@ -178,6 +178,7 @@ router.post('/api/items', auth, function(req, res, next) {
         Item.findByIdAndUpdate(item._id, { $set: { video: [video._id] }}, function (err, item) {
           if (err) { return next(err); }
           return item;
+          //random comment
         });
       });
     }
