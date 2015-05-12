@@ -1,5 +1,4 @@
-app.controller('MainCtrl', function($scope, auth){
-
+app.controller('MainCtrl', function ($scope, auth) {
   
     $scope.user = auth.getUser();
     mixpanel.identify($scope.user._id);
@@ -13,13 +12,11 @@ app.controller('MainCtrl', function($scope, auth){
         "$last_login": new Date()
     });
   $scope.isLoggedIn = auth.isLoggedIn;
+
 });
 
-app.controller('DashCtrl', [
-'$scope',
-'posts',
-'auth',
-function($scope, posts, auth){
+
+app.controller('DashCtrl', function ($scope, posts, auth) {
 
   $scope.posts = posts.posts;
   $scope.addPost = function(){
@@ -39,15 +36,11 @@ function($scope, posts, auth){
     mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
-}]);
 
-app.controller('PostsCtrl', [
-'$scope',
-'$stateParams',
-'posts',
-'comments',
-'auth',
-function($scope, $stateParams, posts, comments, auth){
+});
+
+
+app.controller('PostsCtrl', function ($scope, $stateParams, posts, comments, auth) {
   var post = posts.post[$stateParams.id];
   $scope.getPost(post_id);
   $scope.post = posts.post;
@@ -66,71 +59,57 @@ function($scope, $stateParams, posts, comments, auth){
     posts.upvoteComment(post, comment);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
-}]);
+});
 
-app.controller('ShopCtrl', [
-'$scope',
-'items',
-'auth',
-function($scope, items, auth, item){
+
+app.controller('ShopCtrl', function ($scope, items, auth) {
+
   $scope.items = items.items;
+
   $scope.addItem = function() {
-   items.create($scope.item).success(function(data){
-       console.log('success');
-       $scope.items.push( angular.extend($scope.item, data) );
-       console.log(data);
+    items.create($scope.item).success(function(data){
+      console.log('success');
+      $scope.items = items.items;
+      console.log(data);
    }).error(function(){
        console.log('failure');
    });
    mixpanel.identify($scope.user._id);
    mixpanel.track("Shop Page: Added Item");
  };
+
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Shop Page: Upvoted Comment");
   };  
-  // $scope.isLoggedIn = auth.isLoggedIn;
-}]);
+
+});
 
 
-app.controller('ItemsCtrl', [
-'$scope',
-'items',
-'item',
-'auth',
-function($scope, items, item, videos, video, auth){
+app.controller('ItemsCtrl', function ($scope, items, auth) {
+
   $scope.items = items.items;
-  $scope.videos = videos.videos;
-  $scope.video = video;
-  $scope.item = item;
+  $scope.videos = items.videos;
+  $scope.video = items.video;
+  $scope.item = items.item;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Items Page: Upvoted Comment");
   };
-  // $scope.isLoggedIn = auth.isLoggedIn;
-}]);
 
-app.controller('NavCtrl', [
-'$scope',
-'auth',
-'$location',
-function($scope, auth){
+});
+
+
+app.controller('NavCtrl', function ($scope, auth) {
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.home = auth.isLoggedIn;
   $scope.currentUser = auth.currentUser;
   $scope.logOut = auth.logOut;
+});
 
-}]);
-
-app.controller('TransCtrl', [
-'$scope',
-'items',
-'item',
-'auth',
-'transactions',
-function($scope, items, item, auth, transactions){
+app.controller('TransCtrl', function ($scope, items, auth, transactions) {
   $scope.startTrans = function () {
     console.log($scope.card);
     transactions.purchase($scope.card);
@@ -138,14 +117,10 @@ function($scope, items, item, auth, transactions){
     mixpanel.track("Checkout: Purchase Item");
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
-}]);
+});
 
 
-app.controller('SettingsCtrl', [
-'$scope',
-'languages',
-'settings',
-function($scope, languages, settings){
+app.controller('SettingsCtrl', function ($scope, languages, settings) {
   $scope.myImage='';
   $scope.myCroppedImage='';
   var handleFileSelect=function(evt) {
@@ -168,4 +143,4 @@ function($scope, languages, settings){
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings: Update User");
   };
-}]);
+});
