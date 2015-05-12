@@ -522,3 +522,52 @@ router.get('/auth/facebook/callback',
   passport.authenticate('facebook', { successRedirect: '/',
                                       failureRedirect: '/login' }));
 
+
+
+//Messenger
+router.get('/api/conversations', function(req, res, next) {
+  Conversation.find({}, function (err, conversations) {
+    if (err) { return next(err); }
+    res.json(conversations);
+  });
+});
+
+router.get('/api/conversations/:convo', function(req, res, next) {
+  Conversation.findOne({ _id: req.param.convo }, function(err, convo) {
+
+    return Q.all([
+      convo.populate('users', function(err, users) {
+        if (err) { return next(err); }
+      }),
+      convo.populate('messages', function(err, messages) {
+        if (err) { return next(err); }
+      })
+    ]);
+
+  }).then(function() {
+    console.log(convo);
+    res.json(convo);
+  });
+
+});
+
+router.post('/api/conversations', auth, function(req, res, next) {
+  
+});
+
+
+router.post('/api/conversations/:convo', auth, function(req, res, next) {
+  var message = new Message(req.body);
+  message.author = req.payload.username;
+
+  message.save(function(err, message){
+    if (err) { return next(err); }
+
+
+    res.json(message);
+  });
+});
+
+router.post('/api/conversation', function (req, res, next) {
+
+});
