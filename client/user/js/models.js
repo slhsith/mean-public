@@ -203,7 +203,7 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   lang.getAll = function () { 
     return $http.get('/api/languages').success(function(data){
       console.log(data); // <<-- does this print anything?
-      // angular.copy(data, lang.languages);
+      angular.copy(data, lang.languages);
     });
   };
   lang.addLanguage = function (language) {
@@ -217,21 +217,18 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   return lang; // <------ this factory hasn't returned its methods publically yet
 }]);
 app.factory('settings', ['$http', '$window', function($http, $window){
-  return {
-    test: function test(setting){
-      console.log(setting);
-    },
-    getSettings: function getSettings() {
-      return $http.get('/api/settings/', {
-        headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).success(function(data){
-        angular.copy(data, o.items);
-      });
-    },
-    update: function update(){
-      return $http.put('/api/settings/').success(function(data){
+   var s = { settings : [] };
+   s.test = function (setting) {
+    console.log(setting);
+   };
+   s.getAll = function (){
+    return $http.get('/api/settings/').success(function(data){
+          angular.copy(data, o.settings);
+        });
+   };
+   s.update = function (){
+    return $http.put('/api/settings/').success(function(data){
         o.settings.push(data);
       });
-    }
-  };
+   };
 }]);

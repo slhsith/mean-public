@@ -73,6 +73,9 @@ function($stateProvider, $urlRouterProvider) {
      resolve: {
        languagePromise: function (languages) {
          return languages.getAll();
+       },
+       settingPromise: function (settings) {
+        return settings.getAll();
        }
      }
    });
