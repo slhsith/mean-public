@@ -443,19 +443,20 @@ router.get('/api/settings', auth, function (req, res, next) {
   { res.json(user); })
 });
 
-router.put('/api/settings', function (req, res, next) {
+router.put('/api/settings', auth, function (req, res, next) {
+  console.log(req.body);
   var f_name = req.body.f_name;
   var l_name = req.body.l_name;
   var address = req.body.address;
   var dob = req.body.dob;
   var handle = req.body.handle;
+  var settings = req.body;
 
-  User.findByIdAndUpdate(req.body._id, { $set: { f_name: f_name, l_name: l_name, address: address,  dob: dob, handle: handle}}, function (err, item) {
+  User.findOneAndUpdate({username: req.payload.username}, { $set: settings }, function (err, user) {
     if (err) { return next(err); }
-    return user;
     user.save(function (err){
       if(err){ return next(err); }
-      // return res.status(200).json({message: 'Profile Updated!'});
+      return res.status(200).json({message: 'Profile Updated!'});
     });
   });
 });
