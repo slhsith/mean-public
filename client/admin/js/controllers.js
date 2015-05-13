@@ -2,8 +2,9 @@ app.controller('MainCtrl', [
 '$scope',
 'posts',
 'auth',
-function($scope, posts, auth){
-  $scope.posts = posts.posts;
+function ($scope, users, auth){
+  // $scope.user = users.users;
+  $scope.users = users.users;
   $scope.addPost = function(){
     if(!$scope.title || $scope.title === '') { return; }
     posts.create({

@@ -452,10 +452,10 @@ router.put('/api/settings', function (req, res, next) {
 
   User.findByIdAndUpdate(req.body._id, { $set: { f_name: f_name, l_name: l_name, address: address,  dob: dob, handle: handle}}, function (err, item) {
     if (err) { return next(err); }
-    return item;
+    return user;
     user.save(function (err){
       if(err){ return next(err); }
-      return res.status(200).json({message: 'Profile Updated!'});
+      // return res.status(200).json({message: 'Profile Updated!'});
     });
   });
 });
@@ -466,6 +466,15 @@ router.post('/api/search', function (req, res, next) {
   var searchQuery = req.payload.search;
 
 
+})
+
+//get users
+router.get('/api/users', function (req, res, next) {
+  User.find({}, function(err, users){
+    if(err){ return next(err); }
+
+    res.json(users);
+  });
 })
 
 //Facebook Integration
