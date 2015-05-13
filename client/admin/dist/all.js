@@ -31,6 +31,16 @@ function($stateProvider, $urlRouterProvider) {
         }]
       }
     });
+    // .state('users', {
+    //   url: '/users/{id}',
+    //   templateUrl: 'users.html',
+    //   controller: 'PostsCtrl',
+    //   resolve: {
+    //     postPromise: function($stateParams, posts) {
+    //       return users.get($stateParams.id);
+    //     }]
+    //   }
+    // });
 
   $urlRouterProvider.otherwise('home');
 }]);

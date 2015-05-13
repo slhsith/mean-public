@@ -437,21 +437,20 @@ router.post('/api/languages', function (req, res, next) {
     res.json(language);
   })
 });
-
-router.get('/api/settings', auth, function (req, res, next) {
-  User.findOne({username : req.payload.username}, function(err, user)
-  { res.json(user); })
+//settings
+router.get('/api/settings', function (req, res, next) {
+  User.findOne({username : 'slhsith@gmail.com'}, function(err, user)
+  { console.log('user settings', user); res.json(user); })
 });
 
-router.put('/api/settings', auth, function (req, res, next) {
+router.put('/api/settings', function (req, res, next) {
   var settings = req.body;
 
-  User.findByIdAndUpdate(req.payload.id, { $set: settings }, function (err, item) {
+  User.findByIdAndUpdate(req.body._id, { $set: settings } , function (err, user) {
     if (err) { return next(err); }
-    return user;
     user.save(function (err){
       if(err){ return next(err); }
-      // return res.status(200).json({message: 'Profile Updated!'});
+      return res.status(200).json({message: 'Profile Updated!'});
     });
   });
 });

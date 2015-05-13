@@ -217,15 +217,16 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   return lang; // <------ this factory hasn't returned its methods publically yet
 }]);
 app.factory('settings', ['$http', '$window', function($http, $window){
-   var s = { settings : [] };
+   var s = { settings : {} };
    s.getAll = function (){
     return $http.get('/api/settings').success(function(data){
+      console.log(data);
       angular.copy(data, s.settings);
     });
    };
    s.update = function (user){
     return $http.put('/api/settings', user).success(function(data){
-        s.settings = data;
+      angular.copy(data, s.settings);
       });
    };
    return s;
