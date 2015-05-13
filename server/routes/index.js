@@ -1,14 +1,19 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
-var Post = mongoose.model('Post');
-var Comment = mongoose.model('Comment');
-var Item = mongoose.model('Item');
-var User = mongoose.model('User');
-var Language = mongoose.model('Language');
-var Video = mongoose.model('Video');
-var Book = mongoose.model('Book');
-var Podcast = mongoose.model('Podcast');
+
+var
+  Post          = mongoose.model('Post'),
+  Comment       = mongoose.model('Comment'),
+  Item          = mongoose.model('Item'),
+  User          = mongoose.model('User'),
+  Language      = mongoose.model('Language'),
+  Video         = mongoose.model('Video'),
+  Book          = mongoose.model('Book'),
+  Podcast       = mongoose.model('Podcast'),
+  Message       = mongoose.model('Message'),
+  Conversation  = mongoose.model('Conversation');
+
 var passport = require('passport');
 var jwt = require('express-jwt');
 var nodemailer = require('nodemailer');
@@ -476,8 +481,9 @@ router.get('/auth/facebook/callback',
 
 
 //Messenger
-router.get('/api/conversations', messaging.getConversations(res, req, next) );
-router.get( '/api/conversation/:id', messaging.getConversationByid(res, req, next) );
+var messaging = require('../controllers/messaging');
+router.get('/api/conversations', messaging.getConversations );
+router.get( '/api/conversation/:id', messaging.getConversationById );
 
-router.post('/api/conversation', auth, messaging.createConversation(req, res, next) );
-router.post('/api/conversation/:id', auth, messaging.createMessage(req, res, next) );
+router.post('/api/conversation', auth, messaging.createConversation );
+router.post('/api/conversation/:id', auth, messaging.createMessage );

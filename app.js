@@ -16,6 +16,11 @@ require('./server/models/Languages');
 require('./server/models/Videos');
 require('./server/models/Books');
 require('./server/models/Podcasts');
+require('./server/models/Messages');
+require('./server/models/Conversations');
+require('./server/controllers/messaging');
+require('./server/controllers/settings');
+require('./server/controllers/shop');
 require('./server/config/passport');
 
 

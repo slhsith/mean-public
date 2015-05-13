@@ -8,7 +8,7 @@ var
 
 
 //Methods
-exports.getConversations = function(res, req, next) {
+exports.getConversations = function(req, res, next) {
 	// req.params.start
 	// req.params.end
 	Conversation.find({}, function (err, conversations) {
@@ -17,30 +17,31 @@ exports.getConversations = function(res, req, next) {
 	});
 };
 
-exports.getConversationById = function(res, req, next) {
+exports.getConversationById = function(req, res, next) {
 	// req.params.id
-	Conversation.findOne({ _id: req.param.id }, function(err, convo) {
-
-	return Q.all([
-	  convo.populate('users', function(err, users) {
-	    if (err) { return next(err); }
-	  }),
-	  convo.populate('messages', function(err, messages) {
-	    if (err) { return next(err); }
-	  })
-  }).then(function() {
-    console.log(convo);
-    res.json(convo);
+	Conversation.findOne({ _id: req.param.id })
+	.populate('users')
+	.populate('messages')
+	.exec(function(err, conversation) {
+    if (err) { return next(err); }
+    res.json(conversation);
   });
 
 };
 
-exports.createConversation = function(res, req, next) {
-	var convo = new Conversation(req.body);
+exports.createConversation = function(req, res, next) {
+	var
+	  convo = new Conversation(),
+		user;
+	User.findOne({"_id": "55516bb7c6e27c7d1a097473"}, function(err, u) {
+		user = u;
+		convo.users = [u._id];
+		console.log(user);
+	});
 
 	convo.save(function(err, convo) {
     if (err) { return next(err); }
-		res.send(convo);
+		res.json(convo);
 	});
 
 };
