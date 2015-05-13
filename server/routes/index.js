@@ -470,7 +470,15 @@ router.get('/api/users', function (req, res, next) {
 
     res.json(users);
   });
-})
+});
+
+router.get('/api/user/:user', function(req, res, err) {
+  if(err){ return next(err); }
+  User.findOne({_id: req.params._id }, function(err, user) {
+    res.json(user);
+  });
+});
+
 
 //Facebook Integration
 router.get('/auth/facebook', passport.authenticate('facebook'));

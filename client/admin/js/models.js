@@ -75,13 +75,18 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     };
   return auth;
 }]);
-app.factory('users', ['$http', '$window', function($http, $window){
+app.factory('users',['$http', '$window', function($http, $window){
   var u = {
     users: []
   };
   u.getAll = function() {
     return $http.get('/api/users').success(function(data){
       angular.copy(data, u.users);
+    });
+  };
+  u.get = function (id) {
+    return $http.get('/api/user/' + id).then(function(res){
+      return res.data;
     });
   };
   return u;

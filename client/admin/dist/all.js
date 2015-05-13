@@ -30,17 +30,17 @@ function($stateProvider, $urlRouterProvider) {
           return posts.get($stateParams.id);
         }]
       }
+    })
+    .state('users', {
+      url: '/users/{id}',
+      templateUrl: 'users.html',
+      controller: 'UserCtrl',
+      resolve: {
+        usersPromise: function(users) {
+          return users.get();
+        }
+      }
     });
-    // .state('users', {
-    //   url: '/users/{id}',
-    //   templateUrl: 'users.html',
-    //   controller: 'PostsCtrl',
-    //   resolve: {
-    //     postPromise: function($stateParams, posts) {
-    //       return users.get($stateParams.id);
-    //     }]
-    //   }
-    // });
 
   $urlRouterProvider.otherwise('home');
 }]);
@@ -84,6 +84,10 @@ function($scope, posts, post, auth){
     posts.upvoteComment(post, comment);
   };
 }]);
+
+app.controller('UserCtrl', function ($scope, users, auth) {
+  $scope.users = users.users;
+});
 
 app.controller('NavCtrl', [
 '$scope',
@@ -170,13 +174,18 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     };
   return auth;
 }]);
-app.factory('users', ['$http', '$window', function($http, $window){
+app.factory('users',['$http', '$window', function($http, $window){
   var u = {
     users: []
   };
   u.getAll = function() {
     return $http.get('/api/users').success(function(data){
       angular.copy(data, u.users);
+    });
+  };
+  u.get = function (id) {
+    return $http.get('/api/user/' + id).then(function(res){
+      return res.data;
     });
   };
   return u;
