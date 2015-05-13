@@ -121,6 +121,7 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
 
 
 app.controller('SettingsCtrl', function ($scope, languages, settings) {
+  $scope.user = angular.extend($scope.user, settings.settings);
   $scope.myImage='';
   $scope.myCroppedImage='';
   var handleFileSelect=function(evt) {
@@ -142,7 +143,7 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
     });
   };
   $scope.updateSettings = function() {
-    console.log($scope.user);
+    console.log('scope.user', $scope.user);
     settings.update($scope.user);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings: Update User");

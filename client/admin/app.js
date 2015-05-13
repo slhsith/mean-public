@@ -11,9 +11,9 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'home.html',
       controller: 'MainCtrl',
       resolve: {
-        postPromise: ['posts', function(posts){
-          return posts.getAll();
-        }]
+        userPromise: function (users) {
+         return users.getAll();
+       }
       }
     })
     .state('orders', {
@@ -29,6 +29,16 @@ function($stateProvider, $urlRouterProvider) {
         post: ['$stateParams', 'posts', function($stateParams, posts) {
           return posts.get($stateParams.id);
         }]
+      }
+    });
+    .state('users', {
+      url: '/users/{id}',
+      templateUrl: 'users.html',
+      controller: 'PostsCtrl',
+      resolve: {
+        usersPromise: function($stateParams, users) {
+          return users.get($stateParams.id);
+        }
       }
     });
 

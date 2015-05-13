@@ -1,9 +1,6 @@
-app.controller('MainCtrl', [
-'$scope',
-'posts',
-'auth',
-function($scope, posts, auth){
-  $scope.posts = posts.posts;
+app.controller('MainCtrl', function ($scope, users, auth){
+  // $scope.user = users.users;
+  $scope.users = users.users;
   $scope.addPost = function(){
     if(!$scope.title || $scope.title === '') { return; }
     posts.create({
@@ -17,7 +14,7 @@ function($scope, posts, auth){
   posts.upvote(post);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
-}]);
+});
 app.controller('PostsCtrl', [
 '$scope',
 'posts',
