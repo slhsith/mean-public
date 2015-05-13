@@ -74,9 +74,9 @@ function($stateProvider, $urlRouterProvider) {
        languagePromise: function (languages) {
          return languages.getAll();
        },
-       settingPromise: function (settings) {
-        return settings.getAll();
-       }
+       // settingPromise: function (settings) {
+       //  return settings.getAll();
+       // }
      }
    });
   // $urlRouterProvider.otherwise('home');
@@ -204,6 +204,7 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
 
 
 app.controller('SettingsCtrl', function ($scope, languages, settings) {
+  $scope.user = angular.extend($scope.user, settings.settings);
   $scope.myImage='';
   $scope.myCroppedImage='';
   var handleFileSelect=function(evt) {
@@ -220,10 +221,13 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
   $scope.languages = languages.languages;
   $scope.addLanguage = function(){
     console.log($scope.language.name);
-    languages.addLanguage($scope.language.name);
+    languages.addLanguage($scope.language.name).success(function(data) {
+    $scope.languages.push(data);
+    });
   };
   $scope.updateSettings = function() {
-    settings.update($scope.setting);
+    console.log('scope.user', $scope.user);
+    settings.update($scope.user);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings: Update User");
   };
@@ -448,18 +452,17 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   return lang; // <------ this factory hasn't returned its methods publically yet
 }]);
 app.factory('settings', ['$http', '$window', function($http, $window){
-   var s = { settings : [] };
-   s.test = function (setting) {
-    console.log(setting);
-   };
+   var s = { settings : {} };
    s.getAll = function (){
-    return $http.get('/api/settings/').success(function(data){
-          angular.copy(data, o.settings);
-        });
+    return $http.get('/api/settings').success(function(data){
+      console.log(data);
+      angular.copy(data, s.settings);
+    });
    };
-   s.update = function (){
-    return $http.put('/api/settings/').success(function(data){
-        o.settings.push(data);
+   s.update = function (user){
+    return $http.put('/api/settings', user).success(function(data){
+      angular.copy(data, s.settings);
       });
    };
+   return s;
 }]);

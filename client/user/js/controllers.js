@@ -121,6 +121,7 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
 
 
 app.controller('SettingsCtrl', function ($scope, languages, settings) {
+  $scope.user = angular.extend($scope.user, settings.settings);
   $scope.myImage='';
   $scope.myCroppedImage='';
   var handleFileSelect=function(evt) {
@@ -137,10 +138,13 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
   $scope.languages = languages.languages;
   $scope.addLanguage = function(){
     console.log($scope.language.name);
-    languages.addLanguage($scope.language.name);
+    languages.addLanguage($scope.language.name).success(function(data) {
+    $scope.languages.push(data);
+    });
   };
   $scope.updateSettings = function() {
-    settings.update($scope.setting);
+    console.log('scope.user', $scope.user);
+    settings.update($scope.user);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings: Update User");
   };

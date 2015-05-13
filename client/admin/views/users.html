@@ -1,0 +1,20 @@
+<div>
+	<table>
+	  <tr>
+	    <td>First Name</td>
+	    <td>Last Name</td> 
+	    <td>Address</td>
+	    <td>Date of Birth</td>
+	    <td>Handle</td>
+	    <td>Created</td>
+	  </tr>
+	  <tr ng-repeat="user in users">
+	    <td>{{user.f_name}}</td>
+	    <td>{{user.l_name}}</td> 
+	    <td>{{user.address}}</td>
+	    <td>{{user.dob}}</td>
+	    <td>{{user.handle}}</td>
+	    <td>{{user.created}}</td>
+	  </tr>
+	</table>
+</div>
