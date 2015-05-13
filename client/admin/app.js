@@ -30,13 +30,13 @@ function($stateProvider, $urlRouterProvider) {
           return posts.get($stateParams.id);
         }]
       }
-    });
+    })
     .state('users', {
       url: '/users/{id}',
       templateUrl: 'users.html',
       controller: 'PostsCtrl',
       resolve: {
-        usersPromise: function($stateParams, users) {
+        postPromise: function($stateParams, posts) {
           return users.get($stateParams.id);
         }
       }

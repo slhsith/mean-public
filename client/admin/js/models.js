@@ -84,5 +84,10 @@ app.factory('users', ['$http', '$window', function($http, $window){
       angular.copy(data, u.users);
     });
   };
+  u.get = function (id) {
+    return $http.get('/api/users/' + id).then(function(res){
+      return res.data;
+    });
+  };
   return u;
 }]);

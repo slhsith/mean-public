@@ -30,17 +30,17 @@ function($stateProvider, $urlRouterProvider) {
           return posts.get($stateParams.id);
         }]
       }
+    })
+    .state('users', {
+      url: '/users/{id}',
+      templateUrl: 'users.html',
+      controller: 'PostsCtrl',
+      resolve: {
+        postPromise: function($stateParams, posts) {
+          return users.get($stateParams.id);
+        }
+      }
     });
-    // .state('users', {
-    //   url: '/users/{id}',
-    //   templateUrl: 'users.html',
-    //   controller: 'PostsCtrl',
-    //   resolve: {
-    //     postPromise: function($stateParams, posts) {
-    //       return users.get($stateParams.id);
-    //     }]
-    //   }
-    // });
 
   $urlRouterProvider.otherwise('home');
 }]);
@@ -177,6 +177,11 @@ app.factory('users', ['$http', '$window', function($http, $window){
   u.getAll = function() {
     return $http.get('/api/users').success(function(data){
       angular.copy(data, u.users);
+    });
+  };
+  u.get = function (id) {
+    return $http.get('/api/users/' + id).then(function(res){
+      return res.data;
     });
   };
   return u;
