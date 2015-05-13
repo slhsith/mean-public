@@ -11,9 +11,9 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'home.html',
       controller: 'MainCtrl',
       resolve: {
-        postPromise: ['posts', function(posts){
-          return posts.getAll();
-        }]
+        userPromise: function (users) {
+         return users.getAll();
+       }
       }
     })
     .state('orders', {
@@ -38,8 +38,9 @@ app.controller('MainCtrl', [
 '$scope',
 'posts',
 'auth',
-function($scope, posts, auth){
-  $scope.posts = posts.posts;
+function ($scope, users, auth){
+  // $scope.user = users.users;
+  $scope.users = users.users;
   $scope.addPost = function(){
     if(!$scope.title || $scope.title === '') { return; }
     posts.create({
@@ -162,4 +163,15 @@ app.factory('auth', ['$http', '$window', function($http, $window){
       $window.location = "http://localhost:3000/";
     };
   return auth;
+}]);
+app.factory('users', ['$http', '$window', function($http, $window){
+  var u = {
+    users: []
+  };
+  u.getAll = function() {
+    return $http.get('/api/users').success(function(data){
+      angular.copy(data, u.users);
+    });
+  };
+  return u;
 }]);

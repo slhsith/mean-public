@@ -138,9 +138,10 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
   $scope.addLanguage = function(){
     console.log($scope.language.name);
     languages.addLanguage($scope.language.name).success(function(data) {
-    $scope.languages.push(data);
+      $scope.languages.push(data);
     });
   };
+  $scope.user = '';
   $scope.updateSettings = function() {
     console.log($scope.user);
     settings.update($scope.user);
