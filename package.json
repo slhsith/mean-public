@@ -17,6 +17,7 @@
     "debug": "~2.1.1",
     "express": "^4.12.3",
     "express-jwt": "^2.1.0",
+    "gulp-nodemon": "^2.0.3",
     "instagram-node": "0.5.7",
     "jsonwebtoken": "^4.2.2",
     "mailer": "^0.6.7",
