@@ -438,9 +438,9 @@ router.post('/api/languages', function (req, res, next) {
   })
 });
 
-router.get('/api/settings/', auth, function (req, res, next) {
-  User.findOne({username : username}, function(err, result)
-  { res.json(settings); })
+router.get('/api/settings', auth, function (req, res, next) {
+  User.findOne({username : req.payload.username}, function(err, user)
+  { res.json(user); })
 });
 
 router.put('/api/settings', function (req, res, next) {
@@ -450,11 +450,12 @@ router.put('/api/settings', function (req, res, next) {
   var dob = req.body.dob;
   var handle = req.body.handle;
 
-  User.findByIdAndUpdate(user.username, { $set: { f_name: f_name, l_name: l_name, address: address,  dob: dob, handle: handle}}, function (err, item) {
+  User.findByIdAndUpdate(req.body._id, { $set: { f_name: f_name, l_name: l_name, address: address,  dob: dob, handle: handle}}, function (err, item) {
     if (err) { return next(err); }
     return item;
     user.save(function (err){
       if(err){ return next(err); }
+      return res.status(200).json({message: 'Profile Updated!'});
     });
   });
 });

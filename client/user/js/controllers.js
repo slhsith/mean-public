@@ -137,10 +137,13 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
   $scope.languages = languages.languages;
   $scope.addLanguage = function(){
     console.log($scope.language.name);
-    languages.addLanguage($scope.language.name);
+    languages.addLanguage($scope.language.name).success(function(data) {
+    $scope.languages.push(data);
+    });
   };
   $scope.updateSettings = function() {
-    settings.update($scope.setting);
+    console.log($scope.user);
+    settings.update($scope.user);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings: Update User");
   };
