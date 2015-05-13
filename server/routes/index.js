@@ -155,7 +155,6 @@ router.post('/api/items', auth, function(req, res, next) {
         });
       });
     }
-
     if (req.body.type === 'Book'){
       var book = new Book(req.body);
       book.author = req.payload.username;
@@ -168,7 +167,6 @@ router.post('/api/items', auth, function(req, res, next) {
         });
       });
     }
-
     if (req.body.type === 'Podcast'){
       var podcast = new Podcast(req.body);
       podcast.author = req.payload.username;
@@ -185,40 +183,6 @@ router.post('/api/items', auth, function(req, res, next) {
   }) 
   .then(function() {
     res.json(item);
-  });
-});
-
-router.get('/api/videos', function(req, res, next) {
-  Video.find(function(err, videos){
-    if(err){ return next(err); }
-
-    res.json(videos);
-  });
-});
-
-router.post('/api/videos', auth, function(req, res, next) {
-  
-});
-
-router.post('/api/books', auth, function(req, res, next) {
-  var book = new Book(req.body);
-  book.author = req.payload.username;
-
-  book.save(function(err, book){
-    if(err){ return next(err); }
-
-    res.json(book);
-  });
-});
-
-router.post('/api/podcasts', auth, function(req, res, next) {
-  var podcast = new Podcast(req.body);
-  podcast.author = req.payload.username;
-
-  podcast.save(function(err, podcast){
-    if(err){ return next(err); }
-
-    res.json(podcast);
   });
 });
 
@@ -457,60 +421,41 @@ router.put('/api/resetPassword/:username/:token', function (req, res, next) {
   validate();
 });
 
-router.get('/api/settings/languages', function (req, res, next) {
-  Language.find(function(err, languages){
+router.get('/api/languages', function (req, res, next) {
+  Language.find({}, function(err, languages){
     if(err){ return next(err); }
 
     res.json(languages);
   });
 });
 
-router.post('/api/settings/languages', function (req, res, next) {
-  // req.body.name = languageName;
-
-  // test(function () {
-  //   return res.json({message: req.body.name});
-  // });
+router.post('/api/languages', function (req, res, next) {
   var language = new Language(req.body);
-  language.user = req.user;
-
-  language.save(function(err, languages){
-    if(err){ return next(err); }
-    req.user.languages.push(language);
-    req.user.save(function(err, post) {
-      if(err){ return next(err); }
-
-      res.json(language);
-    });
-  });
+  // language.user = payload.username;
+  language.save(function(err, language){
+  if (err) { return next(err); }
+    res.json(language);
+  })
 });
 
-router.get('/api/settings/', auth, function (req, res, next) {
-  // User.find(function(err, users){
-  //   if(err){ return next(err); }
-
-  //   res.json(users);
-  // });
-  var sid = req.session.id;
-  var username = req.payload.username;
-
-  users.findOne({username : username}, function(err, result)
-  { res.json(settings); })
+router.get('/api/settings', auth, function (req, res, next) {
+  User.findOne({username : req.payload.username}, function(err, user)
+  { res.json(user); })
 });
 
-router.put('/api/settings/', function (req, res, next) {
-  var username = req.payload.username;
+router.put('/api/settings', function (req, res, next) {
+  var f_name = req.body.f_name;
+  var l_name = req.body.l_name;
+  var address = req.body.address;
+  var dob = req.body.dob;
+  var handle = req.body.handle;
 
-  users.findOne({username : username}, function(err, result){
-    user.f_name = req.body.f_name;
-    user.l_name = req.body.l_name;
-    user.address = req.body.address;
-    user.dob = req.body.dob;
-    user.handle = req.body.handle;
-
+  User.findByIdAndUpdate(req.body._id, { $set: { f_name: f_name, l_name: l_name, address: address,  dob: dob, handle: handle}}, function (err, item) {
+    if (err) { return next(err); }
+    return item;
     user.save(function (err){
       if(err){ return next(err); }
-      return res.json({token: user.generateJWT()})
+      return res.status(200).json({message: 'Profile Updated!'});
     });
   });
 });

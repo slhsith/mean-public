@@ -134,12 +134,16 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
     reader.readAsDataURL(file);
   };
   angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
+  $scope.languages = languages.languages;
   $scope.addLanguage = function(){
     console.log($scope.language.name);
-    lang.addLanguage($scope.language.name);
+    languages.addLanguage($scope.language.name).success(function(data) {
+    $scope.languages.push(data);
+    });
   };
   $scope.updateSettings = function() {
-    settings.update($scope.setting);
+    console.log($scope.user);
+    settings.update($scope.user);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings: Update User");
   };

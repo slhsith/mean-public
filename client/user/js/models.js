@@ -198,51 +198,35 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 }]);
 
 app.factory('languages', ['$http', '$window', function($http, $window){
-  var lang = {};
-  lang.getAll = function (language) {
+  var lang = { languages : [] };
+                       // no function parameters -- function ()
+  lang.getAll = function () { 
     return $http.get('/api/languages').success(function(data){
-      console.log(data);
+      console.log(data); // <<-- does this print anything?
       angular.copy(data, lang.languages);
     });
   };
   lang.addLanguage = function (language) {
     console.log(language);
-    return $http.post('/api/settings/languages').success(function(data){
-      languages.push(data);
+    return $http.post('/api/languages', { 'name': language }).success(function(data){
       console.log(data);
+      lang.languages.push(data);
     });
   }; 
-  // return {
-  //   // getLanguages: function getLangs(language) {
-  //   //   return $http.get('/api/settings/languages').success(function(data){
-  //   //     angular.copy(data, o.languages);
-  //   //   });
-  //   // },
-  //   addLanguage: function addLang(language) {
-  //     // console.log(language);
-  //     return $http.post('/api/settings/languages').success(function(data){
-  //       // languages.push(data);
-  //       console.log(data);
-  //     });
-  //   }
-  // };
+  
+  return lang; // <------ this factory hasn't returned its methods publically yet
 }]);
 app.factory('settings', ['$http', '$window', function($http, $window){
-  return {
-    test: function test(setting){
-      console.log(setting);
-    },
-    getSettings: function getSettings() {
-      return $http.get('/api/settings/', {
-        headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).success(function(data){
-        angular.copy(data, o.items);
+   var s = { settings : [] };
+   s.getAll = function (){
+    return $http.get('/api/settings/').success(function(data){
+      angular.copy(data, s.settings);
+    });
+   };
+   s.update = function (user){
+    return $http.put('/api/settings/', user).success(function(data){
+        s.settings.push(data);
       });
-    },
-    update: function update(){
-      return $http.put('/api/settings/').success(function(data){
-        o.settings.push(data);
-      });
-    }
-  };
+   };
+   return s;
 }]);

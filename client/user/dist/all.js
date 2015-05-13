@@ -67,15 +67,18 @@ function($stateProvider, $urlRouterProvider) {
       }
     })  
     .state('settings', {
-      url: '/settings',
-      templateUrl: 'settings.html',
-      controller: 'SettingsCtrl',
-      // resolve: {
-      //   languagePromise: function (languages) {
-      //     return languages.getAll();
-      //   }
-      // }
-    });
+     url: '/settings',
+     templateUrl: 'settings.html',
+     controller: 'SettingsCtrl',
+     resolve: {
+       languagePromise: function (languages) {
+         return languages.getAll();
+       },
+       // settingPromise: function (settings) {
+       //  return settings.getAll();
+       // }
+     }
+   });
   // $urlRouterProvider.otherwise('home');
 }]);
 app.controller('MainCtrl', function ($scope, auth) {
@@ -214,12 +217,16 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
     reader.readAsDataURL(file);
   };
   angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
+  $scope.languages = languages.languages;
   $scope.addLanguage = function(){
     console.log($scope.language.name);
-    lang.addLanguage($scope.language.name);
+    languages.addLanguage($scope.language.name).success(function(data) {
+    $scope.languages.push(data);
+    });
   };
   $scope.updateSettings = function() {
-    settings.update($scope.setting);
+    console.log($scope.user);
+    settings.update($scope.user);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings: Update User");
   };
@@ -425,51 +432,35 @@ app.factory('auth', ['$http', '$window', function($http, $window){
 }]);
 
 app.factory('languages', ['$http', '$window', function($http, $window){
-  var lang = {};
-  lang.getAll = function (language) {
+  var lang = { languages : [] };
+                       // no function parameters -- function ()
+  lang.getAll = function () { 
     return $http.get('/api/languages').success(function(data){
-      console.log(data);
+      console.log(data); // <<-- does this print anything?
       angular.copy(data, lang.languages);
     });
   };
   lang.addLanguage = function (language) {
     console.log(language);
-    return $http.post('/api/settings/languages').success(function(data){
-      languages.push(data);
+    return $http.post('/api/languages', { 'name': language }).success(function(data){
       console.log(data);
+      lang.languages.push(data);
     });
   }; 
-  // return {
-  //   // getLanguages: function getLangs(language) {
-  //   //   return $http.get('/api/settings/languages').success(function(data){
-  //   //     angular.copy(data, o.languages);
-  //   //   });
-  //   // },
-  //   addLanguage: function addLang(language) {
-  //     // console.log(language);
-  //     return $http.post('/api/settings/languages').success(function(data){
-  //       // languages.push(data);
-  //       console.log(data);
-  //     });
-  //   }
-  // };
+  
+  return lang; // <------ this factory hasn't returned its methods publically yet
 }]);
 app.factory('settings', ['$http', '$window', function($http, $window){
-  return {
-    test: function test(setting){
-      console.log(setting);
-    },
-    getSettings: function getSettings() {
-      return $http.get('/api/settings/', {
-        headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).success(function(data){
-        angular.copy(data, o.items);
+   var s = { settings : [] };
+   s.getAll = function (){
+    return $http.get('/api/settings/').success(function(data){
+      angular.copy(data, s.settings);
+    });
+   };
+   s.update = function (user){
+    return $http.put('/api/settings/', user).success(function(data){
+        s.settings.push(data);
       });
-    },
-    update: function update(){
-      return $http.put('/api/settings/').success(function(data){
-        o.settings.push(data);
-      });
-    }
-  };
+   };
+   return s;
 }]);
