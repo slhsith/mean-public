@@ -30,14 +30,8 @@ exports.getConversationById = function(req, res, next) {
 };
 
 exports.createConversation = function(req, res, next) {
-	var
-	  convo = new Conversation(),
-		user;
-	User.findOne({"_id": "55516bb7c6e27c7d1a097473"}, function(err, u) {
-		user = u;
-		convo.users = [u._id];
-		console.log(user);
-	});
+	var convo = new Conversation();
+  convo.users = [req.payload._id];
 
 	convo.save(function(err, convo) {
     if (err) { return next(err); }
