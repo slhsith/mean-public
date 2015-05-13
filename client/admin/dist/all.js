@@ -34,10 +34,10 @@ function($stateProvider, $urlRouterProvider) {
     .state('users', {
       url: '/users/{id}',
       templateUrl: 'users.html',
-      controller: 'PostsCtrl',
+      controller: 'UserCtrl',
       resolve: {
-        postPromise: function($stateParams, posts) {
-          return users.get($stateParams.id);
+        usersPromise: function(users) {
+          return users.get();
         }
       }
     });
@@ -84,6 +84,10 @@ function($scope, posts, post, auth){
     posts.upvoteComment(post, comment);
   };
 }]);
+
+app.controller('UserCtrl', function ($scope, users, auth) {
+  $scope.users = users.users;
+});
 
 app.controller('NavCtrl', [
 '$scope',
@@ -170,7 +174,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     };
   return auth;
 }]);
-app.factory('users', ['$http', '$window', function($http, $window){
+app.factory('users',['$http', '$window', function($http, $window){
   var u = {
     users: []
   };
@@ -180,7 +184,7 @@ app.factory('users', ['$http', '$window', function($http, $window){
     });
   };
   u.get = function (id) {
-    return $http.get('/api/users/' + id).then(function(res){
+    return $http.get('/api/user/' + id).then(function(res){
       return res.data;
     });
   };

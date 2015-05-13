@@ -472,20 +472,11 @@ router.get('/api/users', function (req, res, next) {
   });
 });
 
-router.param('/api/user', function(req, res, next, id) {
-  var query = User.findById(id);
-
-  query.exec(function (err, user){
-    if (err) { return next(err); }
-    if (!user) { return next(new Error('can\'t find user')); }
-
-    req.user = user;
-    return next();
+router.get('/api/user/:user', function(req, res, err) {
+  if(err){ return next(err); }
+  User.findOne({_id: req.params._id }, function(err, user) {
+    res.json(user);
   });
-});
-
-router.get('/api/users/:user', function(req, res) {
-    res.json(req.user);
 });
 
 
