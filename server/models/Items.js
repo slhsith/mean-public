@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 var ItemSchema = new mongoose.Schema({
   name: String,
   upvotes: {type: Number, default: 0},
+  author: String,
   price: String,
   transaction: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }],
   video: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }],

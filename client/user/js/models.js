@@ -219,13 +219,13 @@ app.factory('languages', ['$http', '$window', function($http, $window){
 app.factory('settings', ['$http', '$window', function($http, $window){
    var s = { settings : [] };
    s.getAll = function (){
-    return $http.get('/api/settings/').success(function(data){
+    return $http.get('/api/settings').success(function(data){
       angular.copy(data, s.settings);
     });
    };
    s.update = function (user){
-    return $http.put('/api/settings/', user).success(function(data){
-        s.settings.push(data);
+    return $http.put('/api/settings', user).success(function(data){
+        s.settings = data;
       });
    };
    return s;
