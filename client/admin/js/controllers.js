@@ -39,6 +39,10 @@ function($scope, posts, post, auth){
   };
 }]);
 
+app.controller('UserCtrl', function ($scope, users, auth) {
+  $scope.users = users.users;
+});
+
 app.controller('NavCtrl', [
 '$scope',
 'auth',

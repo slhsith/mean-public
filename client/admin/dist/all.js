@@ -21,22 +21,12 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'orders.html',
       controller: 'MainCtrl',
     })
-    .state('posts', {
-      url: '/posts/{id}',
-      templateUrl: 'posts.html',
-      controller: 'PostsCtrl',
-      resolve: {
-        post: ['$stateParams', 'posts', function($stateParams, posts) {
-          return posts.get($stateParams.id);
-        }]
-      }
-    })
     .state('users', {
       url: '/users/{id}',
       templateUrl: 'users.html',
-      controller: 'PostsCtrl',
+      controller: 'UserCtrl',
       resolve: {
-        postPromise: function($stateParams, posts) {
+        usersPromise: function($stateParams, users) {
           return users.get($stateParams.id);
         }
       }
@@ -84,6 +74,10 @@ function($scope, posts, post, auth){
     posts.upvoteComment(post, comment);
   };
 }]);
+
+app.controller('UserCtrl', function ($scope, users, auth) {
+  $scope.users = users.users;
+});
 
 app.controller('NavCtrl', [
 '$scope',
@@ -170,7 +164,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     };
   return auth;
 }]);
-app.factory('users', ['$http', '$window', function($http, $window){
+app.factory('users',['$http', '$window', function($http, $window){
   var u = {
     users: []
   };
@@ -180,7 +174,7 @@ app.factory('users', ['$http', '$window', function($http, $window){
     });
   };
   u.get = function (id) {
-    return $http.get('/api/users/' + id).then(function(res){
+    return $http.get('/api/user/' + id).then(function(res){
       return res.data;
     });
   };
