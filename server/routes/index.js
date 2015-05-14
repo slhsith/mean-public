@@ -269,167 +269,30 @@ router.get('/api/customers', function(req, res, next) {
   });
 });
 
-
 router.get('/api/customers/:customer', function(req, res) {
     res.json(req.customer);
 });
 
 
 //auth
+var authentication = require('../controllers/authentication');
+router.post('/api/register', authentication.doRegistration );
+router.post('/api/login', authentication.doLogin );
+router.post('/api/forgot', authentication.recoverPassword );
+router.put('/api/emailverify/:username/:user_token', authentication.verifyEmail );
+router.get('/api/resetPassword/:username/:user_token', authentication.resetPassword );
+router.put('/api/resetPassword/:username/:user_token', authentication.doResetPassword );
+//Facebook Integration
+router.get('/auth/facebook', passport.authenticate('facebook'));
+router.get('/auth/facebook/callback', 
+  passport.authenticate('facebook', { successRedirect: '/',
+                                      failureRedirect: '/login' }));
 
-router.post('/api/register', function(req, res, next){
-  if(!req.body.username || !req.body.password || !req.body.repeat_username || !req.body.repeat_password){
-    return res.status(400).json({message: 'Please fill out all fields'});
-  }
-  if(req.body.username !== req.body.repeat_username){
-    return res.status(400).json({message: 'Emails do not match'});
-  }
-  if(req.body.password !== req.body.repeat_password){
-    return res.status(400).json({message: 'Passwords do not match'});
-  }
 
-  // var checkEmail = function () {
-  //   User.findOne({ username: req.body.username }, function (err, user) {
-  //     if (user){ Console.log('email exists'); return true; }
-  //     if (!user){ Console.log('email doesnt exists'); return false; }
-  //   });
-  // };
-
-  // if (checkEmail()){
-  // return res.status(400).json({message: 'Email is in use'});
-  // }
-
-  var user = new User();
-
-  user.username = req.body.username;
-  user.setPassword(req.body.password);
-  user.generateUserToken();
-
-  user.save(function (err){
-    if(err){ return next(err); }
-    return res.json({token: user.generateJWT()})
-  });
-
-  var mailOptions = {
-    from: 'contact@trainersvault.com', // sender address 
-    to: user.username, // list of receivers 
-    subject: 'Welcome to Your new Profile!', // Subject line 
-    generateTextFromHTML: true,
-    html: '<div style="text-align: center">Please Click this link to verify your account!'
-    + '<br/><br/>Link: http://localhost:3000/set/#/emailverify/' + user.username + '/' + user.user_token
-    + '<br/><br/></br>Thank you for using Trainersvault!</div>'
-  };
-  transporter.sendMail(mailOptions, function(error, info){
-    if(error){
-        console.log(error);
-    }else{
-        console.log('Message sent: ' + info.response);
-    }
-  });   
-});
-
-router.post('/api/login', function(req, res, next){
-  if(!req.body.username || !req.body.password){
-    return res.status(400).json({message: 'Please fill out all fields'});
-  }
-
-  passport.authenticate(['local', 'facebook'], function(err, user, info){
-    if(err){ return next(err); }
-
-    if(user){
-      return res.json({token: user.generateJWT()});
-    } else {
-      return res.status(401).json(info);
-    }
-  })(req, res, next);
-});
-
-router.post('/api/forgot', function(req, res, next){
-  if(!req.body.username){
-    return res.status(400).json({message: 'Please enter an email'});
-  }
-
-  var validEmail = function () {
-    User.findOne({ username: req.body.username }, function (err, user) {
-      if (!user) { return res.status(400).json({message:'Email not found'}); return false; }
-      if (user){
-        var transporter = nodemailer.createTransport({
-          host: 'smtp.mandrillapp.com',
-          port: 587,
-          auth: {
-              user: 'trainersvault',
-              pass: 'BGkIPqtGVLNL2JAGAmwHMw'
-          }
-        });
-        var mailOptions = {
-          from: 'contact@trainersvault.com', // sender address 
-          to: user.username, // list of receivers 
-          subject: 'Trainersvault Reset Password', // Subject line 
-          generateTextFromHTML: true,
-          text: '<div style="text-align=center">Please Click this link to reset your password!'
-          + '<br/><br/>Link: http://localhost:3000/set/#/resetPassword/' + user.username + '/' + user.user_token 
-          + '<br/><br/><br/>Thank you for using Trainersvault!',
-        }; 
-        transporter.sendMail(mailOptions, function(error, info){
-          if(error){
-              console.log(error);
-          }else{
-              console.log('Message sent: ' + info.response);
-          }
-        });
-      }
-    })
-  };
-  validEmail();
-});
-
-router.put('/api/emailverify/:username/:user_token', function (req, res, next) {
-  User.findOne({ username: req.params.username, user_token: req.params.user_token }, function (err, user) {
-    if (!user) { return res.status(400).json({message:'Email not found'}); }
-    user.validateUserEmailToken();
-    user.generateUserToken();
-    return res.json({'message': 'Successfully verified email address.'});
-  });
-});
-
-// router.get('/api/emailverify/:username/:user_token', function (req, res, next) {
-//   if (!user.username || !user.user_token){
-//     false 
-//   } else {
-//     true
-//   }
-// });
-
-router.get('/resetPassword/:username/:user_token', function (req, res, next) {
-  User.findOne({ username: req.params.username, token: req.params.user_token }, function (err, user) {
-      if (!user) { return res.status(400).json({message:'Email not found'}); return false; }
-      if (user){
-        res.json(user);
-      }
-  });
-});
-
-router.put('/api/resetPassword/:username/:token', function (req, res, next) {
-  // if(req.body.password !== req.body.repeat_password){
-  //   return res.status(400).json({message: 'Passwords do not match'});
-  // }
-  var validate = function (password) {
-    User.findOne({ username: req.params.username }, function (err, user) {
-      if (!user) { return res.status(400).json({message:'Token expired'}); return false; }
-      if (user){ user.resetUserPassword(password)
-                 user.save(function (err){
-                  if(err){ return next(err); }
-                  return res.json({token: user.generateJWT()})
-                 }) }
-    })
-  };
-  validate();
-});
-
+//settings
 router.get('/api/languages', function (req, res, next) {
   Language.find({}, function(err, languages){
     if(err){ return next(err); }
-
     res.json(languages);
   });
 });
@@ -442,7 +305,7 @@ router.post('/api/languages', function (req, res, next) {
     res.json(language);
   })
 });
-//settings
+
 router.get('/api/settings', function (req, res, next) {
   User.findOne({username : 'slhsith@gmail.com'}, function(err, user)
   { console.log('user settings', user); res.json(user); })
@@ -461,12 +324,10 @@ router.put('/api/settings', function (req, res, next) {
 });
 
 //search
-
 router.post('/api/search', function (req, res, next) {
   var searchQuery = req.payload.search;
-
-
 })
+
 
 //get users
 router.get('/api/users', function (req, res, next) {
@@ -477,21 +338,16 @@ router.get('/api/users', function (req, res, next) {
   });
 });
 
+
 router.get('/api/user/:id', function (req, res, next) {
-  if(err){ return next(err); }
-  console.log('id', req.params.id);
-  User.findOne({_id: req.params.id}, function(err, user) {
+  // if(err){ next(err); }
+  var _id = req.params.id;
+  User.findById(_id, function(err, user) {
     console.log(user);
     res.json(user);
   });
 });
 
-
-//Facebook Integration
-router.get('/auth/facebook', passport.authenticate('facebook'));
-router.get('/auth/facebook/callback', 
-  passport.authenticate('facebook', { successRedirect: '/',
-                                      failureRedirect: '/login' }));
 
 
 

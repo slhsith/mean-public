@@ -18,6 +18,7 @@ require('./server/models/Books');
 require('./server/models/Podcasts');
 require('./server/models/Messages');
 require('./server/models/Conversations');
+require('./server/controllers/authentication');
 require('./server/controllers/messaging');
 require('./server/controllers/settings');
 require('./server/controllers/shop');
