@@ -220,7 +220,6 @@ app.factory('settings', ['$http', '$window', function($http, $window){
    var s = { settings : {} };
    s.getAll = function (){
     return $http.get('/api/settings').success(function(data){
-      console.log(data);
       angular.copy(data, s.settings);
     });
    };
