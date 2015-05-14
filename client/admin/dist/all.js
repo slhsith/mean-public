@@ -22,7 +22,7 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'MainCtrl',
     })
     .state('user', {
-      url: '/user/{id}',
+      url: '/user/:id',
       templateUrl: 'users.html',
       controller: 'UserCtrl',
       resolve: {
@@ -75,8 +75,9 @@ function($scope, posts, post, auth){
   };
 }]);
 
-app.controller('UserCtrl', function ($scope, users, auth) {
-  $scope.users = users.users;
+app.controller('UserCtrl', function ($scope, users, auth, usersPromise) {
+  $scope.user = usersPromise.data;
+  console.log(usersPromise);
 });
 
 app.controller('NavCtrl', [
@@ -175,8 +176,8 @@ app.factory('users',['$http', '$window', function($http, $window){
   };
   u.get = function (id) {
     return $http.get('/api/user/' + id).success(function(data){
-      console.log(res.data);
-      return res.data;
+      console.log(data);
+      angular.copy(data, u.user);
     });
  };
   return u;

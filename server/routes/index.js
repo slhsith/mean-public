@@ -341,19 +341,13 @@ router.get('/api/users', function (req, res, next) {
 });
 
 router.get('/api/user/:id', function (req, res, next) {
-  // if(err){ next(err); }
-  var _id = req.params.id;
-  User.findById(_id, function(err, user) {
-    console.log(user);
-    res.json(user);
-  });
+ // if(err){ next(err); }
+ var _id = req.params.id;
+ User.findById(_id, function(err, user) {
+   console.log(user);
+   res.json(user);
+ });
 });
-
-router.get('/api/user/:user', function (req, res, id) {
-  console.log(req.user);
-  res.json(req.user);
-});
-
 
 
 

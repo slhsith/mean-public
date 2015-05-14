@@ -22,7 +22,7 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'MainCtrl',
     })
     .state('user', {
-      url: '/user/{id}',
+      url: '/user/:id',
       templateUrl: 'users.html',
       controller: 'UserCtrl',
       resolve: {
