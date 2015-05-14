@@ -379,8 +379,8 @@ router.post('/api/forgot', function(req, res, next){
 });
 
 router.put('/api/emailverify/:username/:user_token', function (req, res, next) {
-  User.findOne({ username: req.param.username, user_token: req.param.user_token }, function (err, user) {
-    if (!user) { return res.status(400).json({message:'Email not found'}); return false; }
+  User.findOne({ username: req.params.username, user_token: req.params.user_token }, function (err, user) {
+    if (!user) { return res.status(400).json({message:'Email not found'}); }
     user.validateUserEmailToken();
     user.generateUserToken();
     return res.json({'message': 'Successfully verified email address.'});
@@ -396,10 +396,10 @@ router.put('/api/emailverify/:username/:user_token', function (req, res, next) {
 // });
 
 router.get('/resetPassword/:username/:user_token', function (req, res, next) {
-  User.findOne({ username: req.param.username, token: req.param.user_token }, function (err, user) {
+  User.findOne({ username: req.params.username, token: req.params.user_token }, function (err, user) {
       if (!user) { return res.status(400).json({message:'Email not found'}); return false; }
       if (user){
-        return true;
+        res.json(user);
       }
   });
 });
@@ -472,9 +472,11 @@ router.get('/api/users', function (req, res, next) {
   });
 });
 
-router.get('/api/user/:user', function(req, res, err) {
+router.get('/api/user/:id', function (req, res, next) {
   if(err){ return next(err); }
-  User.findOne({_id: req.params._id }, function(err, user) {
+  console.log('id', req.params.id);
+  User.findOne({_id: req.params.id}, function(err, user) {
+    console.log(user);
     res.json(user);
   });
 });

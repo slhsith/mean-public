@@ -21,23 +21,13 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'orders.html',
       controller: 'MainCtrl',
     })
-    .state('posts', {
-      url: '/posts/{id}',
-      templateUrl: 'posts.html',
-      controller: 'PostsCtrl',
-      resolve: {
-        post: ['$stateParams', 'posts', function($stateParams, posts) {
-          return posts.get($stateParams.id);
-        }]
-      }
-    })
     .state('users', {
       url: '/users/{id}',
       templateUrl: 'users.html',
       controller: 'UserCtrl',
       resolve: {
-        usersPromise: function(users) {
-          return users.get();
+        usersPromise: function($stateParams, users) {
+          return users.get($stateParams.id);
         }
       }
     });
