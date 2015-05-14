@@ -87,8 +87,25 @@ app.factory('users',['$http', '$window', function($http, $window){
   u.get = function (id) {
     return $http.get('/api/user/' + id).success(function(data){
       console.log(data);
-      angular.copy(data, u.user);
+      return data;
     });
- };
+  };
+  u.update = function (user){
+    console.log('updating user', user);
+    return $http.put('/api/settings', user).success(function(data){
+        u.users = data;
+    });
+  };
   return u;
+}]);
+
+app.factory('settings', ['$http', '$window', function($http, $window){
+   var s = { settings : {} };
+   s.getAll = function (){
+    return $http.get('/api/settings').success(function(data){
+      angular.copy(data, s.settings);
+    });
+   };
+   
+   return s;
 }]);

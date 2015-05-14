@@ -78,6 +78,12 @@ function($scope, posts, post, auth){
 app.controller('UserCtrl', function ($scope, users, auth, usersPromise) {
   $scope.user = usersPromise.data;
   console.log(usersPromise);
+  $scope.update = function() {
+    console.log($scope.user);
+    users.update($scope.user);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Settings: Update User");
+  };
 });
 
 app.controller('NavCtrl', [
@@ -177,8 +183,25 @@ app.factory('users',['$http', '$window', function($http, $window){
   u.get = function (id) {
     return $http.get('/api/user/' + id).success(function(data){
       console.log(data);
-      angular.copy(data, u.user);
+      return data;
     });
- };
+  };
+  u.update = function (user){
+    console.log('updating user', user);
+    return $http.put('/api/settings', user).success(function(data){
+        u.users = data;
+    });
+  };
   return u;
+}]);
+
+app.factory('settings', ['$http', '$window', function($http, $window){
+   var s = { settings : {} };
+   s.getAll = function (){
+    return $http.get('/api/settings').success(function(data){
+      angular.copy(data, s.settings);
+    });
+   };
+   
+   return s;
 }]);
