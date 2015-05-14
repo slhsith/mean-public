@@ -33,3 +33,8 @@ app.controller('SearchCtrl', function ($scope) {
     search.query($scope.search);
   };
 });
+
+app.controller('UserCtrl', function ($scope, users, auth, usersPromise) {
+  $scope.user = usersPromise.data;
+  console.log(usersPromise);
+});

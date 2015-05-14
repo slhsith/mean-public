@@ -231,3 +231,15 @@ app.factory('settings', ['$http', '$window', function($http, $window){
    };
    return s;
 }]);
+app.factory('users',['$http', '$window', function($http, $window){
+  var u = {
+    users: []
+  };
+  u.get = function (handle) {
+    return $http.get('/api/user/' + handle).success(function(data){
+      console.log(data);
+      return data;
+    });
+  };
+  return u;
+}]);

@@ -30,3 +30,16 @@ app.factory('search', function ($http) {
     }
   };
 });
+
+app.factory('users',['$http', '$window', function($http, $window){
+  var u = {
+    users: []
+  };
+  u.get = function (id) {
+    return $http.get('/api/user/' + id).success(function(data){
+      console.log(data);
+      return data;
+    });
+  };
+  return u;
+}]);

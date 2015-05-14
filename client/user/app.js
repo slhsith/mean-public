@@ -74,6 +74,9 @@ function($stateProvider, $urlRouterProvider) {
        languagePromise: function (languages) {
          return languages.getAll();
        },
+       usersPromise: function($stateParams, users) {
+        return users.get($stateParams.handle);
+       }
        // settingPromise: function (settings) {
        //  return settings.getAll();
        // }

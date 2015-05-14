@@ -74,6 +74,9 @@ function($stateProvider, $urlRouterProvider) {
        languagePromise: function (languages) {
          return languages.getAll();
        },
+       usersPromise: function($stateParams, users) {
+        return users.get($stateParams.handle);
+       }
        // settingPromise: function (settings) {
        //  return settings.getAll();
        // }
@@ -218,6 +221,8 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings: Update User");
   };
+  $scope.user = usersPromise.data;
+  console.log(usersPromise);
 });
 
 app.factory('posts', ['$http', 'auth', function($http, auth){
@@ -452,4 +457,16 @@ app.factory('settings', ['$http', '$window', function($http, $window){
       });
    };
    return s;
+}]);
+app.factory('users',['$http', '$window', function($http, $window){
+  var u = {
+    users: []
+  };
+  u.get = function (handle) {
+    return $http.get('/api/user/' + handle).success(function(data){
+      console.log(data);
+      return data;
+    });
+  };
+  return u;
 }]);

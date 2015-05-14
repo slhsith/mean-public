@@ -135,4 +135,6 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings: Update User");
   };
+  $scope.user = usersPromise.data;
+  console.log(usersPromise);
 });

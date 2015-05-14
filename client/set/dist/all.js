@@ -24,6 +24,16 @@ function($stateProvider, $urlRouterProvider) {
       url: '/search',
       templateUrl: 'search.html',
       controller: 'SearchCtrl'
+    })
+    .state('userProfile', {
+      url: '/user/:handle',
+      templateUrl: 'userProfile.html',
+      controller: 'UserCtrl',
+      resolve: {
+        usersPromise: function($stateParams, users) {
+          return users.get($stateParams.id);
+        }
+      }
     });
   // $urlRouterProvider.otherwise('home');
 }]);
@@ -62,6 +72,11 @@ app.controller('SearchCtrl', function ($scope) {
     search.query($scope.search);
   };
 });
+
+app.controller('UserCtrl', function ($scope, users, auth, usersPromise) {
+  $scope.user = usersPromise.data;
+  console.log(usersPromise);
+});
 app.factory('verification', function ($http, $window) {
   return {
       getUser: function getUserMethod(user, name, token) {
@@ -94,3 +109,16 @@ app.factory('search', function ($http) {
     }
   };
 });
+
+app.factory('users',['$http', '$window', function($http, $window){
+  var u = {
+    users: []
+  };
+  u.get = function (id) {
+    return $http.get('/api/user/' + id).success(function(data){
+      console.log(data);
+      return data;
+    });
+  };
+  return u;
+}]);
