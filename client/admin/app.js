@@ -21,8 +21,8 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'orders.html',
       controller: 'MainCtrl',
     })
-    .state('users', {
-      url: '/users/{id}',
+    .state('user', {
+      url: '/user/{id}',
       templateUrl: 'users.html',
       controller: 'UserCtrl',
       resolve: {

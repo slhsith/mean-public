@@ -85,9 +85,10 @@ app.factory('users',['$http', '$window', function($http, $window){
     });
   };
   u.get = function (id) {
-    return $http.get('/api/user/' + id).then(function(res){
+    return $http.get('/api/user/' + id).success(function(data){
+      console.log(res.data);
       return res.data;
     });
-  };
+ };
   return u;
 }]);

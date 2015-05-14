@@ -439,7 +439,7 @@ router.post('/api/languages', function (req, res, next) {
 });
 //settings
 router.get('/api/settings', function (req, res, next) {
-  User.findOne({username : 'slhsith@gmail.com'}, function(err, user)
+  User.findOne({username : req.body.username}, function(err, user)
   { console.log('user settings', user); res.json(user); })
 });
 
@@ -457,26 +457,34 @@ router.put('/api/settings', function (req, res, next) {
 
 //search
 
-router.post('/api/search', function (req, res, next) {
-  var searchQuery = req.payload.search;
+// router.post('/api/search', function (req, res, next) {
+//   var searchQuery = req.payload.search;
 
 
-})
+// })
 
 //get users
 router.get('/api/users', function (req, res, next) {
   User.find({}, function(err, users){
     if(err){ return next(err); }
-
     res.json(users);
   });
 });
 
-router.get('/api/user/:user', function(req, res, err) {
-  if(err){ return next(err); }
-  User.findOne({_id: req.params._id }, function(err, user) {
-    res.json(user);
+//get a user
+router.param('/api/user', function (req, res, next, id) {
+  var query = User.findById(id);
+
+  query.exec(function (err, user){
+    if (err) { return next(err); }
+    if (!user) { console.log('Can\'t find user'); }
+    if (user) { req.user = user; return next(); }
   });
+});
+
+router.get('/api/user/:user', function (req, res, id) {
+  console.log(req.user);
+  res.json(req.user);
 });
 
 
