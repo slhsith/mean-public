@@ -224,8 +224,9 @@ app.factory('settings', ['$http', '$window', function($http, $window){
     });
    };
    s.update = function (user){
+    console.log('updating user', user);
     return $http.put('/api/settings', user).success(function(data){
-      angular.copy(data, s.settings);
+        s.settings = data;
       });
    };
    return s;

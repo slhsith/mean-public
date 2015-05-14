@@ -226,7 +226,11 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
     });
   };
   $scope.updateSettings = function() {
+<<<<<<< HEAD
     // console.log('scope.user', $scope.user);
+=======
+    console.log($scope.user);
+>>>>>>> 71f50486a2f22065579712dbd485128ac6bc7d5c
     settings.update($scope.user);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings: Update User");
@@ -459,8 +463,14 @@ app.factory('settings', ['$http', '$window', function($http, $window){
     });
    };
    s.update = function (user){
+<<<<<<< HEAD
     return $http.put('/api/settings', user).success(function(data){
       angular.copy(data, s.settings);
+=======
+    console.log('updating user', user);
+    return $http.put('/api/settings', user).success(function(data){
+        s.settings = data;
+>>>>>>> 71f50486a2f22065579712dbd485128ac6bc7d5c
       });
    };
    return s;

@@ -311,23 +311,10 @@ router.get('/api/settings', function (req, res, next) {
   { console.log('user settings', user); res.json(user); })
 });
 
-// <<<<<<< HEAD
 router.put('/api/settings', function (req, res, next) {
   var settings = req.body;
 
   User.findByIdAndUpdate(req.body._id, { $set: settings } , function (err, user) {
-// =======
-// router.put('/api/settings', auth, function (req, res, next) {
-//   console.log(req.body);
-//   var f_name = req.body.f_name;
-//   var l_name = req.body.l_name;
-//   var address = req.body.address;
-//   var dob = req.body.dob;
-//   var handle = req.body.handle;
-//   var settings = req.body;
-
-//   User.findOneAndUpdate({username: req.payload.username}, { $set: settings }, function (err, user) {
-// >>>>>>> 71f50486a2f22065579712dbd485128ac6bc7d5c
     if (err) { return next(err); }
     user.save(function (err){
       if(err){ return next(err); }
