@@ -25,6 +25,8 @@ require('./server/controllers/shop');
 require('./server/config/passport');
 
 
+
+
 mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/news');
 
 var db = mongoose.connection;

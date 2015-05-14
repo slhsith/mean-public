@@ -13,7 +13,7 @@ var UserSchema = new mongoose.Schema({
   l_name: String,
   address: String,
   dob: String,
-  handle: String,
+  handle: {type: String, unique: true},
   stripeToken: String,
   created: Date
 });
