@@ -40,7 +40,6 @@ Things Left to do:
 
 * Email Verification and Reset Password
 * Integrate S3 for Image and File Upload (Waiting on Amazon Acct)
-* Make Admin Dashboard with User Management
 
 * Make Standalone public profile pages
 * Make Messanger system

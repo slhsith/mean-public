@@ -1,4 +1,4 @@
-var app = angular.module('mainApp', ['ui.router','templates', 'ngImgCrop', 'flow']);
+var app = angular.module('mainApp', ['ui.router','templates']);
 
 app.config([
 '$stateProvider',
@@ -205,19 +205,6 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
 
 app.controller('SettingsCtrl', function ($scope, languages, settings) {
   $scope.user = angular.extend($scope.user, settings.settings);
-  $scope.myImage='';
-  $scope.myCroppedImage='';
-  var handleFileSelect=function(evt) {
-    var file=evt.currentTarget.files[0];
-    var reader = new FileReader();
-    reader.onload = function (evt) {
-      $scope.$apply(function($scope){
-        $scope.myImage=evt.target.result;
-      });
-    };
-    reader.readAsDataURL(file);
-  };
-  angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
   $scope.languages = languages.languages;
   $scope.addLanguage = function(){
     console.log($scope.language.name);
