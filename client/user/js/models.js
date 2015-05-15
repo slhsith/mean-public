@@ -252,13 +252,11 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
     });
   };
   o.create = function(group) {
-    return $http.post('/api/groups', group, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    return $http.post('/api/groups', group).success(function(data){
       o.groups.push(data);
     });
-
   };
+
   o.get = function(id) {
     return $http.get('/api/groups/' + id).then(function(res){
       return res.data;
@@ -266,6 +264,7 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
   };
   return o;
 }]);
+
 
 app.factory('gposts', ['$http', 'auth', function($http, auth){
   var o = {

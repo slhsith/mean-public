@@ -140,16 +140,17 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
 });
 
 app.controller('GroupsCtrl', [
-'$scope',
-'groups',
-'auth',
-function($scope, groups, auth){
+  '$scope',
+  'groups',
+  'auth',
+function ($scope, groups, auth) {
+
   $scope.groups = groups.groups;
   $scope.addGroup = function(){
-    if(!$scope.name || $scope.name === '') { return; }
     groups.create({
       name: $scope.name,
     });
+    console.log($scope.group);
     $scope.name = '';
   };
   $scope.isLoggedIn = auth.isLoggedIn;

@@ -71,9 +71,9 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'groups.html',
       controller: 'GroupsCtrl',
       resolve: {
-        groupPromise: ['groups', function(groups){
+        groupPromise: function(groups){
           return groups.getAll();
-        }]
+        }
       }
     })
     .state('/group_home', {
@@ -253,16 +253,17 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
 });
 
 app.controller('GroupsCtrl', [
-'$scope',
-'groups',
-'auth',
-function($scope, groups, auth){
+  '$scope',
+  'groups',
+  'auth',
+function ($scope, groups, auth) {
+
   $scope.groups = groups.groups;
   $scope.addGroup = function(){
-    if(!$scope.name || $scope.name === '') { return; }
     groups.create({
       name: $scope.name,
     });
+    console.log($scope.group);
     $scope.name = '';
   };
   $scope.isLoggedIn = auth.isLoggedIn;
@@ -552,9 +553,14 @@ app.factory('settings', ['$http', '$window', function($http, $window){
     return $http.put('/api/settings', user).success(function(data){
         s.settings = data;
       });
-<<<<<<< HEAD
-    };
-  return o;
+   };
+   s.get = function (handle) {
+     return $http.get('/api/user/handle/' + handle).success(function(data){
+       console.log(data);
+       return data;
+     });
+   };
+   return s;
 }]);
 
 app.factory('groups', ['$http', 'auth', function($http, auth){
@@ -569,13 +575,11 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
     });
   };
   o.create = function(group) {
-    return $http.post('/api/groups', group, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    return $http.post('/api/groups', group).success(function(data){
       o.groups.push(data);
     });
-
   };
+
   o.get = function(id) {
     return $http.get('/api/groups/' + id).then(function(res){
       return res.data;
@@ -583,6 +587,7 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
   };
   return o;
 }]);
+
 
 app.factory('gposts', ['$http', 'auth', function($http, auth){
   var o = {
@@ -634,14 +639,3 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   };
   return o;
 }]); 
-=======
-   };
-   s.get = function (handle) {
-     return $http.get('/api/user/handle/' + handle).success(function(data){
-       console.log(data);
-       return data;
-     });
-   };
-   return s;
-}]);
->>>>>>> 3984fd4724b31bd08a524febc80900015ef72290

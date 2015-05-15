@@ -71,9 +71,9 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'groups.html',
       controller: 'GroupsCtrl',
       resolve: {
-        groupPromise: ['groups', function(groups){
+        groupPromise: function(groups){
           return groups.getAll();
-        }]
+        }
       }
     })
     .state('/group_home', {

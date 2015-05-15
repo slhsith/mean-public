@@ -12,6 +12,7 @@ var
   Podcast       = mongoose.model('Podcast'),
   Message       = mongoose.model('Message'),
   Conversation  = mongoose.model('Conversation');
+  Group         = mongoose.model('Group');
 
 var passport = require('passport');
 var jwt = require('express-jwt');
@@ -285,23 +286,25 @@ router.get('/api/groups', function(req, res, next) {
   });
 });
 
-router.post('/api/groups', auth, function(req, res, next) {
+router.post('/api/groups', function(req, res, next) {
   var group = new Group(req.body);
-  group.author = req.payload.username;
 
   group.save(function(err, group){
     if(err){ return next(err); }
-
+  })
+    .then(function() {
     res.json(group);
   });
 });
+
+
 
 router.param('/api/group', function(req, res, next, id) {
   var query = Group.findById(id);
 
   query.exec(function (err, group){
     if (err) { return next(err); }
-    if (!post) { return next(new Error('can\'t find group')); }
+    if (!group) { return next(new Error('can\'t find group')); }
 
     req.group = group;
     return next();

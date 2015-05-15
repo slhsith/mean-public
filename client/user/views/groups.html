@@ -9,9 +9,9 @@
             {{group.name}}
           </span>
         </span>
-        <span ng-show="isGroupMember()">
+<!--         <span ng-show="isGroupMember()">
           <a href="#/group_home/{{group._id}}">Go to Group Page</a>
-        </span>
+        </span> -->
       </div>
       <form ng-submit="addGroup()"
         ng-show="isLoggedIn()"
@@ -27,8 +27,6 @@
         </div>
         <button type="submit" class="btn btn-primary">Create Group</button>
       </form>
-
-      <br />
       <div>
         <span>
           <a href="#/home">Home Page</a>
