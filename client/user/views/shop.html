@@ -9,13 +9,24 @@
            {{item.upvotes}}
         <span style="font-size:20px; margin-left:10px;">
           <span>
-            {{item.name}}
+            {{item.name}},
+            {{item.price}},
+            {{item.duration? item.duration + ',' : '' }}
+            {{item.genre? item.genre + ',' : '' }}
           </span>
         </span>
         <span>
           <a href="#/items/{{item._id}}">Go to Item Page</a>
         </span>
       </div>
+<!--       <div ng-repeat="video in videos">
+        <span>
+            {{video.duration}},
+            {{video.genre}},
+            {{video.language}},
+            {{video.studio}}
+        </span>
+      </div> -->
       <form ng-submit="addItem()"
         ng-show="isLoggedIn()"
         style="margin-top:30px;">
@@ -23,15 +34,130 @@
         <h3>Add a new item</h3>
 
         <div class="form-group">
-          <input type="text"
-            class="form-control"
-            placeholder="Item Desc..."
-            ng-model="name"></input>
+          <input type="text" class="form-control" 
+            placeholder="Name" ng-model="item.name"></input>
         </div>
-        <button type="submit" class="btn btn-primary">Post</button>
-      </form>
+        <div class="form-group">
+          <input type="text" class="form-control"
+            placeholder="Price" ng-model="item.price"></input>
+        </div>
+        <div class="form-group">
+          <select ng-model="item.type">
+            <option value="">Item Type</option>
+            <option value="Video">Video</option>
+            <option value="Book">Book</option>
+            <option value="Podcast">Podcast</option>
+          </select>
+        </div>
+        <div ng-show="item.type==='Video'">
+          <h3>Is it a video?</h3>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="duration"
+              ng-model="item.duration"></input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="genre"
+              ng-model="item.genre"></input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="language"
+              ng-model="item.language"></input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="studio"
+              ng-model="item.studio"></input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="description"
+              ng-model="item.description"></input>
+          </div>
+        </div>
+        <div ng-show="item.type==='Book'">
+          <h3>Is it a book?</h3>
 
-      <br />
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="Number of Pages"
+              ng-model="item.pages"></input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="genre"
+              ng-model="item.genre"></input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="language"
+              ng-model="item.language"></input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="publisher"
+              ng-model="item.publisher"></input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="isbn"
+              ng-model="item.isbn"></input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="description"
+              ng-model="item.description"></input>
+          </div>
+        </div>   
+        <div ng-show="item.type==='Podcast'">
+          <h3>Is it a podcast?</h3>
+
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="duration"
+              ng-model="item.duration"></input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="genre"
+              ng-model="item.genre"></input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="language"
+              ng-model="item.language"></input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="studio"
+              ng-model="item.studio"></input>
+          </div>
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="description"
+              ng-model="item.description"></input>
+          </div>
+        </div>
+       <button type="submit" class="btn btn-primary">Post</button>
+      <br>
       <div>
         <span>
           <a href="#/home">Home Page</a>

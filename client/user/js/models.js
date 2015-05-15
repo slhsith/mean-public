@@ -61,20 +61,33 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
     items: [],
-    item: {}
+    item: {},
+    videos: [],
+    video: {},
+    books: [],
+    book: {}
   };
-
-
   o.getAll = function() {
     return $http.get('/api/items').success(function(data){
       angular.copy(data, o.items);
     });
   };
+  o.getAllVideos = function () {
+    return $http.get('/api/videos').success(function(data){
+      angular.copy(data, o.videos);
+    });
+  };
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      o.items.push(data);
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, item);
+      o.items.push(extendedItem);
+      // will be added to the appropriate service object subarray
+      // based on submitted type
+      o[item.type + 's'].push(extendedItem);
     });
   };
   o.get = function(id) {
@@ -121,11 +134,10 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
       return res.data;
     });
   };
-  o.addCustomer = function(id, customer) {
-    return $http.post('api/transactions' + id + '/customers', customer, {
-      headers: {Authorization: 'Bearer '+transactions.getToken()}
-    }).success(function(data){
-      transactions.push(data);
+  o.purchase = function(card) {
+    console.log(card);
+    return $http.post('api/transactions', {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
   return o;
@@ -176,48 +188,56 @@ app.factory('auth', ['$http', '$window', function($http, $window){
       $window.localStorage.removeItem('admin-token');
       $window.location = "http://localhost:3000";
     };
+    auth.getUser = function (){
+      if(auth.isLoggedIn()){
+        var token = auth.getToken();
+        var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload;
+      }
+    };
   return auth;
 }]);
 
 app.factory('languages', ['$http', '$window', function($http, $window){
-    var o ={
-      languages:[]
-    };
-    o.test = function (language) {
-      console.log(language);
-    };
-    o.getLangs = function (language) {
-      return $http.get('/api/settings/lanuages').success(function(data){
-        angular.copy(data, o.items);
-      });
-    };
-    o.addLang = function(language){
-      return $http.post('/api/settings/languages').success(function(data){
-        o.languages.push(data);
-      });
-    };
-  return o;
+  var lang = { languages : [] };
+                       // no function parameters -- function ()
+  lang.getAll = function () { 
+    return $http.get('/api/languages').success(function(data){
+      console.log(data); // <<-- does this print anything?
+      angular.copy(data, lang.languages);
+    });
+  };
+  lang.addLanguage = function (language) {
+    console.log(language);
+    return $http.post('/api/languages', { 'name': language }).success(function(data){
+      console.log(data);
+      lang.languages.push(data);
+    });
+  }; 
+  
+  return lang; 
 }]);
 app.factory('settings', ['$http', '$window', function($http, $window){
-    var o ={
-      settings:[]
-    };
-    o.test = function (setting) {
-      console.log(setting);
-    };
-    o.getSettings = function () {
-      return $http.get('/api/settings/', {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-        angular.copy(data, o.items);
+   var s = { settings : {} };
+   s.getAll = function (){
+    return $http.get('/api/settings').success(function(data){
+      angular.copy(data, s.settings);
+    });
+   };
+   s.update = function (user){
+    console.log('updating user', user);
+    return $http.put('/api/settings', user).success(function(data){
+        s.settings = data;
       });
-    };
-    o.update = function(){
-      return $http.put('/api/settings/').success(function(data){
-        o.settings.push(data);
-      });
-    };
-  return o;
+   };
+   s.get = function (handle) {
+     return $http.get('/api/user/handle/' + handle).success(function(data){
+       console.log(data);
+       return data;
+     });
+   };
+   return s;
 }]);
 
 app.factory('groups', ['$http', 'auth', function($http, auth){

@@ -1,4 +1,4 @@
-var app = angular.module('mainApp', ['ui.router','templates', 'ngImgCrop', 'flow']);
+var app = angular.module('mainApp', ['ui.router','templates']);
 
 app.config([
 '$stateProvider',
@@ -9,7 +9,7 @@ function($stateProvider, $urlRouterProvider) {
     .state('home', {
       url: '/home',
       templateUrl: 'home.html',
-      controller: 'MainCtrl',
+      controller: 'DashCtrl',
       resolve: {
         postPromise: ['posts', function(posts){
           return posts.getAll();
@@ -31,9 +31,9 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'shop.html',
       controller: 'ShopCtrl',
       resolve: {
-        itemPromise: ['items', function(items){
+        itemPromise: function (items) {
           return items.getAll();
-        }]
+        }
       }
     })
     .state('items', {
@@ -97,9 +97,17 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('settings', {
-      url: '/settings',
-      templateUrl: 'settings.html',
-      controller: 'SettingsCtrl',
-    });
+     url: '/settings',
+     templateUrl: 'settings.html',
+     controller: 'SettingsCtrl',
+     resolve: {
+       languagePromise: function (languages) {
+         return languages.getAll();
+       },
+       userPromise: function ($stateParams, settings) {
+        return settings.get($stateParams.handle);
+       }
+     }
+   });
   // $urlRouterProvider.otherwise('home');
 }]);

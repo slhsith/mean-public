@@ -4,16 +4,15 @@ app.config([
 '$stateProvider',
 '$urlRouterProvider',
 function($stateProvider, $urlRouterProvider) {
-
   $stateProvider
     .state('home', {
       url: '/home',
       templateUrl: 'home.html',
       controller: 'MainCtrl',
       resolve: {
-        postPromise: ['posts', function(posts){
-          return posts.getAll();
-        }]
+        userPromise: function (users) {
+         return users.getAll();
+       }
       }
     })
     .state('orders', {
@@ -21,25 +20,22 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'orders.html',
       controller: 'MainCtrl',
     })
-    .state('posts', {
-      url: '/posts/{id}',
-      templateUrl: 'posts.html',
-      controller: 'PostsCtrl',
+    .state('user', {
+      url: '/user/:id',
+      templateUrl: 'users.html',
+      controller: 'UserCtrl',
       resolve: {
-        post: ['$stateParams', 'posts', function($stateParams, posts) {
-          return posts.get($stateParams.id);
-        }]
+        usersPromise: function($stateParams, users) {
+          return users.get($stateParams.id);
+        }
       }
     });
 
   $urlRouterProvider.otherwise('home');
 }]);
-app.controller('MainCtrl', [
-'$scope',
-'posts',
-'auth',
-function($scope, posts, auth){
-  $scope.posts = posts.posts;
+app.controller('MainCtrl', function ($scope, users, auth){
+  // $scope.user = users.users;
+  $scope.users = users.users;
   $scope.addPost = function(){
     if(!$scope.title || $scope.title === '') { return; }
     posts.create({
@@ -53,7 +49,7 @@ function($scope, posts, auth){
   posts.upvote(post);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
-}]);
+});
 app.controller('PostsCtrl', [
 '$scope',
 'posts',
@@ -77,6 +73,17 @@ function($scope, posts, post, auth){
     posts.upvoteComment(post, comment);
   };
 }]);
+
+app.controller('UserCtrl', function ($scope, users, auth, usersPromise) {
+  $scope.user = usersPromise.data;
+  console.log(usersPromise);
+  $scope.update = function() {
+    console.log($scope.user);
+    users.update($scope.user);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Settings: Update User");
+  };
+});
 
 app.controller('NavCtrl', [
 '$scope',
@@ -162,4 +169,38 @@ app.factory('auth', ['$http', '$window', function($http, $window){
       $window.location = "http://localhost:3000/";
     };
   return auth;
+}]);
+app.factory('users',['$http', '$window', function($http, $window){
+  var u = {
+    users: []
+  };
+  u.getAll = function() {
+    return $http.get('/api/users').success(function(data){
+      angular.copy(data, u.users);
+    });
+  };
+  u.get = function (id) {
+    return $http.get('/api/user/' + id).success(function(data){
+      console.log(data);
+      return data;
+    });
+  };
+  u.update = function (user){
+    console.log('updating user', user);
+    return $http.put('/api/settings', user).success(function(data){
+        u.users = data;
+    });
+  };
+  return u;
+}]);
+
+app.factory('settings', ['$http', '$window', function($http, $window){
+   var s = { settings : {} };
+   s.getAll = function (){
+    return $http.get('/api/settings').success(function(data){
+      angular.copy(data, s.settings);
+    });
+   };
+   
+   return s;
 }]);
