@@ -348,6 +348,15 @@ router.get('/api/user/:id', function (req, res, next) {
    res.json(user);
  });
 });
+//for public profiles
+router.get('/api/user/handle/:handle', function (req, res, next) {
+ // if(err){ next(err); }
+ var handle = req.params.handle;
+ User.findOne({handle: handle}, function(err, user) {
+   console.log(user);
+   res.json(user);
+ });
+});
 
 
 

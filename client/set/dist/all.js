@@ -24,6 +24,16 @@ function($stateProvider, $urlRouterProvider) {
       url: '/search',
       templateUrl: 'search.html',
       controller: 'SearchCtrl'
+    })
+    .state('userProfile', {
+      url: '/user/:handle',
+      templateUrl: 'userProfile.html',
+      controller: 'UserCtrl',
+      resolve: {
+        userPromise: function($stateParams, users) {
+          return users.get($stateParams.handle);
+        }
+      }
     });
   // $urlRouterProvider.otherwise('home');
 }]);
@@ -36,8 +46,8 @@ app.controller('MainCtrl', function ($scope) {
   //     window.location = "http://localhost:3000/user/#/home";
   //   });
   // };
-  console.log('Redirecting to user app');
-  window.location = 'http://localhost:3000/user/#/home';
+  // console.log('Redirecting to user app');
+  // window.location = 'http://localhost:3000/user/#/home';
 });
 
 app.controller('ResetCtrl', function ($scope, $state, verification) {
@@ -61,6 +71,11 @@ app.controller('SearchCtrl', function ($scope) {
     console.log($scope.search);
     search.query($scope.search);
   };
+});
+
+app.controller('UserCtrl', function ($scope, users, userPromise) {
+  $scope.user = userPromise.data;
+  console.log(userPromise);
 });
 app.factory('verification', function ($http, $window) {
   return {
@@ -94,3 +109,16 @@ app.factory('search', function ($http) {
     }
   };
 });
+
+app.factory('users',['$http', '$window', function($http, $window){
+  var u = {
+    users: []
+  };
+  u.get = function (handle) {
+    return $http.get('/api/user/handle/' + handle).success(function(data){
+      console.log(data);
+      return data;
+    });
+  };
+  return u;
+}]);

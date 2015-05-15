@@ -24,6 +24,16 @@ function($stateProvider, $urlRouterProvider) {
       url: '/search',
       templateUrl: 'search.html',
       controller: 'SearchCtrl'
+    })
+    .state('userProfile', {
+      url: '/user/:handle',
+      templateUrl: 'userProfile.html',
+      controller: 'UserCtrl',
+      resolve: {
+        userPromise: function($stateParams, users) {
+          return users.get($stateParams.handle);
+        }
+      }
     });
   // $urlRouterProvider.otherwise('home');
 }]);

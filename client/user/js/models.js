@@ -214,7 +214,7 @@ app.factory('languages', ['$http', '$window', function($http, $window){
     });
   }; 
   
-  return lang; // <------ this factory hasn't returned its methods publically yet
+  return lang; 
 }]);
 app.factory('settings', ['$http', '$window', function($http, $window){
    var s = { settings : {} };
@@ -228,6 +228,12 @@ app.factory('settings', ['$http', '$window', function($http, $window){
     return $http.put('/api/settings', user).success(function(data){
         s.settings = data;
       });
+   };
+   s.get = function (handle) {
+     return $http.get('/api/user/handle/' + handle).success(function(data){
+       console.log(data);
+       return data;
+     });
    };
    return s;
 }]);
