@@ -4,16 +4,15 @@ app.config([
 '$stateProvider',
 '$urlRouterProvider',
 function($stateProvider, $urlRouterProvider) {
-
   $stateProvider
     .state('home', {
       url: '/home',
       templateUrl: 'home.html',
       controller: 'MainCtrl',
       resolve: {
-        postPromise: ['posts', function(posts){
-          return posts.getAll();
-        }]
+        userPromise: function (users) {
+         return users.getAll();
+       }
       }
     })
     .state('orders', {
@@ -21,14 +20,14 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'orders.html',
       controller: 'MainCtrl',
     })
-    .state('posts', {
-      url: '/posts/{id}',
-      templateUrl: 'posts.html',
-      controller: 'PostsCtrl',
+    .state('user', {
+      url: '/user/:id',
+      templateUrl: 'users.html',
+      controller: 'UserCtrl',
       resolve: {
-        post: ['$stateParams', 'posts', function($stateParams, posts) {
-          return posts.get($stateParams.id);
-        }]
+        usersPromise: function($stateParams, users) {
+          return users.get($stateParams.id);
+        }
       }
     });
 

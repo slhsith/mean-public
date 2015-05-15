@@ -1,0 +1,66 @@
+<div style="padding-bottom:20px;">
+<a href="/set/#/user/{{user.handle}}"><button class="btn btn-primary" style="width:100%;">View Profile</button></a>
+</div>
+<div ng-show="!view">
+<button class="btn btn-primary" ng-click="view = !view" style="width:100%;">Edit</button>
+	<h3>Details for {{user.f_name}} {{user.l_name}}</h3>
+	<table class="table">
+	  <tr>
+	  	<td>ID</td>
+	  	<td>{{user._id}}</td>
+	  </tr>
+	  <tr>
+	    <td>First Name</td>
+	    <td>{{user.f_name}}</td> 
+	  </tr>
+	  <tr>
+	    <td>Last Name</td> 
+	    <td>{{user.l_name}}</td>
+	  </tr>
+	  <tr>
+	  	<td>Address</td> 
+	    <td>{{user.address}}</td>
+	  </tr>
+	  <tr>
+	  	<td>Date of Birth</td> 
+	    <td>{{user.dob}}</td>
+	  </tr>
+	  <tr>
+	  	<td>Handle</td> 
+	    <td>{{user.handle}}</td>
+	  </tr>
+	</table>
+</div>
+<div ng-show="view">
+<form ng-submit="update()">
+<button class="btn btn-primary" ng-click="view = !view" style="width:100%;">View</button>
+	<h3>Editing {{user.f_name}} {{user.l_name}}</h3>
+	<table class="table">
+	  <tr>
+	  	<td>ID</td>
+	  	<td>{{user._id}}</td>
+	  </tr>
+	  <tr>
+	    <td>First Name</td>
+	    <td><input ng-model="user.f_name" style="width:100%;"></td> 
+	  </tr>
+	  <tr>
+	    <td>Last Name</td> 
+	    <td><input ng-model="user.l_name" style="width:100%;"></td>
+	  </tr>
+	  <tr>
+	  	<td>Address</td> 
+	    <td><input ng-model="user.address" style="width:100%;"></td>
+	  </tr>
+	  <tr>
+	  	<td>Date of Birth</td> 
+	    <td><input  ng-model="user.dob" style="width:100%;"></td>
+	  </tr>
+	  <tr>
+	  	<td>Handle</td> 
+	    <td><input ng-model="user.handle" style="width:100%;"></td>
+	  </tr>
+	</table>
+	<button type="submit" class="btn btn-primary" ng-click="view = !view">Update</button>
+<form>
+</div>

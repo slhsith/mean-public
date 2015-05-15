@@ -39,8 +39,7 @@ Build Project Template:
 Things Left to do:
 
 * Email Verification and Reset Password
-* Add Profile Settings Form with Image Upload
-* Make Admin Dashboard with User Management
+* Integrate S3 for Image and File Upload (Waiting on Amazon Acct)
 
 * Make Standalone public profile pages
 * Make Messanger system
@@ -50,6 +49,5 @@ Things Left to do:
 * Make Public Profile Search
 
 * Make User Events and Purchasing
-* Make BrainTree item purchasing
 * Allow users to Follow Eachother
 * Allow users to see the users they follow

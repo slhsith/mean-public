@@ -18,7 +18,7 @@ var htmlify = require('gulp-angular-htmlify');
 var templateCache = require('gulp-angular-templatecache');
 
 // sever stuff
-// nodemon = require('gulp-nodemon');
+var nodemon = require('gulp-nodemon');
 var exec = require('child_process').exec;
 
 
@@ -179,15 +179,20 @@ gulp.task('server', function (cb) {
   //   console.log(stderr);
   //   cb(err);
   // });
-  exec('npm start', function (err, stdout, stderr) {
-    console.log(stdout);
-    console.log(stderr);
-    cb(err);
-  });
+  // exec('npm start', function (err, stdout, stderr) {
+  //   console.log(stdout);
+  //   console.log(stderr);
+  //   cb(err);
+  // });
 });
+gulp.task('start', function () {
+  nodemon({
+    ext: 'js html'
+  })
+})
 
 // Default Task
-gulp.task('default', ['lint', 'scripts', 'userscripts', 'adminscripts', 'setscripts', 'styles', 'userstyles', 'adminstyles', 'setstyles', 'markup', 'usermarkup', 'adminmarkup', 'setmarkup', 'server', 'watch']);
+gulp.task('default', ['lint', 'scripts', 'userscripts', 'adminscripts', 'setscripts', 'styles', 'userstyles', 'adminstyles', 'setstyles', 'markup', 'usermarkup', 'adminmarkup', 'setmarkup', 'server', 'start', 'watch']);
 
 
 

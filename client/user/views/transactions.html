@@ -1,17 +1,15 @@
   <div class="page-header">
     <h1>It's buying time</h1>
   </div>
-
-
-      <form id="checkout" method="post" action="/checkout">
-        <div id="dropin"></div>
-        <input type="submit" value="Pay $10">
-      </form>
-
-
+  <form ng-submit="startTrans()">
+    <input ng-model="card.number" placeholder="Card Number" />
+    <input ng-model="card.month" placeholder="Exp Month" />
+    <input ng-model="card.year" placeholder="Exp Year" />
+    <input ng-model="card.cvc" placeholder="CVC" />
+    <button type="submit">Submit</button>
+  </form>
   <div>
     <span>
       <a href="#/home">Home Page</a>
     </span>
   </div>  
-

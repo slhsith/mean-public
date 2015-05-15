@@ -1,8 +1,23 @@
-app.controller('MainCtrl', [
-'$scope',
-'posts',
-'auth',
-function($scope, posts, auth){
+app.controller('MainCtrl', function ($scope, auth) {
+  
+    $scope.user = auth.getUser();
+    mixpanel.identify($scope.user._id);
+    mixpanel.people.set({
+    //     "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
+        "$email": $scope.user.username,
+    //     "$created": $scope.user.created,
+    //     "gender" : $scope.user.gender,
+    //     "age" : $scope.user.age,
+    //     "type" : $scope.user.permissions,
+        "$last_login": new Date()
+    });
+  $scope.isLoggedIn = auth.isLoggedIn;
+
+});
+
+
+app.controller('DashCtrl', function ($scope, posts, auth) {
+
   $scope.posts = posts.posts;
   $scope.addPost = function(){
     if(!$scope.title || $scope.title === '') { return; }
@@ -12,20 +27,20 @@ function($scope, posts, auth){
     });
     $scope.title = '';
     $scope.link = '';
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("User Dashboard: Add Post");
   };
   $scope.incrementUpvotes = function(post) {
     posts.upvote(post);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
-}]);
 
-app.controller('PostsCtrl', [
-'$scope',
-'$stateParams',
-'posts',
-'comments',
-'auth',
-function($scope, $stateParams, posts, comments, auth){
+});
+
+
+app.controller('PostsCtrl', function ($scope, $stateParams, posts, comments, auth) {
   var post = posts.post[$stateParams.id];
   $scope.post._id = $routeParams.postId;
   $scope.post = posts.post;
@@ -44,104 +59,85 @@ function($scope, $stateParams, posts, comments, auth){
     posts.upvoteComment(post, comment);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
-}]);
+});
 
-app.controller('ShopCtrl', [
-'$scope',
-'items', 
-'auth',
-function($scope, items, auth){
+
+app.controller('ShopCtrl', function ($scope, items, auth) {
+
   $scope.items = items.items;
+
   $scope.addItem = function() {
-    if($scope.name === '') { return; }
-    items.create({
-      name: $scope.name,
-    });
-    // $scope.items.push({ name: $scope.name });
-    $scope.name = '';
-    // $scope.item = item.$save();
-  };
+    items.create($scope.item).success(function(data){
+      console.log('success');
+      $scope.items = items.items;
+      console.log(data);
+   }).error(function(){
+       console.log('failure');
+   });
+   mixpanel.identify($scope.user._id);
+   mixpanel.track("Shop Page: Added Item");
+ };
+
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Shop Page: Upvoted Comment");
   };  
-  $scope.isLoggedIn = auth.isLoggedIn;
-}]);
+
+});
 
 
-app.controller('ItemsCtrl', [
-'$scope',
-'items',
-'item',
-'auth',
-function($scope, items, item, auth){
+app.controller('ItemsCtrl', function ($scope, items, auth) {
+
   $scope.items = items.items;
-  $scope.item = item;
+  $scope.videos = items.videos;
+  $scope.video = items.video;
+  $scope.item = items.item;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Items Page: Upvoted Comment");
   };
-  $scope.isLoggedIn = auth.isLoggedIn;
-}]);
 
-app.controller('NavCtrl', [
-'$scope',
-'auth',
-'$location',
-function($scope, auth){
+});
+
+
+app.controller('NavCtrl', function ($scope, auth) {
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.home = auth.isLoggedIn;
   $scope.currentUser = auth.currentUser;
   $scope.logOut = auth.logOut;
+});
 
-}]);
-
-app.controller('TransCtrl', [
-'$scope',
-'items',
-'item',
-'auth',
-function($scope, items, item, auth){
-  $scope.items = items.items;
-  $scope.item = item; 
-  // $scope.createTrans = function(){
-  //   if(!$scope.title || $scope.title === '') { return; }
-  //   transactions.create({
-  //     title: $scope.title,
-  //     link: $scope.link,
-  //   });
-  //   $scope.title = '';
-  //   $scope.link = '';
-  // };
-
-  $scope.isLoggedIn = auth.isLoggedIn;
-}]);
-
-
-app.controller('SettingsCtrl', [
-'$scope',
-'languages',
-'settings',
-function($scope, languages, settings){
-  $scope.myImage='';
-  $scope.myCroppedImage='';
-  var handleFileSelect=function(evt) {
-    var file=evt.currentTarget.files[0];
-    var reader = new FileReader();
-    reader.onload = function (evt) {
-      $scope.$apply(function($scope){
-        $scope.myImage=evt.target.result;
-      });
-    };
-    reader.readAsDataURL(file);
+app.controller('TransCtrl', function ($scope, items, auth, transactions) {
+  $scope.startTrans = function () {
+    console.log($scope.card);
+    transactions.purchase($scope.card);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Checkout: Purchase Item");
+    // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
-  angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
+});
+
+
+app.controller('SettingsCtrl', function ($scope, languages, settings, userPromise) {
+  $scope.user = angular.extend($scope.user, settings.settings);
+  $scope.languages = languages.languages;
   $scope.addLanguage = function(){
-    languages.test($scope.language.name);
-    languages.addLang($scope.language.name);
+    console.log($scope.language.name);
+    languages.addLanguage($scope.language.name).success(function(data) {
+    $scope.languages.push(data);
+    });
   };
   $scope.updateSettings = function() {
-    settings.update($scope.setting);
+    console.log($scope.user);
+    settings.update($scope.user);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Settings: Update User");
   };
-}]);
+  $scope.user = userPromise.data;
+  console.log(userPromise);
+});
 
 app.controller('GroupsCtrl', [
 '$scope',
