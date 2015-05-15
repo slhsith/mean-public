@@ -120,7 +120,7 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
 });
 
 
-app.controller('SettingsCtrl', function ($scope, languages, settings) {
+app.controller('SettingsCtrl', function ($scope, languages, settings, userPromise) {
   $scope.user = angular.extend($scope.user, settings.settings);
   $scope.languages = languages.languages;
   $scope.addLanguage = function(){
@@ -135,4 +135,6 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings: Update User");
   };
+  $scope.user = userPromise.data;
+  console.log(userPromise);
 });

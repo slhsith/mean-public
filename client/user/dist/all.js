@@ -74,9 +74,9 @@ function($stateProvider, $urlRouterProvider) {
        languagePromise: function (languages) {
          return languages.getAll();
        },
-       // settingPromise: function (settings) {
-       //  return settings.getAll();
-       // }
+       userPromise: function ($stateParams, settings) {
+        return settings.get($stateParams.handle);
+       }
      }
    });
   // $urlRouterProvider.otherwise('home');
@@ -203,7 +203,7 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
 });
 
 
-app.controller('SettingsCtrl', function ($scope, languages, settings) {
+app.controller('SettingsCtrl', function ($scope, languages, settings, userPromise) {
   $scope.user = angular.extend($scope.user, settings.settings);
   $scope.languages = languages.languages;
   $scope.addLanguage = function(){
@@ -218,6 +218,8 @@ app.controller('SettingsCtrl', function ($scope, languages, settings) {
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings: Update User");
   };
+  $scope.user = userPromise.data;
+  console.log(userPromise);
 });
 
 app.factory('posts', ['$http', 'auth', function($http, auth){
@@ -436,7 +438,7 @@ app.factory('languages', ['$http', '$window', function($http, $window){
     });
   }; 
   
-  return lang; // <------ this factory hasn't returned its methods publically yet
+  return lang; 
 }]);
 app.factory('settings', ['$http', '$window', function($http, $window){
    var s = { settings : {} };
@@ -450,6 +452,12 @@ app.factory('settings', ['$http', '$window', function($http, $window){
     return $http.put('/api/settings', user).success(function(data){
         s.settings = data;
       });
+   };
+   s.get = function (handle) {
+     return $http.get('/api/user/handle/' + handle).success(function(data){
+       console.log(data);
+       return data;
+     });
    };
    return s;
 }]);

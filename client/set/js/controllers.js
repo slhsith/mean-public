@@ -7,8 +7,8 @@ app.controller('MainCtrl', function ($scope) {
   //     window.location = "http://localhost:3000/user/#/home";
   //   });
   // };
-  console.log('Redirecting to user app');
-  window.location = 'http://localhost:3000/user/#/home';
+  // console.log('Redirecting to user app');
+  // window.location = 'http://localhost:3000/user/#/home';
 });
 
 app.controller('ResetCtrl', function ($scope, $state, verification) {
@@ -32,4 +32,9 @@ app.controller('SearchCtrl', function ($scope) {
     console.log($scope.search);
     search.query($scope.search);
   };
+});
+
+app.controller('UserCtrl', function ($scope, users, userPromise) {
+  $scope.user = userPromise.data;
+  console.log(userPromise);
 });
