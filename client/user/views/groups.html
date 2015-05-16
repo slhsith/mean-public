@@ -1,0 +1,34 @@
+      <div class="page-header">
+        <h1>Join/Log-in to Group</h1>
+      </div>
+
+
+      <div ng-repeat="group in groups">
+        <span style="font-size:20px; margin-left:10px;">
+          <span>
+            {{group.name}}
+          </span>
+        </span>
+<!--         <span ng-show="isGroupMember()">
+          <a href="#/group_home/{{group._id}}">Go to Group Page</a>
+        </span> -->
+      </div>
+      <form ng-submit="addGroup()"
+        ng-show="isLoggedIn()"
+        style="margin-top:30px;">
+
+        <h3>Add a new group page</h3>
+
+        <div class="form-group">
+          <input type="text"
+            class="form-control"
+            placeholder="Group Name"
+            ng-model="group.name"></input>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Group</button>
+      </form>
+      <div>
+        <span>
+          <a href="#/home">Home Page</a>
+        </span>
+      </div>    

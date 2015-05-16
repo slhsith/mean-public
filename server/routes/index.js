@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
-
 var
   Post          = mongoose.model('Post'),
   Comment       = mongoose.model('Comment'),
@@ -12,7 +11,8 @@ var
   Book          = mongoose.model('Book'),
   Podcast       = mongoose.model('Podcast'),
   Message       = mongoose.model('Message'),
-  Conversation  = mongoose.model('Conversation');
+  Conversation  = mongoose.model('Conversation'),
+  Group         = mongoose.model('Group');
 
 var passport = require('passport');
 var jwt = require('express-jwt');
@@ -271,6 +271,134 @@ router.get('/api/customers', function(req, res, next) {
 
 router.get('/api/customers/:customer', function(req, res) {
     res.json(req.customer);
+});
+
+
+
+//GROUP WALL PAGE
+///////////////////////////
+
+router.get('/api/groups', function(req, res, next) {
+  Group.find({},function(err, groups){
+    if(err){ return next(err); }
+
+    res.json(groups)
+  });
+});
+
+router.post('/api/groups', function (req, res, next) {
+  var group = new Group(req.body);
+  group.save(function(err, group){
+    if(err){ return next(err); }
+    res.json(group);
+  });
+});
+
+
+
+router.param('/api/group', function(req, res, next, id) {
+  var query = Group.findById(id);
+
+  query.exec(function (err, group){
+    if (err) { return next(err); }
+    if (!group) { return next(new Error('can\'t find group')); }
+
+    req.group = group;
+    return next();
+  });
+});
+
+
+router.get('/api/gposts', function(req, res, next) {
+  Gpost.find(function(err, gposts){
+    if(err){ return next(err); }
+
+    res.json(gposts);
+  });
+});
+
+router.post('/api/gposts', auth, function(req, res, next) {
+  var gpost = new Gpost(req.body);
+  gpost.author = req.payload.username;
+
+  gpost.save(function(err, gpost){
+    if(err){ return next(err); }
+
+    res.json(gpost);
+  });
+});
+
+router.param('/api/gpost', function(req, res, next, id) {
+  var query = Gpost.findById(id);
+
+  query.exec(function (err, gpost){
+    if (err) { return next(err); }
+    if (!gpost) { return next(new Error('can\'t find group post')); }
+
+    req.gpost = gpost;
+    return next();
+  });
+});
+
+router.get('/api/gposts/:gpost', function(req, res, next) {
+  req.gpost.populate('gcomments', function(err, post) {
+    if (err) { return next(err); }
+
+    res.json(req.gpost);
+  });
+});
+
+router.put('/api/gposts/:gpost/upvote', auth, function(req, res, next) {
+  req.gpost.upvote(function(err, gpost){
+    if (err) { return next(err); }
+
+    res.json(req.gpost);
+  });
+});
+
+//post page & comments
+router.get('/api/gposts/:gpost', function(req, res, next) {
+  req.gpost.populate('gcomments', function(err, gpost) {
+    res.json(req.gpost);
+  });
+});
+
+
+router.post('/api/gposts/:gpost/gcomments', auth, function(req, res, next) {
+  var gcomment = new Gcomment(req.body);
+  gcomment.gpost = req.gpost;
+  gcomment.author = req.payload.username;
+
+  gcomment.save(function(err, gcomment){
+    if(err){ return next(err); }
+
+    req.gpost.gcomments.push(gcomment);
+    req.gpost.save(function(err, post) {
+      if(err){ return next(err); }
+
+      res.json(gcomment);
+    });
+  });
+});
+
+router.put('/api/gposts/:gpost/gcomments/:gcomment/upvote', auth, function(req, res, next) {
+  req.gpost.upvote(function(err, gpost){
+    if (err) { return next(err); }
+
+    res.json(gpost);
+  });
+});
+
+router.param('gcomment', function(req, res, next, id) {
+  var query = Gcomment.findById(id);
+
+  query.exec(function (err, gcomment){
+    if (err) { return next(err); }
+    if (!gcomment) { return next(new Error('can\'t find comment')); }
+
+    req.gcomment = gcomment;
+    return next();
+  });
 });
 
 

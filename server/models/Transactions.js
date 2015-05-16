@@ -7,7 +7,6 @@ var TransactionSchema = new mongoose.Schema({
   company: String,
   phone: String,
   email: String,
-  paymentMethodNonce: String,
   transaction_id: {type: String, lowercase: true, unique: true},
   customer: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Customer' }],
   item: { type: mongoose.Schema.Types.ObjectId, ref: 'Item' },

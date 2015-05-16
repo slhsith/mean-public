@@ -17,7 +17,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('posts', {
-      url: '/posts/{id}',
+      url: '/posts/:post',
       templateUrl: 'posts.html',
       controller: 'PostsCtrl',
       resolve: {
@@ -37,7 +37,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('items', {
-      url: '/items/{id}',
+      url: '/items/:item',
       templateUrl: 'items.html',
       controller: 'ItemsCtrl',
       resolve: {
@@ -66,6 +66,36 @@ function($stateProvider, $urlRouterProvider) {
         }]    
       }
     })  
+    .state('groups', {
+      url: '/groups',
+      templateUrl: 'groups.html',
+      controller: 'GroupsCtrl',
+      resolve: {
+        groupPromise: function(groups){
+          return groups.getAll();
+        }
+      }
+    })
+    // .state('/group_home', {
+    //   url: '/group_home/:group',
+    //   templateUrl: 'group_home.html',
+    //   controller: 'GHomeCtrl',
+    //   resolve: {
+    //     gpostPromise: ['gposts', function(gposts){
+    //       return gposts.getAll();
+    //     }]
+    //   }
+    // })
+    // .state('/gposts', {
+    //   url: '/gposts/:gpost',
+    //   templateUrl: 'gposts.html',
+    //   controller: 'GpostCtrl',
+    //   resolve: {
+    //     gcommentPromise: ['gcomments', function(gcomments){
+    //       return gcomments.getAll();
+    //     }]
+    //   }
+    // })
     .state('settings', {
      url: '/settings',
      templateUrl: 'settings.html',
