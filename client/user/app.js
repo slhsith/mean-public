@@ -76,16 +76,16 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
-    // .state('/group_home', {
-    //   url: '/group_home/:group',
-    //   templateUrl: 'group_home.html',
-    //   controller: 'GHomeCtrl',
-    //   resolve: {
-    //     gpostPromise: ['gposts', function(gposts){
-    //       return gposts.getAll();
-    //     }]
-    //   }
-    // })
+    .state('groupHome', {
+      url: '/group/:id',
+      templateUrl: 'group_home.html',
+      controller: 'GHomeCtrl',
+      resolve: {
+        groupsPromise: function($stateParams, groups){
+          return groups.get($stateParams.id);
+        }
+      }
+    })
     // .state('/gposts', {
     //   url: '/gposts/:gpost',
     //   templateUrl: 'gposts.html',

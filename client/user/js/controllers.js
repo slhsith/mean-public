@@ -151,30 +151,26 @@ function ($scope, groups, auth) {
   $scope.isLoggedIn = auth.isLoggedIn;
 });
 
-app.controller('GhomeCtrl', [
-'$scope',
-'$stateParams',
-'gposts',
-'auth',
-function($scope, $stateParams, gposts, auth){
-  var gpost = gposts.gpost[$stateParams.id];
-  $scope.get(gpost._id);
-  $scope.gpost = gposts.gpost;
-  $scope.addGroupPost = function(){
-    if(!scope.body || $scope.body === '') { return; }
-    groups.addGpost(groups.group._id, {
-      body: $scope.body,
-      author: 'user',
-    }).success(function(gpost) {
-      $scope.group.gpost.push(gpost);
-    });
-    $scope.body = '';
-  };
-  $scope.incrementUpvotes = function(gpost){
-    gposts.upvoteGroupPost(gpost);
-  };
+app.controller('GHomeCtrl',
+function ($scope, auth, groupsPromise){
+  // var gpost = gposts.gpost[$stateParams.id];
+  $scope.group = groupsPromise.data;
+  console.log(groupsPromise.data);
+  // $scope.addGroupPost = function(){
+  //   if(!scope.body || $scope.body === '') { return; }
+  //   groups.addGpost(groups.group._id, {
+  //     body: $scope.body,
+  //     author: 'user',
+  //   }).success(function(gpost) {
+  //     $scope.group.gpost.push(gpost);
+  //   });
+  //   $scope.body = '';
+  // };
+  // $scope.incrementUpvotes = function(gpost){
+  //   gposts.upvoteGroupPost(gpost);
+  // };
   $scope.isLoggedIn = auth.isLoggedIn;
-}]);
+});
 
 app.controller('GpostCtrl', [
 '$scope',

@@ -2,7 +2,10 @@
         <h1>Group Page</h1>
 
       </div>
-      <div ng-repeat="gpost in gposts | orderBy:'-upvotes'">
+      <div>
+        <h1>{{group.name}} {{group._id}}</h1>
+      </div>
+      <!-- <div ng-repeat="gpost in gposts | orderBy:'-upvotes'">
         <span class="glyphicon glyphicon-thumbs-up"
           ng-click="incrementUpvotes(gpost)"></span>
             {{gpost.upvotes}}
@@ -44,6 +47,6 @@
       <div ng-hide="isLoggedIn()">
         <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a post.</h3>
       </div>
-<!--       <div ng-hide="isGroupMember()">
+ --><!--       <div ng-hide="isGroupMember()">
         <h3> You must be a group member to view this page</h3>
       </div>  --> 

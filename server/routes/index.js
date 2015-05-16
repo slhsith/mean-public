@@ -294,7 +294,14 @@ router.post('/api/groups', function (req, res, next) {
   });
 });
 
-
+router.get('/api/group/:id', function (req, res, next) {
+ // if(err){ next(err); }
+ var _id = req.params.id;
+ Group.findById(_id, function(err, group) {
+  console.log(group);
+   res.json(group);
+ })
+});
 
 router.param('/api/group', function(req, res, next, id) {
   var query = Group.findById(id);
