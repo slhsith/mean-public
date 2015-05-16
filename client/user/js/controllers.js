@@ -146,8 +146,8 @@ function ($scope, groups, auth) {
   $scope.addGroup = function(){
     groups.create($scope.group);
     console.log($scope.group);
-    $scope.group.name = '';
   };
+  $scope.group = '';
   $scope.isLoggedIn = auth.isLoggedIn;
 });
 
