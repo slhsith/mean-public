@@ -5,9 +5,9 @@
 
       <div ng-repeat="group in groups">
         <span style="font-size:20px; margin-left:10px;">
-          <span>
-            {{group.name}}
-          </span>
+          <h1>
+            <a href="#/group/{{group._id}}">{{group.name}}</a>
+          </h1>
         </span>
 <!--         <span ng-show="isGroupMember()">
           <a href="#/group_home/{{group._id}}">Go to Group Page</a>

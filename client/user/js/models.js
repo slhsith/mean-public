@@ -257,12 +257,13 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
 
    return $http.post('/api/groups', group ).success(function(data){
      console.log(data);
-     o.groups.push(data)
+     o.groups.push(data);
    });
   };
   o.get = function(id) {
-    return $http.get('/api/groups/' + id).then(function(res){
-      return res.data;
+    return $http.get('/api/group/' + id).then(function(data){
+      console.log(data);
+      return data;
     });
   };
   return o;
