@@ -248,11 +248,14 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
 
   o.getAll = function() {
     return $http.get('/api/groups').success(function(data){
+      console.log(data);
       angular.copy(data, o.groups);
     });
-  };
-  o.create = function(group) {
-    return $http.post('/api/groups', group).success(function(data){
+  }; 
+  o.create = function (group) {
+    console.log(group);
+    return $http.post('/api/groups', { 'name': group }).success(function(data){
+      console.log(data);
       o.groups.push(data);
     });
   };

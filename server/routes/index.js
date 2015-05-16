@@ -11,7 +11,7 @@ var
   Book          = mongoose.model('Book'),
   Podcast       = mongoose.model('Podcast'),
   Message       = mongoose.model('Message'),
-  Conversation  = mongoose.model('Conversation');
+  Conversation  = mongoose.model('Conversation'),
   Group         = mongoose.model('Group');
 
 var passport = require('passport');
@@ -282,17 +282,14 @@ router.get('/api/groups', function(req, res, next) {
   Group.find(function(err, groups){
     if(err){ return next(err); }
 
-    res.json(groups);
+    res.json(groups)
   });
 });
 
-router.post('/api/groups', function(req, res, next) {
+router.post('/api/groups', function (req, res, next) {
   var group = new Group(req.body);
-
   group.save(function(err, group){
     if(err){ return next(err); }
-  })
-    .then(function() {
     res.json(group);
   });
 });

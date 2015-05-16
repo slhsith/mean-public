@@ -3,7 +3,7 @@
       </div>
 
 
-      <div ng-repeat="group in groups">
+      <div ng-repeat="group in groups track by $index">
         <span style="font-size:20px; margin-left:10px;">
           <span>
             {{group.name}}

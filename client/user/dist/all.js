@@ -252,22 +252,18 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   console.log(userPromise);
 });
 
-app.controller('GroupsCtrl', [
-  '$scope',
-  'groups',
-  'auth',
+app.controller('GroupsCtrl',
 function ($scope, groups, auth) {
 
   $scope.groups = groups.groups;
-  $scope.addGroup = function(){
-    groups.create({
-      name: $scope.name,
-    });
-    console.log($scope.group);
-    $scope.name = '';
+  $scope.addGroup = function(data){
+    groups.create($scope.group.name);
+    console.log($scope.group.name);
+    $scope.group.name = '';
+    $scope.groups.push(data);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
-}]);
+});
 
 app.controller('GhomeCtrl', [
 '$scope',
@@ -571,11 +567,14 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
 
   o.getAll = function() {
     return $http.get('/api/groups').success(function(data){
+      console.log(data);
       angular.copy(data, o.groups);
     });
-  };
-  o.create = function(group) {
-    return $http.post('/api/groups', group).success(function(data){
+  }; 
+  o.create = function (group) {
+    console.log(group);
+    return $http.post('/api/groups', { 'name': group }).success(function(data){
+      console.log(data);
       o.groups.push(data);
     });
   };

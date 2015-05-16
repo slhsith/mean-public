@@ -139,22 +139,18 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   console.log(userPromise);
 });
 
-app.controller('GroupsCtrl', [
-  '$scope',
-  'groups',
-  'auth',
+app.controller('GroupsCtrl',
 function ($scope, groups, auth) {
 
   $scope.groups = groups.groups;
-  $scope.addGroup = function(){
-    groups.create({
-      name: $scope.name,
-    });
-    console.log($scope.group);
-    $scope.name = '';
+  $scope.addGroup = function(data){
+    groups.create($scope.group.name);
+    console.log($scope.group.name);
+    $scope.group.name = '';
+    $scope.groups.push(data);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
-}]);
+});
 
 app.controller('GhomeCtrl', [
 '$scope',
