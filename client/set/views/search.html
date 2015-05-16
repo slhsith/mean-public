@@ -1,8 +1,27 @@
+<h3>Search for a User</h3>
 <form ng-submit="submitSearch()">
 	<div class="form-group">
 	  <input type="text"
 	    class="form-control"
 	    placeholder="Search"
-	    ng-model="search"></input>
+	    ng-model="search.query"></input>
 	</div>
+	<button class="btn btn-primary" style="width:100%;">Search</button>
 </form>
+<h3>Results:</h3>
+<div ng-repeat="user in users">
+	<table class="table">
+	  <tr>
+	  	<td>First Name</td>
+	  	<td>Last Name</td>
+	  	<td>Handle</td> 
+	  	<td>View Profile</td>
+	  </tr>
+	  <tr>
+	    <td>{{user.f_name}}</td> 
+	    <td>{{user.l_name}}</td> 
+	    <td>{{user.handle}}</td>
+	    <td><a href="#/user/{{user.handle}}">View Profile</a></td>  
+	  </tr>
+	</table>
+</div>

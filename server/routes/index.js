@@ -453,11 +453,15 @@ router.put('/api/settings', function (req, res, next) {
 
 //search
 
-// router.post('/api/search', function (req, res, next) {
-//   var searchQuery = req.payload.search;
-
-
-// })
+router.get('/api/search/:query', function (req, res, next) {
+  var query = req.params.query;
+  User.find({f_name: query})
+  .limit(10)
+  .exec(function (err,users) {
+  console.log(users);
+   res.json(users); 
+  });
+});
 
 
 //get users

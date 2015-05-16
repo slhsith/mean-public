@@ -21,14 +21,16 @@ app.factory('verification', function ($http, $window) {
 });
 
 app.factory('search', function ($http) {
-  return {
-    search: function searchMethod(q) {
-    
-      return $http.post('/search/', {query: q} ).success(function (data) {
-        return data;
-      });
-    }
+  var u = {
+    users: []
   };
+  u.get = function (query) {
+    return $http.get('/api/search/' + query).success(function(data){
+      console.log(data);
+      return data;
+    });
+  };
+  return u;
 });
 
 app.factory('users',['$http', '$window', function($http, $window){
