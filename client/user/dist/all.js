@@ -17,7 +17,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('posts', {
-      url: '/posts/{id}',
+      url: '/posts/:post',
       templateUrl: 'posts.html',
       controller: 'PostsCtrl',
       resolve: {
@@ -37,7 +37,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('items', {
-      url: '/items/{id}',
+      url: '/items/:item',
       templateUrl: 'items.html',
       controller: 'ItemsCtrl',
       resolve: {
@@ -66,6 +66,36 @@ function($stateProvider, $urlRouterProvider) {
         }]    
       }
     })  
+    .state('groups', {
+      url: '/groups',
+      templateUrl: 'groups.html',
+      controller: 'GroupsCtrl',
+      resolve: {
+        groupPromise: function(groups){
+          return groups.getAll();
+        }
+      }
+    })
+    .state('groupHome', {
+      url: '/group/:id',
+      templateUrl: 'group_home.html',
+      controller: 'GHomeCtrl',
+      resolve: {
+        groupsPromise: function($stateParams, groups){
+          return groups.get($stateParams.id);
+        }
+      }
+    })
+    // .state('/gposts', {
+    //   url: '/gposts/:gpost',
+    //   templateUrl: 'gposts.html',
+    //   controller: 'GpostCtrl',
+    //   resolve: {
+    //     gcommentPromise: ['gcomments', function(gcomments){
+    //       return gcomments.getAll();
+    //     }]
+    //   }
+    // })
     .state('settings', {
      url: '/settings',
      templateUrl: 'settings.html',
@@ -125,7 +155,7 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
 
 app.controller('PostsCtrl', function ($scope, $stateParams, posts, comments, auth) {
   var post = posts.post[$stateParams.id];
-  $scope.getPost(post_id);
+  $scope.post._id = $routeParams.postId;
   $scope.post = posts.post;
   $scope.comments = comments.comments;
   $scope.addComment = function(){
@@ -222,6 +252,66 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   console.log(userPromise);
 });
 
+app.controller('GroupsCtrl',
+function ($scope, groups, auth) {
+
+  $scope.groups = groups.groups;
+  $scope.addGroup = function(){
+    groups.create($scope.group);
+    console.log($scope.group);
+  };
+  $scope.group = '';
+  $scope.isLoggedIn = auth.isLoggedIn;
+});
+
+app.controller('GHomeCtrl',
+function ($scope, auth, groupsPromise){
+  // var gpost = gposts.gpost[$stateParams.id];
+  $scope.group = groupsPromise.data;
+  console.log(groupsPromise.data);
+  // $scope.addGroupPost = function(){
+  //   if(!scope.body || $scope.body === '') { return; }
+  //   groups.addGpost(groups.group._id, {
+  //     body: $scope.body,
+  //     author: 'user',
+  //   }).success(function(gpost) {
+  //     $scope.group.gpost.push(gpost);
+  //   });
+  //   $scope.body = '';
+  // };
+  // $scope.incrementUpvotes = function(gpost){
+  //   gposts.upvoteGroupPost(gpost);
+  // };
+  $scope.isLoggedIn = auth.isLoggedIn;
+});
+
+app.controller('GpostCtrl', [
+'$scope',
+'$stateParams',
+'gposts',
+'gcomments',
+'auth',
+function($scope, $stateParams, gposts, gcomments, auth){
+  var gpost = gposts.gpost[$stateParams.id];
+  $scope.get(gpost._id);
+  $scope.gpost = gposts.gpost;
+  $scope.gcomments = gcomments.gcomments;
+  $scope.addGroupComment = function(){
+    if(!scope.body || $scope.body === '') { return; }
+    gposts.addGroupComment(gposts.gpost._id, {
+      body: $scope.body,
+      author: 'user',
+    }).success(function(gcomment) {
+      $scope.gpost.gcomments.push(gcomment);
+    });
+    $scope.body = '';
+  };
+  $scope.incrementUpvotes = function(gcomment){
+    gposts.upvoteGroupComment(gpost, gcomment);
+  };
+  $scope.isLoggedIn = auth.isLoggedIn;
+}]);
+
 app.factory('posts', ['$http', 'auth', function($http, auth){
   var o = {
     posts: [],
@@ -275,9 +365,10 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
   };
   o.getAll = function() {
     return $http.get('/api/comments').success(function(data){
-      angular.copy(data, o.items);
+      angular.copy(data, o.comments);
     });
   };
+  return o;
 }]);  
 
 
@@ -375,6 +466,7 @@ app.factory('customers', ['$http', 'auth', function($http, auth){
       return res.data;
     });
   };
+  return o;
 }]);  
 
 
@@ -461,3 +553,84 @@ app.factory('settings', ['$http', '$window', function($http, $window){
    };
    return s;
 }]);
+
+app.factory('groups', ['$http', 'auth', function($http, auth){
+  var o = {
+    groups: [],
+    group: {}
+  };
+
+  o.getAll = function() {
+    return $http.get('/api/groups').success(function(data){
+      console.log(data);
+      angular.copy(data, o.groups);
+    });
+  }; 
+  o.create = function (group) {
+   console.log(group);
+
+   return $http.post('/api/groups', group ).success(function(data){
+     console.log(data);
+     o.groups.push(data);
+   });
+  };
+  o.get = function(id) {
+    return $http.get('/api/group/' + id).then(function(data){
+      console.log(data);
+      return data;
+    });
+  };
+  return o;
+}]);
+
+
+app.factory('gposts', ['$http', 'auth', function($http, auth){
+  var o = {
+    gposts: [],
+    gpost: {}
+  };
+
+  o.getAll = function() {
+    return $http.get('/api/gposts').success(function(data){
+      angular.copy(data, o.gposts);
+    });
+  };
+  o.create = function(gpost) {
+    return $http.post('/api/gposts', gpost, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      o.gposts.push(data);
+    });
+
+  };
+  o.upvote = function(gpost) {
+    return $http.put('/api/gposts/' + post._id + '/upvote', null, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      gpost.upvotes += 1;
+    });
+  };
+  o.get = function(id) {
+    return $http.get('/api/gposts/' + id).then(function(res){
+      return res.data;
+    });
+  };
+  o.addGroupComment = function(id, gcomment) {
+    return $http.post('/api/gposts/' + id + '/gcomments', gcomment, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  return o;
+}]);
+
+app.factory('gcomments', ['$http', 'auth', function($http, auth){
+  var o = {
+    gcomments: []
+  };  
+  o.getAll = function() {
+    return $http.get('/api/gcomments').success(function(data){
+      angular.copy(data, o.gcomments);
+    });
+  };
+  return o;
+}]); 

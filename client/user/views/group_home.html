@@ -1,0 +1,52 @@
+      <div class="page-header">
+        <h1>Group Page</h1>
+
+      </div>
+      <div>
+        <h1>{{group.name}} {{group._id}}</h1>
+      </div>
+      <!-- <div ng-repeat="gpost in gposts | orderBy:'-upvotes'">
+        <span class="glyphicon glyphicon-thumbs-up"
+          ng-click="incrementUpvotes(gpost)"></span>
+            {{gpost.upvotes}}
+        <span style="font-size:20px; margin-left:10px;">
+          <span>
+            {{gpost.body}}
+          </span>
+        </span>
+        <span style="font-size:15px; margin left:10px; font-color:black">
+            {{gpost.author}}
+        </span>
+        <span>
+          <a href="#/gposts/{{gpost._id}}">Comments</a>
+        </span>
+      </div>
+      <form ng-submit="addGroupPost()"
+        ng-show="isLoggedIn()"
+        style="margin-top:30px;">
+
+        <h3>Post to Group</h3>
+
+        <div class="form-group">
+          <input type="text"
+            class="form-control"
+            placeholder="Post Body"
+            ng-model="gpost.body">
+          </input>
+        </div>
+        <button type="submit" class="btn btn-primary">Post</button>
+      </form>
+
+      <br />
+      <div>
+        <span>
+          <a href="#/home">Home Page</a>
+        </span>
+      </div>    
+
+      <div ng-hide="isLoggedIn()">
+        <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a post.</h3>
+      </div>
+ --><!--       <div ng-hide="isGroupMember()">
+        <h3> You must be a group member to view this page</h3>
+      </div>  --> 

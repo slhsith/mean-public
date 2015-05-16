@@ -42,7 +42,7 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
 
 app.controller('PostsCtrl', function ($scope, $stateParams, posts, comments, auth) {
   var post = posts.post[$stateParams.id];
-  $scope.getPost(post_id);
+  $scope.post._id = $routeParams.postId;
   $scope.post = posts.post;
   $scope.comments = comments.comments;
   $scope.addComment = function(){
@@ -138,3 +138,63 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   $scope.user = userPromise.data;
   console.log(userPromise);
 });
+
+app.controller('GroupsCtrl',
+function ($scope, groups, auth) {
+
+  $scope.groups = groups.groups;
+  $scope.addGroup = function(){
+    groups.create($scope.group);
+    console.log($scope.group);
+  };
+  $scope.group = '';
+  $scope.isLoggedIn = auth.isLoggedIn;
+});
+
+app.controller('GHomeCtrl',
+function ($scope, auth, groupsPromise){
+  // var gpost = gposts.gpost[$stateParams.id];
+  $scope.group = groupsPromise.data;
+  console.log(groupsPromise.data);
+  // $scope.addGroupPost = function(){
+  //   if(!scope.body || $scope.body === '') { return; }
+  //   groups.addGpost(groups.group._id, {
+  //     body: $scope.body,
+  //     author: 'user',
+  //   }).success(function(gpost) {
+  //     $scope.group.gpost.push(gpost);
+  //   });
+  //   $scope.body = '';
+  // };
+  // $scope.incrementUpvotes = function(gpost){
+  //   gposts.upvoteGroupPost(gpost);
+  // };
+  $scope.isLoggedIn = auth.isLoggedIn;
+});
+
+app.controller('GpostCtrl', [
+'$scope',
+'$stateParams',
+'gposts',
+'gcomments',
+'auth',
+function($scope, $stateParams, gposts, gcomments, auth){
+  var gpost = gposts.gpost[$stateParams.id];
+  $scope.get(gpost._id);
+  $scope.gpost = gposts.gpost;
+  $scope.gcomments = gcomments.gcomments;
+  $scope.addGroupComment = function(){
+    if(!scope.body || $scope.body === '') { return; }
+    gposts.addGroupComment(gposts.gpost._id, {
+      body: $scope.body,
+      author: 'user',
+    }).success(function(gcomment) {
+      $scope.gpost.gcomments.push(gcomment);
+    });
+    $scope.body = '';
+  };
+  $scope.incrementUpvotes = function(gcomment){
+    gposts.upvoteGroupComment(gpost, gcomment);
+  };
+  $scope.isLoggedIn = auth.isLoggedIn;
+}]);

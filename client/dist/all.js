@@ -61,6 +61,17 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
       return false;
     }
   };
+  // auth.isGroupMember = function (){
+  //   var token = auth.getToken();
+
+  //   if (token) {
+  //     var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+  //     return payload.group_id = this.group_id;
+  //   } else {
+  //     return false;
+  //   }
+  // };
   auth.currentUser = function () {
     if (auth.isLoggedIn()) {
       var token = auth.getToken();
@@ -88,6 +99,9 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
       $scope.success = true;
     });
   };
+  // auth.isGroupMember = function(){
+    
+  // };
   return auth;
 }]);
 // app.factory('confirmEmail',['$http', '$window', function ($http, $window) {
