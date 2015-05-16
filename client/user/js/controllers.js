@@ -143,11 +143,10 @@ app.controller('GroupsCtrl',
 function ($scope, groups, auth) {
 
   $scope.groups = groups.groups;
-  $scope.addGroup = function(data){
+  $scope.addGroup = function(){
     groups.create($scope.group);
     console.log($scope.group);
     $scope.group.name = '';
-    $scope.groups.push(data);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 });

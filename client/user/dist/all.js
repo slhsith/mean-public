@@ -256,11 +256,10 @@ app.controller('GroupsCtrl',
 function ($scope, groups, auth) {
 
   $scope.groups = groups.groups;
-  $scope.addGroup = function(data){
+  $scope.addGroup = function(){
     groups.create($scope.group);
     console.log($scope.group);
     $scope.group.name = '';
-    $scope.groups.push(data);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 });
@@ -572,15 +571,13 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
     });
   }; 
   o.create = function (group) {
-    console.log(group);
-  // change this thing where it says { 'name': group} to just group so
-    //return $http.post('/api/groups', { 'name': group }).success(function(data){
-    return $http.post('/api/groups', group ).success(function(data){
-      console.log(data);
-      o.groups.push(data);
-    });
-  };
+   console.log(group);
 
+   return $http.post('/api/groups', group ).success(function(data){
+     console.log(data);
+     o.groups.push(data)
+   });
+  };
   o.get = function(id) {
     return $http.get('/api/groups/' + id).then(function(res){
       return res.data;
