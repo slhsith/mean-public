@@ -27,11 +27,13 @@ app.controller('ResetCtrl', function ($scope, $state, verification) {
   }; 
 });
 
-app.controller('SearchCtrl', function ($scope, search) {
+app.controller('SearchCtrl', function ($scope, search, searchPromise) {
+  $scope.user = searchPromise.data;
+  console.log(searchPromise);
   $scope.submitSearch = function (data) {
-    console.log($scope.search.query);
-    search.get($scope.search.query);
-    $scope.languages.push(data);
+    console.log($scope.search);
+    search.get($scope.search);
+    // $scope.users.push(data);
   };
 });
 

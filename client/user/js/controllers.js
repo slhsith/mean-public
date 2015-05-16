@@ -1,6 +1,7 @@
 app.controller('MainCtrl', function ($scope, auth) {
   
     $scope.user = auth.getUser();
+    mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.people.set({
     //     "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
