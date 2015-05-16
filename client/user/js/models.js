@@ -254,7 +254,9 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
   }; 
   o.create = function (group) {
     console.log(group);
-    return $http.post('/api/groups', { 'name': group }).success(function(data){
+  // change this thing where it says { 'name': group} to just group so
+    //return $http.post('/api/groups', { 'name': group }).success(function(data){
+    return $http.post('/api/groups', group ).success(function(data){
       console.log(data);
       o.groups.push(data);
     });

@@ -144,8 +144,8 @@ function ($scope, groups, auth) {
 
   $scope.groups = groups.groups;
   $scope.addGroup = function(data){
-    groups.create($scope.group.name);
-    console.log($scope.group.name);
+    groups.create($scope.group);
+    console.log($scope.group);
     $scope.group.name = '';
     $scope.groups.push(data);
   };

@@ -76,26 +76,26 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
-    .state('/group_home', {
-      url: '/group_home/:group',
-      templateUrl: 'group_home.html',
-      controller: 'GHomeCtrl',
-      resolve: {
-        gpostPromise: ['gposts', function(gposts){
-          return gposts.getAll();
-        }]
-      }
-    })
-    .state('/gposts', {
-      url: '/gposts/:gpost',
-      templateUrl: 'gposts.html',
-      controller: 'GpostCtrl',
-      resolve: {
-        gcommentPromise: ['gcomments', function(gcomments){
-          return gcomments.getAll();
-        }]
-      }
-    })
+    // .state('/group_home', {
+    //   url: '/group_home/:group',
+    //   templateUrl: 'group_home.html',
+    //   controller: 'GHomeCtrl',
+    //   resolve: {
+    //     gpostPromise: ['gposts', function(gposts){
+    //       return gposts.getAll();
+    //     }]
+    //   }
+    // })
+    // .state('/gposts', {
+    //   url: '/gposts/:gpost',
+    //   templateUrl: 'gposts.html',
+    //   controller: 'GpostCtrl',
+    //   resolve: {
+    //     gcommentPromise: ['gcomments', function(gcomments){
+    //       return gcomments.getAll();
+    //     }]
+    //   }
+    // })
     .state('settings', {
      url: '/settings',
      templateUrl: 'settings.html',
@@ -257,8 +257,8 @@ function ($scope, groups, auth) {
 
   $scope.groups = groups.groups;
   $scope.addGroup = function(data){
-    groups.create($scope.group.name);
-    console.log($scope.group.name);
+    groups.create($scope.group);
+    console.log($scope.group);
     $scope.group.name = '';
     $scope.groups.push(data);
   };
@@ -573,7 +573,9 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
   }; 
   o.create = function (group) {
     console.log(group);
-    return $http.post('/api/groups', { 'name': group }).success(function(data){
+  // change this thing where it says { 'name': group} to just group so
+    //return $http.post('/api/groups', { 'name': group }).success(function(data){
+    return $http.post('/api/groups', group ).success(function(data){
       console.log(data);
       o.groups.push(data);
     });

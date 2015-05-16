@@ -76,26 +76,26 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
-    .state('/group_home', {
-      url: '/group_home/:group',
-      templateUrl: 'group_home.html',
-      controller: 'GHomeCtrl',
-      resolve: {
-        gpostPromise: ['gposts', function(gposts){
-          return gposts.getAll();
-        }]
-      }
-    })
-    .state('/gposts', {
-      url: '/gposts/:gpost',
-      templateUrl: 'gposts.html',
-      controller: 'GpostCtrl',
-      resolve: {
-        gcommentPromise: ['gcomments', function(gcomments){
-          return gcomments.getAll();
-        }]
-      }
-    })
+    // .state('/group_home', {
+    //   url: '/group_home/:group',
+    //   templateUrl: 'group_home.html',
+    //   controller: 'GHomeCtrl',
+    //   resolve: {
+    //     gpostPromise: ['gposts', function(gposts){
+    //       return gposts.getAll();
+    //     }]
+    //   }
+    // })
+    // .state('/gposts', {
+    //   url: '/gposts/:gpost',
+    //   templateUrl: 'gposts.html',
+    //   controller: 'GpostCtrl',
+    //   resolve: {
+    //     gcommentPromise: ['gcomments', function(gcomments){
+    //       return gcomments.getAll();
+    //     }]
+    //   }
+    // })
     .state('settings', {
      url: '/settings',
      templateUrl: 'settings.html',

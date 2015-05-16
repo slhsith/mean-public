@@ -279,7 +279,7 @@ router.get('/api/customers/:customer', function(req, res) {
 ///////////////////////////
 
 router.get('/api/groups', function(req, res, next) {
-  Group.find(function(err, groups){
+  Group.find({},function(err, groups){
     if(err){ return next(err); }
 
     res.json(groups)
