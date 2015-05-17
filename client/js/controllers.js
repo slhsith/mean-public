@@ -19,8 +19,12 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
   };
 
   $scope.forgotPassword = function () {
-    auth.forgotPassword($scope.forgot).error(function (error) {
-      console.log($scope.forgot);
+    auth.forgotPassword($scope.forgot)
+    .success(function(data) {
+      $scope.forgot = {};
+      $scope.success = true;
+      console.log(data.message);
+    }).error(function (error) {
       $scope.error = error;
     });
     mixpanel.track("HomePage: Reset Password, Submit Email");

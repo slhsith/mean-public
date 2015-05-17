@@ -415,8 +415,8 @@ router.post('/api/register', authentication.doRegistration );
 router.post('/api/login', authentication.doLogin );
 router.post('/api/forgot', authentication.recoverPassword );
 router.put('/api/emailverify/:username/:user_token', authentication.verifyEmail );
-router.get('/api/resetPassword/:username/:user_token', authentication.resetPassword );
-router.put('/api/resetPassword/:username/:user_token', authentication.doResetPassword );
+router.get('/api/resetpassword/:username/:user_token', authentication.getResetPassword );
+router.put('/api/resetpassword/:username/:user_token', authentication.doResetPassword );
 //Facebook Integration
 router.get('/auth/facebook', passport.authenticate('facebook'));
 router.get('/auth/facebook/callback', 

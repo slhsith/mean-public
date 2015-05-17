@@ -9,15 +9,20 @@ function($stateProvider, $urlRouterProvider) {
       url: '/emailverify/:username/:user_token',
       templateUrl: 'emailVerify.html',
       resolve: {
-        verification: function($stateParams, verification) {
+        verifyPromise: function($stateParams, verification) {
           return verification.emailVerify($stateParams.username, $stateParams.user_token);
         }
       },
       controller: 'MainCtrl'
     })
     .state('resetPassword', {
-      url: '/resetpassword/:username/:token',
+      url: '/resetpassword/:username/:user_token',
       templateUrl: 'resetPassword.html',
+      resolve: {
+        resetPromise: function($stateParams, verification) {
+          return verification.getUser($stateParams.username, $stateParams.user_token);
+        }
+      },
       controller: 'ResetCtrl'
     })
     .state('search', {
@@ -56,17 +61,15 @@ app.controller('MainCtrl', function ($scope) {
 });
 
 app.controller('ResetCtrl', function ($scope, $state, verification) {
-  $scope.submitPassword = function(user) {
-    console.log($state.params.username);
-    console.log($state.params.token);
-    console.log($scope.user.password);
-    console.log($scope.user.repeat_password);
-    verification.updatePassword(user, $state.params.username, $state.params.token, $scope.user.password).success(function () {
+  $scope.submitPassword = function() {
+    $scope.user.username = $state.params.username;
+    $scope.user.user_token = $state.params.user_token;
+    verification.updatePassword($scope.user).success(function () {
       // redirect home
-      
+      console.log('Redirecting to user app');
+      window.location = '/';
     }).error(function (error) {
       $scope.error = error;
-      $scope.showSuccessAlert = true;
     });
   }; 
 });
@@ -87,8 +90,8 @@ app.controller('UserCtrl', function ($scope, users, userPromise) {
 });
 app.factory('verification', function ($http, $window) {
   return {
-      getUser: function getUserMethod(user, name, token) {
-          return $http.get('/resetpassword/'+ name + '/' + token)
+      getUser: function getUserMethod(username, user_token) {
+          return $http.get('/api/resetpassword/' + username + '/' + user_token)
           .success(function (data) {
             return data;
           });
@@ -99,10 +102,11 @@ app.factory('verification', function ($http, $window) {
             console.log(data.message);
           });
       },
-      updatePassword: function updatePasswordMethod(user, name, token, password) {
-          return $http.put('/api/resetpassword/'+ name + '/' + token).success(function (data) {
-            console.log('Success!');
-          });
+      updatePassword: function updatePasswordMethod(user) {
+        return $http.put('/api/resetpassword/'+ user.username + '/' + user.user_token, user)
+        .success(function (data) {
+          console.log('Success!');
+        });
       }
   };
 });

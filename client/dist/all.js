@@ -20,8 +20,12 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
   };
 
   $scope.forgotPassword = function () {
-    auth.forgotPassword($scope.forgot).error(function (error) {
-      console.log($scope.forgot);
+    auth.forgotPassword($scope.forgot)
+    .success(function(data) {
+      $scope.forgot = {};
+      $scope.success = true;
+      console.log(data.message);
+    }).error(function (error) {
       $scope.error = error;
     });
     mixpanel.track("HomePage: Reset Password, Submit Email");
@@ -94,10 +98,7 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
     $window.localStorage.removeItem('admin-token');
   };
   auth.forgotPassword = function (user) {
-    return $http.post('/api/forgot', user).success(function (data) {
-      auth.saveToken(data.token);
-      $scope.success = true;
-    });
+    return $http.post('/api/forgot', user);
   };
   // auth.isGroupMember = function(){
     

@@ -9,15 +9,20 @@ function($stateProvider, $urlRouterProvider) {
       url: '/emailverify/:username/:user_token',
       templateUrl: 'emailVerify.html',
       resolve: {
-        verification: function($stateParams, verification) {
+        verifyPromise: function($stateParams, verification) {
           return verification.emailVerify($stateParams.username, $stateParams.user_token);
         }
       },
       controller: 'MainCtrl'
     })
     .state('resetPassword', {
-      url: '/resetpassword/:username/:token',
+      url: '/resetpassword/:username/:user_token',
       templateUrl: 'resetPassword.html',
+      resolve: {
+        resetPromise: function($stateParams, verification) {
+          return verification.getUser($stateParams.username, $stateParams.user_token);
+        }
+      },
       controller: 'ResetCtrl'
     })
     .state('search', {
