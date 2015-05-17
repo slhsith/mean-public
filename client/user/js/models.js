@@ -30,8 +30,8 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
     });
   };
   o.get = function(id) {
-    return $http.get('/api/posts/' + id).then(function(res){
-      return res.data;
+    return $http.get('/api/post/' + id).success(function(data){
+      return data;
     });
   };
   o.addComment = function(id, comment) {
