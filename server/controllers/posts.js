@@ -1,11 +1,16 @@
-// DEPENDENCIES
+/* -----------------------------------------------------
+   Posts and Comments
+   ----------------------------------------------------- */
+   
+// --- Module Dependencies ---
 var mongoose = require('mongoose');
 
-// MODELS
+// --- Models ---
 var
   Post          = mongoose.model('Post'),
   Comment       = mongoose.model('Comment');
 
+// --- Exported Methods ---
 exports.getPosts = function(req, res, next) {
   Post.find({}, function(err, posts){
     if(err){ return next(err); }

@@ -1,9 +1,12 @@
-// Required modules
-var 
-  mongoose = require('mongoose'),
-  passport = require('passport');
+/* -----------------------------------------------------
+   Settings, User Profiles
+   ----------------------------------------------------- */
 
-// Models
+// --- Module Dependencies --- //
+var 
+  mongoose = require('mongoose');
+
+// --- Models --- //
 var
   Item          = mongoose.model('Item'),
   Language      = mongoose.model('Language'),
@@ -13,6 +16,8 @@ var
 
   Transaction   = mongoose.model('Transaction'),
   Customer      = mongoose.model('Customer');
+
+// --- Exported Methods --- //
 
 
 // ----------------------------- ITEMS --------------------------------- //
@@ -100,6 +105,9 @@ exports.upvoteItem = function(req, res, next) {
   });
 };
 
+
+
+
 // ----------------------------- TRANSACTIONS ------------------------------- //
 
 // Item page & transaction
@@ -132,6 +140,12 @@ exports.getTransactionById = function(req, res, next) {
   // Transaction,findById(id, ...)
 };
 
+
+
+
+
+// ----------------------------- CUSTOMERS  --------------------------------- //
+
 // for route: router.post('/api/transaction/:transaction/customers'
 exports.createCustomerOnTransaction = function(req, res, next) {
   stripe.token.create({
@@ -145,7 +159,8 @@ exports.createCustomerOnTransaction = function(req, res, next) {
     // asynchronously called
   });
 };
-// ----------------------------- CUSTOMERS  --------------------------------- //
+
+
 
 exports.getCustomers = function(req, res, next) {
   Customer.find({}, function(err, customers){
