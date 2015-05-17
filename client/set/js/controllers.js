@@ -1,3 +1,6 @@
+/*  -----------------  *
+    CONTROLLERS - SET
+ *  -----------------  */
 app.controller('MainCtrl', function ($scope) {
   // $scope.verifyEmail = function() {
   //   confirmEmail.confirm($scope.verify).error(function (error) {
@@ -12,26 +15,26 @@ app.controller('MainCtrl', function ($scope) {
 });
 
 app.controller('ResetCtrl', function ($scope, $state, verification) {
-  $scope.submitPassword = function(user) {
-    console.log($state.params.username);
-    console.log($state.params.token);
-    console.log($scope.user.password);
-    console.log($scope.user.repeat_password);
-    verification.updatePassword(user, $state.params.username, $state.params.token, $scope.user.password).success(function () {
+  $scope.submitPassword = function() {
+    $scope.user.username = $state.params.username;
+    $scope.user.user_token = $state.params.user_token;
+    verification.updatePassword($scope.user).success(function () {
       // redirect home
-      
+      console.log('Redirecting to user app');
+      window.location = '/';
     }).error(function (error) {
       $scope.error = error;
-      $scope.showSuccessAlert = true;
     });
   }; 
 });
 
-app.controller('SearchCtrl', function ($scope, search) {
+app.controller('SearchCtrl', function ($scope, search, searchPromise) {
+  $scope.user = searchPromise.data;
+  console.log(searchPromise);
   $scope.submitSearch = function (data) {
-    console.log($scope.search.query);
-    search.get($scope.search.query);
-    $scope.languages.push(data);
+    console.log($scope.search);
+    search.get($scope.search);
+    // $scope.users.push(data);
   };
 });
 

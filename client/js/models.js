@@ -51,10 +51,7 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
     $window.localStorage.removeItem('admin-token');
   };
   auth.forgotPassword = function (user) {
-    return $http.post('/api/forgot', user).success(function (data) {
-      auth.saveToken(data.token);
-      $scope.success = true;
-    });
+    return $http.post('/api/forgot', user);
   };
   // auth.isGroupMember = function(){
     

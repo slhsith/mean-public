@@ -114,6 +114,7 @@ function($stateProvider, $urlRouterProvider) {
 app.controller('MainCtrl', function ($scope, auth) {
   
     $scope.user = auth.getUser();
+    mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.people.set({
     //     "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
@@ -312,6 +313,9 @@ function($scope, $stateParams, gposts, gcomments, auth){
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
+/* FACTORIES FOR USER */
+
+// POSTS 
 app.factory('posts', ['$http', 'auth', function($http, auth){
   var o = {
     posts: [],
@@ -358,7 +362,7 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
   return o;
 }]);
 
-
+// COMMENTS
 app.factory('comments', ['$http', 'auth', function($http, auth){
   var o = {
     comments: []
@@ -434,6 +438,8 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   // t();
 }]);
 
+
+// TRANSACTIONS
 app.factory('transactions', ['$http', 'auth', function($http, auth){
   var o = {
     transactions: []
@@ -457,6 +463,8 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
   return o;
 }]);
 
+// CUSTOMERS
+
 app.factory('customers', ['$http', 'auth', function($http, auth){
   var o = {
     customers: []
@@ -470,6 +478,7 @@ app.factory('customers', ['$http', 'auth', function($http, auth){
 }]);  
 
 
+// AUTH
 app.factory('auth', ['$http', '$window', function($http, $window){
    var auth = {};
    auth.saveToken = function (token){
@@ -513,6 +522,8 @@ app.factory('auth', ['$http', '$window', function($http, $window){
   return auth;
 }]);
 
+
+// LANGUAGES
 app.factory('languages', ['$http', '$window', function($http, $window){
   var lang = { languages : [] };
                        // no function parameters -- function ()
@@ -554,6 +565,8 @@ app.factory('settings', ['$http', '$window', function($http, $window){
    return s;
 }]);
 
+
+// GROUPS
 app.factory('groups', ['$http', 'auth', function($http, auth){
   var o = {
     groups: [],

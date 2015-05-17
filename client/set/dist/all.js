@@ -1,3 +1,6 @@
+/*  ----------------  *
+    APP MODULE - SET
+ *  ----------------  */
 var app = angular.module('mainApp', ['ui.router','templates']);
 
 app.config([
@@ -9,21 +12,31 @@ function($stateProvider, $urlRouterProvider) {
       url: '/emailverify/:username/:user_token',
       templateUrl: 'emailVerify.html',
       resolve: {
-        verification: function($stateParams, verification) {
+        verifyPromise: function($stateParams, verification) {
           return verification.emailVerify($stateParams.username, $stateParams.user_token);
         }
       },
       controller: 'MainCtrl'
     })
     .state('resetPassword', {
-      url: '/resetpassword/:username/:token',
+      url: '/resetpassword/:username/:user_token',
       templateUrl: 'resetPassword.html',
+      resolve: {
+        resetPromise: function($stateParams, verification) {
+          return verification.getUser($stateParams.username, $stateParams.user_token);
+        }
+      },
       controller: 'ResetCtrl'
     })
     .state('search', {
       url: '/search',
       templateUrl: 'search.html',
-      controller: 'SearchCtrl'
+      controller: 'SearchCtrl',
+      resolve: {
+        searchPromise: function($stateParams, search) {
+          return search.get($stateParams.query);
+        }
+      }
     })
     .state('userProfile', {
       url: '/user/:handle',
@@ -37,6 +50,9 @@ function($stateProvider, $urlRouterProvider) {
     });
   // $urlRouterProvider.otherwise('home');
 }]);
+/*  -----------------  *
+    CONTROLLERS - SET
+ *  -----------------  */
 app.controller('MainCtrl', function ($scope) {
   // $scope.verifyEmail = function() {
   //   confirmEmail.confirm($scope.verify).error(function (error) {
@@ -51,26 +67,26 @@ app.controller('MainCtrl', function ($scope) {
 });
 
 app.controller('ResetCtrl', function ($scope, $state, verification) {
-  $scope.submitPassword = function(user) {
-    console.log($state.params.username);
-    console.log($state.params.token);
-    console.log($scope.user.password);
-    console.log($scope.user.repeat_password);
-    verification.updatePassword(user, $state.params.username, $state.params.token, $scope.user.password).success(function () {
+  $scope.submitPassword = function() {
+    $scope.user.username = $state.params.username;
+    $scope.user.user_token = $state.params.user_token;
+    verification.updatePassword($scope.user).success(function () {
       // redirect home
-      
+      console.log('Redirecting to user app');
+      window.location = '/';
     }).error(function (error) {
       $scope.error = error;
-      $scope.showSuccessAlert = true;
     });
   }; 
 });
 
-app.controller('SearchCtrl', function ($scope, search) {
+app.controller('SearchCtrl', function ($scope, search, searchPromise) {
+  $scope.user = searchPromise.data;
+  console.log(searchPromise);
   $scope.submitSearch = function (data) {
-    console.log($scope.search.query);
-    search.get($scope.search.query);
-    $scope.languages.push(data);
+    console.log($scope.search);
+    search.get($scope.search);
+    // $scope.users.push(data);
   };
 });
 
@@ -78,10 +94,14 @@ app.controller('UserCtrl', function ($scope, users, userPromise) {
   $scope.user = userPromise.data;
   console.log(userPromise);
 });
-app.factory('verification', function ($http, $window) {
+/*  ---------------  *
+    FACTORIES - SET
+ *  ---------------  */
+ 
+ app.factory('verification', function ($http, $window) {
   return {
-      getUser: function getUserMethod(user, name, token) {
-          return $http.get('/resetpassword/'+ name + '/' + token)
+      getUser: function getUserMethod(username, user_token) {
+          return $http.get('/api/resetpassword/' + username + '/' + user_token)
           .success(function (data) {
             return data;
           });
@@ -92,10 +112,11 @@ app.factory('verification', function ($http, $window) {
             console.log(data.message);
           });
       },
-      updatePassword: function updatePasswordMethod(user, name, token, password) {
-          return $http.put('/api/resetpassword/'+ name + '/' + token).success(function (data) {
-            console.log('Success!');
-          });
+      updatePassword: function updatePasswordMethod(user) {
+        return $http.put('/api/resetpassword/'+ user.username + '/' + user.user_token, user)
+        .success(function (data) {
+          console.log('Success!');
+        });
       }
   };
 });
@@ -113,15 +134,15 @@ app.factory('search', function ($http) {
   return u;
 });
 
-app.factory('users',['$http', '$window', function($http, $window){
+app.factory('users', function ($http, $window) {
   var u = {
     users: []
   };
   u.get = function (handle) {
     return $http.get('/api/user/handle/' + handle).success(function(data){
-      console.log(data);
+      // console.log(data);
       return data;
     });
   };
   return u;
-}]);
+});

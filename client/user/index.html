@@ -60,7 +60,9 @@ mixpanel.init("08314cf925efc4376a17217e8922cd22");</script><!-- end Mixpanel -->
 
   <nav class="navbar navbar-default pull-right" ng-controller="NavCtrl">
     <ul class="nav navbar-nav">
-      <li ng-show="isLoggedIn()"><a>{{ currentUser() }}</a></li>
+      <li ng-show="isLoggedIn()"><a href="#/home">Home</a></li>
+      <li ng-show="isLoggedIn()"><a href="#/settings">Settings</a></li>
+<!--       <li ng-show="isLoggedIn()"><a>{{ currentUser() }}</a></li> -->
       <li ng-show="isLoggedIn()"><a href="" ng-click="logOut()">Log Out</a></li>
       <li ng-hide="isLoggedIn()"><a href="/#/login">Log In</a></li>
       <li ng-hide="isLoggedIn()"><a href="/#/register">Register</a></li>
