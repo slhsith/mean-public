@@ -1,3 +1,4 @@
+// Module Dependencies
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
@@ -20,19 +21,17 @@ var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
 
 // Models
 var
-  Post          = mongoose.model('Post'),
-  Comment       = mongoose.model('Comment'),
 
   User          = mongoose.model('User'),
   Language      = mongoose.model('Language'),
 
   Group         = mongoose.model('Group');
 
-
 // API controllers
 var shop = require('../controllers/shop');
 var posts = require('../controllers/posts');
 var messaging = require('../controllers/messaging');
+
 
 /* GET home page. */
 router.get('/api', function(req, res, next) {
@@ -42,15 +41,7 @@ router.get('/api', function(req, res, next) {
 module.exports = router;
 
 //posts
-
-router.get('/api/posts', function(req, res, next) {
-  Post.find(function(err, posts){
-    if(err){ return next(err); }
-
-    res.json(posts);
-  });
-});
-
+router.get('/api/posts', posts.getPosts );
 router.post('/api/posts', auth, function(req, res, next) {
   var post = new Post(req.body);
   post.author = req.payload.username;
@@ -74,66 +65,12 @@ router.param('/api/post', function(req, res, next, id) {
   });
 });
 
-router.get('/api/posts/:post', function(req, res, next) {
-  req.post.populate('comments', function(err, post) {
-    if (err) { return next(err); }
+router.get('/api/post/:post', posts.getPostById )
+router.put('/api/posts/:post/upvote', auth, posts.upvotePost )
 
-    res.json(req.post);
-  });
-});
-
-router.put('/api/posts/:post/upvote', auth, function(req, res, next) {
-  req.post.upvote(function(err, post){
-    if (err) { return next(err); }
-
-    res.json(post);
-  });
-});
-
-//post page & comments
-router.get('/api/posts/:post', function(req, res, next) {
-  req.post.populate('comments', function(err, post) {
-    res.json(req.post);
-  });
-});
-
-
-router.post('/api/posts/:post/comments', auth, function(req, res, next) {
-  var comment = new Comment(req.body);
-  comment.post = req.post;
-  comment.author = req.payload.username;
-
-  comment.save(function(err, comment){
-    if(err){ return next(err); }
-
-    req.post.comments.push(comment);
-    req.post.save(function(err, post) {
-      if(err){ return next(err); }
-
-      res.json(comment);
-    });
-  });
-});
-
-router.put('/api/posts/:post/comments/:comment/upvote', auth, function(req, res, next) {
-  req.post.upvote(function(err, post){
-    if (err) { return next(err); }
-
-    res.json(post);
-  });
-});
-
-router.param('comment', function(req, res, next, id) {
-  var query = Comment.findById(id);
-
-  query.exec(function (err, comment){
-    if (err) { return next(err); }
-    if (!comment) { return next(new Error('can\'t find comment')); }
-
-    req.comment = comment;
-    return next();
-  });
-});
+router.post('/api/posts/:post/comments', auth, posts.createComment )
+router.put('/api/posts/:post/comments/:comment/upvote', auth, posts.upvoteComment )
+router.param('comment', posts.getCommentByIdParam )
 
 // # Shop
 // Items

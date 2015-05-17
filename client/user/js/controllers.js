@@ -45,10 +45,8 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
 });
 
 
-app.controller('PostsCtrl', function ($scope, $stateParams, posts, comments, auth) {
-  var post = posts.post[$stateParams.id];
-  $scope.post._id = $routeParams.postId;
-  $scope.post = posts.post;
+app.controller('PostsCtrl', function ($scope, $state, posts, comments, auth, postPromise) {
+  $scope.post = postPromise;
   $scope.comments = comments.comments;
   $scope.addComment = function(){
     if(!scope.body || $scope.body === '') { return; }

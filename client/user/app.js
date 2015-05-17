@@ -14,19 +14,19 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'home.html',
       controller: 'DashCtrl',
       resolve: {
-        postPromise: ['posts', function(posts){
+        postsPromise: function(posts){
           return posts.getAll();
-        }]
+        }
       }
     })
-    .state('posts', {
-      url: '/posts/:post',
+    .state('post', {
+      url: '/post/:post',
       templateUrl: 'posts.html',
       controller: 'PostsCtrl',
       resolve: {
-        post: ['$stateParams', 'posts', function($stateParams, posts) {
-          return posts.get($stateParams.id);
-        }]
+        postPromise: function($stateParams, posts) {
+          return posts.get($stateParams.post);
+        }
       }
     })
     .state('shop', {

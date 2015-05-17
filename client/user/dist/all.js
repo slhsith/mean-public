@@ -14,19 +14,19 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'home.html',
       controller: 'DashCtrl',
       resolve: {
-        postPromise: ['posts', function(posts){
+        postsPromise: function(posts){
           return posts.getAll();
-        }]
+        }
       }
     })
-    .state('posts', {
-      url: '/posts/:post',
+    .state('post', {
+      url: '/post/:post',
       templateUrl: 'posts.html',
       controller: 'PostsCtrl',
       resolve: {
-        post: ['$stateParams', 'posts', function($stateParams, posts) {
-          return posts.get($stateParams.id);
-        }]
+        postPromise: function($stateParams, posts) {
+          return posts.get($stateParams.post);
+        }
       }
     })
     .state('shop', {
@@ -161,10 +161,8 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
 });
 
 
-app.controller('PostsCtrl', function ($scope, $stateParams, posts, comments, auth) {
-  var post = posts.post[$stateParams.id];
-  $scope.post._id = $routeParams.postId;
-  $scope.post = posts.post;
+app.controller('PostsCtrl', function ($scope, $state, posts, comments, auth, postPromise) {
+  $scope.post = postPromise;
   $scope.comments = comments.comments;
   $scope.addComment = function(){
     if(!scope.body || $scope.body === '') { return; }
@@ -352,8 +350,8 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
     });
   };
   o.get = function(id) {
-    return $http.get('/api/posts/' + id).then(function(res){
-      return res.data;
+    return $http.get('/api/post/' + id).success(function(data){
+      return data;
     });
   };
   o.addComment = function(id, comment) {
