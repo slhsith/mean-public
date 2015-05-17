@@ -1,4 +1,7 @@
-var app = angular.module('mainApp', ['ui.router','templates']);
+/*  -----------------  *
+    APP MODULE - USER 
+ *  -----------------  */
+ var app = angular.module('mainApp', ['ui.router','templates']);
 
 app.config([
 '$stateProvider',
@@ -111,7 +114,11 @@ function($stateProvider, $urlRouterProvider) {
    });
   // $urlRouterProvider.otherwise('home');
 }]);
-app.controller('MainCtrl', function ($scope, auth) {
+/*  ------------------  *
+    CONTROLLERS - USER
+ *  ------------------  */
+
+ app.controller('MainCtrl', function ($scope, auth) {
   
     $scope.user = auth.getUser();
     mixpanel.alias($scope.user._id);
@@ -313,7 +320,9 @@ function($scope, $stateParams, gposts, gcomments, auth){
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
-/* FACTORIES FOR USER */
+/*  ----------------  *
+    FACTORIES - USER
+ *  ----------------  */
 
 // POSTS 
 app.factory('posts', ['$http', 'auth', function($http, auth){
