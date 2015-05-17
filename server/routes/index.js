@@ -1,25 +1,12 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
-var
-  Post          = mongoose.model('Post'),
-  Comment       = mongoose.model('Comment'),
-  Item          = mongoose.model('Item'),
-  User          = mongoose.model('User'),
-  Language      = mongoose.model('Language'),
-  Video         = mongoose.model('Video'),
-  Book          = mongoose.model('Book'),
-  Podcast       = mongoose.model('Podcast'),
-  Message       = mongoose.model('Message'),
-  Conversation  = mongoose.model('Conversation'),
-  Group         = mongoose.model('Group');
-
 var passport = require('passport');
 var jwt = require('express-jwt');
-var nodemailer = require('nodemailer');
 var bodyParser = require('body-parser'),    
     jsonParser = bodyParser.json();    
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
+var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
     service: 'Mandrill',
     host: 'smtp.mandrillapp.com',
@@ -30,6 +17,22 @@ var transporter = nodemailer.createTransport({
     }
   });
 var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
+
+// Models
+var
+  Post          = mongoose.model('Post'),
+  Comment       = mongoose.model('Comment'),
+
+  User          = mongoose.model('User'),
+  Language      = mongoose.model('Language'),
+
+  Group         = mongoose.model('Group');
+
+
+// API controllers
+var shop = require('../controllers/shop');
+var posts = require('../controllers/posts');
+var messaging = require('../controllers/messaging');
 
 /* GET home page. */
 router.get('/api', function(req, res, next) {
@@ -132,150 +135,27 @@ router.param('comment', function(req, res, next, id) {
   });
 });
 
-//Items
+// # Shop
+// Items
+router.get('/api/items', shop.getItems );
+router.post('/api/items', auth, shop.postItem );
+router.param('/api/item', shop.getItemByIdParam );
+router.get('/api/items/:item', shop.getItemById );
+router.put('/api/items/:item/upvote', auth, shop.upvoteItem )
 
-router.get('/api/items', function(req, res, next) {
-  Item.find({}, function(err, items){
-    if(err){ return next(err); }
-    res.json(items);
-  });
-});
-
-router.post('/api/items', auth, function(req, res, next) {
-  var item = new Item(req.body);
-  item.author = req.payload.username;
-  item.save(function(err, item){
-  if (err) { return next(err); }
-    // res.json(item);
-  }).then(function () {
-    if (req.body.type === 'Video'){
-      var video = new Video(req.body);
-      video.author = req.payload.username;
-      video.item = [item._id]
-      video.save(function(err, video){
-        if(err){ return next(err); }
-        Item.findByIdAndUpdate(item._id, { $set: { video: [video._id] }}, function (err, item) {
-          if (err) { return next(err); }
-          return item;
-        });
-      });
-    }
-    if (req.body.type === 'Book'){
-      var book = new Book(req.body);
-      book.author = req.payload.username;
-      book.item = [item._id]
-      book.save(function(err, book){
-        if(err){ return next(err); }
-        Item.findByIdAndUpdate(item._id, { $set: { video: [book._id] }}, function (err, item) {
-          if (err) { return next(err); }
-          return item;
-        });
-      });
-    }
-    if (req.body.type === 'Podcast'){
-      var podcast = new Podcast(req.body);
-      podcast.author = req.payload.username;
-      podcast.item = [item._id]
-      podcast.save(function(err, podcast){
-        if(err){ return next(err); }
-        Item.findByIdAndUpdate(item._id, { $set: { video: [video._id] }}, function (err, item) {
-          if (err) { return next(err); }
-          return item;
-          //random comment
-        });
-      });
-    }
-  }) 
-  .then(function() {
-    res.json(item);
-  });
-});
-
-router.param('/api/item', function(req, res, next, id) {
-  var query = Item.findById(id);
-
-  query.exec(function (err, item){
-    if (err) { return next(err); }
-    if (!item) { return next(new Error('can\'t find item')); }
-
-    req.item = item;
-    return next();
-  });
-});
-
-router.get('/api/items/:item', function(req, res) {
-    res.json(req.item);
-});
-
-
-router.put('/api/items/:item/upvote', auth, function(req, res, next) {
-  req.item.upvote(function(err, item){
-    if (err) { return next(err); }
-
-    res.json(item);
-  });
-});
-
-//item page & transaction
-router.post('/api/transactions', auth, function(req, res, next) {
-  stripe.token.create({
-    card: {
-      "number": '4242424242424242',
-      "exp_month": 12,
-      "exp_year": 2016,
-      "cvc": '123'
-    }
-  }, function(err, token) {
-    // asynchronously called
-  });
-});
-
+// Item page & transaction
+router.post('/api/transactions', auth, shop.createTransaction );
 //transaction page & create customer
-router.get('/api/transactions', function(req, res, next) {
-  Transaction.find(function(err, transactions){
-    if(err){ return next(err); }
-
-    res.json(transactions);
-  });
-});
-
-router.get('/api/transactions/:transaction', function(req, res) {
-    res.json(req.transaction);
-});
-
-router.post('/api/transaction/:transaction/customers', auth, function(req, res, next) {
-  var customer = new customer(req.id);
-  customer.transaction = req.transaction;
-  customer.author = req.payload.username;
-
-  customer.save(function(err, customer){
-    if(err){ return next(err); }
-
-    req.transaction.customers.push(customer);
-    req.transaction.save(function(err, transaction) {
-      if(err){ return next(err); }
-
-      res.json(customer);
-    });
-  });
-});
+router.get('/api/transactions', shop.getTransactions );
+router.get('/api/transactions/:transaction', shop.getTransactionById );
+router.post('/api/transaction/:transaction/customers', auth, shop.createCustomerOnTransaction );
 
 //customers
-router.get('/api/customers', function(req, res, next) {
-  Customer.find(function(err, customers){
-    if(err){ return next(err); }
-
-    res.json(customers);
-  });
-});
-
-router.get('/api/customers/:customer', function(req, res) {
-    res.json(req.customer);
-});
+router.get('/api/customers', shop.getCustomers );
+router.get('/api/customers/:customer', shop.getCustomerById );
 
 
-
-//GROUP WALL PAGE
+// # GROUP WALL PAGE
 ///////////////////////////
 
 router.get('/api/groups', function(req, res, next) {
@@ -314,7 +194,6 @@ router.param('/api/group', function(req, res, next, id) {
     return next();
   });
 });
-
 
 router.get('/api/gposts', function(req, res, next) {
   Gpost.find(function(err, gposts){
@@ -500,7 +379,6 @@ router.get('/api/user/handle/:handle', function (req, res, next) {
 
 
 //Messenger
-var messaging = require('../controllers/messaging');
 router.get('/api/conversations', messaging.getConversations );
 router.get( '/api/conversation/:id', messaging.getConversationById );
 

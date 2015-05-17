@@ -1,4 +1,6 @@
-/* FACTORIES FOR USER */
+/*  ----------------  *
+    FACTORIES - USER
+ *  ----------------  */
 
 // POSTS 
 app.factory('posts', ['$http', 'auth', function($http, auth){

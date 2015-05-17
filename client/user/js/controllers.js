@@ -1,4 +1,8 @@
-app.controller('MainCtrl', function ($scope, auth) {
+/*  ------------------  *
+    CONTROLLERS - USER
+ *  ------------------  */
+
+ app.controller('MainCtrl', function ($scope, auth) {
   
     $scope.user = auth.getUser();
     mixpanel.alias($scope.user._id);

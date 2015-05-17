@@ -1,4 +1,7 @@
-var app = angular.module('mainApp', ['ui.router','templates']);
+/*  -----------------  *
+    APP MODULE - USER 
+ *  -----------------  */
+ var app = angular.module('mainApp', ['ui.router','templates']);
 
 app.config([
 '$stateProvider',
