@@ -41,32 +41,11 @@ module.exports = router;
 
 // ------------------------ POSTS and COMMENTS  ------------------------------//
 router.get('/api/posts', posts.getPosts );
-router.post('/api/posts', auth, function(req, res, next) {
-  var post = new Post(req.body);
-  post.author = req.payload.username;
-
-  post.save(function(err, post){
-    if(err){ return next(err); }
-
-    res.json(post);
-  });
-});
-
-router.param('/api/post', function(req, res, next, id) {
-  var query = Post.findById(id);
-
-  query.exec(function (err, post){
-    if (err) { return next(err); }
-    if (!post) { return next(new Error('can\'t find post')); }
-
-    req.post = post;
-    return next();
-  });
-});
-
+router.post('/api/posts', auth, posts.createPost );
+router.param('/api/post', posts.getPostByIdParam );
 router.get('/api/post/:post', posts.getPostById )
-router.put('/api/posts/:post/upvote', auth, posts.upvotePost )
 
+router.put('/api/posts/:post/upvote', auth, posts.upvotePost )
 router.post('/api/posts/:post/comments', auth, posts.createComment )
 router.put('/api/posts/:post/comments/:comment/upvote', auth, posts.upvoteComment )
 router.param('comment', posts.getCommentByIdParam )

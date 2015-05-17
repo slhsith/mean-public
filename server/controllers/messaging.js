@@ -1,13 +1,14 @@
-//Declarations
+// Module Dependencies
 var 
-  mongoose = require('mongoose'),
+  mongoose = require('mongoose');
+
+// --- Models --- //
+var
   Conversation = mongoose.model('Conversation'),
   Message = mongoose.model('Message');
 
 
-
-
-//Methods
+// --- Exported Methods --- //
 exports.getConversations = function(req, res, next) {
 	// req.params.start
 	// req.params.end
