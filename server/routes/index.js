@@ -1,21 +1,12 @@
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
-var
-  Post          = mongoose.model('Post'),
-  Comment       = mongoose.model('Comment'),
-
-  User          = mongoose.model('User'),
-  Language      = mongoose.model('Language'),
-
-  Group         = mongoose.model('Group');
-
 var passport = require('passport');
 var jwt = require('express-jwt');
-var nodemailer = require('nodemailer');
 var bodyParser = require('body-parser'),    
     jsonParser = bodyParser.json();    
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
+var nodemailer = require('nodemailer');
 var transporter = nodemailer.createTransport({
     service: 'Mandrill',
     host: 'smtp.mandrillapp.com',
@@ -26,6 +17,22 @@ var transporter = nodemailer.createTransport({
     }
   });
 var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
+
+// Models
+var
+  Post          = mongoose.model('Post'),
+  Comment       = mongoose.model('Comment'),
+
+  User          = mongoose.model('User'),
+  Language      = mongoose.model('Language'),
+
+  Group         = mongoose.model('Group');
+
+
+// API controllers
+var shop = require('../controllers/shop');
+var posts = require('../controllers/posts');
+var messaging = require('../controllers/messaging');
 
 /* GET home page. */
 router.get('/api', function(req, res, next) {
@@ -130,7 +137,6 @@ router.param('comment', function(req, res, next, id) {
 
 // # Shop
 // Items
-var shop = require('../controllers/shop');
 router.get('/api/items', shop.getItems );
 router.post('/api/items', auth, shop.postItem );
 router.param('/api/item', shop.getItemByIdParam );
@@ -373,7 +379,6 @@ router.get('/api/user/handle/:handle', function (req, res, next) {
 
 
 //Messenger
-var messaging = require('../controllers/messaging');
 router.get('/api/conversations', messaging.getConversations );
 router.get( '/api/conversation/:id', messaging.getConversationById );
 
