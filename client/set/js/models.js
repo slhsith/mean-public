@@ -1,4 +1,8 @@
-app.factory('verification', function ($http, $window) {
+/*  ---------------  *
+    FACTORIES - SET
+ *  ---------------  */
+ 
+ app.factory('verification', function ($http, $window) {
   return {
       getUser: function getUserMethod(username, user_token) {
           return $http.get('/api/resetpassword/' + username + '/' + user_token)
@@ -34,7 +38,7 @@ app.factory('search', function ($http) {
   return u;
 });
 
-app.factory('users',['$http', '$window', function($http, $window){
+app.factory('users', function ($http, $window) {
   var u = {
     users: []
   };
@@ -45,4 +49,4 @@ app.factory('users',['$http', '$window', function($http, $window){
     });
   };
   return u;
-}]);
+});

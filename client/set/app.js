@@ -1,3 +1,6 @@
+/*  ----------------  *
+    APP MODULE - SET
+ *  ----------------  */
 var app = angular.module('mainApp', ['ui.router','templates']);
 
 app.config([

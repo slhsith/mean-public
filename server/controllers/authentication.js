@@ -1,40 +1,9 @@
-var express = require('express');
-var router = express.Router();
-var mongoose = require('mongoose');
-
-var
-  Post          = mongoose.model('Post'),
-  Comment       = mongoose.model('Comment'),
-  Item          = mongoose.model('Item'),
-  User          = mongoose.model('User'),
-  Language      = mongoose.model('Language'),
-  Video         = mongoose.model('Video'),
-  Book          = mongoose.model('Book'),
-  Podcast       = mongoose.model('Podcast'),
-  Message       = mongoose.model('Message'),
-  Conversation  = mongoose.model('Conversation');
-
-var passport = require('passport');
-var jwt = require('express-jwt');
-var nodemailer = require('nodemailer');
-var bodyParser = require('body-parser'),    
-    jsonParser = bodyParser.json();    
-var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
-var transporter = nodemailer.createTransport({
-    service: 'Mandrill',
-    host: 'smtp.mandrillapp.com',
-    port: 587,
-    auth: {
-        user: 'trainersvault',
-        pass: 'BGkIPqtGVLNL2JAGAmwHMw'
-    }
-  });
-var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
 
 //Declarations
 var 
 	mongoose = require('mongoose'),
 	nodemailer = require('nodemailer'),
+  passport = require('passport'),
 	User = mongoose.model('User'),
 	transporter = nodemailer.createTransport({
     service: 'Mandrill',

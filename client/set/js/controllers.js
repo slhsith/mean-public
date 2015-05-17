@@ -1,3 +1,6 @@
+/*  -----------------  *
+    CONTROLLERS - SET
+ *  -----------------  */
 app.controller('MainCtrl', function ($scope) {
   // $scope.verifyEmail = function() {
   //   confirmEmail.confirm($scope.verify).error(function (error) {
