@@ -8,3 +8,5 @@ a {
 }
 
 .glyphicon-thumbs-up { cursor:pointer }
+
+.angular-google-map-container { height: 400px; }
