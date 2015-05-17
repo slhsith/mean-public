@@ -1,5 +1,8 @@
+/* -----------------------------------------------------
+   creating and verifying login / authentication elements
+   ----------------------------------------------------- */
 
-//Declarations
+// Module Dependencies
 var 
 	mongoose = require('mongoose'),
 	nodemailer = require('nodemailer'),
