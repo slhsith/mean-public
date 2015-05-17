@@ -1,4 +1,7 @@
-var app = angular.module('mainApp', ['ui.router','templates']);
+/*  -----------------  *
+    APP MODULE - USER 
+ *  -----------------  */
+ var app = angular.module('mainApp', ['ui.router','templates']);
 
 app.config([
 '$stateProvider',
@@ -11,19 +14,19 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'home.html',
       controller: 'DashCtrl',
       resolve: {
-        postPromise: ['posts', function(posts){
+        postsPromise: function(posts){
           return posts.getAll();
-        }]
+        }
       }
     })
-    .state('posts', {
-      url: '/posts/:post',
+    .state('post', {
+      url: '/post/:post',
       templateUrl: 'posts.html',
       controller: 'PostsCtrl',
       resolve: {
-        post: ['$stateParams', 'posts', function($stateParams, posts) {
-          return posts.get($stateParams.id);
-        }]
+        postPromise: function($stateParams, posts) {
+          return posts.get($stateParams.post);
+        }
       }
     })
     .state('shop', {
@@ -111,7 +114,11 @@ function($stateProvider, $urlRouterProvider) {
    });
   // $urlRouterProvider.otherwise('home');
 }]);
-app.controller('MainCtrl', function ($scope, auth) {
+/*  ------------------  *
+    CONTROLLERS - USER
+ *  ------------------  */
+
+ app.controller('MainCtrl', function ($scope, auth) {
   
     $scope.user = auth.getUser();
     mixpanel.alias($scope.user._id);
@@ -154,10 +161,8 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
 });
 
 
-app.controller('PostsCtrl', function ($scope, $stateParams, posts, comments, auth) {
-  var post = posts.post[$stateParams.id];
-  $scope.post._id = $routeParams.postId;
-  $scope.post = posts.post;
+app.controller('PostsCtrl', function ($scope, $state, posts, comments, auth, postPromise) {
+  $scope.post = postPromise;
   $scope.comments = comments.comments;
   $scope.addComment = function(){
     if(!scope.body || $scope.body === '') { return; }
@@ -313,6 +318,11 @@ function($scope, $stateParams, gposts, gcomments, auth){
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
+/*  ----------------  *
+    FACTORIES - USER
+ *  ----------------  */
+
+// POSTS 
 app.factory('posts', ['$http', 'auth', function($http, auth){
   var o = {
     posts: [],
@@ -340,8 +350,8 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
     });
   };
   o.get = function(id) {
-    return $http.get('/api/posts/' + id).then(function(res){
-      return res.data;
+    return $http.get('/api/post/' + id).success(function(data){
+      return data;
     });
   };
   o.addComment = function(id, comment) {
@@ -359,7 +369,7 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
   return o;
 }]);
 
-
+// COMMENTS
 app.factory('comments', ['$http', 'auth', function($http, auth){
   var o = {
     comments: []
@@ -435,6 +445,8 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   // t();
 }]);
 
+
+// TRANSACTIONS
 app.factory('transactions', ['$http', 'auth', function($http, auth){
   var o = {
     transactions: []
@@ -458,6 +470,8 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
   return o;
 }]);
 
+// CUSTOMERS
+
 app.factory('customers', ['$http', 'auth', function($http, auth){
   var o = {
     customers: []
@@ -471,6 +485,7 @@ app.factory('customers', ['$http', 'auth', function($http, auth){
 }]);  
 
 
+// AUTH
 app.factory('auth', ['$http', '$window', function($http, $window){
    var auth = {};
    auth.saveToken = function (token){
@@ -514,6 +529,8 @@ app.factory('auth', ['$http', '$window', function($http, $window){
   return auth;
 }]);
 
+
+// LANGUAGES
 app.factory('languages', ['$http', '$window', function($http, $window){
   var lang = { languages : [] };
                        // no function parameters -- function ()
@@ -555,6 +572,8 @@ app.factory('settings', ['$http', '$window', function($http, $window){
    return s;
 }]);
 
+
+// GROUPS
 app.factory('groups', ['$http', 'auth', function($http, auth){
   var o = {
     groups: [],

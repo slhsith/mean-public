@@ -1,7 +1,11 @@
-app.factory('verification', function ($http, $window) {
+/*  ---------------  *
+    FACTORIES - SET
+ *  ---------------  */
+ 
+ app.factory('verification', function ($http, $window) {
   return {
-      getUser: function getUserMethod(user, name, token) {
-          return $http.get('/resetpassword/'+ name + '/' + token)
+      getUser: function getUserMethod(username, user_token) {
+          return $http.get('/api/resetpassword/' + username + '/' + user_token)
           .success(function (data) {
             return data;
           });
@@ -12,10 +16,11 @@ app.factory('verification', function ($http, $window) {
             console.log(data.message);
           });
       },
-      updatePassword: function updatePasswordMethod(user, name, token, password) {
-          return $http.put('/api/resetpassword/'+ name + '/' + token).success(function (data) {
-            console.log('Success!');
-          });
+      updatePassword: function updatePasswordMethod(user) {
+        return $http.put('/api/resetpassword/'+ user.username + '/' + user.user_token, user)
+        .success(function (data) {
+          console.log('Success!');
+        });
       }
   };
 });
@@ -33,7 +38,7 @@ app.factory('search', function ($http) {
   return u;
 });
 
-app.factory('users',['$http', '$window', function($http, $window){
+app.factory('users', function ($http, $window) {
   var u = {
     users: []
   };
@@ -44,4 +49,4 @@ app.factory('users',['$http', '$window', function($http, $window){
     });
   };
   return u;
-}]);
+});

@@ -8,25 +8,42 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 var nodemailer = require('nodemailer');
 var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
+
+// MODELS
+// posts
 require('./server/models/Posts');
 require('./server/models/Comments');
+
+// shop
 require('./server/models/Items');
+require('./server/models/Videos');
+require('./server/models/Books');
+require('./server/models/Podcasts');
+require('./server/models/Transactions');
+require('./server/models/Customers');
+
+// user and groups
 require('./server/models/Users');
 require('./server/models/Languages');
 require('./server/models/Groups');
 require('./server/models/Gposts');
 require('./server/models/Gcomments');
-require('./server/models/Videos');
-require('./server/models/Books');
-require('./server/models/Podcasts');
+
+// messaging
 require('./server/models/Messages');
 require('./server/models/Conversations');
+
+// API CONTROLLERS 
 require('./server/controllers/authentication');
+require('./server/controllers/settings');
+require('./server/controllers/posts');
+require('./server/controllers/shop');
+require('./server/controllers/groups');
 require('./server/controllers/messaging');
 require('./server/controllers/settings');
-require('./server/controllers/shop');
-require('./server/config/passport');
 
+// CONFIG
+require('./server/config/passport');
 
 
 
