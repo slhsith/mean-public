@@ -39,7 +39,7 @@ app.factory('users',['$http', '$window', function($http, $window){
   };
   u.get = function (handle) {
     return $http.get('/api/user/handle/' + handle).success(function(data){
-      console.log(data);
+      // console.log(data);
       return data;
     });
   };

@@ -23,7 +23,12 @@ function($stateProvider, $urlRouterProvider) {
     .state('search', {
       url: '/search',
       templateUrl: 'search.html',
-      controller: 'SearchCtrl'
+      controller: 'SearchCtrl',
+      resolve: {
+        searchPromise: function($stateParams, search) {
+          return search.get($stateParams.query);
+        }
+      }
     })
     .state('userProfile', {
       url: '/user/:handle',

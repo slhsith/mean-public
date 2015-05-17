@@ -23,7 +23,12 @@ function($stateProvider, $urlRouterProvider) {
     .state('search', {
       url: '/search',
       templateUrl: 'search.html',
-      controller: 'SearchCtrl'
+      controller: 'SearchCtrl',
+      resolve: {
+        searchPromise: function($stateParams, search) {
+          return search.get($stateParams.query);
+        }
+      }
     })
     .state('userProfile', {
       url: '/user/:handle',
@@ -66,11 +71,13 @@ app.controller('ResetCtrl', function ($scope, $state, verification) {
   }; 
 });
 
-app.controller('SearchCtrl', function ($scope, search) {
+app.controller('SearchCtrl', function ($scope, search, searchPromise) {
+  $scope.user = searchPromise.data;
+  console.log(searchPromise);
   $scope.submitSearch = function (data) {
-    console.log($scope.search.query);
-    search.get($scope.search.query);
-    $scope.languages.push(data);
+    console.log($scope.search);
+    search.get($scope.search);
+    // $scope.users.push(data);
   };
 });
 
@@ -119,7 +126,7 @@ app.factory('users',['$http', '$window', function($http, $window){
   };
   u.get = function (handle) {
     return $http.get('/api/user/handle/' + handle).success(function(data){
-      console.log(data);
+      // console.log(data);
       return data;
     });
   };
