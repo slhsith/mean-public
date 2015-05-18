@@ -89,6 +89,17 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
+
+    .state('messenger', {
+      url: '/messenger',
+      templateUrl: 'messenger.html',
+      controller: 'MessengerCtrl',
+      resolve: {
+        conversationsPromise: function(messenger) {
+          return messenger.getAll();
+        }
+      }
+    })
     // .state('/gposts', {
     //   url: '/gposts/:gpost',
     //   templateUrl: 'gposts.html',

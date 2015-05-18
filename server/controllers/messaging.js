@@ -12,8 +12,12 @@ var
 exports.getConversations = function(req, res, next) {
 	// req.params.start
 	// req.params.end
-	Conversation.find({}, function (err, conversations) {
+	Conversation.find({})
+  .populate('messages')
+  .exec(function (err, conversations) {
+
 		if (err) { return next(err); }
+    console.log()
 		res.json(conversations);
 	});
 };
