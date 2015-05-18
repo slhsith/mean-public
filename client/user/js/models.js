@@ -334,3 +334,38 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   };
   return o;
 }]); 
+
+app.factory('messenger', function ($http, auth) {
+
+  var o = {
+    conversations: []
+  };
+
+  o.getAll = function() {
+    return $http.get('/api/conversations').success(function(data) {
+      console.log(data);
+      angular.copy(data, o.conversations);
+    });
+  };
+
+  o.get = function(id) {
+    return $http.get('/api/conversation/' + id).success(function(data) {
+      return data;
+    });
+  };
+
+  o.createConversation = function(convo) {
+    return $http.post('/api/conversation', convo).success(function(data) {
+      return data;
+    });
+  };
+
+  o.createMessage = function(convo, message) {
+    return $http.post('/api/conversation/' + convo._id, message).success(function(data) {
+      return data;
+    });
+  };
+
+  return o;
+
+});
