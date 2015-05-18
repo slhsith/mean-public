@@ -143,14 +143,14 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
     $scope.link = '';
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Group post",{"area":"groups", "page":"groupHome", "action":"post"});
+    mixpanel.track("Add Post",{"area":"groups", "page":"groupHome", "action":"post"});
     // mixpanel.track("User Dashboard: Add Post");
   };
   $scope.incrementUpvotes = function(post) {
     posts.upvote(post);
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Group upvotePost",{"area":"groups", "page":"groupHome", "action":"upvotePost"});
+    mixpanel.track("Upvote Post",{"area":"groups", "page":"groupHome", "action":"upvotePost"});
     // mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
@@ -172,13 +172,13 @@ app.controller('PostsCtrl', function ($scope, $state, posts, comments, auth, pos
     $scope.body = '';
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Group addComment",{"area":"groups", "page":"groupHome", "action":"comment"});
+    mixpanel.track("Add Comment",{"area":"groups", "page":"groupHome", "action":"comment"});
   };
   $scope.incrementUpvotes = function(comment){
     posts.upvoteComment(post, comment);
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Group upvoteComment",{"area":"groups", "page":"groupHome", "action":"comment"});
+    mixpanel.track("Upvote Comment",{"area":"groups", "page":"groupHome", "action":"comment"});
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 });
@@ -198,7 +198,7 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
    });
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Shop addItem",{"area":"shop", "page":"shop", "action":"create"});
+    mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
    // mixpanel.track("Shop Page: Added Item");
  };
 
@@ -206,7 +206,7 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
     items.upvoteItem(item);
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Shop upvoteItem",{"area":"shop", "page":"shop", "action":"upvote"});
+    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Shop Page: Upvoted Comment");
   };  
 
@@ -223,7 +223,7 @@ app.controller('ItemsCtrl', function ($scope, items, auth) {
     items.upvoteItem(item);
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Shop upvoteItem",{"area":"shop", "page":"shop", "action":"upvote"});
+    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Items Page: Upvoted Comment");
   };
 
@@ -243,7 +243,7 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
     transactions.purchase($scope.card);
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Shop Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});
+    mixpanel.track("Start Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});
     // mixpanel.track("Checkout: Purchase Item");
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
@@ -260,7 +260,7 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
     });
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Settings addLanguange",{"area":"settings", "page":"settings", "action":"add"});
+    mixpanel.track("Add Languange",{"area":"settings", "page":"settings", "action":"add"});
   };
   $scope.updateSettings = function() {
     console.log($scope.user);
@@ -283,7 +283,7 @@ function ($scope, groups, auth) {
     console.log($scope.group);
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Group add" {"area":"groups", "page":"groups", "action":"create"});
+    mixpanel.track("Add Group", {"area":"groups", "page":"groups", "action":"create"});
   };
   $scope.group = '';
   $scope.isLoggedIn = auth.isLoggedIn;
@@ -305,7 +305,7 @@ function ($scope, auth, groupsPromise, posts){
     $scope.body = '';
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("area:group, page:groupHome, action:post");
+    mixpanel.track("Add Post", {"area":"groups", "page":"groupHome", "action":"create"});
     // mixpanel.track("User Group: Add Post");
   };
   // $scope.addComment = function(){
