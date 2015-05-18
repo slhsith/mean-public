@@ -141,13 +141,17 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
     });
     $scope.title = '';
     $scope.link = '';
+    mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("User Dashboard: Add Post");
+    mixpanel.track("Group post",{"area":"groups", "page":"groupHome", "action":"post"});
+    // mixpanel.track("User Dashboard: Add Post");
   };
   $scope.incrementUpvotes = function(post) {
     posts.upvote(post);
+    mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("User Dashboard: Upvoted Comment");
+    mixpanel.track("Group upvotePost",{"area":"groups", "page":"groupHome", "action":"upvotePost"});
+    // mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 
@@ -166,9 +170,15 @@ app.controller('PostsCtrl', function ($scope, $state, posts, comments, auth, pos
       $scope.post.comments.push(comment);
     });
     $scope.body = '';
+    mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Group addComment",{"area":"groups", "page":"groupHome", "action":"comment"});
   };
   $scope.incrementUpvotes = function(comment){
     posts.upvoteComment(post, comment);
+    mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Group upvoteComment",{"area":"groups", "page":"groupHome", "action":"comment"});
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 });
@@ -186,14 +196,18 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
    }).error(function(){
        console.log('failure');
    });
-   mixpanel.identify($scope.user._id);
-   mixpanel.track("Shop Page: Added Item");
+    mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Shop addItem",{"area":"shop", "page":"shop", "action":"create"});
+   // mixpanel.track("Shop Page: Added Item");
  };
 
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
+    mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Shop Page: Upvoted Comment");
+    mixpanel.track("Shop upvoteItem",{"area":"shop", "page":"shop", "action":"upvote"});
+    // mixpanel.track("Shop Page: Upvoted Comment");
   };  
 
 });
@@ -207,8 +221,10 @@ app.controller('ItemsCtrl', function ($scope, items, auth) {
   $scope.item = items.item;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
+    mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Items Page: Upvoted Comment");
+    mixpanel.track("Shop upvoteItem",{"area":"shop", "page":"shop", "action":"upvote"});
+    // mixpanel.track("Items Page: Upvoted Comment");
   };
 
 });
@@ -225,8 +241,10 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
   $scope.startTrans = function () {
     console.log($scope.card);
     transactions.purchase($scope.card);
+    mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Checkout: Purchase Item");
+    mixpanel.track("Shop Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});
+    // mixpanel.track("Checkout: Purchase Item");
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
 });
@@ -240,12 +258,17 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
     languages.addLanguage($scope.language.name).success(function(data) {
     $scope.languages.push(data);
     });
+    mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Settings addLanguange",{"area":"settings", "page":"settings", "action":"add"});
   };
   $scope.updateSettings = function() {
     console.log($scope.user);
     settings.update($scope.user);
+    mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Settings: Update User");
+    mixpanel.track("Settings update",{"area":"settings", "page":"settings", "action":"update"});
+    // mixpanel.track("Settings: Update User");
   };
   $scope.user = userPromise.data;
   console.log(userPromise);
@@ -258,6 +281,9 @@ function ($scope, groups, auth) {
   $scope.addGroup = function(){
     groups.create($scope.group);
     console.log($scope.group);
+    mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Group add" {"area":"groups", "page":"groups", "action":"create"});
   };
   $scope.group = '';
   $scope.isLoggedIn = auth.isLoggedIn;
@@ -277,8 +303,10 @@ function ($scope, auth, groupsPromise, posts){
       author: $scope.currentUser
     });
     $scope.body = '';
+    mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("User Group: Add Post");
+    mixpanel.track("area:group, page:groupHome, action:post");
+    // mixpanel.track("User Group: Add Post");
   };
   // $scope.addComment = function(){
   //   console.log($scope.post);
