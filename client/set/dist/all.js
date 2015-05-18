@@ -1,12 +1,12 @@
 /*  ----------------  *
     APP MODULE - SET
  *  ----------------  */
-var app = angular.module('mainApp', ['ui.router','templates']);
+var app = angular.module('mainApp', ['ui.router','templates', 'uiGmapgoogle-maps']);
 
 app.config([
 '$stateProvider',
-'$urlRouterProvider',
-function($stateProvider, $urlRouterProvider) {
+'$urlRouterProvider','uiGmapGoogleMapApiProvider',
+function($stateProvider, $urlRouterProvider, uiGmapGoogleMapApiProvider) {
   $stateProvider
     .state('emailVerify', {
       url: '/emailverify/:username/:user_token',
@@ -37,6 +37,21 @@ function($stateProvider, $urlRouterProvider) {
           return search.get($stateParams.query);
         }
       }
+    })
+    .state('searchResults', {
+      url: '/search/:query',
+      templateUrl: 'search.html',
+      controller: 'SearchCtrl',
+      resolve: {
+        searchPromise: function($stateParams, search) {
+          return search.get($stateParams.query);
+        }
+      }
+    })
+    .state('mapResults', {
+      url: '/mapResults',
+      templateUrl: 'map.html',
+      controller: 'SearchCtrl'
     })
     .state('userProfile', {
       url: '/user/:handle',
@@ -81,13 +96,18 @@ app.controller('ResetCtrl', function ($scope, $state, verification) {
 });
 
 app.controller('SearchCtrl', function ($scope, search, searchPromise) {
-  $scope.user = searchPromise.data;
+  $scope.users = searchPromise.data;
   console.log(searchPromise);
   $scope.submitSearch = function (data) {
     console.log($scope.search);
     search.get($scope.search);
-    // $scope.users.push(data);
+    $scope.users.push(data);
   };
+  $scope.map = { center: { latitude: 45, longitude: -73 }, zoom: 8 };
+  var events = {
+    places_changed: function (searchBox) {}
+  };
+  $scope.searchbox = { template:'searchbox', events:events};
 });
 
 app.controller('UserCtrl', function ($scope, users, userPromise) {
