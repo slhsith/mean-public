@@ -29,13 +29,18 @@ app.controller('ResetCtrl', function ($scope, $state, verification) {
 });
 
 app.controller('SearchCtrl', function ($scope, search, searchPromise) {
-  $scope.user = searchPromise.data;
+  $scope.users = searchPromise.data;
   console.log(searchPromise);
   $scope.submitSearch = function (data) {
     console.log($scope.search);
     search.get($scope.search);
-    // $scope.users.push(data);
+    $scope.users.push(data);
   };
+  $scope.map = { center: { latitude: 45, longitude: -73 }, zoom: 8 };
+  var events = {
+    places_changed: function (searchBox) {}
+  };
+  $scope.searchbox = { template:'searchbox', events:events};
 });
 
 app.controller('UserCtrl', function ($scope, users, userPromise) {

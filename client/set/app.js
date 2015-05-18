@@ -1,12 +1,12 @@
 /*  ----------------  *
     APP MODULE - SET
  *  ----------------  */
-var app = angular.module('mainApp', ['ui.router','templates']);
+var app = angular.module('mainApp', ['ui.router','templates', 'uiGmapgoogle-maps']);
 
 app.config([
 '$stateProvider',
-'$urlRouterProvider',
-function($stateProvider, $urlRouterProvider) {
+'$urlRouterProvider','uiGmapGoogleMapApiProvider',
+function($stateProvider, $urlRouterProvider, uiGmapGoogleMapApiProvider) {
   $stateProvider
     .state('emailVerify', {
       url: '/emailverify/:username/:user_token',
@@ -37,6 +37,21 @@ function($stateProvider, $urlRouterProvider) {
           return search.get($stateParams.query);
         }
       }
+    })
+    .state('searchResults', {
+      url: '/search/:query',
+      templateUrl: 'search.html',
+      controller: 'SearchCtrl',
+      resolve: {
+        searchPromise: function($stateParams, search) {
+          return search.get($stateParams.query);
+        }
+      }
+    })
+    .state('mapResults', {
+      url: '/mapResults',
+      templateUrl: 'map.html',
+      controller: 'SearchCtrl'
     })
     .state('userProfile', {
       url: '/user/:handle',
