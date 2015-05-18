@@ -1,12 +1,12 @@
 <div class="page-header">
     <h3>
       <span>
-        {{gpost.body}}
+        {{post.body}}
       </span>
     </h3>
   </div>
 
-  <div ng-repeat="gcomment in gpost.gcomments | orderBy:'-upvotes'">
+<!--   <div ng-repeat="gcomment in gpost.gcomments | orderBy:'-upvotes'">
     <span class="glyphicon glyphicon-thumbs-up"
       ng-click="incrementUpvotes(gcomment)"></span>
       {{gcomment.upvotes}} - by {{gcomment.author}}
@@ -25,9 +25,8 @@
       ng-model="gcomment.body"></input>
     </div>
     <button type="submit" class="btn btn-primary">Post Comment</button>
-  </form>
+  </form> -->
 
-        <br />
       <div>
         <span>
           <a href="#/home">Home Page</a>

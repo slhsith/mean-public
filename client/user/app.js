@@ -19,16 +19,6 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
-    .state('post', {
-      url: '/post/:post',
-      templateUrl: 'posts.html',
-      controller: 'PostsCtrl',
-      resolve: {
-        postPromise: function($stateParams, posts) {
-          return posts.get($stateParams.post);
-        }
-      }
-    })
     .state('shop', {
       url: '/shop',
       templateUrl: 'shop.html',
@@ -86,6 +76,9 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         groupsPromise: function($stateParams, groups){
           return groups.get($stateParams.id);
+        },
+        postPromise: function(posts){
+          return posts.getAll();
         }
       }
     })
