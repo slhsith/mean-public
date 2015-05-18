@@ -201,3 +201,9 @@ function($scope, $stateParams, gposts, gcomments, auth){
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
+
+app.controller('MessengerCtrl', function($scope, messenger) {
+
+  $scope.conversations = messenger.conversations;
+
+});
