@@ -22,23 +22,30 @@ var
 //Methods
 exports.doRegistration = function(req, res, next) {
 	console.log(req.body);
+  var checkEmail = function () {
+    User.findOne({ username: req.body.username }, function (err, user, next) {
+      if (user){ Console.log('email exists'); return true; }
+      if (!user){ Console.log('email doesnt exists'); return false; }
+    });
+  };
 	if (!req.body.username || !req.body.password || !req.body.repeat_username || !req.body.repeat_password) {
 		return res.status(400).json({message: 'Please fill out all fields'});
 	} else if (req.body.username !== req.body.repeat_username) {
 		return res.status(400).json({message: 'Emails do not match'});
 	} else if (req.body.password !== req.body.repeat_password) {
 		return res.status(400).json({message: 'Passwords do not match'});
-	}
+	} else if (checkEmail){
+  return res.status(400).json({message: 'Email is in use'});
+  }
 
-	// var checkEmail = function () {
-	//   User.findOne({ username: req.body.username }, function (err, user) {
-	//     if (user){ Console.log('email exists'); return true; }
-	//     if (!user){ Console.log('email doesnt exists'); return false; }
-	//   });
-	// };
-	// if (checkEmail()){
-	// return res.status(400).json({message: 'Email is in use'});
-	// }
+  // User.findOne({ username: req.username}), function (err, user, next) {
+  //   if (!user) { next(); }
+  //   if (user) { res.status(400).json({message: 'Email in use'}); }
+  // }
+  
+
+	
+	
 
 	var user = new User();
 
@@ -78,13 +85,13 @@ exports.doLogin = function(req, res, next) {
     res.status(400).json({message: 'Please fill out all fields'});
   }
 
-  passport.authenticate(['local', 'facebook'], function(err, user, info) {
+  passport.authenticate(['local'], function(err, user, info) {
     if (err) { next(err); }
 
     if (user) {
       res.json({token: user.generateJWT()});
     } else {
-      res.status(401).json(info);
+      res.status(401).json({message: 'The email or passwword you entered is wrong, please verfiy your information and try again'});
     }
   })(req, res, next);
 };
