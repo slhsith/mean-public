@@ -21,8 +21,8 @@ function($stateProvider, $urlRouterProvider) {
     })
     .state('post', {
       url: '/post/:post',
-      templateUrl: 'posts.html',
-      controller: 'PostsCtrl',
+      templateUrl: 'post.html',
+      controller: 'PostCtrl',
       resolve: {
         postPromise: function($stateParams, posts) {
           return posts.get($stateParams.post);
@@ -95,6 +95,9 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
+        usersPromise: function(users) {
+          return users.getRange(0, 50);
+        },
         conversationsPromise: function(messenger) {
           return messenger.getAll();
         }
@@ -172,21 +175,24 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
 });
 
 
-app.controller('PostsCtrl', function ($scope, $state, posts, comments, auth, postPromise) {
-  $scope.post = postPromise;
-  $scope.comments = comments.comments;
-  $scope.addComment = function(){
-    if(!scope.body || $scope.body === '') { return; }
-    posts.addComment(posts.post._id, {
-      body: $scope.body,
-      author: 'user',
-    }).success(function(comment) {
-      $scope.post.comments.push(comment);
-    });
-    $scope.body = '';
+app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
+
+  $scope.post = postPromise.data;
+  $scope.comment = { 
+    post: $scope.post._id, 
+    body: null, 
+    author: $scope.user.username 
   };
-  $scope.incrementUpvotes = function(comment){
-    posts.upvoteComment(post, comment);
+
+  $scope.addComment = function() {
+    if (!$scope.comment.body || $scope.comment.body === '') { return; }
+    posts.addComment($scope.post, $scope.comment).success(function(comment) {
+      $scope.post.comments.push(comment);
+      $scope.comment.body = null;
+    });
+  };
+  $scope.incrementUpvotes = function(comment) {
+    posts.upvoteComment($scope.post, comment);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 });
@@ -329,9 +335,31 @@ function($scope, $stateParams, gposts, gcomments, auth){
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
-app.controller('MessengerCtrl', function($scope, messenger) {
+
+
+
+
+// ------ MESSENGER ---------- //
+// $scope.conversation at the level of the controller is focused convo
+// --> user initializes new blank conversation
+// --> when a conversation is focused from list, defaults to [0]th one
+// ---------------------------- //
+app.controller('MessengerCtrl', function($scope, messenger, users, usersPromise) {
 
   $scope.conversations = messenger.conversations;
+  $scope.users = usersPromise.data;
+  $scope.conversation = $scope.conversations[0];
+
+  $scope.createConversation = function() {
+    $scope.conversation = {};
+  };
+
+  $scope.searchUsers = function() {
+    users.search($scope.conversation.userQuery).success(function(data) {
+      $scope.conversation.userResult = data;
+      console.log($scope.conversation);
+    });
+  };
 
 });
 
@@ -340,7 +368,7 @@ app.controller('MessengerCtrl', function($scope, messenger) {
  *  ----------------  */
 
 // POSTS 
-app.factory('posts', ['$http', 'auth', function($http, auth){
+app.factory('posts', function($http, auth){
   var o = {
     posts: [],
     post: {}
@@ -351,6 +379,7 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
       angular.copy(data, o.posts);
     });
   };
+
   o.create = function(post) {
     return $http.post('/api/posts', post, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -360,7 +389,7 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
 
   };
   o.upvote = function(post) {
-    return $http.put('/api/posts/' + post._id + '/upvote', null, {
+    return $http.put('/api/post/' + post._id + '/upvote', null, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data){
       post.upvotes += 1;
@@ -371,20 +400,21 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
       return data;
     });
   };
-  o.addComment = function(id, comment) {
-    return $http.post('/api/posts/' + id + '/comments', comment, {
+  o.addComment = function(post, comment) {
+    console.log(post, comment);
+    return $http.post('/api/post/' + post._id + '/comments', comment, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
   o.upvoteComment = function(post, comment) {
-    return $http.put('/api/posts/' + post._id + '/comments/'+ comment._id + '/upvote', null, {
+    return $http.put('/api/post/' + post._id + '/comment/'+ comment._id + '/upvote', null, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data){
       comment.upvotes += 1;
     });
   };
   return o;
-}]);
+});
 
 // COMMENTS
 app.factory('comments', ['$http', 'auth', function($http, auth){
@@ -567,6 +597,7 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   
   return lang; 
 }]);
+
 app.factory('settings', ['$http', '$window', function($http, $window){
    var s = { settings : {} };
    s.getAll = function (){
@@ -588,6 +619,30 @@ app.factory('settings', ['$http', '$window', function($http, $window){
    };
    return s;
 }]);
+
+app.factory('users', function($http, $window) {
+  var u = { users: [] };
+
+  u.getAll = function() {
+    return $http.get('/api/users').success(function(data) {
+      angular.copy(data, u.users);
+    });
+  };
+
+  u.getRange = function(start, end) {
+    return $http.get('/api/users/' + start + '/' + end).success(function(data) {
+      return data;
+    });
+  };
+
+  u.search = function(query) {
+    return $http.get('/api/users/search/' + query).success(function(data) {
+      return data;
+    });
+  };
+
+  return u;
+});
 
 
 // GROUPS

@@ -5,28 +5,56 @@
   </div>
 
   <div class="row">
-    <div class="col-xs-3">
-      <form ng-submit="searchConversations()">
-        <div class="form-group">
-          <input type="text"
-          class="form-control"
-          placeholder="Search"
-          ng-model="conversation.query"></input>
-        </div>
-        <button type="submit" class="btn btn-primary">Find</button>
-      </form>
+    <!-- left column -->
+    <div class="col-sm-4">
 
-      <div ng-repeat="conversation in conversations"> <!-- order by latest touched -->
-        <div class="col-xs-4">Profile Pic</div>
-        <div class="col-xs-8">{{conversation.messages[0].f_name + ' ' + conversation.messages[0].l_name}}
+      <div class="col-sm-10">
+        <form ng-submit="searchConversations()" class="form-inline">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Search" ng-model="conversation.query"></input>
+              <span class="input-group-btn">
+                <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
+              </span>
+            </div>
+        </form>
+      </div>
+      <div class="col-sm-2">
+        <button type="button" class="btn btn-primary" ng-click="createConversation()"><i class="fa fa-comment-o"></i></button>
+      </div>
+
+      <div class="col-sm-12" ng-repeat="conversation in conversations" style="border-bottom: 1px solid black"> <!-- order by latest touched -->
+        <div class="col-sm-2">Pic</div>
+        <div class="col-sm-10">name {{conversation.messages[0].f_name + ' ' + conversation.messages[0].l_name}}
           <br/>{{conversation.messages[0].body | limitTo: 40}}
         </div>
       </div>
+    </div> <!-- /end left column -->
 
-    </div>
+    <!-- right column -->
+    <div class="col-sm-8" ng-show="conversation">
+      <!-- recipients -->
+      <div class="col-sm-12">
+        To: <span ng-repeat="user in conversation.users" style="background-color: lightgray">{{user.f_name}} </span>
+      </div>
+      <!-- add users to conversation -->
+        <!-- search for people to message -->
+        <form name="userSearchForm" class="form-horizontal" ng-submit="findUsers()" novalidate/>
+          <div class="form-group">
+            <div class="col-sm-11">
+              <input type="text" class="form-control" placeholder="No recipients" ng-model="conversation.userQuery" ng-blur="searchUsers()">
+            </div>
+          </div>
+          <button class="btn btn-primary"><i class="fa fa-plus"></i></button>
+        </form>
+      <div class="col-sm-12" ng-repeat="user in users">
 
-    <div class="col-xs-9">
-      <div> Pic | Full Name | Online?</div>
+      </div>
+      <!-- search results of people to add to conversation -->
+      <div class="col-sm-12" ng-repeat="user in conversation.userResult">
+        <div class="col-sm-1">Pic</div>
+        <div class="col-sm-10">{{user.f_name}}</div>
+        <div class="col-sm-1">
+      </div>
 
       <div ng-repeat="message in conversation.messages">
         {{message.body}}
@@ -34,14 +62,12 @@
       </div>
 
       <form name="messageForm" ng-submit="createMessage()" novalidate/>
-        <div class="form-group">
-          <input type="text"
-          class="form-control"
-          placeholder="message"
-          ng-model="conversation.message.body">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="message" ng-model="conversation.message.body">
+          <span class="input-group-btn"> <button type="submit" class="btn btn-primary">Send</button> </span>
         </div>
-        <button type="submit" class="btn btn-primary">Send</button>
       </form>
 
-    </div>
-  </div>
+    </div> <!-- /end right column -->
+
+  </div> <!-- /end row -->
