@@ -45,9 +45,9 @@ router.post('/api/posts', auth, posts.createPost );
 router.param('/api/post', posts.getPostByIdParam );
 router.get('/api/post/:post', posts.getPostById )
 
-router.put('/api/posts/:post/upvote', auth, posts.upvotePost )
-router.post('/api/posts/:post/comments', auth, posts.createComment )
-router.put('/api/posts/:post/comments/:comment/upvote', auth, posts.upvoteComment )
+router.put('/api/post/:post/upvote', auth, posts.upvotePost )
+router.post('/api/post/:post/comments', auth, posts.createComment )
+router.put('/api/post/:post/comment/:comment/upvote', auth, posts.upvoteComment )
 router.param('comment', posts.getCommentByIdParam )
 
 
@@ -114,7 +114,7 @@ router.put('/api/settings', settings.updateSettings );
 router.get('/api/search/:query', settings.submitSearch );
 
 //get users
-router.get('/api/users', settings.getUsers );
+router.get('/api/users/:start/:end', settings.getUsers );
 router.get('/api/user/:id', settings.getUserById );
 //for public profiles
 router.get('/api/user/handle/:handle', settings.getUserByHandle );

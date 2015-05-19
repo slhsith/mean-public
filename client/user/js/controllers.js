@@ -45,21 +45,24 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
 });
 
 
-app.controller('PostsCtrl', function ($scope, $state, posts, comments, auth, postPromise) {
-  $scope.post = postPromise;
-  $scope.comments = comments.comments;
-  $scope.addComment = function(){
-    if(!scope.body || $scope.body === '') { return; }
-    posts.addComment(posts.post._id, {
-      body: $scope.body,
-      author: 'user',
-    }).success(function(comment) {
-      $scope.post.comments.push(comment);
-    });
-    $scope.body = '';
+app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
+
+  $scope.post = postPromise.data;
+  $scope.comment = { 
+    post: $scope.post._id, 
+    body: null, 
+    author: $scope.user.username 
   };
-  $scope.incrementUpvotes = function(comment){
-    posts.upvoteComment(post, comment);
+
+  $scope.addComment = function() {
+    if (!$scope.comment.body || $scope.comment.body === '') { return; }
+    posts.addComment($scope.post, $scope.comment).success(function(comment) {
+      $scope.post.comments.push(comment);
+      $scope.comment.body = null;
+    });
+  };
+  $scope.incrementUpvotes = function(comment) {
+    posts.upvoteComment($scope.post, comment);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 });
@@ -202,8 +205,30 @@ function($scope, $stateParams, gposts, gcomments, auth){
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
-app.controller('MessengerCtrl', function($scope, messenger) {
+
+
+
+
+// ------ MESSENGER ---------- //
+// $scope.conversation at the level of the controller is focused convo
+// --> user initializes new blank conversation
+// --> when a conversation is focused from list, defaults to [0]th one
+// ---------------------------- //
+app.controller('MessengerCtrl', function($scope, messenger, users, usersPromise) {
 
   $scope.conversations = messenger.conversations;
+  $scope.users = usersPromise.data;
+  $scope.conversation = $scope.conversations[0];
+
+  $scope.createConversation = function() {
+    $scope.conversation = {};
+  };
+
+  $scope.searchUsers = function() {
+    users.search($scope.conversation.userQuery).success(function(data) {
+      $scope.conversation.userResult = data;
+      console.log($scope.conversation);
+    });
+  };
 
 });
