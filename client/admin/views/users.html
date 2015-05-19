@@ -29,6 +29,14 @@
 	  	<td>Handle</td> 
 	    <td>{{user.handle}}</td>
 	  </tr>
+	  <tr>
+	  	<td>Created On</td> 
+	    <td>{{user.created}}</td>
+	  </tr>
+	  <tr>
+	  	<td>Permissions</td> 
+	    <td>{{user.permissions}}</td>
+	  </tr>
 	</table>
 </div>
 <div ng-show="view">
@@ -59,6 +67,10 @@
 	  <tr>
 	  	<td>Handle</td> 
 	    <td><input ng-model="user.handle" style="width:100%;"></td>
+	  </tr>
+	  <tr>
+	  	<td>Handle</td> 
+	    <td><input ng-model="user.permissions" style="width:100%;"></td>
 	  </tr>
 	</table>
 	<button type="submit" class="btn btn-primary" ng-click="view = !view">Update</button>

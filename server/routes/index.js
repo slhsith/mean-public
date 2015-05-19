@@ -89,7 +89,6 @@ router.post('/api/gposts/:gpost/gcomments', auth, groups.createGPostComment );
 router.put('/api/gposts/:gpost/gcomments/:gcomment/upvote', auth, groups.upvoteGPostComment );
 router.param('gcomment', groups.getGPostCommentByIdParam );
 
-
 // ----------------------- AUTHENTICATION   ----------------------------------//
 router.post('/api/register', authentication.doRegistration );
 router.post('/api/login', authentication.doLogin );
