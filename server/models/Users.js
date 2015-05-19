@@ -2,20 +2,20 @@ var mongoose = require('mongoose');
 var crypto = require('crypto');
 var jwt = require('jsonwebtoken');
 var UserSchema = new mongoose.Schema({
-  username: {type: String, lowercase: true, unique: true},
+  username: { type: String, lowercase: true, unique: true },
   hash: String,
   salt: String,
   permissions: String,
   confirmation: Boolean,
-  user_token: {type: String, lowercase: true, unique: true},
+  user_token: { type: String, lowercase: true, unique: true },
   languages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Language' }],
   f_name: String,
   l_name: String,
   address: String,
   dob: String,
-  handle: {type: String, unique: true},
+  handle: { type: String, unique: true },
   stripeToken: String,
-  created: Date
+  created: { type: Date, default: Date.now }
 });
 
 UserSchema.methods.setPassword = function(password){

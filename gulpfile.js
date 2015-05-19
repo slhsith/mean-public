@@ -189,7 +189,7 @@ gulp.task('start', function () {
   nodemon({
     ext: 'js html'
   })
-})
+});
 
 // Default Task
 gulp.task('default', ['lint', 'scripts', 'userscripts', 'adminscripts', 'setscripts', 'styles', 'userstyles', 'adminstyles', 'setstyles', 'markup', 'usermarkup', 'adminmarkup', 'setmarkup', 'server', 'start', 'watch']);
