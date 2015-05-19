@@ -21,8 +21,8 @@ function($stateProvider, $urlRouterProvider) {
     })
     .state('post', {
       url: '/post/:post',
-      templateUrl: 'posts.html',
-      controller: 'PostsCtrl',
+      templateUrl: 'post.html',
+      controller: 'PostCtrl',
       resolve: {
         postPromise: function($stateParams, posts) {
           return posts.get($stateParams.post);
@@ -95,6 +95,9 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
+        usersPromise: function(users) {
+          return users.getRange(0, 50);
+        },
         conversationsPromise: function(messenger) {
           return messenger.getAll();
         }
