@@ -14,6 +14,7 @@ exports.getConversations = function(req, res, next) {
 	// req.params.end
 	Conversation.find({})
   .populate('messages')
+  .populate('users')
   .exec(function (err, conversations) {
 
 		if (err) { return next(err); }
@@ -24,7 +25,7 @@ exports.getConversations = function(req, res, next) {
 
 exports.getConversationById = function(req, res, next) {
 	// req.params.id
-	Conversation.findOne({ _id: req.param.id })
+	Conversation.findOne({ _id: req.params.id })
 	.populate('users')
 	.populate('messages')
 	.exec(function(err, conversation) {
@@ -46,11 +47,16 @@ exports.createConversation = function(req, res, next) {
 };
 
 exports.createMessage = function(req, res, next) {
+  console.log('message for', req.body, req.payload);
   var message = new Message(req.body);
-  message.author = req.payload.username;
+  // message.user = req.payload._id;
+  // message.conversation = req.params.id;
 
-  message.save(function(err, message){
+  message.save(function(err, message) {
     if (err) { return next(err); }
-    res.json(message);
+    Conversation.findByIdAndModify(req.params.id, {$push: {messages: message._id}}, function(err, convo) {
+
+    });
+    return res.json(message);
   });
 };

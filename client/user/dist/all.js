@@ -351,7 +351,17 @@ app.controller('MessengerCtrl', function($scope, messenger, users, usersPromise)
   $scope.conversation = $scope.conversations[0];
 
   $scope.createConversation = function() {
-    $scope.conversation = {};
+    $scope.conversation = { users: [] };
+  };
+
+  $scope.createMessage = function() {
+    var message = $scope.conversation.message;
+    message.user = $scope.user._id;
+    message.conversation = $scope.conversation._id;
+    messenger.createMessage($scope.conversation, $scope.conversation.message).success(function(data) {
+      $scope.conversation.messages.push(data);
+    });
+
   };
 
   $scope.searchUsers = function() {
@@ -359,6 +369,10 @@ app.controller('MessengerCtrl', function($scope, messenger, users, usersPromise)
       $scope.conversation.userResult = data;
       console.log($scope.conversation);
     });
+  };
+
+  $scope.addToConversation = function(user) {
+    $scope.conversation.users.push(user._id);
   };
 
 });
@@ -753,7 +767,8 @@ app.factory('messenger', function ($http, auth) {
   };
 
   o.createMessage = function(convo, message) {
-    return $http.post('/api/conversation/' + convo._id, message).success(function(data) {
+    console.log('convo', convo, 'message', message);
+    return $http.post('/api/conversation/' + convo._id + '/messages', message).success(function(data) {
       return data;
     });
   };

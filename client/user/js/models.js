@@ -388,7 +388,8 @@ app.factory('messenger', function ($http, auth) {
   };
 
   o.createMessage = function(convo, message) {
-    return $http.post('/api/conversation/' + convo._id, message).success(function(data) {
+    console.log('convo', convo, 'message', message);
+    return $http.post('/api/conversation/' + convo._id + '/messages', message).success(function(data) {
       return data;
     });
   };
