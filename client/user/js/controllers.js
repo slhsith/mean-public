@@ -34,14 +34,14 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
     $scope.link = '';
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Post",{"area":"groups", "page":"groupHome", "action":"post"});
+    mixpanel.track("Add Post",{"area":"group", "page":"groupHome", "action":"create"});
     // mixpanel.track("User Dashboard: Add Post");
   };
   $scope.incrementUpvotes = function(post) {
     posts.upvote(post);
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Upvote Post",{"area":"groups", "page":"groupHome", "action":"upvotePost"});
+    mixpanel.track("Upvote Post",{"area":"group", "page":"groupHome", "action":"upvote"});
     // mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
@@ -63,13 +63,13 @@ app.controller('PostsCtrl', function ($scope, $state, posts, comments, auth, pos
     $scope.body = '';
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Comment",{"area":"groups", "page":"groupHome", "action":"comment"});
+    mixpanel.track("Add Comment",{"area":"group", "page":"groupHome", "action":"comment"});
   };
   $scope.incrementUpvotes = function(comment){
     posts.upvoteComment(post, comment);
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Upvote Comment",{"area":"groups", "page":"groupHome", "action":"comment"});
+    mixpanel.track("Upvote Comment",{"area":"group", "page":"groupHome", "action":"comment"});
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 });
@@ -174,7 +174,7 @@ function ($scope, groups, auth) {
     console.log($scope.group);
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Group", {"area":"groups", "page":"groups", "action":"create"});
+    mixpanel.track("Add Group", {"area":"group", "page":"groups", "action":"create"});
   };
   $scope.group = '';
   $scope.isLoggedIn = auth.isLoggedIn;
@@ -196,7 +196,7 @@ function ($scope, auth, groupsPromise, posts){
     $scope.body = '';
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Post", {"area":"groups", "page":"groupHome", "action":"create"});
+    mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
     // mixpanel.track("User Group: Add Post");
   };
   // $scope.addComment = function(){
