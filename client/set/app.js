@@ -6,7 +6,7 @@ var app = angular.module('mainApp', ['ui.router','templates', 'uiGmapgoogle-maps
 app.config([
 '$stateProvider',
 '$urlRouterProvider','uiGmapGoogleMapApiProvider',
-function($stateProvider, $urlRouterProvider, uiGmapGoogleMapApiProvider) {
+function($stateProvider, $urlRouterProvider, GoogleMapApi) {
   $stateProvider
     .state('emailVerify', {
       url: '/emailverify/:username/:user_token',
@@ -51,7 +51,7 @@ function($stateProvider, $urlRouterProvider, uiGmapGoogleMapApiProvider) {
     .state('mapResults', {
       url: '/mapResults',
       templateUrl: 'map.html',
-      controller: 'SearchCtrl'
+      controller: 'MapCtrl'
     })
     .state('userProfile', {
       url: '/user/:handle',
@@ -64,4 +64,9 @@ function($stateProvider, $urlRouterProvider, uiGmapGoogleMapApiProvider) {
       }
     });
   // $urlRouterProvider.otherwise('home');
+GoogleMapApi.configure({
+    // key: 'your api key',
+    v: '3.17',
+    libraries: 'places'
+  });
 }]);

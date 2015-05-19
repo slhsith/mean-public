@@ -36,11 +36,18 @@ app.controller('SearchCtrl', function ($scope, search, searchPromise) {
     search.get($scope.search);
     $scope.users.push(data);
   };
-  $scope.map = { center: { latitude: 45, longitude: -73 }, zoom: 8 };
+});
+
+app.controller('MapCtrl', function ($scope) {
   var events = {
     places_changed: function (searchBox) {}
+  }
+  $scope.map = { 
+    center: { latitude: 45, longitude: -73 }, 
+    zoom: 8,
+    options: {scrollwheel: false},
+    searchbox: { template:'searchbox.tpl.html', events:events}
   };
-  $scope.searchbox = { template:'searchbox', events:events};
 });
 
 app.controller('UserCtrl', function ($scope, users, userPromise) {
