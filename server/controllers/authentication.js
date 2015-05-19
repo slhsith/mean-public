@@ -28,7 +28,7 @@ exports.doRegistration = function(req, res, next) {
       // if (!user){ Console.log('email doesnt exists'); return false; }
     });
   };
-	if (!req.body.username || !req.body.password || !req.body.repeat_username || !req.body.repeat_password) {
+	if (!req.body.f_name || !req.body.l_name || !req.body.handle || !req.body.username || !req.body.password || !req.body.repeat_username || !req.body.repeat_password) {
 		return res.status(400).json({message: 'Please fill out all fields'});
 	} else if (req.body.username !== req.body.repeat_username) {
 		return res.status(400).json({message: 'Emails do not match'});
@@ -49,6 +49,9 @@ exports.doRegistration = function(req, res, next) {
 
 	var user = new User();
 
+  user.f_name = req.body.f_name;
+  user.l_name = req.body.l_name;
+  user.handle = req.body.handle;
 	user.username = req.body.username;
 	user.setPassword(req.body.password);
 	user.generateUserToken();

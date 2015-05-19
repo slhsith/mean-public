@@ -69,7 +69,7 @@ app.controller('PostsCtrl', function ($scope, $state, posts, comments, auth, pos
     posts.upvoteComment(post, comment);
     mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Upvote Comment",{"area":"group", "page":"groupHome", "action":"comment"});
+    mixpanel.track("Upvote Comment",{"area":"group", "page":"groupHome", "action":"upvote"});
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 });
