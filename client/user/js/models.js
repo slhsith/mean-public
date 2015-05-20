@@ -3,7 +3,7 @@
  *  ----------------  */
 
 // POSTS 
-app.factory('posts', ['$http', 'auth', function($http, auth){
+app.factory('posts', function($http, auth){
   var o = {
     posts: [],
     post: {}
@@ -14,6 +14,7 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
       angular.copy(data, o.posts);
     });
   };
+
   o.create = function(post) {
     console.log(post);
 
@@ -23,7 +24,7 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
 
   };
   o.upvote = function(post) {
-    return $http.put('/api/posts/' + post._id + '/upvote', null, {
+    return $http.put('/api/post/' + post._id + '/upvote', null, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data){
       post.upvotes += 1;
@@ -35,20 +36,23 @@ app.factory('posts', ['$http', 'auth', function($http, auth){
       return data;
     });
   };
-  // o.addComment = function(id, comment) {
-  //   return $http.post('/api/posts/' + id + '/comments', comment, {
-  //     headers: {Authorization: 'Bearer '+auth.getToken()}
-  //   });
-  // };
-  // o.upvoteComment = function(post, comment) {
-  //   return $http.put('/api/posts/' + post._id + '/comments/'+ comment._id + '/upvote', null, {
-  //     headers: {Authorization: 'Bearer '+auth.getToken()}
-  //   }).success(function(data){
-  //     comment.upvotes += 1;
-  //   });
-  // };
+
+  o.addComment = function(post, comment) {
+    console.log(post, comment);
+    return $http.post('/api/post/' + post._id + '/comments', comment, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  o.upvoteComment = function(post, comment) {
+    return $http.put('/api/post/' + post._id + '/comment/'+ comment._id + '/upvote', null, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      comment.upvotes += 1;
+    });
+  };
+
   return o;
-}]);
+});
 
 // COMMENTS
 app.factory('comments', ['$http', 'auth', function($http, auth){
@@ -231,6 +235,7 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   
   return lang; 
 }]);
+
 app.factory('settings', ['$http', '$window', function($http, $window){
    var s = { settings : {} };
    s.getAll = function (){
@@ -252,6 +257,30 @@ app.factory('settings', ['$http', '$window', function($http, $window){
    };
    return s;
 }]);
+
+app.factory('users', function($http, $window) {
+  var u = { users: [] };
+
+  u.getAll = function() {
+    return $http.get('/api/users').success(function(data) {
+      angular.copy(data, u.users);
+    });
+  };
+
+  u.getRange = function(start, end) {
+    return $http.get('/api/users/' + start + '/' + end).success(function(data) {
+      return data;
+    });
+  };
+
+  u.search = function(query) {
+    return $http.get('/api/users/search/' + query).success(function(data) {
+      return data;
+    });
+  };
+
+  return u;
+});
 
 
 // GROUPS
@@ -324,14 +353,51 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
 //   return o;
 // }]);
 
-// app.factory('gcomments', ['$http', 'auth', function($http, auth){
-//   var o = {
-//     gcomments: []
-//   };  
-//   o.getAll = function() {
-//     return $http.get('/api/gcomments').success(function(data){
-//       angular.copy(data, o.gcomments);
-//     });
-//   };
-//   return o;
-// }]); 
+
+app.factory('gcomments', ['$http', 'auth', function($http, auth){
+  var o = {
+    gcomments: []
+  };  
+  o.getAll = function() {
+    return $http.get('/api/gcomments').success(function(data){
+      angular.copy(data, o.gcomments);
+    });
+  };
+  return o;
+}]); 
+
+app.factory('messenger', function ($http, auth) {
+
+  var o = {
+    conversations: []
+  };
+
+  o.getAll = function() {
+    return $http.get('/api/conversations').success(function(data) {
+      console.log(data);
+      angular.copy(data, o.conversations);
+    });
+  };
+
+  o.get = function(id) {
+    return $http.get('/api/conversation/' + id).success(function(data) {
+      return data;
+    });
+  };
+
+  o.createConversation = function(convo) {
+    return $http.post('/api/conversation', convo).success(function(data) {
+      return data;
+    });
+  };
+
+  o.createMessage = function(convo, message) {
+    return $http.post('/api/conversation/' + convo._id, message).success(function(data) {
+      return data;
+    });
+  };
+
+  return o;
+
+});
+

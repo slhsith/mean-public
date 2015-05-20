@@ -29,7 +29,8 @@ exports.getItems = function(req, res, next) {
 };
 
 exports.postItem = function(req, res, next) {
-   var item = new Item(req.body);
+  var item = new Item(req.body);
+  console.log(item);
   item.author = req.payload.username;
   item.save(function(err, item){
   if (err) { return next(err); }

@@ -41,31 +41,15 @@ module.exports = router;
 
 // ------------------------ POSTS and COMMENTS  ------------------------------//
 router.get('/api/posts', posts.getPosts );
-router.post('/api/posts', function (req, res, next) {
-  var post = new Post(req.body);
-  post.save(function(err, post){
-    // if(err){ return next(err); }
-    res.json(post);
-  });
-});
 
-router.param('/api/post', function(req, res, next, id) {
-  var query = Post.findById(id);
-
-  query.exec(function (err, post){
-    if (err) { return next(err); }
-    if (!post) { return next(new Error('can\'t find post')); }
-
-    req.post = post;
-    return next();
-  });
-});
+router.post('/api/posts', auth, posts.createPost );
+router.param('/api/post', posts.getPostByIdParam );
 
 router.get('/api/post/:post', posts.getPostById )
-router.put('/api/posts/:post/upvote', auth, posts.upvotePost )
 
-router.post('/api/posts/:post/comments', auth, posts.createComment )
-router.put('/api/posts/:post/comments/:comment/upvote', auth, posts.upvoteComment )
+router.put('/api/post/:post/upvote', auth, posts.upvotePost )
+router.post('/api/post/:post/comments', auth, posts.createComment )
+router.put('/api/post/:post/comment/:comment/upvote', auth, posts.upvoteComment )
 router.param('comment', posts.getCommentByIdParam )
 
 
@@ -107,7 +91,6 @@ router.param('/api/group', groups.getGroupByIdParam );
 // router.put('/api/gposts/:gpost/gcomments/:gcomment/upvote', auth, groups.upvoteGPostComment );
 // router.param('gcomment', groups.getGPostCommentByIdParam );
 
-
 // ----------------------- AUTHENTICATION   ----------------------------------//
 router.post('/api/register', authentication.doRegistration );
 router.post('/api/login', authentication.doLogin );
@@ -132,7 +115,7 @@ router.put('/api/settings', settings.updateSettings );
 router.get('/api/search/:query', settings.submitSearch );
 
 //get users
-router.get('/api/users', settings.getUsers );
+router.get('/api/users/:start/:end', settings.getUsers );
 router.get('/api/user/:id', settings.getUserById );
 //for public profiles
 router.get('/api/user/handle/:handle', settings.getUserByHandle );
