@@ -66,20 +66,20 @@ exports.submitSearch = function (req, res, next) {
 
 //get users paginated from start to end
 exports.getUsers = function (req, res, next) {
-  // paginate by start and end params
-  var from = req.params.start,
-      to   = req.params.end;
-      console.log(req.params);
+ // paginate by start and end params
+ var from = req.params.start || 0,
+     to   = req.params.end || 20;
+     console.log(req.params);
 
-  // if (err) { return next(err); }
-  User
-    .find({})
-    .skip(from)
-    .limit(to)
-    .exec(function(err, users) {
-      if (err) { return next(err); } 
-      res.json(users);
-    });
+ // if (err) { return next(err); }
+ User
+   .find({})
+   .skip(from)
+   .limit(to)
+   .exec(function(err, users) {
+     if (err) { return next(err); } 
+     res.json(users);
+   });
 };
 
 exports.getUserById = function (req, res, next) {
