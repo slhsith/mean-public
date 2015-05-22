@@ -110,6 +110,7 @@ app.controller('SearchCtrl', function ($scope, search, searchPromise) {
   };
 });
 
+
 // app.controller('MapCtrl', function ($scope) {
 //   var events = {
 //     places_changed: function (searchBox) {}

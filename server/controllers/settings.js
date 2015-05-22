@@ -64,14 +64,28 @@ exports.submitSearch = function (req, res, next) {
   });
 };
 
-//get users paginated from start to end
-exports.getUsers = function (req, res, next) {
- // paginate by start and end params
- var from = req.params.start || 0,
-     to   = req.params.end || 20;
-     console.log(req.params);
 
- // if (err) { return next(err); }
+//get all users 
+exports.getUsers = function (req, res, next) {
+  console.log('getting users');
+  // if (err) { return next(err); }
+  User
+    .find({})
+    .limit(10)
+    .exec(function(err, users) {
+      if (err) { return next(err); } 
+      res.json(users);
+    });
+};
+
+//get users paginated from start to end
+exports.getUsersByPage = function (req, res, next) {
+  // paginate by start and end params
+  var from = req.params.start || 0,
+      to   = req.params.end || 20;
+      console.log(req.params);
+
+ if (err) { return next(err); }
  User
    .find({})
    .skip(from)
