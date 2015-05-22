@@ -113,7 +113,8 @@ router.put('/api/settings', settings.updateSettings );
 router.get('/api/search/:query', settings.submitSearch );
 
 //get users
-router.get('/api/users/:start/:end', settings.getUsers );
+router.get('/api/users', settings.getUsers );
+router.get('/api/users/:start/:end', settings.getUsersByPage );
 router.get('/api/user/:id', settings.getUserById );
 //for public profiles
 router.get('/api/user/handle/:handle', settings.getUserByHandle );
