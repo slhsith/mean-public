@@ -176,6 +176,7 @@ mixpanel.init("08314cf925efc4376a17217e8922cd22");</script><!-- end Mixpanel -->
  <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
  <script src="dist/all.min.js"></script>
  <script src="dist/templates.js"></script>
+ <div id="fb-root"></div>
  <script>
       window.fbAsyncInit = function() {
         FB.init({
@@ -191,7 +192,7 @@ mixpanel.init("08314cf925efc4376a17217e8922cd22");</script><!-- end Mixpanel -->
          var js, fjs = d.getElementsByTagName(s)[0];
          if (d.getElementById(id)) {return;}
          js = d.createElement(s); js.id = id;
-         js.src = "//connect.facebook.net/en_US/sdk.js/debug.js";
+         js.src = "//connect.facebook.net/en_US/sdk.js";
          fjs.parentNode.insertBefore(js, fjs);
        }(document, 'script', 'facebook-jssdk'));
   </script>

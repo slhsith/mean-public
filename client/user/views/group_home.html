@@ -2,13 +2,13 @@
         <h1>Group Wall  || {{group.name}}</h1>
 
       </div>
-      <div ng-repeat="post in posts">
+      <div ng-repeat="gpost in gposts">
 <!--         <span class="glyphicon glyphicon-thumbs-up"
           ng-click="incrementUpvotes(gpost)"></span>
             {{gpost.upvotes}} -->
         <div>
-          <span style="font-size:18px;">{{post.body}}</span>
-          <span style="font-size:12px;">By {{post.author}}</span>
+          <span style="font-size:18px;">{{gpost.body}}</span>
+          <span style="font-size:12px;">By {{gpost.author}}</span>
         </div>
 <!--         <span style="font-size:10px;">
           {{post.comment.body}}
@@ -30,8 +30,7 @@
         </div> -->
       </div>
 
-      <form ng-submit="addPost()"
-        ng-show="isLoggedIn()"
+      <form ng-submit="addGpost()"
         style="margin-top:30px; border-top: 1px; border-style: solid; border-bottom:none; border-left: none; border-right:none; padding-top: 1px;  border-color: #eee">
 
         <h3>Post to Group</h3>
@@ -40,7 +39,7 @@
           <input type="text"
             class="form-control"
             placeholder="Post Body"
-            ng-model="post.body">
+            ng-model="gpost.body">
           </input>
         </div>
         <button type="submit" class="btn btn-primary">Post</button>

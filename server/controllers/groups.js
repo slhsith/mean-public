@@ -30,7 +30,7 @@ exports.getGroupById = function (req, res, next) {
  var _id = req.params.id;
  Group.findById(_id, function(err, group) {
   console.log(group);
-   res.json(group);
+  res.json(group);
  })
 };
 
@@ -46,13 +46,13 @@ exports.getGroupByIdParam = function(req, res, next, id) {
   });
 };
 
-// exports.getPosts = function(req, res, next) {
-//   Post.find({}, function(err, posts){
-//     if(err){ return next(err); }
+exports.getPosts = function(req, res, next) {
+  Post.find({}, function(err, posts){
+    if(err){ return next(err); }
 
-//     res.json(posts);
-//   });
-// };
+    res.json(posts);
+  });
+};
 
 exports.createPost = function(req, res, next) {
   var post = new post(req.body);

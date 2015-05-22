@@ -1,7 +1,6 @@
 var app = angular.module('mainApp', ['templates']);
 app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, auth) {
   $scope.user = {};
-  $scope.facebookService = {};
   $scope.register = function () {
     auth.register($scope.user).error(function (error) {
       $scope.error = error;
@@ -35,22 +34,14 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
     // mixpanel.track("HomePage: Reset Password, Submit Email");
   };
 
+  // $scope.facebook = function () {
+  //   auth.facebook();
+  // };
+
   // $scope.getMyLastName = function () {
   //  facebookService.getMyLastName() 
   //    .then(function(response) {
   //      $scope.last_name = response.user.l_name;
-  //    });
-  //  };
-  // $scope.getMyFirstName = function () {
-  //  facebookService.getMyFirstName() 
-  //    .then(function(response) {
-  //      $scope.first_name = response.user.f_name;
-  //    });
-  //  };
-  // $scope.getMyEmail = function () {
-  //  facebookService.getMyEmail() 
-  //    .then(function(response) {
-  //      $scope.email = response.user.email;
   //    });
   //  };
 

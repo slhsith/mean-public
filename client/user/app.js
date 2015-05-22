@@ -86,12 +86,10 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         groupsPromise: function($stateParams, groups){
           return groups.get($stateParams.id);
-        },
-        postPromise: function(posts){
-          return posts.getAll();
         }
       }
     })
+
 
     .state('messenger', {
       url: '/messenger',
