@@ -67,6 +67,7 @@ exports.submitSearch = function (req, res, next) {
 
 //get all users 
 exports.getUsers = function (req, res, next) {
+<<<<<<< Updated upstream
   console.log('getting users');
   // if (err) { return next(err); }
   User
