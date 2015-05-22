@@ -97,9 +97,7 @@ app.factory('users', function ($http, $window, auth) {
     users: []
   };
   u.getAll = function() {
-    return $http.get('/api/users', {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    return $http.get('/api/users').success(function(data){
       angular.copy(data, u.users);
     });
   };

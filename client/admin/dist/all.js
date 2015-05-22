@@ -7,7 +7,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
       templateUrl: 'home.html',
       controller: 'MainCtrl',
       resolve: {
-        userPromise: function (users) {
+        usersPromise: function (users) {
          return users.getAll();
        }
       }
@@ -22,7 +22,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
       templateUrl: 'users.html',
       controller: 'UserCtrl',
       resolve: {
-        usersPromise: function($stateParams, users) {
+        userPromise: function($stateParams, users) {
           return users.get($stateParams.id);
         }
       }
@@ -37,11 +37,13 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 
 app.controller('MainCtrl', function ($scope, users, auth){
   $scope.isLoggedIn = auth.isLoggedIn;
+
+  $scope.users = users.users;
 });
 
-app.controller('UserCtrl', function ($scope, users, auth, usersPromise) {
-  $scope.user = usersPromise.data;
-  console.log(usersPromise);
+app.controller('UserCtrl', function ($scope, users, auth, userPromise) {
+  $scope.user = userPromise.data;
+
   $scope.update = function() {
     console.log($scope.user);
     users.update($scope.user);
@@ -157,9 +159,7 @@ app.factory('users', function ($http, $window, auth) {
     users: []
   };
   u.getAll = function() {
-    return $http.get('/api/users', {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    return $http.get('/api/users').success(function(data){
       angular.copy(data, u.users);
     });
   };
