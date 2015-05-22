@@ -11,9 +11,8 @@ var MessageSchema = new mongoose.Schema({
   conversation  : { type: mongoose.Schema.Types.ObjectId, ref: 'Conversation' }
 });
 
-// MessageSchema.methods.upvote = function(cb) {
-  // this.upvotes += 1;
-  // this.save(cb);
-// };
 
 mongoose.model('Message', MessageSchema);
+
+
+

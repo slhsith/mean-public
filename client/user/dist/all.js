@@ -95,6 +95,9 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
+        userPromise: function ($stateParams, settings) {
+          return settings.get($stateParams.handle);
+        },
         usersPromise: function(users) {
           return users.getRange(0, 50);
         },
@@ -344,9 +347,10 @@ function($scope, $stateParams, gposts, gcomments, auth){
 // --> user initializes new blank conversation
 // --> when a conversation is focused from list, defaults to [0]th one
 // ---------------------------- //
-app.controller('MessengerCtrl', function($scope, messenger, users, usersPromise) {
+app.controller('MessengerCtrl', function($scope, messenger, settings, users, usersPromise) {
 
   $scope.conversations = messenger.conversations;
+  $scope.user = angular.extend($scope.user, settings.settings);
   $scope.users = usersPromise.data;
   $scope.conversation = $scope.conversations[0];
 
@@ -357,6 +361,7 @@ app.controller('MessengerCtrl', function($scope, messenger, users, usersPromise)
   $scope.createMessage = function() {
     var message = $scope.conversation.message;
     message.user = $scope.user._id;
+    message.handle = $scope.user.handle;
     message.conversation = $scope.conversation._id;
     messenger.createMessage($scope.conversation, $scope.conversation.message).success(function(data) {
       $scope.conversation.messages.push(data);

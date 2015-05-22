@@ -18,7 +18,7 @@ exports.getConversations = function(req, res, next) {
   .exec(function (err, conversations) {
 
 		if (err) { return next(err); }
-    console.log()
+    console.log(conversations);
 		res.json(conversations);
 	});
 };
@@ -49,12 +49,11 @@ exports.createConversation = function(req, res, next) {
 exports.createMessage = function(req, res, next) {
   console.log('message for', req.body, req.payload);
   var message = new Message(req.body);
-  // message.user = req.payload._id;
-  // message.conversation = req.params.id;
+  console.log('message POST in API', message);
 
   message.save(function(err, message) {
-    if (err) { return next(err); }
-    Conversation.findByIdAndModify(req.params.id, {$push: {messages: message._id}}, function(err, convo) {
+    // if (err) { return next(err); }
+    Conversation.findByIdAndUpdate(req.params.id, {$push: {messages: message._id}}, function(err, convo) {
 
     });
     return res.json(message);

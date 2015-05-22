@@ -126,4 +126,3 @@ router.get( '/api/conversation/:id', messaging.getConversationById );
 
 router.post('/api/conversation', auth, messaging.createConversation );
 router.post('/api/conversation/:id/messages', auth, messaging.createMessage );
-// router.post('/api/conversation/:id/messages', auth, messaging.createMessage );

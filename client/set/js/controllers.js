@@ -41,7 +41,7 @@ app.controller('SearchCtrl', function ($scope, search, searchPromise) {
 app.controller('MapCtrl', function ($scope) {
   var events = {
     places_changed: function (searchBox) {}
-  }
+  };
   $scope.map = { 
     center: { latitude: 45, longitude: -73 }, 
     zoom: 8,
