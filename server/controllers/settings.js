@@ -67,10 +67,11 @@ exports.submitSearch = function (req, res, next) {
 
 //get all users 
 exports.getUsers = function (req, res, next) {
-
+  console.log('getting users');
   // if (err) { return next(err); }
   User
     .find({})
+    .limit(10)
     .exec(function(err, users) {
       if (err) { return next(err); } 
       res.json(users);
@@ -84,15 +85,15 @@ exports.getUsersByPage = function (req, res, next) {
       to   = req.params.end || 20;
       console.log(req.params);
 
-  // if (err) { return next(err); }
-  User
-    .find({})
-    .skip(from)
-    .limit(to)
-    .exec(function(err, users) {
-      if (err) { return next(err); } 
-      res.json(users);
-    });
+ if (err) { return next(err); }
+ User
+   .find({})
+   .skip(from)
+   .limit(to)
+   .exec(function(err, users) {
+     if (err) { return next(err); } 
+     res.json(users);
+   });
 };
 
 exports.getUserById = function (req, res, next) {
