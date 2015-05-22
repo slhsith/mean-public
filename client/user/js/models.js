@@ -382,14 +382,18 @@ app.factory('messenger', function ($http, auth) {
   };
 
   o.createConversation = function(convo) {
-    return $http.post('/api/conversation', convo).success(function(data) {
+    return $http.post('/api/conversation', convo, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
       return data;
     });
   };
 
   o.createMessage = function(convo, message) {
     console.log('convo', convo, 'message', message);
-    return $http.post('/api/conversation/' + convo._id + '/messages', message).success(function(data) {
+    return $http.post('/api/conversation/' + convo._id + '/messages', message, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
       return data;
     });
   };
