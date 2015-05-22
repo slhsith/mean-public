@@ -72,8 +72,8 @@ exports.getUsers = function (req, res, next) {
   User
     .find({})
     .limit(10)
-    .exec(function(err, users) {
-      if (err) { return next(err); } 
+    .find(function(err, users) {
+      if (err) { return next(err); }
       res.json(users);
     });
 };

@@ -7,7 +7,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
       templateUrl: 'home.html',
       controller: 'MainCtrl',
       resolve: {
-        userPromise: function (users) {
+        usersPromise: function (users) {
          return users.getAll();
        }
       }
@@ -22,7 +22,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
       templateUrl: 'users.html',
       controller: 'UserCtrl',
       resolve: {
-        usersPromise: function($stateParams, users) {
+        userPromise: function($stateParams, users) {
           return users.get($stateParams.id);
         }
       }
