@@ -95,6 +95,9 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
+        userPromise: function ($stateParams, settings) {
+          return settings.get($stateParams.handle);
+        },
         usersPromise: function(users) {
           return users.getRange(0, 50);
         },
@@ -229,6 +232,7 @@ app.controller('ItemsCtrl', function ($scope, items, auth) {
   $scope.videos = items.videos;
   $scope.video = items.video;
   $scope.item = items.item;
+  $scope.isDietPlan = auth.isDietPlan;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     mixpanel.identify($scope.user._id);
@@ -344,14 +348,26 @@ function($scope, $stateParams, gposts, gcomments, auth){
 // --> user initializes new blank conversation
 // --> when a conversation is focused from list, defaults to [0]th one
 // ---------------------------- //
-app.controller('MessengerCtrl', function($scope, messenger, users, usersPromise) {
+app.controller('MessengerCtrl', function($scope, messenger, settings, users, usersPromise) {
 
   $scope.conversations = messenger.conversations;
+  $scope.user = angular.extend($scope.user, settings.settings);
   $scope.users = usersPromise.data;
   $scope.conversation = $scope.conversations[0];
 
   $scope.createConversation = function() {
-    $scope.conversation = {};
+    $scope.conversation = { users: [] };
+  };
+
+  $scope.createMessage = function() {
+    var message = $scope.conversation.message;
+    message.user = $scope.user._id;
+    message.handle = $scope.user.handle;
+    message.conversation = $scope.conversation._id;
+    messenger.createMessage($scope.conversation, $scope.conversation.message).success(function(data) {
+      $scope.conversation.messages.push(data);
+    });
+
   };
 
   $scope.searchUsers = function() {
@@ -359,6 +375,10 @@ app.controller('MessengerCtrl', function($scope, messenger, users, usersPromise)
       $scope.conversation.userResult = data;
       console.log($scope.conversation);
     });
+  };
+
+  $scope.addToConversation = function(user) {
+    $scope.conversation.users.push(user._id);
   };
 
 });
@@ -573,6 +593,13 @@ app.factory('auth', ['$http', '$window', function($http, $window){
         return payload;
       }
     };
+    auth.isDietPlan = function () {
+      if(item.type==="DietPlan"){
+        return true;
+      } else {
+        return false;
+      }
+    };
   return auth;
 }]);
 
@@ -747,13 +774,18 @@ app.factory('messenger', function ($http, auth) {
   };
 
   o.createConversation = function(convo) {
-    return $http.post('/api/conversation', convo).success(function(data) {
+    return $http.post('/api/conversation', convo, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
       return data;
     });
   };
 
   o.createMessage = function(convo, message) {
-    return $http.post('/api/conversation/' + convo._id, message).success(function(data) {
+    console.log('convo', convo, 'message', message);
+    return $http.post('/api/conversation/' + convo._id + '/messages', message, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
       return data;
     });
   };

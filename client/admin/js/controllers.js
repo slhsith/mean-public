@@ -1,10 +1,12 @@
 app.controller('MainCtrl', function ($scope, users, auth){
   $scope.isLoggedIn = auth.isLoggedIn;
+
+  $scope.users = users.users;
 });
 
-app.controller('UserCtrl', function ($scope, users, auth, usersPromise) {
-  $scope.user = usersPromise.data;
-  console.log(usersPromise);
+app.controller('UserCtrl', function ($scope, users, auth, userPromise) {
+  $scope.user = userPromise.data;
+
   $scope.update = function() {
     console.log($scope.user);
     users.update($scope.user);

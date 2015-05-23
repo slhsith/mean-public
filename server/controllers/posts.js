@@ -21,12 +21,14 @@ exports.getPosts = function(req, res, next) {
 
 exports.createPost = function(req, res, next) {
   var post = new Post(req.body);
+  console.log(req.payload);
+  console.log(req.body);
   post.author = req.payload.username;
 
   post.save(function(err, post){
     if(err){ return next(err); }
 
-    res.json(post);
+    return res.json(post);
   });
 };
 

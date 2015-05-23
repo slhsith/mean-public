@@ -1,16 +1,13 @@
 var app = angular.module('mainApp', ['ui.router','templates']);
 
-app.config([
-'$stateProvider',
-'$urlRouterProvider',
-function($stateProvider, $urlRouterProvider) {
+app.config(function ($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('home', {
       url: '/home',
       templateUrl: 'home.html',
       controller: 'MainCtrl',
       resolve: {
-        userPromise: function (users) {
+        usersPromise: function (users) {
          return users.getAll();
        }
       }
@@ -25,11 +22,15 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'users.html',
       controller: 'UserCtrl',
       resolve: {
-        usersPromise: function($stateParams, users) {
+        userPromise: function($stateParams, users) {
           return users.get($stateParams.id);
         }
       }
     });
 
   $urlRouterProvider.otherwise('home');
-}]);
+
+  // $httpProvider.interceptors.push('httpRequestInterceptor');
+
+});
+

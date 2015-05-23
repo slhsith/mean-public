@@ -208,6 +208,13 @@ app.factory('auth', ['$http', '$window', function($http, $window){
         return payload;
       }
     };
+    auth.isDietPlan = function () {
+      if(item.type==="DietPlan"){
+        return true;
+      } else {
+        return false;
+      }
+    };
   return auth;
 }]);
 
@@ -382,13 +389,18 @@ app.factory('messenger', function ($http, auth) {
   };
 
   o.createConversation = function(convo) {
-    return $http.post('/api/conversation', convo).success(function(data) {
+    return $http.post('/api/conversation', convo, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
       return data;
     });
   };
 
   o.createMessage = function(convo, message) {
-    return $http.post('/api/conversation/' + convo._id, message).success(function(data) {
+    console.log('convo', convo, 'message', message);
+    return $http.post('/api/conversation/' + convo._id + '/messages', message, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
       return data;
     });
   };
