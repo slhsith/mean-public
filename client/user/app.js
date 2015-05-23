@@ -86,6 +86,9 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         groupsPromise: function($stateParams, groups){
           return groups.get($stateParams.id);
+        },
+        gpostsPromise: function(gposts){
+          return gposts.getAll();
         }
       }
     })

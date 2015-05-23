@@ -188,10 +188,12 @@ function ($scope, groups, auth) {
 });
 
 app.controller('GHomeCtrl',
-function ($scope, auth, groupsPromise, gposts){
+function ($scope, auth, groupsPromise, gposts, gpostsPromise){
   // var gpost = gposts.gpost[$stateParams.id];
   $scope.group = groupsPromise.data;
   console.log(groupsPromise.data);
+  $scope.gpost = gpostsPromise.data;
+  console.log(gpostsPromise.data);
   $scope.currentUser = auth.currentUser();
   $scope.gposts = gposts.gposts;
   $scope.addGpost = function(){

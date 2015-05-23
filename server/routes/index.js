@@ -80,8 +80,9 @@ router.get('/api/groups', groups.getGroups );
 router.post('/api/groups', groups.createGroup );
 router.get('/api/group/:id', groups.getGroupById );
 router.param('/api/group', groups.getGroupByIdParam );
-router.get('/api/gposts', groups.getPosts );
-router.post('/api/gposts', auth, groups.createPost );
+router.get('/api/group/:id/gposts', groups.getGposts );
+router.post('/api/group/:id/gposts', auth, groups.createGpost );
+router.param('/api/group/:id/gpost', groups.getGpostByIdParam );
 
 // //post page & comments
 // router.param('/api/gpost', groups.getGPostByIdParam );

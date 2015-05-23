@@ -30,7 +30,7 @@ exports.getGroupById = function (req, res, next) {
  var _id = req.params.id;
  Group.findById(_id, function(err, group) {
   console.log(group);
-  res.json(group);
+   res.json(group);
  })
 };
 
@@ -46,87 +46,87 @@ exports.getGroupByIdParam = function(req, res, next, id) {
   });
 };
 
-exports.getPosts = function(req, res, next) {
-  Post.find({}, function(err, posts){
+exports.getGposts = function(req, res, next) {
+  Gpost.find({}, function(err, gposts){
     if(err){ return next(err); }
 
-    res.json(posts);
+    res.json(gposts);
   });
 };
 
-exports.createPost = function(req, res, next) {
-  var post = new post(req.body);
-  post.author = req.payload.username;
+exports.createGpost = function(req, res, next) {
+  var gpost = new gpost(req.body);
+  gpost.author = req.payload.username;
 
-  post.save(function(err, post){
+  gpost.save(function(err, gpost){
     if(err){ return next(err); }
 
-    res.json(post);
+    res.json(gpost);
   });
 };
 
-exports.getPostByIdParam = function(req, res, next, id) {
-  var query = Post.findById(id);
+exports.getGpostByIdParam = function(req, res, next, id) {
+  var query = Gpost.findById(id);
 
-  query.exec(function (err, post){
+  query.exec(function (err, gpost){
     if (err) { return next(err); }
-    if (!post) { return next(new Error('can\'t find group post')); }
+    if (!gpost) { return next(new Error('can\'t find group post')); }
 
-    req.post = post;
+    req.gpost = gpost;
     return next();
   });
 };
 
-exports.getPostById = function(req, res, next) {
-  req.post.populate('comments', function(err, post) {
-    if (err) { return next(err); }
+// exports.getGpostById = function(req, res, next) {
+//   req.post.populate('comments', function(err, post) {
+//     if (err) { return next(err); }
 
-    res.json(req.post);
-  });
-};
+//     res.json(req.post);
+//   });
+// };
 
-exports.upvotePost = function(req, res, next) {
-  req.post.upvote(function(err, post){
-    if (err) { return next(err); }
+// exports.upvotePost = function(req, res, next) {
+//   req.post.upvote(function(err, post){
+//     if (err) { return next(err); }
 
-    res.json(req.post);
-  });
-};
+//     res.json(req.post);
+//   });
+// };
 
 
-exports.createPostComment = function(req, res, next) {
-  var comment = new Comment(req.body);
-  comment.post = req.post;
-  comment.author = req.payload.username;
+// exports.createPostComment = function(req, res, next) {
+//   var comment = new Comment(req.body);
+//   comment.post = req.post;
+//   comment.author = req.payload.username;
 
-  comment.save(function(err, comment){
-    if(err){ return next(err); }
+//   comment.save(function(err, comment){
+//     if(err){ return next(err); }
 
-    req.post.comments.push(comment);
-    req.post.save(function(err, post) {
-      if(err){ return next(err); }
+//     req.post.comments.push(comment);
+//     req.post.save(function(err, post) {
+//       if(err){ return next(err); }
 
-      res.json(comment);
-    });
-  });
-};
+//       res.json(comment);
+//     });
+//   });
+// };
 
-exports.upvotePostComment = function(req, res, next) {
-  req.post.upvote(function(err, post){
-    if (err) { return next(err); }
+// exports.upvotePostComment = function(req, res, next) {
+//   req.post.upvote(function(err, post){
+//     if (err) { return next(err); }
 
-    res.json(post);
-  });
-};
+//     res.json(post);
+//   });
+// };
 
-exports.getPostCommentByIdParam = function(req, res, next, id) {
-  var query = Comment.findById(id);
+// exports.getPostCommentByIdParam = function(req, res, next, id) {
+//   var query = Comment.findById(id);
 
-  query.exec(function (err, comment){
-    if (err) { return next(err); }
-    if (!comment) { return next(new Error('can\'t find comment')); }
+//   query.exec(function (err, comment){
+//     if (err) { return next(err); }
+//     if (!comment) { return next(new Error('can\'t find comment')); }
 
-    req.comment = comment;
-    return next();
-  });
-};
+//     req.comment = comment;
+//     return next();
+//   });
+// };
