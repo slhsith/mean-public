@@ -578,7 +578,7 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   return lang; 
 }]);
 
-app.factory('settings', ['$http', '$window', function($http, $window){
+app.factory('settings', function ($http, $window) {
    var s = { settings : {} };
    s.getAll = function (){
     return $http.get('/api/settings').success(function(data){
@@ -598,7 +598,7 @@ app.factory('settings', ['$http', '$window', function($http, $window){
      });
    };
    return s;
-}]);
+});
 
 app.factory('users', function ($http, $window, auth) {
   var u = { users: [] };
@@ -610,7 +610,6 @@ app.factory('users', function ($http, $window, auth) {
   };
 
   u.getRange = function(start, end) {
-    console.log(auth.getToken());
     return $http.get('/api/users/' + start + '/' + end, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
@@ -618,6 +617,13 @@ app.factory('users', function ($http, $window, auth) {
 
   u.search = function(query) {
     return $http.get('/api/users/search/' + query).success(function(data) {
+      return data;
+    });
+  };
+
+  u.get = function (id) {
+    return $http.get('/api/user/' + id).success(function(data){
+      console.log(data);
       return data;
     });
   };

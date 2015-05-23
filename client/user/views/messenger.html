@@ -5,24 +5,59 @@
   </div>
 
   <div class="row">
-    <!-- left column -->
+
     <div class="col-sm-4">
+    <!-- conversations search-->
+      <form ng-submit="searchConversations()" class="form-inline">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Search" ng-model="query"></input>
+          <span class="input-group-btn">
+            <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
+          </span>
+        </div>
+      </form>
+    <!-- conversation init button -->
+      <button type="button" class="btn btn-primary" ng-click="initConversation()"><i class="fa fa-comment-o"></i></button>
 
-      <div class="col-sm-10">
-        <form ng-submit="searchConversations()" class="form-inline">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Search" ng-model="conversation.query"></input>
-              <span class="input-group-btn">
-                <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
-              </span>
-            </div>
-        </form>
-      </div>
-      <div class="col-sm-2">
-        <button type="button" class="btn btn-primary" ng-click="createConversation()"><i class="fa fa-comment-o"></i></button>
+    <!-- conversations list - convo in conversations -->
+      <!-- conversation latest message -->
+      <div ng-repeat="conversation in conversations" ng-click="mainConversation = conversation">
+        <!-- sender.pic -->
+        <!-- sender.f_name -->
+        <!-- sender.l_name -->
+        <!-- sender.body | limitTo -->
+        <div>From: {{conversation.latest.f_name}} {{conversation.latest.l_name}}
+          <br/>{{conversation.latest.body | limitTo: 40 }}
+        </div>
       </div>
 
-      <div latest-message="conversation" ng-repeat="conversation in conversations"></div>
+
+    <!-- mainConversation display -->
+      <!-- user in mainConversation.users -->
+      <div ng-repeat="user in mainConversation.users">
+        <!-- user.pic -->
+        <span>Pic</span>
+        <!-- user.f_name -->
+        <!-- user.l_name -->
+        <span>{{user.f_name}} {{user.l_name}}</span>
+        <!-- user.status -->
+        <span class="text-right">Online? {{user.status}}</span>
+      </div>
+
+      <!-- message in conversation.messages -->
+      <div ng-repeat="message in mainConversation.messages">
+        <!-- message.body -->
+        <div>{{message.body}}</div>
+        <!-- message.timesent or message.timeread -->
+        <div>{{message.timesent}}</div>
+
+      <!-- conversation.newmessage -->
+        <!-- conversation.newmessage.body -->
+        <!-- emoji picker -->
+        <!-- send button-->
+
+
+
     </div> <!-- /end left column -->
 
     <!-- right column -->
