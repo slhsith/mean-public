@@ -96,10 +96,7 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
 app.controller('ItemsCtrl', function ($scope, items, auth) {
 
   $scope.items = items.items;
-  $scope.videos = items.videos;
-  $scope.video = items.video;
   $scope.item = items.item;
-  $scope.isDietPlan = auth.isDietPlan;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     mixpanel.identify($scope.user._id);

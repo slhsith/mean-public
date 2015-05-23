@@ -49,13 +49,24 @@ function($stateProvider, $urlRouterProvider) {
         }]
       }
     })
+    .state('diet', {
+      url: '/items/diet/:item',
+      templateUrl: 'diet.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        item: function($stateParams, items) {
+          console.log($stateParams.item);
+          return items.get($stateParams.item);
+        }
+      }
+    })
     .state('transactions', {
       url: '/transactions',
       templateUrl: 'transactions.html',
       controller: 'TransCtrl',
       resolve: {
         item: ['$stateParams', 'items', function($stateParams, items) {
-          return items.get($stateParams.id);
+          return items.get($stateParams.item);
         }]
       }    
     })
