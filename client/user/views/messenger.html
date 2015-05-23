@@ -22,45 +22,16 @@
         <button type="button" class="btn btn-primary" ng-click="createConversation()"><i class="fa fa-comment-o"></i></button>
       </div>
 
-      <div class="col-sm-12" ng-repeat="conversation in conversations" style="border-bottom: 1px solid black"> <!-- order by latest touched -->
-        <div class="col-sm-12">From: {{conversation.messages[0].handle}}
-          <br/>{{conversation.messages[0].body | limitTo: 40}}
-        </div>
-      </div>
+      <div latest-message="conversation" ng-repeat="conversation in conversations"></div>
     </div> <!-- /end left column -->
 
     <!-- right column -->
     <div class="col-sm-8" ng-show="conversation">
 
-      <!-- recipients -->
-      <div class="col-sm-10">
-        To: <span ng-repeat="user in conversation.users"> <span style="background-color: lightgray; padding: 5px; border-radius: 3px">{{user.username}}</span> </span>
-      </div>
-      <div class="col-sm-2">
-        <button class="btn btn-primary" ng-click="addUserModal = true"><i class="fa fa-plus"></i></button>
-      </div>
+      <div><button class="btn btn-primary" ng-click="addUserModal = true"><i class="fa fa-plus"></i></button></div>
 
-      <!-- add users to conversation -->
-      <div class="col-sm-12" ng-show="addUserModal">
-        <!-- search for people to message -->
-        <form name="userSearchForm" class="form-horizontal" ng-submit="findUsers()" novalidate/>
-          <div class="form-group">
-            <div class="col-sm-11">
-              <input type="text" class="form-control" placeholder="Search" ng-model="conversation.userQuery" ng-blur="searchUsers()">
-            </div>
-          </div>
-        </form>
-        <div class="col-sm-12" ng-repeat="user in users | orderBy: 'username'" ng-click="addToConversation(user)">
-          {{user.f_name || user.handle || user.username}} | {{user._id}}
-        </div>
+      <conversation-add-user>
 
-        <!-- search results of people to add to conversation -->
-        <div class="col-sm-12" ng-repeat="user in conversation.userResult">
-          <div class="col-sm-1">Pic</div>
-          <div class="col-sm-10">{{user.f_name}}</div>
-          <div class="col-sm-1"> </div>
-        </div>
-      </div>
 
       <div ng-repeat="message in conversation.messages">
         {{message.body}}

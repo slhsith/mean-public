@@ -255,7 +255,7 @@ app.factory('settings', ['$http', '$window', function($http, $window){
    return s;
 }]);
 
-app.factory('users', function($http, $window) {
+app.factory('users', function ($http, $window, auth) {
   var u = { users: [] };
 
   u.getAll = function() {
@@ -265,8 +265,9 @@ app.factory('users', function($http, $window) {
   };
 
   u.getRange = function(start, end) {
-    return $http.get('/api/users/' + start + '/' + end).success(function(data) {
-      return data;
+    console.log(auth.getToken());
+    return $http.get('/api/users/' + start + '/' + end, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
 
@@ -362,42 +363,3 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   return o;
 }]); 
 
-app.factory('messenger', function ($http, auth) {
-
-  var o = {
-    conversations: []
-  };
-
-  o.getAll = function() {
-    return $http.get('/api/conversations').success(function(data) {
-      console.log(data);
-      angular.copy(data, o.conversations);
-    });
-  };
-
-  o.get = function(id) {
-    return $http.get('/api/conversation/' + id).success(function(data) {
-      return data;
-    });
-  };
-
-  o.createConversation = function(convo) {
-    return $http.post('/api/conversation', convo, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      return data;
-    });
-  };
-
-  o.createMessage = function(convo, message) {
-    console.log('convo', convo, 'message', message);
-    return $http.post('/api/conversation/' + convo._id + '/messages', message, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      return data;
-    });
-  };
-
-  return o;
-
-});
