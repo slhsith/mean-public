@@ -25,18 +25,18 @@
   };
 });
 
-app.factory('search', function ($http) {
-  var u = {
-    users: []
-  };
-  u.get = function (query) {
-    return $http.get('/api/search/' + query).success(function(data){
-      console.log(data);
-      return data;
-    });
-  };
-  return u;
-});
+// app.factory('search', function ($http) {
+//   var u = {
+//     users: []
+//   };
+//   u.get = function (query) {
+//     return $http.get('/api/search/' + query).success(function(data){
+//       console.log(data);
+//       return data;
+//     });
+//   };
+//   return u;
+// });
 
 app.factory('users', function ($http, $window) {
   var u = {

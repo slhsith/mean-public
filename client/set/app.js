@@ -64,9 +64,9 @@ function($stateProvider, $urlRouterProvider, GoogleMapApi) {
       }
     });
   // $urlRouterProvider.otherwise('home');
-GoogleMapApi.configure({
-    // key: 'your api key',
-    v: '3.17',
-    libraries: 'places'
-  });
+// GoogleMapApi.configure({
+//     // key: 'your api key',
+//     v: '3.17',
+//     libraries: 'places'
+//   });
 }]);

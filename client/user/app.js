@@ -99,6 +99,9 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
+        userPromise: function ($stateParams, settings) {
+          return settings.get($stateParams.handle);
+        },
         usersPromise: function(users) {
           return users.getRange(0, 50);
         },

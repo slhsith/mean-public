@@ -1,16 +1,13 @@
 var app = angular.module('mainApp', ['ui.router','templates']);
 
-app.config([
-'$stateProvider',
-'$urlRouterProvider',
-function($stateProvider, $urlRouterProvider) {
+app.config(function ($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('home', {
       url: '/home',
       templateUrl: 'home.html',
       controller: 'MainCtrl',
       resolve: {
-        userPromise: function (users) {
+        usersPromise: function (users) {
          return users.getAll();
        }
       }
@@ -25,21 +22,28 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'users.html',
       controller: 'UserCtrl',
       resolve: {
-        usersPromise: function($stateParams, users) {
+        userPromise: function($stateParams, users) {
           return users.get($stateParams.id);
         }
       }
     });
 
   $urlRouterProvider.otherwise('home');
-}]);
-app.controller('MainCtrl', function ($scope, users, auth){
-  $scope.isLoggedIn = auth.isLoggedIn;
+
+  // $httpProvider.interceptors.push('httpRequestInterceptor');
+
 });
 
-app.controller('UserCtrl', function ($scope, users, auth, usersPromise) {
-  $scope.user = usersPromise.data;
-  console.log(usersPromise);
+
+app.controller('MainCtrl', function ($scope, users, auth){
+  $scope.isLoggedIn = auth.isLoggedIn;
+
+  $scope.users = users.users;
+});
+
+app.controller('UserCtrl', function ($scope, users, auth, userPromise) {
+  $scope.user = userPromise.data;
+
   $scope.update = function() {
     console.log($scope.user);
     users.update($scope.user);
@@ -133,7 +137,24 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     };
   return auth;
 }]);
-app.factory('users',['$http', '$window', function($http, $window){
+
+// FIGURING OUT IF WE CAN ATTACH HEADERS WITH EVERY HTTP, not quite working,
+// some circular reference issue
+// app.factory('httpRequestInterceptor', function (auth) {
+//   return {
+//     request: function (config) {
+
+//       // use this to destroying other existing headers
+//       // config.headers = {'Authentication':'authentication'}
+//       // use this to prevent destroying other existing headers
+//       config.headers['Authorization'] = 'Bearer '+auth.getToken();
+
+//       return config;
+//     }
+//   };
+// });
+
+app.factory('users', function ($http, $window, auth) {
   var u = {
     users: []
   };
@@ -155,7 +176,7 @@ app.factory('users',['$http', '$window', function($http, $window){
     });
   };
   return u;
-}]);
+});
 
 app.factory('settings', ['$http', '$window', function($http, $window){
    var s = { settings : {} };

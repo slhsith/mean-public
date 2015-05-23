@@ -75,7 +75,24 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     };
   return auth;
 }]);
-app.factory('users',['$http', '$window', function($http, $window){
+
+// FIGURING OUT IF WE CAN ATTACH HEADERS WITH EVERY HTTP, not quite working,
+// some circular reference issue
+// app.factory('httpRequestInterceptor', function (auth) {
+//   return {
+//     request: function (config) {
+
+//       // use this to destroying other existing headers
+//       // config.headers = {'Authentication':'authentication'}
+//       // use this to prevent destroying other existing headers
+//       config.headers['Authorization'] = 'Bearer '+auth.getToken();
+
+//       return config;
+//     }
+//   };
+// });
+
+app.factory('users', function ($http, $window, auth) {
   var u = {
     users: []
   };
@@ -97,7 +114,7 @@ app.factory('users',['$http', '$window', function($http, $window){
     });
   };
   return u;
-}]);
+});
 
 app.factory('settings', ['$http', '$window', function($http, $window){
    var s = { settings : {} };
