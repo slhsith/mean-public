@@ -188,22 +188,24 @@ function ($scope, groups, auth) {
 });
 
 app.controller('GHomeCtrl',
-function ($scope, auth, groupsPromise, gposts, gpostsPromise){
+function ($scope, auth, groups, groupsPromise, gposts, $stateParams){
+  var group = groups.group[$stateParams.id];
   // var gpost = gposts.gpost[$stateParams.id];
   $scope.group = groupsPromise.data;
   console.log(groupsPromise.data);
-  $scope.gpost = gpostsPromise.data;
-  console.log(gpostsPromise.data);
+  // $scope.gpost = gpostsPromise.data;
+  // console.log(gpostsPromise.data);
+
   $scope.currentUser = auth.currentUser();
+  $scope.groups = groups.groups;
   $scope.gposts = gposts.gposts;
   $scope.addGpost = function(){
     // if(!$scope.body || $scope.body === '') { return; }
-    gposts.create($scope.gpost);
+    groups.gposts.create($scope.gpost);
     $scope.body = '';
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
-    // mixpanel.track("User Group: Add Post");
   };
   // $scope.addComment = function(){
   //   console.log($scope.post);

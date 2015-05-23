@@ -79,10 +79,10 @@ router.get('/api/customers/:customer', shop.getCustomerById );
 router.get('/api/groups', groups.getGroups );
 router.post('/api/groups', groups.createGroup );
 router.get('/api/group/:id', groups.getGroupById );
-router.param('/api/group', groups.getGroupByIdParam );
+// router.param('/api/group', groups.getGroupByIdParam );
 router.get('/api/group/:id/gposts', groups.getGposts );
-router.post('/api/group/:id/gposts', auth, groups.createGpost );
-router.param('/api/group/:id/gpost', groups.getGpostByIdParam );
+// router.post('/api/group/:id/gposts', auth, groups.createGpost );
+// router.param('/api/group/:id/gpost', groups.getGpostByIdParam );
 
 // //post page & comments
 // router.param('/api/gpost', groups.getGPostByIdParam );

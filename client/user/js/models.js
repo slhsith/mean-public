@@ -322,10 +322,12 @@ app.factory('gposts', ['$http', 'auth', function($http, auth){
 
   o.getAll = function() {
     return $http.get('/api/gposts').success(function(data){
+      console.log(data);
       angular.copy(data, o.gposts);
     });
   };
   o.create = function(gpost) {
+    console.log(gpost);
     return $http.post('/api/gposts', gpost).success(function(data){
       o.gposts.push(data);
     });

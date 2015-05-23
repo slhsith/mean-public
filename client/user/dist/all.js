@@ -86,9 +86,6 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         groupsPromise: function($stateParams, groups){
           return groups.get($stateParams.id);
-        },
-        gpostsPromise: function(gposts){
-          return gposts.getAll();
         }
       }
     })
@@ -325,22 +322,24 @@ function ($scope, groups, auth) {
 });
 
 app.controller('GHomeCtrl',
-function ($scope, auth, groupsPromise, gposts, gpostsPromise){
+function ($scope, auth, groups, groupsPromise, gposts, $stateParams){
+  var group = groups.group[$stateParams.id];
   // var gpost = gposts.gpost[$stateParams.id];
   $scope.group = groupsPromise.data;
   console.log(groupsPromise.data);
-  $scope.gpost = gpostsPromise.data;
-  console.log(gpostsPromise.data);
+  // $scope.gpost = gpostsPromise.data;
+  // console.log(gpostsPromise.data);
+
   $scope.currentUser = auth.currentUser();
+  $scope.groups = groups.groups;
   $scope.gposts = gposts.gposts;
   $scope.addGpost = function(){
     // if(!$scope.body || $scope.body === '') { return; }
-    gposts.create($scope.gpost);
+    groups.gposts.create($scope.gpost);
     $scope.body = '';
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
-    // mixpanel.track("User Group: Add Post");
   };
   // $scope.addComment = function(){
   //   console.log($scope.post);
@@ -753,10 +752,12 @@ app.factory('gposts', ['$http', 'auth', function($http, auth){
 
   o.getAll = function() {
     return $http.get('/api/gposts').success(function(data){
+      console.log(data);
       angular.copy(data, o.gposts);
     });
   };
   o.create = function(gpost) {
+    console.log(gpost);
     return $http.post('/api/gposts', gpost).success(function(data){
       o.gposts.push(data);
     });

@@ -7,7 +7,7 @@ var mongoose = require('mongoose');
 
 // --- Models --- //
 var Group         = mongoose.model('Group');
-// var Post          = mongoose.model('Post');
+var Gpost          = mongoose.model('Post');
 
 // --- Exported Methods --- //
 exports.getGroups = function(req, res, next) {
