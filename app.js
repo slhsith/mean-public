@@ -21,6 +21,7 @@ require('./server/models/Books');
 require('./server/models/Podcasts');
 require('./server/models/Transactions');
 require('./server/models/Customers');
+require('./server/models/DietPlans');
 
 // user and groups
 require('./server/models/Users');

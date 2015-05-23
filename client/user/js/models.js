@@ -208,6 +208,13 @@ app.factory('auth', ['$http', '$window', function($http, $window){
         return payload;
       }
     };
+    auth.isDietPlan = function () {
+      if(item.type==="DietPlan"){
+        return true;
+      } else {
+        return false;
+      }
+    };
   return auth;
 }]);
 

@@ -229,6 +229,7 @@ app.controller('ItemsCtrl', function ($scope, items, auth) {
   $scope.videos = items.videos;
   $scope.video = items.video;
   $scope.item = items.item;
+  $scope.isDietPlan = auth.isDietPlan;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     mixpanel.identify($scope.user._id);
@@ -545,6 +546,13 @@ app.factory('auth', ['$http', '$window', function($http, $window){
         return payload;
       }
     };
+    auth.isDietPlan = function () {
+      if(item.type==="DietPlan"){
+        return true;
+      } else {
+        return false;
+      }
+    };
   return auth;
 }]);
 
@@ -700,138 +708,3 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   return o;
 }]); 
 
-
-/*  ----------------------  *
-    CONTROLLER - MESSENGER
- *  ----------------------  */
-
-/* $scope.conversation at the level of the controller is focused convo
-/* --> user initializes new blank conversation
-/* --> when a conversation is focused from list, defaults to [0]th one
-/* ---------------------------- */
-
-app.controller('MessengerCtrl', function ($scope, messenger, settings, users, usersPromise) {
-
-  $scope.conversations = messenger.conversations;
-  // $scope.user = angular.extend($scope.user, settings.settings);
-  $scope.users = users.users;
-  $scope.conversation = $scope.conversations[0];
-
-  $scope.createConversation = function() {
-    $scope.conversation = { users: [] };
-  };
-
-  $scope.createMessage = function() {
-    var message = $scope.conversation.message;
-    message.user = $scope.user._id;
-    message.handle = $scope.user.handle;
-    message.conversation = $scope.conversation._id;
-    messenger.createMessage($scope.conversation, $scope.conversation.message).success(function(data) {
-      $scope.conversation.messages.push(data);
-    });
-
-  };
-
-  $scope.searchUsers = function() {
-    users.search($scope.conversation.userQuery).success(function(data) {
-      $scope.conversation.userResult = data;
-      console.log($scope.conversation);
-    });
-  };
-
-  $scope.addToConversation = function(user) {
-    $scope.conversation.users.push(user._id);
-  };
-
-});
-
-// app.directive('conversationUsers', function() {
-//   return {
-//     restrict: 'E',
-//     controller: 'MessengerCtrl',
-//     // replace: true,
-//     template: '<div>To: <span ng-repeat="user in conversation.users" style="background-color: lightgray; padding: 5px; border-radius: 3px">{{user.username}}</span></div>',
-//     link: function(scope, element, attrs) {
-//     }
-//   };
-// });
-
-app.directive('latestMessage', function() {
-  return {
-    // controller: function() {
-    //   var self = this;
-    //   self.init = function(element) {
-    //     self.$element = element;
-    //   };
-    // },
-    // transclude: true,
-    scope: {
-      conversation: '=latestMessage'
-    },
-    template: '<div class="col-sm-12">From: {{conversation.messages[ conversation.messages.length - 1].user}} <br/>{{conversation.messages[ conversation.messages.length - 1 ].body | limitTo: 40}}</div>',
-  };
-});
-
-// app.directive('conversationAddUsers', function() {
-//   return {
-//     restrict: 'E',
-//     controller: 'MessengerCtrl',
-//     template: '<div class="col-sm-12">' +
-//                 '<form name="userSearchForm" class="form-horizontal" ng-submit="findUsers()" novalidate/>' +
-//                   '<div class="form-group">' + 
-//                     '<input type="text" class="form-control" placeholder="Search" ng-model="conversation.userQuery" ng-blur="searchUsers()">' +
-//                   '</div>' +
-//                 '</form>' +
-//                 '<div ng-repeat="user in users | orderBy:\'username\'" ng-click="addToConversation(user)">' +
-//                   '{{user.f_name || user.handle || user.username}} | {{user._id}}' +
-//                 '</div>' +
-//                 '<div class="col-sm-12" ng-repeat="user in conversation.userResult">' +
-//                   '<div class="col-sm-1">Pic</div>' +
-//                   '<div class="col-sm-10">{{user.handle}} | {{user.f_name}} {{user.l_name}}</div>' +
-//                   '<div class="col-sm-1"> </div>' +
-//                 '</div>' +
-//               '</div>'
-//     link: function(scope, element, attrs) {}
-//   };
-// });
-
-
-app.factory('messenger', function ($http, auth) {
-
-  var o = {
-    conversations: []
-  };
-
-  o.getAll = function() {
-    return $http.get('/api/conversations').success(function(data) {
-      console.log(data);
-      angular.copy(data, o.conversations);
-    });
-  };
-
-  o.get = function(id) {
-    return $http.get('/api/conversation/' + id).success(function(data) {
-      return data;
-    });
-  };
-
-  o.createConversation = function(convo) {
-    return $http.post('/api/conversation', convo, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      return data;
-    });
-  };
-
-  o.createMessage = function(convo, message) {
-    console.log('convo', convo, 'message', message);
-    return $http.post('/api/conversation/' + convo._id + '/messages', message, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      return data;
-    });
-  };
-
-  return o;
-
-});
