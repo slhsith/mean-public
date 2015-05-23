@@ -232,6 +232,7 @@ app.controller('ItemsCtrl', function ($scope, items, auth) {
   $scope.videos = items.videos;
   $scope.video = items.video;
   $scope.item = items.item;
+  $scope.isDietPlan = auth.isDietPlan;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     mixpanel.identify($scope.user._id);
@@ -590,6 +591,13 @@ app.factory('auth', ['$http', '$window', function($http, $window){
         var payload = JSON.parse($window.atob(token.split('.')[1]));
 
         return payload;
+      }
+    };
+    auth.isDietPlan = function () {
+      if(item.type==="DietPlan"){
+        return true;
+      } else {
+        return false;
       }
     };
   return auth;

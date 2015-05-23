@@ -47,6 +47,7 @@
             <option value="Video">Video</option>
             <option value="Book">Book</option>
             <option value="Podcast">Podcast</option>
+            <option value="DietPlan">Diet Plan</option>
           </select>
         </div>
         <div ng-show="item.type==='Video'">
@@ -154,6 +155,16 @@
               class="form-control"
               placeholder="description"
               ng-model="item.description"></input>
+          </div>
+        </div>
+        <div ng-show="item.type==='DietPlan'">
+          <h3>Is it a diet?</h3>
+
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="category"
+              ng-model="item.category"></input>
           </div>
         </div>
        <button type="submit" class="btn btn-primary">Post</button>
