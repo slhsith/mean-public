@@ -49,13 +49,23 @@ function($stateProvider, $urlRouterProvider) {
         }]
       }
     })
+    .state('diet', {
+      url: '/items/diet/:item',
+      templateUrl: 'diet.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        item: function($stateParams, items) {
+          return items.get($stateParams.id);
+        }
+      }
+    })
     .state('transactions', {
       url: '/transactions',
       templateUrl: 'transactions.html',
       controller: 'TransCtrl',
       resolve: {
         item: ['$stateParams', 'items', function($stateParams, items) {
-          return items.get($stateParams.id);
+          return items.get($stateParams.item);
         }]
       }    
     })
@@ -226,10 +236,7 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
 app.controller('ItemsCtrl', function ($scope, items, auth) {
 
   $scope.items = items.items;
-  $scope.videos = items.videos;
-  $scope.video = items.video;
   $scope.item = items.item;
-  $scope.isDietPlan = auth.isDietPlan;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     mixpanel.identify($scope.user._id);
@@ -544,13 +551,6 @@ app.factory('auth', ['$http', '$window', function($http, $window){
         var payload = JSON.parse($window.atob(token.split('.')[1]));
 
         return payload;
-      }
-    };
-    auth.isDietPlan = function () {
-      if(item.type==="DietPlan"){
-        return true;
-      } else {
-        return false;
       }
     };
   return auth;

@@ -16,7 +16,8 @@
           </span>
         </span>
         <span>
-          <a href="#/items/{{item._id}}">Go to Item Page</a>
+          <a ng-hide="item.type === 'DietPlan' || item.type==='WorkoutPlan'" href="#/items/{{item._id}}">Go to Item Page</a>
+          <a ng-show="item.type === 'DietPlan'" href="#/items/diet/{{item._id}}">Go to Diet Page</a>
         </span>
       </div>
 <!--       <div ng-repeat="video in videos">
