@@ -12,9 +12,9 @@ var
 exports.getConversations = function(req, res, next) {
 	// req.params.start
 	// req.params.end
-	Conversation.find({})
-  .populate('messages')
-  .populate('users')
+	Conversation.find({}, '-__v')
+  .populate('messages', 'handle body user timesent timeread -_id')
+  .populate('users', 'handle username f_name l_name -_id')
   .exec(function (err, conversations) {
 
 		if (err) { return next(err); }
@@ -25,9 +25,9 @@ exports.getConversations = function(req, res, next) {
 
 exports.getConversationById = function(req, res, next) {
 	// req.params.id
-	Conversation.findOne({ _id: req.params.id })
-	.populate('users')
-	.populate('messages')
+	Conversation.findOne({ _id: req.params.id }, '-__v')
+  .populate('messages', 'handle body user timesent timeread -_id')
+  .populate('users', 'handle username f_name l_name -_id')
 	.exec(function(err, conversation) {
     if (err) { return next(err); }
     res.json(conversation);
@@ -36,7 +36,7 @@ exports.getConversationById = function(req, res, next) {
 };
 
 exports.createConversation = function(req, res, next) {
-	var convo = new Conversation();
+	var convo = new Conversation(req.body);
   convo.users = [req.payload._id];
 
 	convo.save(function(err, convo) {

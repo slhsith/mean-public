@@ -91,7 +91,7 @@ exports.getUsersByPage = function (req, res, next) {
    .skip(from)
    .limit(to)
    .exec(function(err, users) {
-     if (err) { return next(err); } 
+     // if (err) { return next(err); } 
      res.json(users);
    });
 };

@@ -7,16 +7,6 @@ var jwt = require('express-jwt');
 var bodyParser = require('body-parser'),    
     jsonParser = bodyParser.json();    
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
-var nodemailer = require('nodemailer');
-var transporter = nodemailer.createTransport({
-    service: 'Mandrill',
-    host: 'smtp.mandrillapp.com',
-    port: 587,
-    auth: {
-        user: 'trainersvault',
-        pass: 'BGkIPqtGVLNL2JAGAmwHMw'
-    }
-  });
 var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
 
 // API controllers 
