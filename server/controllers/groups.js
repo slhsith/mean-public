@@ -7,14 +7,14 @@ var mongoose = require('mongoose');
 
 // --- Models --- //
 var Group         = mongoose.model('Group');
+var Gpost          = mongoose.model('Post');
 
 // --- Exported Methods --- //
 exports.getGroups = function(req, res, next) {
   Group.find({},function(err, groups){
     if(err){ return next(err); }
-
     res.json(groups)
-  });
+  }).populate('Posts');
 };
 
 exports.createGroup = function (req, res, next) {
@@ -46,7 +46,7 @@ exports.getGroupByIdParam = function(req, res, next, id) {
   });
 };
 
-exports.getGPosts = function(req, res, next) {
+exports.getGposts = function(req, res, next) {
   Gpost.find({}, function(err, gposts){
     if(err){ return next(err); }
 
@@ -54,8 +54,8 @@ exports.getGPosts = function(req, res, next) {
   });
 };
 
-exports.createGPost = function(req, res, next) {
-  var gpost = new Gpost(req.body);
+exports.createGpost = function(req, res, next) {
+  var gpost = new gpost(req.body);
   gpost.author = req.payload.username;
 
   gpost.save(function(err, gpost){
@@ -65,7 +65,7 @@ exports.createGPost = function(req, res, next) {
   });
 };
 
-exports.getGPostByIdParam = function(req, res, next, id) {
+exports.getGpostByIdParam = function(req, res, next, id) {
   var query = Gpost.findById(id);
 
   query.exec(function (err, gpost){
@@ -77,56 +77,56 @@ exports.getGPostByIdParam = function(req, res, next, id) {
   });
 };
 
-exports.getGPostById = function(req, res, next) {
-  req.gpost.populate('gcomments', function(err, post) {
-    if (err) { return next(err); }
+// exports.getGpostById = function(req, res, next) {
+//   req.post.populate('comments', function(err, post) {
+//     if (err) { return next(err); }
 
-    res.json(req.gpost);
-  });
-};
+//     res.json(req.post);
+//   });
+// };
 
-exports.upvoteGPost = function(req, res, next) {
-  req.gpost.upvote(function(err, gpost){
-    if (err) { return next(err); }
+// exports.upvotePost = function(req, res, next) {
+//   req.post.upvote(function(err, post){
+//     if (err) { return next(err); }
 
-    res.json(req.gpost);
-  });
-};
+//     res.json(req.post);
+//   });
+// };
 
 
-exports.createGPostComment = function(req, res, next) {
-  var gcomment = new Gcomment(req.body);
-  gcomment.gpost = req.gpost;
-  gcomment.author = req.payload.username;
+// exports.createPostComment = function(req, res, next) {
+//   var comment = new Comment(req.body);
+//   comment.post = req.post;
+//   comment.author = req.payload.username;
 
-  gcomment.save(function(err, gcomment){
-    if(err){ return next(err); }
+//   comment.save(function(err, comment){
+//     if(err){ return next(err); }
 
-    req.gpost.gcomments.push(gcomment);
-    req.gpost.save(function(err, post) {
-      if(err){ return next(err); }
+//     req.post.comments.push(comment);
+//     req.post.save(function(err, post) {
+//       if(err){ return next(err); }
 
-      res.json(gcomment);
-    });
-  });
-};
+//       res.json(comment);
+//     });
+//   });
+// };
 
-exports.upvoteGPostComment = function(req, res, next) {
-  req.gpost.upvote(function(err, gpost){
-    if (err) { return next(err); }
+// exports.upvotePostComment = function(req, res, next) {
+//   req.post.upvote(function(err, post){
+//     if (err) { return next(err); }
 
-    res.json(gpost);
-  });
-};
+//     res.json(post);
+//   });
+// };
 
-exports.getGPostCommentByIdParam = function(req, res, next, id) {
-  var query = Gcomment.findById(id);
+// exports.getPostCommentByIdParam = function(req, res, next, id) {
+//   var query = Comment.findById(id);
 
-  query.exec(function (err, gcomment){
-    if (err) { return next(err); }
-    if (!gcomment) { return next(new Error('can\'t find comment')); }
+//   query.exec(function (err, comment){
+//     if (err) { return next(err); }
+//     if (!comment) { return next(new Error('can\'t find comment')); }
 
-    req.gcomment = gcomment;
-    return next();
-  });
-};
+//     req.comment = comment;
+//     return next();
+//   });
+// };

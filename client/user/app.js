@@ -55,7 +55,8 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'ItemsCtrl',
       resolve: {
         item: function($stateParams, items) {
-          return items.get($stateParams.id);
+          console.log($stateParams.item);
+          return items.get($stateParams.item);
         }
       }
     })
@@ -100,16 +101,14 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
 
+
     .state('messenger', {
       url: '/messenger',
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
-        userPromise: function ($stateParams, settings) {
-          return settings.get($stateParams.handle);
-        },
         usersPromise: function(users) {
-          return users.getRange(0, 50);
+          return users.getAll();
         },
         conversationsPromise: function(messenger) {
           return messenger.getAll();

@@ -6,7 +6,8 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
     }).then(function () {
       window.location = "http://localhost:3000/user/#/home";
     });
-    mixpanel.track("HomePage: Register");
+    mixpanel.track("User Register",{"area":"home", "page":"home", "action":"register"});
+    // mixpanel.track("HomePage: Register");
   };
 
   $scope.logIn = function () {
@@ -15,7 +16,8 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
     }).then(function () {
       window.location = "http://localhost:3000/user/#/home";
     });
-    mixpanel.track("HomePage: Login");
+    mixpanel.track("User Log-in",{"area":"home", "page":"home", "action":"log-in"});
+    // mixpanel.track("HomePage: Login");
   };
 
   $scope.forgotPassword = function () {
@@ -27,8 +29,21 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
     }).error(function (error) {
       $scope.error = error;
     });
-    mixpanel.track("HomePage: Reset Password, Submit Email");
+    mixpanel.track("User Reset Password",{"area":"home", "page":"home", "action":"resetPassword"});
+    // mixpanel.track("HomePage: Reset Password, Submit Email");
   };
+
+  // $scope.facebook = function () {
+  //   auth.facebook();
+  // };
+
+  // $scope.getMyLastName = function () {
+  //  facebookService.getMyLastName() 
+  //    .then(function(response) {
+  //      $scope.last_name = response.user.l_name;
+  //    });
+  //  };
+
 
   // $scope.verifyEmail = function() {
   //   confirmEmail.confirm($scope.verify).error(function (error) {
@@ -44,3 +59,4 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
   $scope.logOut = auth.logOut;
 
 }]);
+

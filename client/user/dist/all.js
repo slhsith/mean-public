@@ -55,7 +55,8 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'ItemsCtrl',
       resolve: {
         item: function($stateParams, items) {
-          return items.get($stateParams.id);
+          console.log($stateParams.item);
+          return items.get($stateParams.item);
         }
       }
     })
@@ -100,16 +101,14 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
 
+
     .state('messenger', {
       url: '/messenger',
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
-        userPromise: function ($stateParams, settings) {
-          return settings.get($stateParams.handle);
-        },
         usersPromise: function(users) {
-          return users.getRange(0, 50);
+          return users.getAll();
         },
         conversationsPromise: function(messenger) {
           return messenger.getAll();
@@ -175,13 +174,17 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
     });
     $scope.title = '';
     $scope.link = '';
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("User Dashboard: Add Post");
+    mixpanel.track("Add Post",{"area":"group", "page":"groupHome", "action":"create"});
+    // mixpanel.track("User Dashboard: Add Post");
   };
   $scope.incrementUpvotes = function(post) {
     posts.upvote(post);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("User Dashboard: Upvoted Comment");
+    mixpanel.track("Upvote Post",{"area":"group", "page":"groupHome", "action":"upvote"});
+    // mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 
@@ -203,6 +206,16 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
       $scope.post.comments.push(comment);
       $scope.comment.body = null;
     });
+    $scope.body = '';
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Comment",{"area":"group", "page":"groupHome", "action":"comment"});
+  };
+  $scope.incrementUpvotes = function(comment){
+    posts.upvoteComment(post, comment);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Upvote Comment",{"area":"group", "page":"groupHome", "action":"upvote"});
   };
   $scope.incrementUpvotes = function(comment) {
     posts.upvoteComment($scope.post, comment);
@@ -223,14 +236,18 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
    }).error(function(){
        console.log('failure');
    });
-   mixpanel.identify($scope.user._id);
-   mixpanel.track("Shop Page: Added Item");
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
+   // mixpanel.track("Shop Page: Added Item");
  };
 
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Shop Page: Upvoted Comment");
+    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
+    // mixpanel.track("Shop Page: Upvoted Comment");
   };  
 
 });
@@ -242,8 +259,10 @@ app.controller('ItemsCtrl', function ($scope, items, auth) {
   $scope.item = items.item;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Items Page: Upvoted Comment");
+    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
+    // mixpanel.track("Items Page: Upvoted Comment");
   };
 
 });
@@ -260,8 +279,10 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
   $scope.startTrans = function () {
     console.log($scope.card);
     transactions.purchase($scope.card);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Checkout: Purchase Item");
+    mixpanel.track("Start Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});
+    // mixpanel.track("Checkout: Purchase Item");
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
 });
@@ -275,12 +296,17 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
     languages.addLanguage($scope.language.name).success(function(data) {
     $scope.languages.push(data);
     });
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Languange",{"area":"settings", "page":"settings", "action":"add"});
   };
   $scope.updateSettings = function() {
     console.log($scope.user);
     settings.update($scope.user);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Settings: Update User");
+    mixpanel.track("Settings update",{"area":"settings", "page":"settings", "action":"update"});
+    // mixpanel.track("Settings: Update User");
   };
   $scope.user = userPromise.data;
   console.log(userPromise);
@@ -293,25 +319,43 @@ function ($scope, groups, auth) {
   $scope.addGroup = function(){
     groups.create($scope.group);
     console.log($scope.group);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Group", {"area":"group", "page":"groups", "action":"create"});
   };
   $scope.group = '';
   $scope.isLoggedIn = auth.isLoggedIn;
 });
 
 app.controller('GHomeCtrl',
-function ($scope, auth, groupsPromise){
+function ($scope, auth, groups, groupsPromise, gposts, $stateParams){
+  var group = groups.group[$stateParams.id];
   // var gpost = gposts.gpost[$stateParams.id];
   $scope.group = groupsPromise.data;
   console.log(groupsPromise.data);
-  // $scope.addGroupPost = function(){
-  //   if(!scope.body || $scope.body === '') { return; }
-  //   groups.addGpost(groups.group._id, {
-  //     body: $scope.body,
-  //     author: 'user',
-  //   }).success(function(gpost) {
-  //     $scope.group.gpost.push(gpost);
-  //   });
-  //   $scope.body = '';
+  // $scope.gpost = gpostsPromise.data;
+  // console.log(gpostsPromise.data);
+
+  $scope.currentUser = auth.currentUser();
+  $scope.groups = groups.groups;
+  $scope.gposts = gposts.gposts;
+  $scope.addGpost = function(){
+    // if(!$scope.body || $scope.body === '') { return; }
+    groups.gposts.create($scope.gpost);
+    $scope.body = '';
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
+  };
+  // $scope.addComment = function(){
+  //   console.log($scope.post);
+  //   // posts.addComment(posts.post._id, {
+  //   //   body: $scope.post.comment,
+  //   //   author: $scope.currentUser
+  //   // }).success(function(comment) {
+  //   //   $scope.post.comments.push(comment);
+  //   // });
+  //   // $scope.body = '';
   // };
   // $scope.incrementUpvotes = function(gpost){
   //   gposts.upvoteGroupPost(gpost);
@@ -346,50 +390,6 @@ function($scope, $stateParams, gposts, gcomments, auth){
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
-
-
-
-
-// ------ MESSENGER ---------- //
-// $scope.conversation at the level of the controller is focused convo
-// --> user initializes new blank conversation
-// --> when a conversation is focused from list, defaults to [0]th one
-// ---------------------------- //
-app.controller('MessengerCtrl', function($scope, messenger, settings, users, usersPromise) {
-
-  $scope.conversations = messenger.conversations;
-  $scope.user = angular.extend($scope.user, settings.settings);
-  $scope.users = usersPromise.data;
-  $scope.conversation = $scope.conversations[0];
-
-  $scope.createConversation = function() {
-    $scope.conversation = { users: [] };
-  };
-
-  $scope.createMessage = function() {
-    var message = $scope.conversation.message;
-    message.user = $scope.user._id;
-    message.handle = $scope.user.handle;
-    message.conversation = $scope.conversation._id;
-    messenger.createMessage($scope.conversation, $scope.conversation.message).success(function(data) {
-      $scope.conversation.messages.push(data);
-    });
-
-  };
-
-  $scope.searchUsers = function() {
-    users.search($scope.conversation.userQuery).success(function(data) {
-      $scope.conversation.userResult = data;
-      console.log($scope.conversation);
-    });
-  };
-
-  $scope.addToConversation = function(user) {
-    $scope.conversation.users.push(user._id);
-  };
-
-});
-
 /*  ----------------  *
     FACTORIES - USER
  *  ----------------  */
@@ -408,9 +408,9 @@ app.factory('posts', function($http, auth){
   };
 
   o.create = function(post) {
-    return $http.post('/api/posts', post, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    console.log(post);
+
+    return $http.post('/api/posts', post).success(function(data){
       o.posts.push(data);
     });
 
@@ -423,10 +423,12 @@ app.factory('posts', function($http, auth){
     });
   };
   o.get = function(id) {
-    return $http.get('/api/post/' + id).success(function(data){
+    return $http.get('/api/posts/' + id).then(function(data){
+       console.log(data);
       return data;
     });
   };
+
   o.addComment = function(post, comment) {
     console.log(post, comment);
     return $http.post('/api/post/' + post._id + '/comments', comment, {
@@ -440,6 +442,7 @@ app.factory('posts', function($http, auth){
       comment.upvotes += 1;
     });
   };
+
   return o;
 });
 
@@ -560,7 +563,7 @@ app.factory('customers', ['$http', 'auth', function($http, auth){
 
 
 // AUTH
-app.factory('auth', ['$http', '$window', function($http, $window){
+app.factory('auth', function($http, $window){
    var auth = {};
    auth.saveToken = function (token){
       $window.localStorage['admin-token'] = token;
@@ -601,7 +604,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
       }
     };
   return auth;
-}]);
+});
 
 
 // LANGUAGES
@@ -625,7 +628,7 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   return lang; 
 }]);
 
-app.factory('settings', ['$http', '$window', function($http, $window){
+app.factory('settings', function ($http, $window) {
    var s = { settings : {} };
    s.getAll = function (){
     return $http.get('/api/settings').success(function(data){
@@ -645,9 +648,9 @@ app.factory('settings', ['$http', '$window', function($http, $window){
      });
    };
    return s;
-}]);
+});
 
-app.factory('users', function($http, $window) {
+app.factory('users', function ($http, $window, auth) {
   var u = { users: [] };
 
   u.getAll = function() {
@@ -657,8 +660,8 @@ app.factory('users', function($http, $window) {
   };
 
   u.getRange = function(start, end) {
-    return $http.get('/api/users/' + start + '/' + end).success(function(data) {
-      return data;
+    return $http.get('/api/users/' + start + '/' + end, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
 
@@ -666,6 +669,22 @@ app.factory('users', function($http, $window) {
     return $http.get('/api/users/search/' + query).success(function(data) {
       return data;
     });
+  };
+
+  u.get = function (id) {
+    return $http.get('/api/user/' + id).then(function(res){
+      return res.data;
+    });
+  };
+
+  u.getAllButSelf = function() {
+    var set = u.users;
+    angular.forEach(set, function(user, index) {
+      if (user.username === auth.currentUser()) {
+        set.splice(index, 1);
+      }
+    });
+    return set;
   };
 
   return u;
@@ -711,36 +730,36 @@ app.factory('gposts', ['$http', 'auth', function($http, auth){
 
   o.getAll = function() {
     return $http.get('/api/gposts').success(function(data){
+      console.log(data);
       angular.copy(data, o.gposts);
     });
   };
   o.create = function(gpost) {
-    return $http.post('/api/gposts', gpost, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    console.log(gpost);
+    return $http.post('/api/gposts', gpost).success(function(data){
       o.gposts.push(data);
     });
-
   };
-  o.upvote = function(gpost) {
-    return $http.put('/api/gposts/' + post._id + '/upvote', null, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      gpost.upvotes += 1;
-    });
-  };
-  o.get = function(id) {
-    return $http.get('/api/gposts/' + id).then(function(res){
-      return res.data;
-    });
-  };
-  o.addGroupComment = function(id, gcomment) {
-    return $http.post('/api/gposts/' + id + '/gcomments', gcomment, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
+  // o.upvote = function(gpost) {
+  //   return $http.put('/api/gposts/' + post._id + '/upvote', null, {
+  //     headers: {Authorization: 'Bearer '+auth.getToken()}
+  //   }).success(function(data){
+  //     gpost.upvotes += 1;
+  //   });
+  // };
+  // o.get = function(id) {
+  //   return $http.get('/api/gposts/' + id).then(function(res){
+  //     return res.data;
+  //   });
+  // };
+  // o.addGroupComment = function(id, gcomment) {
+  //   return $http.post('/api/gposts/' + id + '/gcomments', gcomment, {
+  //     headers: {Authorization: 'Bearer '+auth.getToken()}
+  //   });
+  // };
   return o;
 }]);
+
 
 app.factory('gcomments', ['$http', 'auth', function($http, auth){
   var o = {
@@ -754,6 +773,144 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   return o;
 }]); 
 
+/*  ----------------------  *
+    CONTROLLER - MESSENGER
+ *  ----------------------  */
+
+/* $scope.conversation at the level of the controller is focused convo
+/* --> user initializes new blank conversation
+/* --> when a conversation is focused from list, defaults to [0]th one
+/* ---------------------------- */
+
+app.controller('MessengerCtrl', function ($scope, messenger, settings, users, Conversation) {
+  // $scope.debug = true;
+
+  $scope.users = users.getAllButSelf();
+
+  // get all of user's metadata
+  users.get($scope.user._id).then(function(data) {
+    console.log(data);
+    angular.extend($scope.user, data);
+    $scope.newmessage = { user: $scope.user._id, handle: $scope.user.handle, f_name: $scope.user.f_name, l_name: $scope.user.l_name };
+  });
+
+
+  // get all conversations
+  $scope.conversations = messenger.conversations || [];
+
+
+  // sets the focus and marks read timestamps for messages
+  $scope.focusConversation = function(conversation) {
+    $scope.mainConversation = conversation;
+    // messenger.readMessages(conversation);
+  };
+
+  $scope.initConversation = function() {
+    // only init a new convo if not already in that mode
+    if (!$scope.mainConversation || !$scope.mainConversation.new) {
+      $scope.addUserModal = true;
+      $scope.conversations.unshift(new Conversation());
+      $scope.focusConversation($scope.conversations[0]);
+      $scope.mainConversation.users.push($scope.user);
+    } 
+  };
+
+  $scope.cancelNewConversation = function() {
+    $scope.conversations.splice(0, 1);
+    $scope.focusConversation($scope.conversations[0]);
+  };
+
+  // if ($scope.conversations.length === 0) {
+    // console.log('no convos yet');
+    // $scope.initConversation();
+  // } else {
+    $scope.focusConversation($scope.conversations[0]);
+  // }
+
+  $scope.createMessage = function() {
+    if (!$scope.mainConversation._id) {
+      messenger.createConversation($scope.mainConversation).then(function(data) {
+        $scope.mainConversation._id = data._id;
+        postMessage();
+      });
+    } else {
+      postMessage();
+    }
+  };
+
+  var postMessage = function() {
+    $scope.newmessage.conversation = $scope.mainConversation._id;
+    messenger.createMessage($scope.mainConversation, $scope.newmessage).then(
+      // success
+      function(data) {
+        $scope.mainConversation.messages.push(data);
+        $scope.mainConveration.latest = data;
+        $scope.newmessage.body = null;
+      },
+      // error
+      function(error) {
+
+      }
+    );
+    $scope.addUserModal = false;
+  };
+
+  $scope.isSelf = function(user_id) {
+    return user_id === $scope.user._id;
+  };
+
+  $scope.otherPeople = function(conversation) {
+    var others = angular.copy(conversation.users, others);
+    angular.forEach(others, function(user, i) {
+      if ($scope.isSelf(user._id)) {
+        others.splice(i, 1);
+      }
+    });
+    angular.forEach(others, function(user, i) {
+      others[i] = user.f_name + ' ' + user.l_name;
+    });
+    return others.join(', ');
+  };
+
+  $scope.searchUsers = function() {
+    users.search($scope.conversation.userQuery).success(function(data) {
+      $scope.conversation.userResult = data;
+      console.log($scope.conversation);
+    });
+  };
+
+  $scope.addToConversation = function(user) {
+    $scope.mainConversation.users.push(user);
+  };
+
+});
+
+
+app.directive('conversationAddUsers', function() {
+  return {
+    restrict: 'E',
+    controller: 'MessengerCtrl',
+    scope: false,
+    template: '<div class="col-sm-12">' +
+                // '<form name="userSearchForm" class="form-horizontal" ng-submit="findUsers()" novalidate/>' +
+                  // '<div class="form-group">' + 
+                    // '<input type="text" class="form-control" placeholder="Search" ng-model="conversation.userQuery" ng-blur="searchUsers()">' +
+                  // '</div>' +
+                // '</form>' +
+                '<div ng-repeat="user in users | orderBy:\'username\'" ng-click="addToConversation(user)">' +
+                  '<i class="fa fa-plus"></i> {{user.handle || user.username}} {{user.f_name + \' \' + user.l_name}}' +
+                '</div>' +
+                '<div class="col-sm-12" ng-repeat="user in conversation.userResult">' +
+                  '<div class="col-sm-1">Pic</div>' +
+                  '<div class="col-sm-10">{{user.handle}} | {{user.f_name}} {{user.l_name}}</div>' +
+                  '<div class="col-sm-1"> </div>' +
+                '</div>' +
+              '</div>',
+    link: function(scope, element, attrs) {}
+  };
+});
+
+
 app.factory('messenger', function ($http, auth) {
 
   var o = {
@@ -761,7 +918,9 @@ app.factory('messenger', function ($http, auth) {
   };
 
   o.getAll = function() {
-    return $http.get('/api/conversations').success(function(data) {
+    return $http.get('/api/conversations', {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
       console.log(data);
       angular.copy(data, o.conversations);
     });
@@ -776,8 +935,8 @@ app.factory('messenger', function ($http, auth) {
   o.createConversation = function(convo) {
     return $http.post('/api/conversation', convo, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      return data;
+    }).then(function(res) {
+      return res.data;
     });
   };
 
@@ -785,11 +944,32 @@ app.factory('messenger', function ($http, auth) {
     console.log('convo', convo, 'message', message);
     return $http.post('/api/conversation/' + convo._id + '/messages', message, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      return data;
+    }).then(function(res) {
+      return res.data;
+    });
+  };
+
+  o.readMessages = function(convo) {
+    console.log('reading messages');
+    return $http.put('/api/conversation/' + convo._id + '/read', { user: auth.getUser()._id }, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
 
   return o;
 
 });
+
+app.factory('Conversation', function() {
+
+  var Conversation = function () {
+    var self = this;
+    self.users = [];
+    self.messages = [];
+    self.new = true;
+  };
+
+  return Conversation;
+
+});
+

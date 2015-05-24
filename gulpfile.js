@@ -24,7 +24,11 @@ var exec = require('child_process').exec;
 
 // Lint Task
 gulp.task('lint', function() {
-    return gulp.src(['client/app.js','client/js/controllers.js','client/js/models.js','client/user/app.js','client/user/js/controllers.js','client/user/js/models.js','client/admin/app.js','client/admin/js/controllers.js','client/admin/js/models.js','client/js/models.js','client/set/app.js','client/set/js/controllers.js','client/set/js/models.js'])
+    return gulp.src(['client/app.js','client/js/controllers.js','client/js/models.js', 
+        'client/user/app.js','client/user/js/controllers.js','client/user/js/models.js',
+        'client/admin/app.js','client/admin/js/controllers.js','client/admin/js/models.js',
+        'client/set/app.js','client/set/js/controllers.js','client/set/js/models.js',
+        'client/user/pages/messenger/*.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
 });
@@ -41,7 +45,7 @@ gulp.task('scripts', function() {
 });
 
 gulp.task('userscripts', function() {
-    return gulp.src(['client/user/app.js','client/user/js/controllers.js','client/user/js/models.js'])
+    return gulp.src(['client/user/app.js','client/user/js/controllers.js','client/user/js/models.js', 'client/user/pages/*/*.js'])
         .pipe(concat('all.js'))
         .pipe(gulp.dest('client/user/dist'))
         .pipe(rename('all.min.js'))
@@ -81,7 +85,7 @@ gulp.task('styles', function () {
 });
 
 gulp.task('userstyles', function () {
-    gulp.src('client/user/css/*.css')
+    gulp.src(['client/user/css/*.css','client/user/pages/*/*.css'])
         .pipe(concat('all.css'))
         .pipe(gulp.dest('client/user/dist'))
         .pipe(minifyCSS())
@@ -149,6 +153,7 @@ gulp.task('watch', function() {
     // javascript
     gulp.watch('client/js/*.js', ['lint', 'scripts']);
     gulp.watch('client/user/js/*.js', ['lint', 'userscripts']);
+    gulp.watch('client/user/pages/*/*.js', ['lint', 'userscripts']);
     gulp.watch('client/admin/js/*.js', ['lint', 'adminscripts']);
     gulp.watch('client/set/js/*.js', ['lint', 'setscripts']);
 
@@ -156,6 +161,7 @@ gulp.task('watch', function() {
     gulp.watch('client/*.html', ['markup']);
     gulp.watch('client/user/*.html', ['usermarkup']);
     gulp.watch('client/user/views/*.html', ['usermarkup']);
+    gulp.watch('client/user/pages/*/*.html', ['usermarkup']);
     gulp.watch('client/admin/*.html', ['adminmarkup']);
     gulp.watch('client/admin/views/*.html', ['adminmarkup']);
     gulp.watch('client/set/*.html', ['setmarkup']);
@@ -164,6 +170,7 @@ gulp.task('watch', function() {
     // stylesheets
     gulp.watch('client/css/*.css', ['styles']);
     gulp.watch('client/user/css/*.css', ['userstyles']);
+    gulp.watch('client/user/pages/*/*.css', ['userstyles']);
     gulp.watch('client/admin/css/*.css', ['adminstyles']);
     gulp.watch('client/set/css/*.css', ['setstyles']);
 });
