@@ -4,7 +4,8 @@
       <h3>Users</h3>
       <div ng-repeat="user in users">
         <span>{{user.l_name}},</span>
-        <span>{{user.f_name}}</span>
+        <span>{{user.f_name}}</span> |
+        <span>{{user.handle}},</span> | 
         <a href="#/user/{{user._id}}">See More</a>
       </div>
       <div class="text-center">

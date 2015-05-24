@@ -7,16 +7,6 @@ var jwt = require('express-jwt');
 var bodyParser = require('body-parser'),    
     jsonParser = bodyParser.json();    
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
-var nodemailer = require('nodemailer');
-var transporter = nodemailer.createTransport({
-    service: 'Mandrill',
-    host: 'smtp.mandrillapp.com',
-    port: 587,
-    auth: {
-        user: 'trainersvault',
-        pass: 'BGkIPqtGVLNL2JAGAmwHMw'
-    }
-  });
 var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
 
 // API controllers 
@@ -41,8 +31,10 @@ module.exports = router;
 
 // ------------------------ POSTS and COMMENTS  ------------------------------//
 router.get('/api/posts', posts.getPosts );
+
 router.post('/api/posts', auth, posts.createPost );
 router.param('/api/post', posts.getPostByIdParam );
+
 router.get('/api/post/:post', posts.getPostById )
 
 router.put('/api/post/:post/upvote', auth, posts.upvotePost )
@@ -77,17 +69,18 @@ router.get('/api/customers/:customer', shop.getCustomerById );
 router.get('/api/groups', groups.getGroups );
 router.post('/api/groups', groups.createGroup );
 router.get('/api/group/:id', groups.getGroupById );
-router.param('/api/group', groups.getGroupByIdParam );
-router.get('/api/gposts', groups.getGPosts );
-router.post('/api/gposts', auth, groups.createGPost );
+// router.param('/api/group', groups.getGroupByIdParam );
+router.get('/api/group/:id/gposts', groups.getGposts );
+// router.post('/api/group/:id/gposts', auth, groups.createGpost );
+// router.param('/api/group/:id/gpost', groups.getGpostByIdParam );
 
-//post page & comments
-router.param('/api/gpost', groups.getGPostByIdParam );
-router.get('/api/gposts/:gpost', groups.getGPostById );
-router.put('/api/gposts/:gpost/upvote', auth, groups.upvoteGPost );
-router.post('/api/gposts/:gpost/gcomments', auth, groups.createGPostComment );
-router.put('/api/gposts/:gpost/gcomments/:gcomment/upvote', auth, groups.upvoteGPostComment );
-router.param('gcomment', groups.getGPostCommentByIdParam );
+// //post page & comments
+// router.param('/api/gpost', groups.getGPostByIdParam );
+// router.get('/api/gposts/:gpost', groups.getGPostById );
+// router.put('/api/gposts/:gpost/upvote', auth, groups.upvoteGPost );
+// router.post('/api/gposts/:gpost/gcomments', auth, groups.createGPostComment );
+// router.put('/api/gposts/:gpost/gcomments/:gcomment/upvote', auth, groups.upvoteGPostComment );
+// router.param('gcomment', groups.getGPostCommentByIdParam );
 
 // ----------------------- AUTHENTICATION   ----------------------------------//
 router.post('/api/register', authentication.doRegistration );
@@ -122,8 +115,9 @@ router.get('/api/user/handle/:handle', settings.getUserByHandle );
 
 
 // ----------------------------- MESSAGING ----------------------------------//
-router.get('/api/conversations', messaging.getConversations );
-router.get( '/api/conversation/:id', messaging.getConversationById );
+router.get('/api/conversations', auth, messaging.getConversations );
+router.get('/api/conversation/:id', messaging.getConversationById );
 
 router.post('/api/conversation', auth, messaging.createConversation );
+router.put('/api/conversation/:id/read', messaging.readMessages );
 router.post('/api/conversation/:id/messages', auth, messaging.createMessage );

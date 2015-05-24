@@ -1,29 +1,37 @@
       <div class="page-header">
-        <h1>Group Page</h1>
+        <h1>Group Wall  || {{group.name}}</h1>
 
       </div>
-      <div>
-        <h1>{{group.name}} {{group._id}}</h1>
-      </div>
-      <!-- <div ng-repeat="gpost in gposts | orderBy:'-upvotes'">
-        <span class="glyphicon glyphicon-thumbs-up"
+      <div ng-repeat="gpost in gposts">
+<!--         <span class="glyphicon glyphicon-thumbs-up"
           ng-click="incrementUpvotes(gpost)"></span>
-            {{gpost.upvotes}}
-        <span style="font-size:20px; margin-left:10px;">
-          <span>
-            {{gpost.body}}
-          </span>
+            {{gpost.upvotes}} -->
+        <div>
+          <span style="font-size:18px;">{{gpost.body}}</span>
+          <span style="font-size:12px;">By {{gpost.author}}</span>
+        </div>
+<!--         <span style="font-size:10px;">
+          {{post.comment.body}}
         </span>
-        <span style="font-size:15px; margin left:10px; font-color:black">
-            {{gpost.author}}
+        <span style="font-size:12px;">
+          By <a href="/set/#/user/{{user._id}}">{{post.comment.author}}</a>
         </span>
-        <span>
-          <a href="#/gposts/{{gpost._id}}">Comments</a>
-        </span>
+        <form ng-submit="addComment()"
+                style="margin-top:15px; padding-bottom: 30px">
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="Comment Body"
+              ng-model="post.comment.body">
+            </input>
+          </div>
+          <button type="submit" class="btn btn-primary">Comment</button>
+        </form>
+        </div> -->
       </div>
-      <form ng-submit="addGroupPost()"
-        ng-show="isLoggedIn()"
-        style="margin-top:30px;">
+
+      <form ng-submit="addGpost()"
+        style="margin-top:30px; border-top: 1px; border-style: solid; border-bottom:none; border-left: none; border-right:none; padding-top: 1px;  border-color: #eee">
 
         <h3>Post to Group</h3>
 
@@ -36,9 +44,7 @@
         </div>
         <button type="submit" class="btn btn-primary">Post</button>
       </form>
-
-      <br />
-      <div>
+      <div style="margin-top:30px">
         <span>
           <a href="#/home">Home Page</a>
         </span>
@@ -47,6 +53,3 @@
       <div ng-hide="isLoggedIn()">
         <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a post.</h3>
       </div>
- --><!--       <div ng-hide="isGroupMember()">
-        <h3> You must be a group member to view this page</h3>
-      </div>  --> 

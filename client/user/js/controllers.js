@@ -32,13 +32,17 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
     });
     $scope.title = '';
     $scope.link = '';
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("User Dashboard: Add Post");
+    mixpanel.track("Add Post",{"area":"group", "page":"groupHome", "action":"create"});
+    // mixpanel.track("User Dashboard: Add Post");
   };
   $scope.incrementUpvotes = function(post) {
     posts.upvote(post);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("User Dashboard: Upvoted Comment");
+    mixpanel.track("Upvote Post",{"area":"group", "page":"groupHome", "action":"upvote"});
+    // mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 
@@ -60,6 +64,16 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
       $scope.post.comments.push(comment);
       $scope.comment.body = null;
     });
+    $scope.body = '';
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Comment",{"area":"group", "page":"groupHome", "action":"comment"});
+  };
+  $scope.incrementUpvotes = function(comment){
+    posts.upvoteComment(post, comment);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Upvote Comment",{"area":"group", "page":"groupHome", "action":"upvote"});
   };
   $scope.incrementUpvotes = function(comment) {
     posts.upvoteComment($scope.post, comment);
@@ -80,14 +94,18 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
    }).error(function(){
        console.log('failure');
    });
-   mixpanel.identify($scope.user._id);
-   mixpanel.track("Shop Page: Added Item");
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
+   // mixpanel.track("Shop Page: Added Item");
  };
 
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Shop Page: Upvoted Comment");
+    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
+    // mixpanel.track("Shop Page: Upvoted Comment");
   };  
 
 });
@@ -96,14 +114,13 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
 app.controller('ItemsCtrl', function ($scope, items, auth) {
 
   $scope.items = items.items;
-  $scope.videos = items.videos;
-  $scope.video = items.video;
   $scope.item = items.item;
-  $scope.isDietPlan = auth.isDietPlan;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Items Page: Upvoted Comment");
+    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
+    // mixpanel.track("Items Page: Upvoted Comment");
   };
 
 });
@@ -120,8 +137,10 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
   $scope.startTrans = function () {
     console.log($scope.card);
     transactions.purchase($scope.card);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Checkout: Purchase Item");
+    mixpanel.track("Start Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});
+    // mixpanel.track("Checkout: Purchase Item");
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
 });
@@ -135,12 +154,17 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
     languages.addLanguage($scope.language.name).success(function(data) {
     $scope.languages.push(data);
     });
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Languange",{"area":"settings", "page":"settings", "action":"add"});
   };
   $scope.updateSettings = function() {
     console.log($scope.user);
     settings.update($scope.user);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Settings: Update User");
+    mixpanel.track("Settings update",{"area":"settings", "page":"settings", "action":"update"});
+    // mixpanel.track("Settings: Update User");
   };
   $scope.user = userPromise.data;
   console.log(userPromise);
@@ -153,25 +177,43 @@ function ($scope, groups, auth) {
   $scope.addGroup = function(){
     groups.create($scope.group);
     console.log($scope.group);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Group", {"area":"group", "page":"groups", "action":"create"});
   };
   $scope.group = '';
   $scope.isLoggedIn = auth.isLoggedIn;
 });
 
 app.controller('GHomeCtrl',
-function ($scope, auth, groupsPromise){
+function ($scope, auth, groups, groupsPromise, gposts, $stateParams){
+  var group = groups.group[$stateParams.id];
   // var gpost = gposts.gpost[$stateParams.id];
   $scope.group = groupsPromise.data;
   console.log(groupsPromise.data);
-  // $scope.addGroupPost = function(){
-  //   if(!scope.body || $scope.body === '') { return; }
-  //   groups.addGpost(groups.group._id, {
-  //     body: $scope.body,
-  //     author: 'user',
-  //   }).success(function(gpost) {
-  //     $scope.group.gpost.push(gpost);
-  //   });
-  //   $scope.body = '';
+  // $scope.gpost = gpostsPromise.data;
+  // console.log(gpostsPromise.data);
+
+  $scope.currentUser = auth.currentUser();
+  $scope.groups = groups.groups;
+  $scope.gposts = gposts.gposts;
+  $scope.addGpost = function(){
+    // if(!$scope.body || $scope.body === '') { return; }
+    groups.gposts.create($scope.gpost);
+    $scope.body = '';
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
+  };
+  // $scope.addComment = function(){
+  //   console.log($scope.post);
+  //   // posts.addComment(posts.post._id, {
+  //   //   body: $scope.post.comment,
+  //   //   author: $scope.currentUser
+  //   // }).success(function(comment) {
+  //   //   $scope.post.comments.push(comment);
+  //   // });
+  //   // $scope.body = '';
   // };
   // $scope.incrementUpvotes = function(gpost){
   //   gposts.upvoteGroupPost(gpost);
@@ -205,47 +247,3 @@ function($scope, $stateParams, gposts, gcomments, auth){
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
-
-
-
-
-
-// ------ MESSENGER ---------- //
-// $scope.conversation at the level of the controller is focused convo
-// --> user initializes new blank conversation
-// --> when a conversation is focused from list, defaults to [0]th one
-// ---------------------------- //
-app.controller('MessengerCtrl', function($scope, messenger, settings, users, usersPromise) {
-
-  $scope.conversations = messenger.conversations;
-  $scope.user = angular.extend($scope.user, settings.settings);
-  $scope.users = usersPromise.data;
-  $scope.conversation = $scope.conversations[0];
-
-  $scope.createConversation = function() {
-    $scope.conversation = { users: [] };
-  };
-
-  $scope.createMessage = function() {
-    var message = $scope.conversation.message;
-    message.user = $scope.user._id;
-    message.handle = $scope.user.handle;
-    message.conversation = $scope.conversation._id;
-    messenger.createMessage($scope.conversation, $scope.conversation.message).success(function(data) {
-      $scope.conversation.messages.push(data);
-    });
-
-  };
-
-  $scope.searchUsers = function() {
-    users.search($scope.conversation.userQuery).success(function(data) {
-      $scope.conversation.userResult = data;
-      console.log($scope.conversation);
-    });
-  };
-
-  $scope.addToConversation = function(user) {
-    $scope.conversation.users.push(user._id);
-  };
-
-});

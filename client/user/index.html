@@ -96,6 +96,30 @@ mixpanel.init("08314cf925efc4376a17217e8922cd22");</script><!-- end Mixpanel -->
   <script src="js/ng-img-crop.js"></script>
   <script src="js/ng-flow-standalone.min.js"></script>
   <script src="js/angular-payments.min.js"></script>
+  <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '692480267528460',
+          xfbml      : true,
+          version    : 'v2.3'
+        });
+        FB.ui({
+         method: 'share_open_graph',
+         action_type: 'og.likes',
+         action_properties: JSON.stringify({
+          object:'https://developers.facebook.com/docs/',
+         })
+        }, function(response){});
+      };
+
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js/debug.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
   
 <!--  <script type="text/javascript" src="https://js.stripe.com/v2/"></script>-->
 </body>
