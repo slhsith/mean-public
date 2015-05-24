@@ -112,8 +112,9 @@ router.get('/api/user/handle/:handle', settings.getUserByHandle );
 
 
 // ----------------------------- MESSAGING ----------------------------------//
-router.get('/api/conversations', messaging.getConversations );
-router.get( '/api/conversation/:id', messaging.getConversationById );
+router.get('/api/conversations', auth, messaging.getConversations );
+router.get('/api/conversation/:id', messaging.getConversationById );
 
 router.post('/api/conversation', auth, messaging.createConversation );
+router.put('/api/conversation/:id/read', messaging.readMessages );
 router.post('/api/conversation/:id/messages', auth, messaging.createMessage );

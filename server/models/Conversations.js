@@ -5,8 +5,8 @@ var ConversationSchema = new mongoose.Schema({
   users    : [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   messages : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
 
-  lastmessage: { timesent      : {type: Date },
-                 timeread      : {type: Date },
+  latest   : { timesent        : { type: Date, default: Date.now },
+                 timeread      : { type: Date },
                  body          : String,
                  f_name        : String,
                  l_name        : String,
@@ -16,9 +16,9 @@ var ConversationSchema = new mongoose.Schema({
 
 });
 
-// ConversationSchema.methods.upvote = function(cb) {
-  // this.upvotes += 1;
-  // this.save(cb);
-// };
+ConversationSchema.methods.readMessages = function() {
+  this.upvotes += 1;
+  this.save();
+};
 
 mongoose.model('Conversation', ConversationSchema);

@@ -1,8 +1,13 @@
 var mongoose = require('mongoose');
 
+var TimestampSchema = new mongoose.Schema({ 
+  user          :  {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+  time          :  {type: Date, default: Date.now }
+}, {_id : false} );
+
 var MessageSchema = new mongoose.Schema({
   timesent      : {type: Date, default: Date.now },
-  timeread      : {type: Date },
+  timeread      : [TimestampSchema],
   body          : String,
   f_name        : String,
   l_name        : String,
@@ -13,6 +18,7 @@ var MessageSchema = new mongoose.Schema({
 
 
 mongoose.model('Message', MessageSchema);
+mongoose.model('Timestamp', TimestampSchema);
 
 
 
