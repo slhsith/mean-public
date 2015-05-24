@@ -100,8 +100,8 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
-  o.get = function(id) {
-    return $http.get('/api/items/' + id).then(function(res){
+  o.get = function(item) {
+    return $http.get('/api/items/' + item).then(function(res){
       return res.data;
     });
   };

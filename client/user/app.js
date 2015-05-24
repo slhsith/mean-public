@@ -44,9 +44,11 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'items.html',
       controller: 'ItemsCtrl',
       resolve: {
-        item: ['$stateParams', 'items', function($stateParams, items) {
-          return items.get($stateParams.id);
-        }]
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams);
+      
+          return items.get($stateParams.item);
+        }
       }
     })
     .state('diet', {

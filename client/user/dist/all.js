@@ -44,9 +44,11 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'items.html',
       controller: 'ItemsCtrl',
       resolve: {
-        item: ['$stateParams', 'items', function($stateParams, items) {
-          return items.get($stateParams.id);
-        }]
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams);
+      
+          return items.get($stateParams.item);
+        }
       }
     })
     .state('diet', {
@@ -253,10 +255,10 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
 });
 
 
-app.controller('ItemsCtrl', function ($scope, items, auth) {
+app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise) {
 
   $scope.items = items.items;
-  $scope.item = items.item;
+  $scope.item = itemPromise;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     // mixpanel.alias($scope.user._id);
@@ -492,8 +494,8 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
-  o.get = function(id) {
-    return $http.get('/api/items/' + id).then(function(res){
+  o.get = function(item) {
+    return $http.get('/api/items/' + item).then(function(res){
       return res.data;
     });
   };
@@ -772,204 +774,3 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   };
   return o;
 }]); 
-
-/*  ----------------------  *
-    CONTROLLER - MESSENGER
- *  ----------------------  */
-
-/* $scope.conversation at the level of the controller is focused convo
-/* --> user initializes new blank conversation
-/* --> when a conversation is focused from list, defaults to [0]th one
-/* ---------------------------- */
-
-app.controller('MessengerCtrl', function ($scope, messenger, settings, users, Conversation) {
-  // $scope.debug = true;
-
-  $scope.users = users.getAllButSelf();
-
-  // get all of user's metadata
-  users.get($scope.user._id).then(function(data) {
-    console.log(data);
-    angular.extend($scope.user, data);
-    $scope.newmessage = { user: $scope.user._id, handle: $scope.user.handle, f_name: $scope.user.f_name, l_name: $scope.user.l_name };
-  });
-
-
-  // get all conversations
-  $scope.conversations = messenger.conversations || [];
-
-
-  // sets the focus and marks read timestamps for messages
-  $scope.focusConversation = function(conversation) {
-    $scope.mainConversation = conversation;
-    // messenger.readMessages(conversation);
-  };
-
-  $scope.initConversation = function() {
-    // only init a new convo if not already in that mode
-    if (!$scope.mainConversation || !$scope.mainConversation.new) {
-      $scope.addUserModal = true;
-      $scope.conversations.unshift(new Conversation());
-      $scope.focusConversation($scope.conversations[0]);
-      $scope.mainConversation.users.push($scope.user);
-    } 
-  };
-
-  $scope.cancelNewConversation = function() {
-    $scope.conversations.splice(0, 1);
-    $scope.focusConversation($scope.conversations[0]);
-  };
-
-  // if ($scope.conversations.length === 0) {
-    // console.log('no convos yet');
-    // $scope.initConversation();
-  // } else {
-    $scope.focusConversation($scope.conversations[0]);
-  // }
-
-  $scope.createMessage = function() {
-    if (!$scope.mainConversation._id) {
-      messenger.createConversation($scope.mainConversation).then(function(data) {
-        $scope.mainConversation._id = data._id;
-        postMessage();
-      });
-    } else {
-      postMessage();
-    }
-  };
-
-  var postMessage = function() {
-    $scope.newmessage.conversation = $scope.mainConversation._id;
-    messenger.createMessage($scope.mainConversation, $scope.newmessage).then(
-      // success
-      function(data) {
-        $scope.mainConversation.messages.push(data);
-        $scope.mainConveration.latest = data;
-        $scope.newmessage.body = null;
-      },
-      // error
-      function(error) {
-
-      }
-    );
-    $scope.addUserModal = false;
-  };
-
-  $scope.isSelf = function(user_id) {
-    return user_id === $scope.user._id;
-  };
-
-  $scope.otherPeople = function(conversation) {
-    var others = angular.copy(conversation.users, others);
-    angular.forEach(others, function(user, i) {
-      if ($scope.isSelf(user._id)) {
-        others.splice(i, 1);
-      }
-    });
-    angular.forEach(others, function(user, i) {
-      others[i] = user.f_name + ' ' + user.l_name;
-    });
-    return others.join(', ');
-  };
-
-  $scope.searchUsers = function() {
-    users.search($scope.conversation.userQuery).success(function(data) {
-      $scope.conversation.userResult = data;
-      console.log($scope.conversation);
-    });
-  };
-
-  $scope.addToConversation = function(user) {
-    $scope.mainConversation.users.push(user);
-  };
-
-});
-
-
-app.directive('conversationAddUsers', function() {
-  return {
-    restrict: 'E',
-    controller: 'MessengerCtrl',
-    scope: false,
-    template: '<div class="col-sm-12">' +
-                // '<form name="userSearchForm" class="form-horizontal" ng-submit="findUsers()" novalidate/>' +
-                  // '<div class="form-group">' + 
-                    // '<input type="text" class="form-control" placeholder="Search" ng-model="conversation.userQuery" ng-blur="searchUsers()">' +
-                  // '</div>' +
-                // '</form>' +
-                '<div ng-repeat="user in users | orderBy:\'username\'" ng-click="addToConversation(user)">' +
-                  '<i class="fa fa-plus"></i> {{user.handle || user.username}} {{user.f_name + \' \' + user.l_name}}' +
-                '</div>' +
-                '<div class="col-sm-12" ng-repeat="user in conversation.userResult">' +
-                  '<div class="col-sm-1">Pic</div>' +
-                  '<div class="col-sm-10">{{user.handle}} | {{user.f_name}} {{user.l_name}}</div>' +
-                  '<div class="col-sm-1"> </div>' +
-                '</div>' +
-              '</div>',
-    link: function(scope, element, attrs) {}
-  };
-});
-
-
-app.factory('messenger', function ($http, auth) {
-
-  var o = {
-    conversations: []
-  };
-
-  o.getAll = function() {
-    return $http.get('/api/conversations', {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      console.log(data);
-      angular.copy(data, o.conversations);
-    });
-  };
-
-  o.get = function(id) {
-    return $http.get('/api/conversation/' + id).success(function(data) {
-      return data;
-    });
-  };
-
-  o.createConversation = function(convo) {
-    return $http.post('/api/conversation', convo, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      return res.data;
-    });
-  };
-
-  o.createMessage = function(convo, message) {
-    console.log('convo', convo, 'message', message);
-    return $http.post('/api/conversation/' + convo._id + '/messages', message, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      return res.data;
-    });
-  };
-
-  o.readMessages = function(convo) {
-    console.log('reading messages');
-    return $http.put('/api/conversation/' + convo._id + '/read', { user: auth.getUser()._id }, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-
-  return o;
-
-});
-
-app.factory('Conversation', function() {
-
-  var Conversation = function () {
-    var self = this;
-    self.users = [];
-    self.messages = [];
-    self.new = true;
-  };
-
-  return Conversation;
-
-});
-
