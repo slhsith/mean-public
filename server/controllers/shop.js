@@ -13,6 +13,7 @@ var
   Video         = mongoose.model('Video'),
   Book          = mongoose.model('Book'),
   Podcast       = mongoose.model('Podcast'),
+  DietPlan      = mongoose.model('DietPlan'),
 
   Transaction   = mongoose.model('Transaction'),
   Customer      = mongoose.model('Customer');
@@ -66,11 +67,28 @@ exports.postItem = function(req, res, next) {
       podcast.item = [item._id]
       podcast.save(function(err, podcast){
         if(err){ return next(err); }
-        Item.findByIdAndUpdate(item._id, { $set: { video: [video._id] }}, function (err, item) {
+        Item.findByIdAndUpdate(item._id, { $set: { podcast: [podcast._id] }}, function (err, item) {
           if (err) { return next(err); }
           return item;
           //random comment
         });
+      });
+    }
+    if (req.body.type === 'DietPlan'){
+      var dietPlan = new DietPlan(req.body);
+      dietPlan.author = req.payload.username;
+      dietPlan.item = [item._id]
+      dietPlan.save(function(err, dietPlan){
+        if(err){ return next(err); }
+        Item.findByIdAndUpdate(item._id, { $set: { dietPlan: [dietPlan._id] }}, function (err, item) {
+          if (err) { return next(err); }
+          return item;
+          //random comment
+        });
+        DietPlan.findByIdAndUpdate(dietPlan._id, { $set: { category: req.body.category }}, function  (err, dietPlan) {
+          if (err) { return next(err); }
+          return dietPlan;
+        })
       });
     }
   }) 
