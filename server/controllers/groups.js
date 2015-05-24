@@ -7,14 +7,14 @@ var mongoose = require('mongoose');
 
 // --- Models --- //
 var Group         = mongoose.model('Group');
-var Gpost          = mongoose.model('Post');
+var Gpost          = mongoose.model('Gpost');
 
 // --- Exported Methods --- //
 exports.getGroups = function(req, res, next) {
   Group.find({},function(err, groups){
     if(err){ return next(err); }
     res.json(groups)
-  }).populate('Posts');
+  }).populate('Gposts');
 };
 
 exports.createGroup = function (req, res, next) {
@@ -46,10 +46,9 @@ exports.getGroupByIdParam = function(req, res, next, id) {
   });
 };
 
-exports.getGposts = function(req, res, next) {
+exports.getGposts = function(req, res, next, id) {
   Gpost.find({}, function(err, gposts){
     if(err){ return next(err); }
-
     res.json(gposts);
   });
 };

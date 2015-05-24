@@ -86,11 +86,12 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         groupsPromise: function($stateParams, groups){
           return groups.get($stateParams.id);
+        },
+        gpostsPromise: function ($stateParams, gposts){
+          return gposts.getAll($stateParams.id);
         }
       }
     })
-
-
     .state('messenger', {
       url: '/messenger',
       templateUrl: 'messenger.html',
@@ -118,18 +119,29 @@ function($stateProvider, $urlRouterProvider) {
     //   }
     // })
     .state('settings', {
-     url: '/settings',
-     templateUrl: 'settings.html',
-     controller: 'SettingsCtrl',
-     resolve: {
-       languagePromise: function (languages) {
-         return languages.getAll();
-       },
-       userPromise: function ($stateParams, settings) {
-        return settings.get($stateParams.handle);
+       url: '/settings',
+       templateUrl: 'settings.html',
+       controller: 'SettingsCtrl',
+       resolve: {
+         languagePromise: function (languages) {
+           return languages.getAll();
+         },
+         userPromise: function ($stateParams, users) {
+          return users.get($stateParams.id);
+         }
        }
-     }
-   });
+    })
+
+    .state('user', {
+      url: '/user/:handle',
+      templateUrl: 'users.html',
+      controller: 'UserCtrl',
+      resolve: {
+        userPromise: function($stateParams, users) {
+          return users.get($stateParams.id);
+        }
+      }
+    });
   // $urlRouterProvider.otherwise('home');
 }]);
 /*  ------------------  *
@@ -335,7 +347,7 @@ function ($scope, auth, groups, groupsPromise, gposts, $stateParams){
   $scope.gposts = gposts.gposts;
   $scope.addGpost = function(){
     // if(!$scope.body || $scope.body === '') { return; }
-    groups.gposts.create($scope.gpost);
+    gposts.create($scope.gpost);
     $scope.body = '';
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
@@ -368,9 +380,9 @@ function($scope, $stateParams, gposts, gcomments, auth){
   $scope.get(gpost._id);
   $scope.gpost = gposts.gpost;
   $scope.gcomments = gcomments.gcomments;
-  $scope.addGroupComment = function(){
+  $scope.addGcomment = function(){
     if(!scope.body || $scope.body === '') { return; }
-    gposts.addGroupComment(gposts.gpost._id, {
+    gposts.addGcomment(gposts.gpost._id, {
       body: $scope.body,
       author: 'user',
     }).success(function(gcomment) {
@@ -426,6 +438,17 @@ app.controller('MessengerCtrl', function($scope, messenger, settings, users, use
     $scope.conversation.users.push(user._id);
   };
 
+});
+
+app.controller('UserCtrl', function ($scope, users, auth, userPromise) {
+  $scope.user = userPromise.data;
+
+  $scope.update = function() {
+    console.log($scope.user);
+    users.update($scope.user);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Settings: Update User");
+  };
 });
 
 /*  ----------------  *
@@ -708,6 +731,18 @@ app.factory('users', function($http, $window) {
       return data;
     });
   };
+  u.get = function (id) {
+    return $http.get('/api/user/' + id).success(function(data){
+      console.log(data);
+      return data;
+    });
+  };
+  u.update = function (user){
+    console.log('updating user', user);
+    return $http.put('/api/settings', user).success(function(data){
+        u.users = data;
+    });
+  };
 
   return u;
 });
@@ -728,7 +763,6 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
   }; 
   o.create = function (group) {
    console.log(group);
-
    return $http.post('/api/groups', group ).success(function(data){
      console.log(data);
      o.groups.push(data);
@@ -750,15 +784,15 @@ app.factory('gposts', ['$http', 'auth', function($http, auth){
     gpost: {}
   };
 
-  o.getAll = function() {
-    return $http.get('/api/gposts').success(function(data){
+  o.getAll = function(id) {
+    return $http.get('/api/gposts/' + id).then(function(data){
       console.log(data);
       angular.copy(data, o.gposts);
     });
   };
   o.create = function(gpost) {
     console.log(gpost);
-    return $http.post('/api/gposts', gpost).success(function(data){
+    return $http.post('/api/gposts', gpost ).success(function(data){
       o.gposts.push(data);
     });
   };

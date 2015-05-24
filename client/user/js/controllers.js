@@ -201,7 +201,7 @@ function ($scope, auth, groups, groupsPromise, gposts, $stateParams){
   $scope.gposts = gposts.gposts;
   $scope.addGpost = function(){
     // if(!$scope.body || $scope.body === '') { return; }
-    groups.gposts.create($scope.gpost);
+    gposts.create($scope.gpost);
     $scope.body = '';
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
@@ -234,9 +234,9 @@ function($scope, $stateParams, gposts, gcomments, auth){
   $scope.get(gpost._id);
   $scope.gpost = gposts.gpost;
   $scope.gcomments = gcomments.gcomments;
-  $scope.addGroupComment = function(){
+  $scope.addGcomment = function(){
     if(!scope.body || $scope.body === '') { return; }
-    gposts.addGroupComment(gposts.gpost._id, {
+    gposts.addGcomment(gposts.gpost._id, {
       body: $scope.body,
       author: 'user',
     }).success(function(gcomment) {
@@ -292,4 +292,15 @@ app.controller('MessengerCtrl', function($scope, messenger, settings, users, use
     $scope.conversation.users.push(user._id);
   };
 
+});
+
+app.controller('UserCtrl', function ($scope, users, auth, userPromise) {
+  $scope.user = userPromise.data;
+
+  $scope.update = function() {
+    console.log($scope.user);
+    users.update($scope.user);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Settings: Update User");
+  };
 });

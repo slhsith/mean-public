@@ -86,11 +86,12 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         groupsPromise: function($stateParams, groups){
           return groups.get($stateParams.id);
+        },
+        gpostsPromise: function ($stateParams, gposts){
+          return gposts.getAll($stateParams.id);
         }
       }
     })
-
-
     .state('messenger', {
       url: '/messenger',
       templateUrl: 'messenger.html',
@@ -118,17 +119,28 @@ function($stateProvider, $urlRouterProvider) {
     //   }
     // })
     .state('settings', {
-     url: '/settings',
-     templateUrl: 'settings.html',
-     controller: 'SettingsCtrl',
-     resolve: {
-       languagePromise: function (languages) {
-         return languages.getAll();
-       },
-       userPromise: function ($stateParams, settings) {
-        return settings.get($stateParams.handle);
+       url: '/settings',
+       templateUrl: 'settings.html',
+       controller: 'SettingsCtrl',
+       resolve: {
+         languagePromise: function (languages) {
+           return languages.getAll();
+         },
+         userPromise: function ($stateParams, users) {
+          return users.get($stateParams.id);
+         }
        }
-     }
-   });
+    })
+
+    .state('user', {
+      url: '/user/:handle',
+      templateUrl: 'users.html',
+      controller: 'UserCtrl',
+      resolve: {
+        userPromise: function($stateParams, users) {
+          return users.get($stateParams.id);
+        }
+      }
+    });
   // $urlRouterProvider.otherwise('home');
 }]);

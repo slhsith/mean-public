@@ -278,6 +278,18 @@ app.factory('users', function($http, $window) {
       return data;
     });
   };
+  u.get = function (id) {
+    return $http.get('/api/user/' + id).success(function(data){
+      console.log(data);
+      return data;
+    });
+  };
+  u.update = function (user){
+    console.log('updating user', user);
+    return $http.put('/api/settings', user).success(function(data){
+        u.users = data;
+    });
+  };
 
   return u;
 });
@@ -298,7 +310,6 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
   }; 
   o.create = function (group) {
    console.log(group);
-
    return $http.post('/api/groups', group ).success(function(data){
      console.log(data);
      o.groups.push(data);
@@ -320,15 +331,15 @@ app.factory('gposts', ['$http', 'auth', function($http, auth){
     gpost: {}
   };
 
-  o.getAll = function() {
-    return $http.get('/api/gposts').success(function(data){
+  o.getAll = function(id) {
+    return $http.get('/api/gposts/' + id).then(function(data){
       console.log(data);
       angular.copy(data, o.gposts);
     });
   };
   o.create = function(gpost) {
     console.log(gpost);
-    return $http.post('/api/gposts', gpost).success(function(data){
+    return $http.post('/api/gposts', gpost ).success(function(data){
       o.gposts.push(data);
     });
   };
