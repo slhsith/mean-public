@@ -31,8 +31,10 @@ module.exports = router;
 
 // ------------------------ POSTS and COMMENTS  ------------------------------//
 router.get('/api/posts', posts.getPosts );
+
 router.post('/api/posts', auth, posts.createPost );
 router.param('/api/post', posts.getPostByIdParam );
+
 router.get('/api/post/:post', posts.getPostById )
 
 router.put('/api/post/:post/upvote', auth, posts.upvotePost )
@@ -67,17 +69,18 @@ router.get('/api/customers/:customer', shop.getCustomerById );
 router.get('/api/groups', groups.getGroups );
 router.post('/api/groups', groups.createGroup );
 router.get('/api/group/:id', groups.getGroupById );
-router.param('/api/group', groups.getGroupByIdParam );
-router.get('/api/gposts', groups.getGPosts );
-router.post('/api/gposts', auth, groups.createGPost );
+// router.param('/api/group', groups.getGroupByIdParam );
+router.get('/api/group/:id/gposts', groups.getGposts );
+// router.post('/api/group/:id/gposts', auth, groups.createGpost );
+// router.param('/api/group/:id/gpost', groups.getGpostByIdParam );
 
-//post page & comments
-router.param('/api/gpost', groups.getGPostByIdParam );
-router.get('/api/gposts/:gpost', groups.getGPostById );
-router.put('/api/gposts/:gpost/upvote', auth, groups.upvoteGPost );
-router.post('/api/gposts/:gpost/gcomments', auth, groups.createGPostComment );
-router.put('/api/gposts/:gpost/gcomments/:gcomment/upvote', auth, groups.upvoteGPostComment );
-router.param('gcomment', groups.getGPostCommentByIdParam );
+// //post page & comments
+// router.param('/api/gpost', groups.getGPostByIdParam );
+// router.get('/api/gposts/:gpost', groups.getGPostById );
+// router.put('/api/gposts/:gpost/upvote', auth, groups.upvoteGPost );
+// router.post('/api/gposts/:gpost/gcomments', auth, groups.createGPostComment );
+// router.put('/api/gposts/:gpost/gcomments/:gcomment/upvote', auth, groups.upvoteGPostComment );
+// router.param('gcomment', groups.getGPostCommentByIdParam );
 
 // ----------------------- AUTHENTICATION   ----------------------------------//
 router.post('/api/register', authentication.doRegistration );

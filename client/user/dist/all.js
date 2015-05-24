@@ -101,6 +101,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
 
+
     .state('messenger', {
       url: '/messenger',
       templateUrl: 'messenger.html',
@@ -173,13 +174,17 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
     });
     $scope.title = '';
     $scope.link = '';
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("User Dashboard: Add Post");
+    mixpanel.track("Add Post",{"area":"group", "page":"groupHome", "action":"create"});
+    // mixpanel.track("User Dashboard: Add Post");
   };
   $scope.incrementUpvotes = function(post) {
     posts.upvote(post);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("User Dashboard: Upvoted Comment");
+    mixpanel.track("Upvote Post",{"area":"group", "page":"groupHome", "action":"upvote"});
+    // mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 
@@ -201,6 +206,16 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
       $scope.post.comments.push(comment);
       $scope.comment.body = null;
     });
+    $scope.body = '';
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Comment",{"area":"group", "page":"groupHome", "action":"comment"});
+  };
+  $scope.incrementUpvotes = function(comment){
+    posts.upvoteComment(post, comment);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Upvote Comment",{"area":"group", "page":"groupHome", "action":"upvote"});
   };
   $scope.incrementUpvotes = function(comment) {
     posts.upvoteComment($scope.post, comment);
@@ -221,14 +236,18 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
    }).error(function(){
        console.log('failure');
    });
-   mixpanel.identify($scope.user._id);
-   mixpanel.track("Shop Page: Added Item");
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
+   // mixpanel.track("Shop Page: Added Item");
  };
 
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Shop Page: Upvoted Comment");
+    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
+    // mixpanel.track("Shop Page: Upvoted Comment");
   };  
 
 });
@@ -240,8 +259,10 @@ app.controller('ItemsCtrl', function ($scope, items, auth) {
   $scope.item = items.item;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Items Page: Upvoted Comment");
+    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
+    // mixpanel.track("Items Page: Upvoted Comment");
   };
 
 });
@@ -258,8 +279,10 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
   $scope.startTrans = function () {
     console.log($scope.card);
     transactions.purchase($scope.card);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Checkout: Purchase Item");
+    mixpanel.track("Start Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});
+    // mixpanel.track("Checkout: Purchase Item");
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
 });
@@ -273,12 +296,17 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
     languages.addLanguage($scope.language.name).success(function(data) {
     $scope.languages.push(data);
     });
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Languange",{"area":"settings", "page":"settings", "action":"add"});
   };
   $scope.updateSettings = function() {
     console.log($scope.user);
     settings.update($scope.user);
+    // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
-    mixpanel.track("Settings: Update User");
+    mixpanel.track("Settings update",{"area":"settings", "page":"settings", "action":"update"});
+    // mixpanel.track("Settings: Update User");
   };
   $scope.user = userPromise.data;
   console.log(userPromise);
@@ -291,25 +319,43 @@ function ($scope, groups, auth) {
   $scope.addGroup = function(){
     groups.create($scope.group);
     console.log($scope.group);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Group", {"area":"group", "page":"groups", "action":"create"});
   };
   $scope.group = '';
   $scope.isLoggedIn = auth.isLoggedIn;
 });
 
 app.controller('GHomeCtrl',
-function ($scope, auth, groupsPromise){
+function ($scope, auth, groups, groupsPromise, gposts, $stateParams){
+  var group = groups.group[$stateParams.id];
   // var gpost = gposts.gpost[$stateParams.id];
   $scope.group = groupsPromise.data;
   console.log(groupsPromise.data);
-  // $scope.addGroupPost = function(){
-  //   if(!scope.body || $scope.body === '') { return; }
-  //   groups.addGpost(groups.group._id, {
-  //     body: $scope.body,
-  //     author: 'user',
-  //   }).success(function(gpost) {
-  //     $scope.group.gpost.push(gpost);
-  //   });
-  //   $scope.body = '';
+  // $scope.gpost = gpostsPromise.data;
+  // console.log(gpostsPromise.data);
+
+  $scope.currentUser = auth.currentUser();
+  $scope.groups = groups.groups;
+  $scope.gposts = gposts.gposts;
+  $scope.addGpost = function(){
+    // if(!$scope.body || $scope.body === '') { return; }
+    groups.gposts.create($scope.gpost);
+    $scope.body = '';
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
+  };
+  // $scope.addComment = function(){
+  //   console.log($scope.post);
+  //   // posts.addComment(posts.post._id, {
+  //   //   body: $scope.post.comment,
+  //   //   author: $scope.currentUser
+  //   // }).success(function(comment) {
+  //   //   $scope.post.comments.push(comment);
+  //   // });
+  //   // $scope.body = '';
   // };
   // $scope.incrementUpvotes = function(gpost){
   //   gposts.upvoteGroupPost(gpost);
@@ -362,9 +408,9 @@ app.factory('posts', function($http, auth){
   };
 
   o.create = function(post) {
-    return $http.post('/api/posts', post, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    console.log(post);
+
+    return $http.post('/api/posts', post).success(function(data){
       o.posts.push(data);
     });
 
@@ -377,10 +423,12 @@ app.factory('posts', function($http, auth){
     });
   };
   o.get = function(id) {
-    return $http.get('/api/post/' + id).success(function(data){
+    return $http.get('/api/posts/' + id).then(function(data){
+       console.log(data);
       return data;
     });
   };
+
   o.addComment = function(post, comment) {
     console.log(post, comment);
     return $http.post('/api/post/' + post._id + '/comments', comment, {
@@ -394,6 +442,7 @@ app.factory('posts', function($http, auth){
       comment.upvotes += 1;
     });
   };
+
   return o;
 });
 
@@ -681,36 +730,36 @@ app.factory('gposts', ['$http', 'auth', function($http, auth){
 
   o.getAll = function() {
     return $http.get('/api/gposts').success(function(data){
+      console.log(data);
       angular.copy(data, o.gposts);
     });
   };
   o.create = function(gpost) {
-    return $http.post('/api/gposts', gpost, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    console.log(gpost);
+    return $http.post('/api/gposts', gpost).success(function(data){
       o.gposts.push(data);
     });
-
   };
-  o.upvote = function(gpost) {
-    return $http.put('/api/gposts/' + post._id + '/upvote', null, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      gpost.upvotes += 1;
-    });
-  };
-  o.get = function(id) {
-    return $http.get('/api/gposts/' + id).then(function(res){
-      return res.data;
-    });
-  };
-  o.addGroupComment = function(id, gcomment) {
-    return $http.post('/api/gposts/' + id + '/gcomments', gcomment, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
+  // o.upvote = function(gpost) {
+  //   return $http.put('/api/gposts/' + post._id + '/upvote', null, {
+  //     headers: {Authorization: 'Bearer '+auth.getToken()}
+  //   }).success(function(data){
+  //     gpost.upvotes += 1;
+  //   });
+  // };
+  // o.get = function(id) {
+  //   return $http.get('/api/gposts/' + id).then(function(res){
+  //     return res.data;
+  //   });
+  // };
+  // o.addGroupComment = function(id, gcomment) {
+  //   return $http.post('/api/gposts/' + id + '/gcomments', gcomment, {
+  //     headers: {Authorization: 'Bearer '+auth.getToken()}
+  //   });
+  // };
   return o;
 }]);
+
 
 app.factory('gcomments', ['$http', 'auth', function($http, auth){
   var o = {
@@ -724,7 +773,6 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   return o;
 }]); 
 
-
 /*  ----------------------  *
     CONTROLLER - MESSENGER
  *  ----------------------  */
@@ -735,7 +783,7 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
 /* ---------------------------- */
 
 app.controller('MessengerCtrl', function ($scope, messenger, settings, users, Conversation) {
-  $scope.debug = true;
+  // $scope.debug = true;
 
   $scope.users = users.getAllButSelf();
 

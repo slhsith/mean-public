@@ -16,9 +16,9 @@ app.factory('posts', function($http, auth){
   };
 
   o.create = function(post) {
-    return $http.post('/api/posts', post, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    console.log(post);
+
+    return $http.post('/api/posts', post).success(function(data){
       o.posts.push(data);
     });
 
@@ -31,10 +31,12 @@ app.factory('posts', function($http, auth){
     });
   };
   o.get = function(id) {
-    return $http.get('/api/post/' + id).success(function(data){
+    return $http.get('/api/posts/' + id).then(function(data){
+       console.log(data);
       return data;
     });
   };
+
   o.addComment = function(post, comment) {
     console.log(post, comment);
     return $http.post('/api/post/' + post._id + '/comments', comment, {
@@ -48,6 +50,7 @@ app.factory('posts', function($http, auth){
       comment.upvotes += 1;
     });
   };
+
   return o;
 });
 
@@ -335,36 +338,36 @@ app.factory('gposts', ['$http', 'auth', function($http, auth){
 
   o.getAll = function() {
     return $http.get('/api/gposts').success(function(data){
+      console.log(data);
       angular.copy(data, o.gposts);
     });
   };
   o.create = function(gpost) {
-    return $http.post('/api/gposts', gpost, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    console.log(gpost);
+    return $http.post('/api/gposts', gpost).success(function(data){
       o.gposts.push(data);
     });
-
   };
-  o.upvote = function(gpost) {
-    return $http.put('/api/gposts/' + post._id + '/upvote', null, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      gpost.upvotes += 1;
-    });
-  };
-  o.get = function(id) {
-    return $http.get('/api/gposts/' + id).then(function(res){
-      return res.data;
-    });
-  };
-  o.addGroupComment = function(id, gcomment) {
-    return $http.post('/api/gposts/' + id + '/gcomments', gcomment, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
+  // o.upvote = function(gpost) {
+  //   return $http.put('/api/gposts/' + post._id + '/upvote', null, {
+  //     headers: {Authorization: 'Bearer '+auth.getToken()}
+  //   }).success(function(data){
+  //     gpost.upvotes += 1;
+  //   });
+  // };
+  // o.get = function(id) {
+  //   return $http.get('/api/gposts/' + id).then(function(res){
+  //     return res.data;
+  //   });
+  // };
+  // o.addGroupComment = function(id, gcomment) {
+  //   return $http.post('/api/gposts/' + id + '/gcomments', gcomment, {
+  //     headers: {Authorization: 'Bearer '+auth.getToken()}
+  //   });
+  // };
   return o;
 }]);
+
 
 app.factory('gcomments', ['$http', 'auth', function($http, auth){
   var o = {
@@ -377,4 +380,3 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   };
   return o;
 }]); 
-

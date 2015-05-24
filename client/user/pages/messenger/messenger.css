@@ -1,0 +1,31 @@
+.message-users {
+  background-color: #e3e3e3;
+  padding: 10px;
+}
+
+.message-body {
+  border-radius: 14px;
+  padding: 6px 11px;
+  line-height: 32px;
+}
+
+.message-body.message-outgoing {
+  background-color: lightblue;
+}
+
+.message-body.message-incoming {
+  background-color: #EFEFEF;
+
+}
+
+.message-row {
+  padding: 10px 5px;
+}
+  .message-row + .message-row {
+    /*border-top: 1px solid lightgray;*/
+  }
+
+.message-form {
+  padding-top: 10px;
+
+}

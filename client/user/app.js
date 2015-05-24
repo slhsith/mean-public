@@ -101,6 +101,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
 
+
     .state('messenger', {
       url: '/messenger',
       templateUrl: 'messenger.html',

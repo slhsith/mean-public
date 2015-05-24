@@ -8,7 +8,7 @@
 /* ---------------------------- */
 
 app.controller('MessengerCtrl', function ($scope, messenger, settings, users, Conversation) {
-  $scope.debug = true;
+  // $scope.debug = true;
 
   $scope.users = users.getAllButSelf();
 
