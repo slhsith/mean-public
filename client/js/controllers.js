@@ -33,9 +33,9 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
     // mixpanel.track("HomePage: Reset Password, Submit Email");
   };
 
-  // $scope.facebook = function () {
-  //   auth.facebook();
-  // };
+  $scope.facebook = function () {
+    auth.facebook(user._id);
+  };
 
   // $scope.getMyLastName = function () {
   //  facebookService.getMyLastName() 

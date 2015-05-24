@@ -54,7 +54,19 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
     return $http.post('/api/forgot', user);
   };
   // auth.isGroupMember = function(){
-    
+  auth.facebook = function () {
+    var deferred = $q.defer();
+        FB.api('/me', {
+            fields: 'last_name'
+        }, function(response) {
+            if (!response || response.error) {
+              deferred.reject('Error occured');
+            } else {
+              deferred.resolve(response);
+              }
+          });
+    return deferred.promise;
+  };
   // };
   return auth;
 }]);
@@ -82,30 +94,30 @@ app.factory('facebookService', function($q) {
           });
     return deferred.promise;
   };
-  facebookServce.getMyFirstName = function() {
-      var deferred = $q.defer();
-        FB.api('/me', {
-            fields: 'first_name'
-        }, function(response) {
-            if (!response || response.error) {
-              deferred.reject('Error occured');
-            } else {
-              deferred.resolve(response);
-              }
-          });
-    return deferred.promise;
-  };
-  facebookServce.getMyEmail = function() {
-      var deferred = $q.defer();
-        FB.api('/me', {
-            fields: 'email'
-        }, function(response) {
-            if (!response || response.error) {
-              deferred.reject('Error occured');
-            } else {
-              deferred.resolve(response);
-              }
-          });
+  // facebookServce.getMyFirstName = function() {
+  //     var deferred = $q.defer();
+  //       FB.api('/me', {
+  //           fields: 'first_name'
+  //       }, function(response) {
+  //           if (!response || response.error) {
+  //             deferred.reject('Error occured');
+  //           } else {
+  //             deferred.resolve(response);
+  //             }
+  //         });
+  //   return deferred.promise;
+  // };
+  // facebookServce.getMyEmail = function() {
+  //     var deferred = $q.defer();
+  //       FB.api('/me', {
+  //           fields: 'email'
+  //       }, function(response) {
+  //           if (!response || response.error) {
+  //             deferred.reject('Error occured');
+  //           } else {
+  //             deferred.resolve(response);
+  //             }
+  //         });
     return deferred.promise;
   };
 });
