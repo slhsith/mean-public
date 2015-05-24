@@ -112,8 +112,13 @@ exports.getItemByIdParam = function(req, res, next, id) {
 
 // this seems incomplete, the GET /:item  route
 exports.getItemById = function(req, res, next) {
-  res.json(req.item);
+  Item.findById(req.params.item, function(err, item) {
+
+  if(err) { return next(err); }
+  return res.json(item);
+  });
 };
+
 
 // also seems incomplete, to be implemented
 exports.upvoteItem = function(req, res, next) {
