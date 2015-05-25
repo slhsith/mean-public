@@ -25,3 +25,7 @@
     <td>{{user.handle}}</td>
   </tr>
 </table>
+<form ng-submit="followUser()">
+<button ng-show="isLoggedIn()" ng-hide="isFollowing()" class="btn btn-primary">Follow</button>
+</form>
+<button ng-show="isFollowing()" class="btn btn-primary" disabled>Following</button>

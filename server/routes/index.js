@@ -111,6 +111,7 @@ router.get('/api/users/:start/:end', settings.getUsersByPage );
 router.get('/api/user/:id', settings.getUserById );
 //for public profiles
 router.get('/api/user/handle/:handle', settings.getUserByHandle );
+router.post('/api/user/:handle/followers', settings.addFollower );
 
 
 

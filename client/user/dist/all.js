@@ -353,9 +353,9 @@ function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
   };
-  $scope.addGcomment = function () {
+  $scope.addGcomment = function (gpost) {
     // groups.createGcomment($scope.gpost, $scope.gcomment)
-    console.log($scope.gpost);
+    console.log(gpost);
     console.log($scope.gcomment);
   };
   
