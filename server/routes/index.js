@@ -7,16 +7,6 @@ var jwt = require('express-jwt');
 var bodyParser = require('body-parser'),    
     jsonParser = bodyParser.json();    
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
-var nodemailer = require('nodemailer');
-var transporter = nodemailer.createTransport({
-    service: 'Mandrill',
-    host: 'smtp.mandrillapp.com',
-    port: 587,
-    auth: {
-        user: 'trainersvault',
-        pass: 'BGkIPqtGVLNL2JAGAmwHMw'
-    }
-  });
 var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
 
 // API controllers 
@@ -125,8 +115,9 @@ router.get('/api/user/handle/:handle', settings.getUserByHandle );
 
 
 // ----------------------------- MESSAGING ----------------------------------//
-router.get('/api/conversations', messaging.getConversations );
-router.get( '/api/conversation/:id', messaging.getConversationById );
+router.get('/api/conversations', auth, messaging.getConversations );
+router.get('/api/conversation/:id', messaging.getConversationById );
 
 router.post('/api/conversation', auth, messaging.createConversation );
+router.put('/api/conversation/:id/read', messaging.readMessages );
 router.post('/api/conversation/:id/messages', auth, messaging.createMessage );

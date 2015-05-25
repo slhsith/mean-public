@@ -5,76 +5,90 @@
   </div>
 
   <div class="row">
-    <!-- left column -->
+
     <div class="col-sm-4">
 
-      <div class="col-sm-10">
-        <form ng-submit="searchConversations()" class="form-inline">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Search" ng-model="conversation.query"></input>
-              <span class="input-group-btn">
-                <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
-              </span>
-            </div>
-        </form>
-      </div>
-      <div class="col-sm-2">
-        <button type="button" class="btn btn-primary" ng-click="createConversation()"><i class="fa fa-comment-o"></i></button>
+    <!-- conversations search-->
+    <!--       
+      <form ng-submit="searchConversations()">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Search" ng-model="query"></input>
+          <span class="input-group-btn">
+            <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
+          </span>
+        </div>
+      </form> -->
+
+      <!-- conversation init button -->
+      <div>
+        <button type="button" class="form-control btn btn-primary" ng-click="initConversation()"><i class="fa fa-comment-o"></i></button>
       </div>
 
-      <div class="col-sm-12" ng-repeat="conversation in conversations" style="border-bottom: 1px solid black"> <!-- order by latest touched -->
-        <div class="col-sm-12">From: {{conversation.messages[0].handle}}
-          <br/>{{conversation.messages[0].body | limitTo: 40}}
-        </div>
+    <!-- conversations list - convo in conversations -->
+      <!-- conversation latest message -->
+      <div ng-repeat="conversation in conversations" ng-click="focusConversation(conversation)" 
+      style="border-bottom: 1px solid black; padding: 10px 0">
+        {{!conversation._id? 'New Message' : ''}}
+        <span class="text-right" ng-show="!conversation._id" ng-click="cancelNewConversation()"><i class="fa fa-times"></i></span>
+        <!-- sender.pic --> <!-- sender.f_name --> <!-- sender.l_name --> <!-- sender.body | limitTo -->
+        <div ng-bind="otherPeople(conversation)"></div>
+        <div>{{conversation.latest.body | limitTo: 40 }}</div>
+
       </div>
+
     </div> <!-- /end left column -->
 
+
     <!-- right column -->
-    <div class="col-sm-8" ng-show="conversation">
+    <!-- mainConversation display -->
+    <div class="col-sm-8">
 
-      <!-- recipients -->
-      <div class="col-sm-10">
-        To: <span ng-repeat="user in conversation.users"> <span style="background-color: lightgray; padding: 5px; border-radius: 3px">{{user.username}}</span> </span>
-      </div>
-      <div class="col-sm-2">
-        <button class="btn btn-primary" ng-click="addUserModal = true"><i class="fa fa-plus"></i></button>
-      </div>
 
-      <!-- add users to conversation -->
-      <div class="col-sm-12" ng-show="addUserModal">
-        <!-- search for people to message -->
-        <form name="userSearchForm" class="form-horizontal" ng-submit="findUsers()" novalidate/>
-          <div class="form-group">
-            <div class="col-sm-11">
-              <input type="text" class="form-control" placeholder="Search" ng-model="conversation.userQuery" ng-blur="searchUsers()">
-            </div>
-          </div>
-        </form>
-        <div class="col-sm-12" ng-repeat="user in users | orderBy: 'username'" ng-click="addToConversation(user)">
-          {{user.f_name || user.handle || user.username}} | {{user._id}}
+      <!-- user in mainConversation.users -->
+      <div class="col-sm-12 message-users" title="Recipients">
+        <div ng-repeat="user in mainConversation.users">
+          <span ng-hide="isSelf(user._id)"><i class="fa fa-user"></i> {{user.f_name}} {{user.l_name}}</span><!-- <span class="text-right">Online? {{user.status}}</span> -->
         </div>
 
-        <!-- search results of people to add to conversation -->
-        <div class="col-sm-12" ng-repeat="user in conversation.userResult">
-          <div class="col-sm-1">Pic</div>
-          <div class="col-sm-10">{{user.f_name}}</div>
-          <div class="col-sm-1"> </div>
+        <button ng-hide="mainConversation._id" ng-click="addUserModal = !addUserModal"><i class="fa fa-plus"> </i></button>
+
+        <conversation-add-users ng-show="mainConversation.new && addUserModal"></conversation-add-users>
+      </div>
+
+
+      <!-- message in conversation.messages -->
+      <div class="col-sm-12 message-row" ng-repeat="message in mainConversation.messages">
+        <!-- message.body -->
+        <div class="{{ isSelf(message.user) ? 'text-right' : ''}}">
+          <span class="message-body {{ isSelf(message.user) ? 'message-outgoing' : 'message-incoming'}}">{{message.body}}</span>
         </div>
-      </div>
+        <!-- message.timesent or message.timeread -->
+        <div ng-show="!isSelf(message.user)"><small>Sent: {{message.timesent | date: 'MMM dd hh:mm'}}<small></div>
+        <div class="text-right" ng-show="isSelf(message.user) && message.timeread.length > 0"><small>Read: {{message.timeread.time | date: 'MMM dd hh:mm'}}</small></div>
+      </div> <!-- /end right column -->
 
-      <div ng-repeat="message in conversation.messages">
-        {{message.body}}
-        {{message.sent}}
-      </div>
+      <!-- conversation.newmessage -->
+        <!-- conversation.newmessage.body -->
+        <!-- emoji picker -->
+        <!-- send button-->
 
-      <form name="messageForm" ng-submit="createMessage()" novalidate>
+      <form name="messageForm" class="message-form" ng-submit="createMessage()" novalidate>
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="message" ng-model="conversation.message.body">
+          <input type="text" class="form-control" placeholder="message" ng-model="newmessage.body">
+          <!-- <span class="input-group-btn"> <button class="btn btn-primary">Emoji</button> </span> -->
           <span class="input-group-btn"> <button type="submit" class="btn btn-primary">Send</button> </span>
         </div>
       </form>
 
-    </div> <!-- /end right column -->
-
+    </div> <!-- /end row -->
   </div> <!-- /end row -->
-<pre>{{conversations|json}}</pre>
+
+  <div ng-show="debug" class="row"><div class="col-sm-12"><pre>
+    mainConversation {{mainConversation|json}}
+   -------- 
+    user {{user|json}}
+   -------- 
+    users {{users|json}}
+   -------- 
+    conversations {{conversations|json}}
+  </pre></div></div>

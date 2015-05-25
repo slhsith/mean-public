@@ -44,9 +44,11 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'items.html',
       controller: 'ItemsCtrl',
       resolve: {
-        item: ['$stateParams', 'items', function($stateParams, items) {
-          return items.get($stateParams.id);
-        }]
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams);
+      
+          return items.get($stateParams.item);
+        }
       }
     })
     .state('diet', {
@@ -55,7 +57,8 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'ItemsCtrl',
       resolve: {
         item: function($stateParams, items) {
-          return items.get($stateParams.id);
+          console.log($stateParams.item);
+          return items.get($stateParams.item);
         }
       }
     })
@@ -107,11 +110,8 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
-        userPromise: function ($stateParams, settings) {
-          return settings.get($stateParams.handle);
-        },
         usersPromise: function(users) {
-          return users.getRange(0, 50);
+          return users.getAll();
         },
         conversationsPromise: function(messenger) {
           return messenger.getAll();

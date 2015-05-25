@@ -44,9 +44,11 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'items.html',
       controller: 'ItemsCtrl',
       resolve: {
-        item: ['$stateParams', 'items', function($stateParams, items) {
-          return items.get($stateParams.id);
-        }]
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams);
+      
+          return items.get($stateParams.item);
+        }
       }
     })
     .state('diet', {
@@ -55,7 +57,8 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'ItemsCtrl',
       resolve: {
         item: function($stateParams, items) {
-          return items.get($stateParams.id);
+          console.log($stateParams.item);
+          return items.get($stateParams.item);
         }
       }
     })
@@ -107,11 +110,8 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
-        userPromise: function ($stateParams, settings) {
-          return settings.get($stateParams.handle);
-        },
         usersPromise: function(users) {
-          return users.getRange(0, 50);
+          return users.getAll();
         },
         conversationsPromise: function(messenger) {
           return messenger.getAll();
@@ -267,10 +267,10 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
 });
 
 
-app.controller('ItemsCtrl', function ($scope, items, auth) {
+app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise) {
 
   $scope.items = items.items;
-  $scope.item = items.item;
+  $scope.item = itemPromise;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     // mixpanel.alias($scope.user._id);
@@ -404,61 +404,6 @@ function($scope, $stateParams, gposts, gcomments, auth){
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
 
-
-
-
-
-// ------ MESSENGER ---------- //
-// $scope.conversation at the level of the controller is focused convo
-// --> user initializes new blank conversation
-// --> when a conversation is focused from list, defaults to [0]th one
-// ---------------------------- //
-app.controller('MessengerCtrl', function($scope, messenger, settings, users, usersPromise) {
-
-  $scope.conversations = messenger.conversations;
-  $scope.user = angular.extend($scope.user, settings.settings);
-  $scope.users = usersPromise.data;
-  $scope.conversation = $scope.conversations[0];
-
-  $scope.createConversation = function() {
-    $scope.conversation = { users: [] };
-  };
-
-  $scope.createMessage = function() {
-    var message = $scope.conversation.message;
-    message.user = $scope.user._id;
-    message.handle = $scope.user.handle;
-    message.conversation = $scope.conversation._id;
-    messenger.createMessage($scope.conversation, $scope.conversation.message).success(function(data) {
-      $scope.conversation.messages.push(data);
-    });
-
-  };
-
-  $scope.searchUsers = function() {
-    users.search($scope.conversation.userQuery).success(function(data) {
-      $scope.conversation.userResult = data;
-      console.log($scope.conversation);
-    });
-  };
-
-  $scope.addToConversation = function(user) {
-    $scope.conversation.users.push(user._id);
-  };
-
-});
-
-app.controller('UserCtrl', function ($scope, users, auth, userPromise) {
-  $scope.user = userPromise.data;
-
-  $scope.update = function() {
-    console.log($scope.user);
-    users.update($scope.user);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Settings: Update User");
-  };
-});
-
 /*  ----------------  *
     FACTORIES - USER
  *  ----------------  */
@@ -561,8 +506,8 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
-  o.get = function(id) {
-    return $http.get('/api/items/' + id).then(function(res){
+  o.get = function(item) {
+    return $http.get('/api/items/' + item).then(function(res){
       return res.data;
     });
   };
@@ -632,7 +577,7 @@ app.factory('customers', ['$http', 'auth', function($http, auth){
 
 
 // AUTH
-app.factory('auth', ['$http', '$window', function($http, $window){
+app.factory('auth', function($http, $window){
    var auth = {};
    auth.saveToken = function (token){
       $window.localStorage['admin-token'] = token;
@@ -673,7 +618,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
       }
     };
   return auth;
-}]);
+});
 
 
 // LANGUAGES
@@ -697,7 +642,7 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   return lang; 
 }]);
 
-app.factory('settings', ['$http', '$window', function($http, $window){
+app.factory('settings', function ($http, $window) {
    var s = { settings : {} };
    s.getAll = function (){
     return $http.get('/api/settings').success(function(data){
@@ -717,9 +662,9 @@ app.factory('settings', ['$http', '$window', function($http, $window){
      });
    };
    return s;
-}]);
+});
 
-app.factory('users', function($http, $window) {
+app.factory('users', function ($http, $window, auth) {
   var u = { users: [] };
 
   u.getAll = function() {
@@ -729,8 +674,8 @@ app.factory('users', function($http, $window) {
   };
 
   u.getRange = function(start, end) {
-    return $http.get('/api/users/' + start + '/' + end).success(function(data) {
-      return data;
+    return $http.get('/api/users/' + start + '/' + end, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
 
@@ -750,6 +695,22 @@ app.factory('users', function($http, $window) {
     return $http.put('/api/settings', user).success(function(data){
         u.users = data;
     });
+  };
+
+  u.get = function (id) {
+    return $http.get('/api/user/' + id).then(function(res){
+      return res.data;
+    });
+  };
+
+  u.getAllButSelf = function() {
+    var set = u.users;
+    angular.forEach(set, function(user, index) {
+      if (user.username === auth.currentUser()) {
+        set.splice(index, 1);
+      }
+    });
+    return set;
   };
 
   return u;
@@ -836,44 +797,3 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   };
   return o;
 }]); 
-
-app.factory('messenger', function ($http, auth) {
-
-  var o = {
-    conversations: []
-  };
-
-  o.getAll = function() {
-    return $http.get('/api/conversations').success(function(data) {
-      console.log(data);
-      angular.copy(data, o.conversations);
-    });
-  };
-
-  o.get = function(id) {
-    return $http.get('/api/conversation/' + id).success(function(data) {
-      return data;
-    });
-  };
-
-  o.createConversation = function(convo) {
-    return $http.post('/api/conversation', convo, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      return data;
-    });
-  };
-
-  o.createMessage = function(convo, message) {
-    console.log('convo', convo, 'message', message);
-    return $http.post('/api/conversation/' + convo._id + '/messages', message, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      return data;
-    });
-  };
-
-  return o;
-
-});
-

@@ -100,8 +100,8 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
-  o.get = function(id) {
-    return $http.get('/api/items/' + id).then(function(res){
+  o.get = function(item) {
+    return $http.get('/api/items/' + item).then(function(res){
       return res.data;
     });
   };
@@ -171,7 +171,7 @@ app.factory('customers', ['$http', 'auth', function($http, auth){
 
 
 // AUTH
-app.factory('auth', ['$http', '$window', function($http, $window){
+app.factory('auth', function($http, $window){
    var auth = {};
    auth.saveToken = function (token){
       $window.localStorage['admin-token'] = token;
@@ -212,7 +212,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
       }
     };
   return auth;
-}]);
+});
 
 
 // LANGUAGES
@@ -236,7 +236,7 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   return lang; 
 }]);
 
-app.factory('settings', ['$http', '$window', function($http, $window){
+app.factory('settings', function ($http, $window) {
    var s = { settings : {} };
    s.getAll = function (){
     return $http.get('/api/settings').success(function(data){
@@ -256,9 +256,9 @@ app.factory('settings', ['$http', '$window', function($http, $window){
      });
    };
    return s;
-}]);
+});
 
-app.factory('users', function($http, $window) {
+app.factory('users', function ($http, $window, auth) {
   var u = { users: [] };
 
   u.getAll = function() {
@@ -268,8 +268,8 @@ app.factory('users', function($http, $window) {
   };
 
   u.getRange = function(start, end) {
-    return $http.get('/api/users/' + start + '/' + end).success(function(data) {
-      return data;
+    return $http.get('/api/users/' + start + '/' + end, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
 
@@ -289,6 +289,22 @@ app.factory('users', function($http, $window) {
     return $http.put('/api/settings', user).success(function(data){
         u.users = data;
     });
+  };
+
+  u.get = function (id) {
+    return $http.get('/api/user/' + id).then(function(res){
+      return res.data;
+    });
+  };
+
+  u.getAllButSelf = function() {
+    var set = u.users;
+    angular.forEach(set, function(user, index) {
+      if (user.username === auth.currentUser()) {
+        set.splice(index, 1);
+      }
+    });
+    return set;
   };
 
   return u;
@@ -375,44 +391,3 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   };
   return o;
 }]); 
-
-app.factory('messenger', function ($http, auth) {
-
-  var o = {
-    conversations: []
-  };
-
-  o.getAll = function() {
-    return $http.get('/api/conversations').success(function(data) {
-      console.log(data);
-      angular.copy(data, o.conversations);
-    });
-  };
-
-  o.get = function(id) {
-    return $http.get('/api/conversation/' + id).success(function(data) {
-      return data;
-    });
-  };
-
-  o.createConversation = function(convo) {
-    return $http.post('/api/conversation', convo, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      return data;
-    });
-  };
-
-  o.createMessage = function(convo, message) {
-    console.log('convo', convo, 'message', message);
-    return $http.post('/api/conversation/' + convo._id + '/messages', message, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      return data;
-    });
-  };
-
-  return o;
-
-});
-

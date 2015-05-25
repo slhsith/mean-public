@@ -67,7 +67,6 @@ exports.submitSearch = function (req, res, next) {
 
 //get all users 
 exports.getUsers = function (req, res, next) {
-  console.log('getting users');
   // if (err) { return next(err); }
   User
     .find({})
@@ -83,7 +82,6 @@ exports.getUsersByPage = function (req, res, next) {
   // paginate by start and end params
   var from = req.params.start || 0,
       to   = req.params.end || 20;
-      console.log(req.params);
 
  if (err) { return next(err); }
  User
@@ -91,7 +89,7 @@ exports.getUsersByPage = function (req, res, next) {
    .skip(from)
    .limit(to)
    .exec(function(err, users) {
-     if (err) { return next(err); } 
+     // if (err) { return next(err); } 
      res.json(users);
    });
 };
@@ -100,7 +98,6 @@ exports.getUserById = function (req, res, next) {
  // if(err){ next(err); }
  var _id = req.params.id;
  User.findById(_id, function(err, user) {
-   console.log(user);
    res.json(user);
  });
 };
@@ -110,7 +107,6 @@ exports.getUserByHandle = function (req, res, next) {
  // if(err){ next(err); }
  var handle = req.params.handle;
  User.findOne({handle: handle}, function(err, user) {
-   console.log(user);
    res.json(user);
  });
 };
