@@ -32,9 +32,14 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
     mixpanel.track("User Reset Password",{"area":"home", "page":"home", "action":"resetPassword"});
     // mixpanel.track("HomePage: Reset Password, Submit Email");
   };
-
-  $scope.facebook = function () {
+    // This function is called when someone finishes with the Login
+  // Button.  See the onlogin handler attached to it in the sample
+  // code below.
+  $scope.checkLoginState = function() {
     auth.facebook(user._id);
+    FB.getLoginStatus(function(response) {
+      statusChangeCallback(response);
+    });
   };
 
   // $scope.getMyLastName = function () {
