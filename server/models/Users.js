@@ -15,7 +15,8 @@ var UserSchema = new mongoose.Schema({
   dob: String,
   handle: { type: String, unique: true },
   stripeToken: String,
-  created: { type: Date, default: Date.now }
+  created: { type: Date, default: Date.now },
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Follower' }]
 });
 
 UserSchema.methods.setPassword = function(password){

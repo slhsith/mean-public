@@ -342,8 +342,9 @@ function ($scope, groups, auth) {
 });
 
 app.controller('GHomeCtrl',
-function ($scope, auth, groups, groupsPromise, gposts, $stateParams){
+function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
   var group = groups.group[$stateParams.id];
+  var gpost = gposts.gpost[$stateParams.id];
   // var gpost = gposts.gpost[$stateParams.id];
   $scope.group = groupsPromise.data;
   console.log(groupsPromise.data);
@@ -353,14 +354,23 @@ function ($scope, auth, groups, groupsPromise, gposts, $stateParams){
   $scope.currentUser = auth.currentUser();
   $scope.groups = groups.groups;
   $scope.gposts = gposts.gposts;
+  $scope.gcomments = gcomments.gcomments;
   $scope.addGpost = function(){
     // if(!$scope.body || $scope.body === '') { return; }
-    gposts.create($scope.gpost);
-    $scope.body = '';
+    groups.createGpost($scope.group, $scope.gpost).success(function(gpost) {
+      $scope.group.gposts.push(gpost);
+      $scope.gpost.body = null;
+    });
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
   };
+  $scope.addGcomment = function (gpost) {
+    // groups.createGcomment($scope.gpost, $scope.gcomment)
+    console.log(gpost);
+    console.log($scope.gcomment);
+  };
+  
   // $scope.addComment = function(){
   //   console.log($scope.post);
   //   // posts.addComment(posts.post._id, {
@@ -744,6 +754,19 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
       return data;
     });
   };
+  o.createGpost = function(group, gpost) {
+    console.log(group, gpost);
+    return $http.post('/api/group/' + group._id + '/gposts', gpost, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  o.createGcomment = function (gpost, gcomment) {
+    console.log(gpost);
+    console.log(gcomment);
+    // return $http.post('/api/group/'+group._id+'gpost/' + gpost._id + '/gcomments', gcomment, {
+    //   headers: {Authorization: 'Bearer '+auth.getToken()}
+    // });
+  };
   return o;
 }]);
 
@@ -755,17 +778,12 @@ app.factory('gposts', ['$http', 'auth', function($http, auth){
   };
 
   o.getAll = function(id) {
-    return $http.get('/api/gposts/' + id).then(function(data){
+    return $http.get('/api/group/' + id + '/gposts').success(function(data){
       console.log(data);
       angular.copy(data, o.gposts);
     });
   };
-  o.create = function(gpost) {
-    console.log(gpost);
-    return $http.post('/api/gposts', gpost ).success(function(data){
-      o.gposts.push(data);
-    });
-  };
+
   // o.upvote = function(gpost) {
   //   return $http.put('/api/gposts/' + post._id + '/upvote', null, {
   //     headers: {Authorization: 'Bearer '+auth.getToken()}

@@ -56,7 +56,12 @@ app.controller('MapCtrl', function ($scope) {
 });
 
 
-app.controller('UserCtrl', function ($scope, users, userPromise) {
+app.controller('UserCtrl', function ($scope, users, $stateParams, userPromise, auth) {
   $scope.user = userPromise.data;
   console.log(userPromise);
+  $scope.followUser = function () {
+    users.addFollower($stateParams.handle);
+  };
+  $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isFollowing = auth.isFollowing;
 });

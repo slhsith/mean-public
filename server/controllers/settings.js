@@ -8,7 +8,8 @@ var mongoose = require('mongoose');
 // --- Models --- //
 var
   User          = mongoose.model('User'),
-  Language      = mongoose.model('Language');
+  Language      = mongoose.model('Language'),
+  Follower      = mongoose.model('Follower');
 
 
 // --- Exported Methods --- //
@@ -110,3 +111,17 @@ exports.getUserByHandle = function (req, res, next) {
    res.json(user);
  });
 };
+
+exports.addFollower = function (req, res, next) {
+  var follower = new Follower();
+
+  follower.save(function(err, follower) {
+    if (err) { return next(err); }
+
+    var update = { $push: { followers: follower._id }};
+    var handle = req.params.handle;
+    User.findOneAndUpdate({handle: handle}, update, function(err, user) {
+     res.json(user);
+    });
+  });
+}

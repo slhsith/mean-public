@@ -70,15 +70,17 @@ router.get('/api/groups', groups.getGroups );
 router.post('/api/groups', groups.createGroup );
 router.get('/api/group/:id', groups.getGroupById );
 // router.param('/api/group', groups.getGroupByIdParam );
-router.get('/api/gposts/:id', groups.getGposts );
-router.post('/api/gposts', auth, groups.createGpost );
+
+router.get('/api/group/:id/gposts', groups.getGposts );
+router.post('/api/group/:id/gposts', groups.createGpost );
+
 // router.param('/api/group/:id/gpost', groups.getGpostByIdParam );
 
 // //post page & comments
 // router.param('/api/gpost', groups.getGPostByIdParam );
 // router.get('/api/gposts/:gpost', groups.getGPostById );
 // router.put('/api/gposts/:gpost/upvote', auth, groups.upvoteGPost );
-// router.post('/api/gposts/:gpost/gcomments', auth, groups.createGPostComment );
+router.post('/api/gpost/:gpost/gcomments', groups.newGcomment );
 // router.put('/api/gposts/:gpost/gcomments/:gcomment/upvote', auth, groups.upvoteGPostComment );
 // router.param('gcomment', groups.getGPostCommentByIdParam );
 
@@ -115,6 +117,7 @@ router.get('/api/users/:start/:end', settings.getUsersByPage );
 router.get('/api/user/:id', settings.getUserById );
 //for public profiles
 router.get('/api/user/handle/:handle', settings.getUserByHandle );
+router.post('/api/user/:handle/followers', settings.addFollower );
 
 
 

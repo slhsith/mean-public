@@ -123,9 +123,14 @@ app.controller('MapCtrl', function ($scope) {
 });
 
 
-app.controller('UserCtrl', function ($scope, users, userPromise) {
+app.controller('UserCtrl', function ($scope, users, $stateParams, userPromise, auth) {
   $scope.user = userPromise.data;
   console.log(userPromise);
+  $scope.followUser = function () {
+    users.addFollower($stateParams.handle);
+  };
+  $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isFollowing = auth.isFollowing;
 });
 /*  ---------------  *
     FACTORIES - SET
@@ -177,5 +182,54 @@ app.factory('users', function ($http, $window) {
       return data;
     });
   };
+  u.addFollower = function (id, user) {
+    return $http.post('/api/user/'+ id + '/followers', user).success(function(data){
+      return data;
+    });
+  };
   return u;
+});
+
+// AUTH
+app.factory('auth', function($http, $window){
+   var auth = {};
+   auth.saveToken = function (token){
+      $window.localStorage['admin-token'] = token;
+    };
+
+    auth.getToken = function (){
+      return $window.localStorage['admin-token'];
+    };
+    auth.isLoggedIn = function(){
+      var token = auth.getToken();
+
+      if(token){
+        var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.exp > Date.now() / 1000;
+      } else {
+        return false;
+      }
+    };
+    auth.currentUser = function(){
+      if(auth.isLoggedIn()){
+        var token = auth.getToken();
+        var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.username;
+      }
+    };
+    auth.logOut = function(){
+      $window.localStorage.removeItem('admin-token');
+      $window.location = "http://localhost:3000";
+    };
+    auth.getUser = function (){
+      if(auth.isLoggedIn()){
+        var token = auth.getToken();
+        var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload;
+      }
+    };
+  return auth;
 });
