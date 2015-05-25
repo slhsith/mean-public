@@ -326,6 +326,19 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
       return data;
     });
   };
+  o.createGpost = function(group, gpost) {
+    console.log(group, gpost);
+    return $http.post('/api/group/' + group._id + '/gposts', gpost, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  o.createGcomment = function (gpost, gcomment) {
+    console.log(gpost);
+    console.log(gcomment);
+    // return $http.post('/api/group/'+group._id+'gpost/' + gpost._id + '/gcomments', gcomment, {
+    //   headers: {Authorization: 'Bearer '+auth.getToken()}
+    // });
+  };
   return o;
 }]);
 
@@ -336,18 +349,13 @@ app.factory('gposts', ['$http', 'auth', function($http, auth){
     gpost: {}
   };
 
-  o.getAll = function() {
-    return $http.get('/api/gposts').success(function(data){
+  o.getAll = function(id) {
+    return $http.get('/api/group/' + id + '/gposts').success(function(data){
       console.log(data);
       angular.copy(data, o.gposts);
     });
   };
-  o.create = function(gpost) {
-    console.log(gpost);
-    return $http.post('/api/gposts', gpost).success(function(data){
-      o.gposts.push(data);
-    });
-  };
+
   // o.upvote = function(gpost) {
   //   return $http.put('/api/gposts/' + post._id + '/upvote', null, {
   //     headers: {Authorization: 'Bearer '+auth.getToken()}
