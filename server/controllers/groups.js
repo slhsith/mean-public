@@ -7,14 +7,15 @@ var mongoose = require('mongoose');
 
 // --- Models --- //
 var Group         = mongoose.model('Group');
-var Gpost          = mongoose.model('Post');
+var Gpost         = mongoose.model('Gpost');
+var Gcomment      = mongoose.model('Gcomment');
 
 // --- Exported Methods --- //
 exports.getGroups = function(req, res, next) {
   Group.find({},function(err, groups){
     if(err){ return next(err); }
     res.json(groups)
-  }).populate('Posts');
+  }).populate('gposts');
 };
 
 exports.createGroup = function (req, res, next) {
@@ -28,10 +29,10 @@ exports.createGroup = function (req, res, next) {
 exports.getGroupById = function (req, res, next) {
  // if(err){ next(err); }
  var _id = req.params.id;
- Group.findById(_id, function(err, group) {
+ Group.findById(_id, function(err, group, gposts, gcomments) {
   console.log(group);
    res.json(group);
- })
+ }).populate('gposts', 'gcomments')
 };
 
 exports.getGroupByIdParam = function(req, res, next, id) {
@@ -47,21 +48,46 @@ exports.getGroupByIdParam = function(req, res, next, id) {
 };
 
 exports.getGposts = function(req, res, next) {
-  Gpost.find({}, function(err, gposts){
-    if(err){ return next(err); }
-
-    res.json(gposts);
-  });
+  var _id = req.params.id;
+  Gpost.findById(_id, function (err, gpost, gcomments) {
+    console.log(gpost);
+    res.json(gpost);
+  }).populate('gcomments')
 };
 
 exports.createGpost = function(req, res, next) {
-  var gpost = new gpost(req.body);
-  gpost.author = req.payload.username;
+  var gpost = new Gpost(req.body);
+  console.log(req.body);
+  var group_id = req.body.group;
 
-  gpost.save(function(err, gpost){
-    if(err){ return next(err); }
 
-    res.json(gpost);
+  gpost.save(function(err, gpost) {
+    if (err) { return next(err); }
+    var update = { $push: { gposts: gpost._id }};
+
+    Group.findByIdAndUpdate(group_id, update)
+    .exec(function(err, group) {
+      if(err){ return next(err); }
+      res.json(gpost);
+    });
+  });
+};
+
+exports.newGcomment = function (req, res, next) {
+  var gcomment = new Gcomment(req.body);
+  console.log(req.body);
+  var gpost_id = req.body.gpost;
+
+
+  gcomment.save(function(err, gcomment) {
+    if (err) { return next(err); }
+    var update = { $push: { gcomments: gcomment._id }};
+
+    Gpost.findByIdAndUpdate(gpost_id, update)
+    .exec(function(err, gpost) {
+      if(err){ return next(err); }
+      res.json(gcomment);
+    });
   });
 };
 

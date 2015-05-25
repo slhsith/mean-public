@@ -186,8 +186,9 @@ function ($scope, groups, auth) {
 });
 
 app.controller('GHomeCtrl',
-function ($scope, auth, groups, groupsPromise, gposts, $stateParams){
+function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
   var group = groups.group[$stateParams.id];
+  var gpost = gposts.gpost[$stateParams.id];
   // var gpost = gposts.gpost[$stateParams.id];
   $scope.group = groupsPromise.data;
   console.log(groupsPromise.data);
@@ -197,14 +198,23 @@ function ($scope, auth, groups, groupsPromise, gposts, $stateParams){
   $scope.currentUser = auth.currentUser();
   $scope.groups = groups.groups;
   $scope.gposts = gposts.gposts;
+  $scope.gcomments = gcomments.gcomments;
   $scope.addGpost = function(){
     // if(!$scope.body || $scope.body === '') { return; }
-    groups.gposts.create($scope.gpost);
-    $scope.body = '';
+    groups.createGpost($scope.group, $scope.gpost).success(function(gpost) {
+      $scope.group.gposts.push(gpost);
+      $scope.gpost.body = null;
+    });
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
   };
+  $scope.addGcomment = function () {
+    // groups.createGcomment($scope.gpost, $scope.gcomment)
+    console.log($scope.gpost);
+    console.log($scope.gcomment);
+  };
+  
   // $scope.addComment = function(){
   //   console.log($scope.post);
   //   // posts.addComment(posts.post._id, {
