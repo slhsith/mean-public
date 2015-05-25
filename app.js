@@ -8,6 +8,7 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 var nodemailer = require('nodemailer');
 var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
+var io = require('socket.io')(app);
 
 // MODELS
 // posts

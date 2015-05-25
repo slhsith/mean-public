@@ -27,7 +27,7 @@ app.controller('MessengerCtrl', function ($scope, messenger, settings, users, Co
   // sets the focus and marks read timestamps for messages
   $scope.focusConversation = function(conversation) {
     $scope.mainConversation = conversation;
-    // messenger.readMessages(conversation);
+    messenger.readMessages(conversation);
   };
 
   $scope.initConversation = function() {

@@ -73,13 +73,13 @@ exports.readMessages = function(req, res, next) {
   var timestamp = new Timestamp(req.body);
   console.log(user_id + ' is reading messages for conversation ' + convo_id );
 
-  Message.find({conversation: convo_id, timeread: {$nin: [ {user: _id} ] } })
+  Message.find({conversation: convo_id})
   .limit(100)
   .exec(function(err, messages) {
     messages.forEach(function(message) {
-      message.update({},
+      message.update({timeread: {$nin: [ {user: user_id} ] }},
         {'$push': { timeread: timestamp } },
-        {upsert: true}, function() {
+        function() {
         console.log('-------message', message);
       });
     });
