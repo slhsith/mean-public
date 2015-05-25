@@ -51,7 +51,7 @@
     <!--[if IE]>
       <script> var ie = true; </script>
     <![endif]-->
-    
+
     <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
 
 <!-- start Mixpanel --><script type="text/javascript">(function(f,b){if(!b.__SV){var a,e,i,g;window.mixpanel=b;b._i=[];b.init=function(a,e,d){function f(b,h){var a=h.split(".");2==a.length&&(b=b[a[0]],h=a[1]);b[h]=function(){b.push([h].concat(Array.prototype.slice.call(arguments,0)))}}var c=b;"undefined"!==typeof d?c=b[d]=[]:d="mixpanel";c.people=c.people||[];c.toString=function(b){var a="mixpanel";"mixpanel"!==d&&(a+="."+d);b||(a+=" (stub)");return a};c.people.toString=function(){return c.toString(1)+".people (stub)"};i="disable track track_pageview track_links track_forms register register_once alias unregister identify name_tag set_config people.set people.set_once people.increment people.append people.union people.track_charge people.clear_charges people.delete_user".split(" ");
@@ -61,6 +61,16 @@ mixpanel.init("08314cf925efc4376a17217e8922cd22");</script><!-- end Mixpanel -->
 
 </head>
 <body ng-controller="MainCtrl">
+  <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.3&appId=692480267528460";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+   </script>
+   
   <div class="row">
     <div class="col-md-6 col-md-offset-3">
 
@@ -176,35 +186,8 @@ mixpanel.init("08314cf925efc4376a17217e8922cd22");</script><!-- end Mixpanel -->
  <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
  <script src="dist/all.min.js"></script>
  <script src="dist/templates.js"></script>
- <div id="fb-root"></div>
-<!--  script>
-  // This is called with the results from from FB.getLoginStatus().
 
-  window.fbAsyncInit = function() {
-  FB.init({
-    appId      : '692480267528460',
-    cookie     : true,  // enable cookies to allow the server to access 
-                        // the session
-    xfbml      : true,  // parse social plugins on this page
-    version    : 'v2.2' // use version 2.2
-  });
-
-  // Now that we've initialized the JavaScript SDK, we call 
-  // FB.getLoginStatus().  This function gets the state of the
-  // person visiting this page and can return one of three states to
-  // the callback you provide.  They can be:
-  //
-  // 1. Logged into your app ('connected')
-  // 2. Logged into Facebook, but not your app ('not_authorized')
-  // 3. Not logged into Facebook and can't tell if they are logged into
-  //    your app or not.
-  //
-  // These three cases are handled in the callback function.
-
-  FB.getLoginStatus(function(response) {
-    statusChangeCallback(response);
-  });
-
+<!-- 
   // Load the SDK asynchronously
   (function(d, s, id) {
     var js, fjs = d.getElementsByTagName(s)[0];
@@ -225,15 +208,15 @@ mixpanel.init("08314cf925efc4376a17217e8922cd22");</script><!-- end Mixpanel -->
     });
   }
 /script>
-
-<!
+ -->
+<!-- <!
   Below we include the Login Button social plugin. This button uses
   the JavaScript SDK to present a graphical Login button that triggers
   the FB.login() function when clicked.
--->
 
-<!-- fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
-/fb:login-button> -->
+
+<!fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+/fb:login-button>  -->
 <!-- 
 <div id="status">
 </div> -->

@@ -51,7 +51,12 @@ function($stateProvider, $urlRouterProvider, GoogleMapApi) {
     .state('mapResults', {
       url: '/mapResults',
       templateUrl: 'map.html',
-      controller: 'MapCtrl'
+      controller: 'MapCtrl',
+      config: GoogleMapApi.configure({
+        key: 'AIzaSyDHlTfALoPx_zwBB15W1obqHcrtXk8ObVA',
+        v: '3.17',
+        libraries: 'places'
+      })
     })
     .state('userProfile', {
       url: '/user/:handle',
@@ -63,10 +68,5 @@ function($stateProvider, $urlRouterProvider, GoogleMapApi) {
         }
       }
     });
-  // $urlRouterProvider.otherwise('home');
-// GoogleMapApi.configure({
-//     // key: 'your api key',
-//     v: '3.17',
-//     libraries: 'places'
-//   });
+  $urlRouterProvider.otherwise('home');
 }]);

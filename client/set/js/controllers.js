@@ -40,17 +40,20 @@ app.controller('SearchCtrl', function ($scope, search, searchPromise) {
 
 
 
-// app.controller('MapCtrl', function ($scope) {
-//   var events = {
-//     places_changed: function (searchBox) {}
-//   };
-//   $scope.map = { 
-//     center: { latitude: 45, longitude: -73 }, 
-//     zoom: 8,
-//     options: {scrollwheel: false},
-//     searchbox: { template:'searchbox.tpl.html', events:events}
-//   };
-// });
+app.controller('MapCtrl', function ($scope) {
+  var mapOptions = {};
+  var map = new google.maps.Map(document.getElementById("map-canvas"),
+    mapOptions);
+  var events = {
+    places_changed: function (searchBox) {}
+  };
+  $scope.map = { 
+    center: { latitude: 45, longitude: -99 }, 
+    zoom: 8,
+    options: {scrollwheel: false},
+    searchbox: { template:'searchbox.tpl.html', events:events}
+  };
+});
 
 
 app.controller('UserCtrl', function ($scope, users, userPromise) {
