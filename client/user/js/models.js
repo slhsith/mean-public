@@ -199,6 +199,17 @@ app.factory('auth', function($http, $window){
         return payload.username;
       }
     };
+    auth.isUser = function(){
+      var token = auth.getToken();
+
+      if(token){
+       var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.permissions === 'User' || 'Admin' || 'Collaborator';
+      } else {
+        return false;
+      }
+    };
     auth.logOut = function(){
       $window.localStorage.removeItem('admin-token');
       $window.location = "http://localhost:3000";

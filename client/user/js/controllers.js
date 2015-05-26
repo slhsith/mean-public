@@ -17,6 +17,7 @@
         "$last_login": new Date()
     });
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isUser = auth.isUser;
 
 });
 

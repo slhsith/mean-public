@@ -1,13 +1,12 @@
 /*  -----------------  *
     APP MODULE - USER 
  *  -----------------  */
- var app = angular.module('mainApp', ['ui.router','templates']);
+var app = angular.module('mainApp', ['ui.router','templates']);
 
 app.config([
 '$stateProvider',
 '$urlRouterProvider',
 function($stateProvider, $urlRouterProvider) {
-
   $stateProvider
     .state('home', {
       url: '/home',
@@ -173,6 +172,7 @@ function($stateProvider, $urlRouterProvider) {
         "$last_login": new Date()
     });
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isUser = auth.isUser;
 
 });
 
@@ -614,6 +614,17 @@ app.factory('auth', function($http, $window){
         var payload = JSON.parse($window.atob(token.split('.')[1]));
 
         return payload.username;
+      }
+    };
+    auth.isUser = function(){
+      var token = auth.getToken();
+
+      if(token){
+       var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.permissions === 'User' || 'Admin' || 'Collaborator';
+      } else {
+        return false;
       }
     };
     auth.logOut = function(){
