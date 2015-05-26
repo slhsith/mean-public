@@ -70,8 +70,10 @@ router.get('/api/groups', groups.getGroups );
 router.post('/api/groups', groups.createGroup );
 router.get('/api/group/:id', groups.getGroupById );
 // router.param('/api/group', groups.getGroupByIdParam );
+
 router.get('/api/group/:id/gposts', groups.getGposts );
 router.post('/api/group/:id/gposts', groups.createGpost );
+
 // router.param('/api/group/:id/gpost', groups.getGpostByIdParam );
 
 // //post page & comments
@@ -91,9 +93,13 @@ router.get('/api/resetpassword/:username/:user_token', authentication.getResetPa
 router.put('/api/resetpassword/:username/:user_token', authentication.doResetPassword );
 //Facebook Integration
 router.get('/auth/facebook', passport.authenticate('facebook'));
-router.get('/auth/facebook/callback', passport.authenticate('facebook', 
-  { successRedirect: '/',
-    failureRedirect: '/login' }) );
+router.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { successRedirect: '/user/#/home', failureRedirect: '/api/login' })
+  // function(req, res) {
+  //   successRedirect: '/'
+  //   // Successful authentication, redirect home.
+  //   res.redirect('/');
+  );
 
 
 // ----------------------- USER and SETTINGS  --------------------------------//
@@ -122,3 +128,8 @@ router.get('/api/conversation/:id', messaging.getConversationById );
 router.post('/api/conversation', auth, messaging.createConversation );
 router.put('/api/conversation/:id/read', messaging.readMessages );
 router.post('/api/conversation/:id/messages', auth, messaging.createMessage );
+
+
+//------------------------------- MAP ----------------------------------------//
+
+

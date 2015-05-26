@@ -278,6 +278,18 @@ app.factory('users', function ($http, $window, auth) {
       return data;
     });
   };
+  u.get = function (id) {
+    return $http.get('/api/user/' + id).success(function(data){
+      console.log(data);
+      return data;
+    });
+  };
+  u.update = function (user){
+    console.log('updating user', user);
+    return $http.put('/api/settings', user).success(function(data){
+        u.users = data;
+    });
+  };
 
   u.get = function (id) {
     return $http.get('/api/user/' + id).then(function(res){
@@ -314,7 +326,6 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
   }; 
   o.create = function (group) {
    console.log(group);
-
    return $http.post('/api/groups', group ).success(function(data){
      console.log(data);
      o.groups.push(data);

@@ -5,6 +5,9 @@ var
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 
+var FACEBOOK_APP_ID = "692480267528460"
+var FACEBOOK_APP_SECRET = "5291485b14fff8e81428d10c9a0c164a";
+
 passport.use(new LocalStrategy(
   function (username, password, done) {
     console.log(username);
@@ -22,11 +25,13 @@ passport.use(new LocalStrategy(
   }
 ));
 
-passport.authenticate(new FacebookStrategy({
+
+passport.use(new FacebookStrategy({
     clientID: "692480267528460",
     clientSecret: "5291485b14fff8e81428d10c9a0c164a",
     callbackURL: "http://localhost:3000/auth/facebook/callback",
-    enableProof: false
+    enableProof: false,
+    profileFields: ['id', 'displayName', 'photos']
   },
   function (accessToken, refreshToken, profile, done) {
     User.findOrCreate({ facebookId: profile.id }, function (err, user) {
@@ -34,4 +39,12 @@ passport.authenticate(new FacebookStrategy({
     });
   }
 ));
+
+passport.serializeUser(function(user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function(obj, done) {
+  done(null, obj);
+});
 

@@ -88,7 +88,7 @@ exports.doLogin = function(req, res, next) {
     res.status(400).json({message: 'Please fill out all fields'});
   }
 
-  passport.authenticate(['local'], function(err, user, info) {
+  passport.authenticate(['local', 'facebook'], function(err, user, info) {
     if (err) { next(err); }
 
     if (user) {

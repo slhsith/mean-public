@@ -242,9 +242,9 @@ function($scope, $stateParams, gposts, gcomments, auth){
   $scope.get(gpost._id);
   $scope.gpost = gposts.gpost;
   $scope.gcomments = gcomments.gcomments;
-  $scope.addGroupComment = function(){
+  $scope.addGcomment = function(){
     if(!scope.body || $scope.body === '') { return; }
-    gposts.addGroupComment(gposts.gpost._id, {
+    gposts.addGcomment(gposts.gpost._id, {
       body: $scope.body,
       author: 'user',
     }).success(function(gcomment) {
@@ -257,3 +257,4 @@ function($scope, $stateParams, gposts, gcomments, auth){
   };
   $scope.isLoggedIn = auth.isLoggedIn;
 }]);
+

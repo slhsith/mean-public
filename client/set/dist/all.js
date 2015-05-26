@@ -51,7 +51,12 @@ function($stateProvider, $urlRouterProvider, GoogleMapApi) {
     .state('mapResults', {
       url: '/mapResults',
       templateUrl: 'map.html',
-      controller: 'MapCtrl'
+      controller: 'MapCtrl',
+      config: GoogleMapApi.configure({
+        key: 'AIzaSyDHlTfALoPx_zwBB15W1obqHcrtXk8ObVA',
+        v: '3.17',
+        libraries: 'places'
+      })
     })
     .state('userProfile', {
       url: '/user/:handle',
@@ -63,12 +68,7 @@ function($stateProvider, $urlRouterProvider, GoogleMapApi) {
         }
       }
     });
-  // $urlRouterProvider.otherwise('home');
-// GoogleMapApi.configure({
-//     // key: 'your api key',
-//     v: '3.17',
-//     libraries: 'places'
-//   });
+  $urlRouterProvider.otherwise('home');
 }]);
 /*  -----------------  *
     CONTROLLERS - SET
@@ -112,17 +112,20 @@ app.controller('SearchCtrl', function ($scope, search, searchPromise) {
 
 
 
-// app.controller('MapCtrl', function ($scope) {
-//   var events = {
-//     places_changed: function (searchBox) {}
-//   };
-//   $scope.map = { 
-//     center: { latitude: 45, longitude: -73 }, 
-//     zoom: 8,
-//     options: {scrollwheel: false},
-//     searchbox: { template:'searchbox.tpl.html', events:events}
-//   };
-// });
+app.controller('MapCtrl', function ($scope) {
+  var mapOptions = {};
+  var map = new google.maps.Map(document.getElementById("map-canvas"),
+    mapOptions);
+  var events = {
+    places_changed: function (searchBox) {}
+  };
+  $scope.map = { 
+    center: { latitude: 45, longitude: -99 }, 
+    zoom: 8,
+    options: {scrollwheel: false},
+    searchbox: { template:'searchbox.tpl.html', events:events}
+  };
+});
 
 
 app.controller('UserCtrl', function ($scope, users, $stateParams, userPromise, auth) {
