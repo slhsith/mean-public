@@ -1,12 +1,3 @@
-        <div id="fb-root"></div>
-        <script>(function(d, s, id) {
-          var js, fjs = d.getElementsByTagName(s)[0];
-          if (d.getElementById(id)) return;
-          js = d.createElement(s); js.id = id;
-          js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.3&appId=692480267528460";
-          fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));</script>
-
       <div class="page-header">
         <h1>Group Wall  || {{group.name}}</h1>
 
@@ -69,6 +60,37 @@
         </div>
         <button type="submit" class="btn btn-primary">Post</button>
       </form>
+
+  <div id="fb-root"></div>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '692480267528460',
+          status     : true, 
+          cookie     : true, 
+          xfbml      : true,
+          version    : 'v2.3'
+        });
+        function share () {
+        FB.ui({
+         method: 'share_open_graph',
+         action_type: 'og.likes',
+         action_properties: JSON.stringify({
+          object:'https://developers.facebook.com/docs/',
+         })
+        }, function(response){});
+      }
+    };
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
+    <a href="https://www.facebook.com/v2.3/dialog/share_open_graph?action_properties=%7B%22object%22%3A%22https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2F%22%7D&action_type=og.likes&app_id=692480267528460&display=popup&e2e=%7B%7D&locale=en_US&next=http%3A%2F%2Fstatic.ak.facebook.com%2Fconnect%2Fxd_arbiter%2FQrU_tEEWym9.js%3Fversion%3D41%23cb%3Df28454b1c%26domain%3Dlocalhost%26origin%3Dhttp%253A%252F%252Flocalhost%253A3000%252Ff283facdcc%26relation%3Dopener%26frame%3Df3d230ab5%26result%3D%2522xxRESULTTOKENxx%2522&sdk=joey&version=v2.3" ng-click="share();">Share now</a>
+
       <div style="margin-top:30px">
         <span>
           <a href="#/home">Home Page</a>
