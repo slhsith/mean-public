@@ -10,6 +10,7 @@ var Group         = mongoose.model('Group');
 var Gpost         = mongoose.model('Gpost');
 var Gcomment      = mongoose.model('Gcomment');
 
+
 // --- Exported Methods --- //
 exports.getGroups = function(req, res, next) {
   Group.find({},function(err, groups){

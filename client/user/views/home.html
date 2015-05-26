@@ -1,3 +1,4 @@
+<div ng-show="isUser()">
       <div class="page-header">
         <h1>Mean Starter || <a href="#/shop">Shop</a> || <a href="#/groups">Groups</a> || <a href="#/messenger">Messenger</a></h1>
        You are logged in as {{ user.username }}. Not you? Click <a ng-click="logOut()">here</a>.
@@ -34,7 +35,7 @@
         <button type="submit" class="btn btn-primary">Post</button>
       </form>
 
-
+</div>
       <div ng-hide="isLoggedIn()">
         <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a post.</h3>
       </div>

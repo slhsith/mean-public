@@ -1,3 +1,4 @@
+    <div ng-show="isAdmin()">
       <div class="page-header">
         <h1>Mean Starter</h1>
       </div>
@@ -5,7 +6,7 @@
       <div ng-repeat="user in users">
         <span>{{user.l_name}},</span>
         <span>{{user.f_name}}</span> |
-        <span>{{user.handle}},</span> | 
+        <span>{{user.handle}}</span> | 
         <a href="#/user/{{user._id}}">See More</a>
       </div>
       <div class="text-center">
@@ -55,6 +56,10 @@
         <span>Buffalo</span><br>
         <span>NYC</span>
       </div>
-      <div ng-hide="isLoggedIn()">
-        <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a post.</h3>
-      </div>
+    </div>
+    <div ng-if="isLoggedIn()" ng-hide="isAdmin()">
+      <h3>You need to be an admin to access this page. <a href="/#/user/#/home">Return Home</a></h3>
+    </div>
+    <div ng-if="!isLoggedIn()">
+      <h3>You need to be logged in to access this page. Log In or Sign Up<a href="/#/"> here</a>.</h3>
+    </div>

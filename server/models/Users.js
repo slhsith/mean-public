@@ -5,7 +5,7 @@ var UserSchema = new mongoose.Schema({
   username: { type: String, lowercase: true, unique: true },
   hash: String,
   salt: String,
-  permissions: String,
+  permissions: { type: String, default: 'User' },
   confirmation: Boolean,
   user_token: { type: String, lowercase: true, unique: true },
   languages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Language' }],
@@ -54,6 +54,7 @@ UserSchema.methods.generateJWT = function() {
   return jwt.sign({
     _id: this._id,
     username: this.username,
+    permissions: this.permissions,
     exp: parseInt(exp.getTime() / 1000),
   }, 'SECRET');
 };
