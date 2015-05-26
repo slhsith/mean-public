@@ -52,6 +52,11 @@ function($stateProvider, $urlRouterProvider, GoogleMapApi) {
       url: '/mapResults',
       templateUrl: 'map.html',
       controller: 'MapCtrl',
+      config: GoogleMapApi.configure({
+        key: 'AIzaSyDHlTfALoPx_zwBB15W1obqHcrtXk8ObVA',
+        v: '3.17',
+        libraries: 'places'
+      })
     })
     .state('userProfile', {
       url: '/user/:handle',
