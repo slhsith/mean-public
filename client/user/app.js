@@ -128,7 +128,7 @@ function($stateProvider, $urlRouterProvider) {
     //   }
     // })
     .state('settings', {
-       url: '/settings',
+       url: '/settings/:id',
        templateUrl: 'settings.html',
        controller: 'SettingsCtrl',
        resolve: {

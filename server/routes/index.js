@@ -104,7 +104,7 @@ router.get('/auth/facebook/callback',
 
 // ----------------------- USER and SETTINGS  --------------------------------//
 router.get('/api/languages', settings.getLanguages );
-router.post('/api/languages', settings.createLanguage );
+router.post('/api/user/:id/languages', settings.createLanguage );
 router.get('/api/settings', settings.getSettings );
 router.put('/api/settings', settings.updateSettings );
 
