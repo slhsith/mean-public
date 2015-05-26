@@ -128,7 +128,7 @@ function($stateProvider, $urlRouterProvider) {
     //   }
     // })
     .state('settings', {
-       url: '/settings',
+       url: '/settings/:id',
        templateUrl: 'settings.html',
        controller: 'SettingsCtrl',
        resolve: {
@@ -174,7 +174,8 @@ function($stateProvider, $urlRouterProvider) {
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isUser = auth.isUser;
   $scope.isAdmin = auth.isAdmin;
-
+  $scope.logOut = auth.logOut;
+  $scope.isThisUser = auth.isThisUser;
 });
 
 
@@ -311,7 +312,7 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
 });
 
 
-app.controller('SettingsCtrl', function ($scope, languages, settings, userPromise) {
+app.controller('SettingsCtrl', function ($scope, languages, settings, userPromise, auth) {
   $scope.user = angular.extend($scope.user, settings.settings);
   $scope.languages = languages.languages;
   $scope.addLanguage = function(){
@@ -335,6 +336,7 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   console.log(userPromise);
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
+  $scope.isThisUser = auth.isThisUser;
 });
 
 app.controller('GroupsCtrl',
@@ -633,6 +635,14 @@ app.factory('auth', function($http, $window){
         return payload.username;
       }
     };
+    auth.isThisUser = function() {
+      if(auth.isLoggedIn()){
+        var token = auth.getToken();
+        var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload._id;
+      }
+    }
     auth.isUser = function(){
       var token = auth.getToken();
 
@@ -683,7 +693,7 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   };
   lang.addLanguage = function (language) {
     console.log(language);
-    return $http.post('/api/languages', { 'name': language }).success(function(data){
+    return $http.post('/api/user/:id/languages', { 'name': language }).success(function(data){
       console.log(data);
       lang.languages.push(data);
     });
@@ -691,6 +701,8 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   
   return lang; 
 }]);
+
+// SETTINGS
 
 app.factory('settings', function ($http, $window) {
    var s = { settings : {} };
@@ -713,6 +725,8 @@ app.factory('settings', function ($http, $window) {
    };
    return s;
 });
+
+//USERS
 
 app.factory('users', function ($http, $window, auth) {
   var u = { users: [] };
@@ -748,8 +762,9 @@ app.factory('users', function ($http, $window, auth) {
   };
 
   u.get = function (id) {
-    return $http.get('/api/user/' + id).then(function(res){
-      return res.data;
+    return $http.get('/api/user/' + id).success(function(data){
+      console.log(data);
+      return data;
     });
   };
 

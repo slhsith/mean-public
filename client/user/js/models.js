@@ -199,6 +199,14 @@ app.factory('auth', function($http, $window){
         return payload.username;
       }
     };
+    auth.isThisUser = function() {
+      if(auth.isLoggedIn()){
+        var token = auth.getToken();
+        var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload._id;
+      }
+    }
     auth.isUser = function(){
       var token = auth.getToken();
 
@@ -249,7 +257,7 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   };
   lang.addLanguage = function (language) {
     console.log(language);
-    return $http.post('/api/languages', { 'name': language }).success(function(data){
+    return $http.post('/api/user/:id/languages', { 'name': language }).success(function(data){
       console.log(data);
       lang.languages.push(data);
     });
@@ -257,6 +265,8 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   
   return lang; 
 }]);
+
+// SETTINGS
 
 app.factory('settings', function ($http, $window) {
    var s = { settings : {} };
@@ -279,6 +289,8 @@ app.factory('settings', function ($http, $window) {
    };
    return s;
 });
+
+//USERS
 
 app.factory('users', function ($http, $window, auth) {
   var u = { users: [] };
@@ -314,8 +326,9 @@ app.factory('users', function ($http, $window, auth) {
   };
 
   u.get = function (id) {
-    return $http.get('/api/user/' + id).then(function(res){
-      return res.data;
+    return $http.get('/api/user/' + id).success(function(data){
+      console.log(data);
+      return data;
     });
   };
 

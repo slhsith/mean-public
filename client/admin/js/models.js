@@ -75,7 +75,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
       if(token){
        var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-        return payload.permissions == 'Admin';
+        return payload.permissions === 'Admin';
       } else {
         return false;
       }

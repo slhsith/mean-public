@@ -54,6 +54,8 @@ UserSchema.methods.generateJWT = function() {
   return jwt.sign({
     _id: this._id,
     username: this.username,
+    f_name: this.f_name,
+    l_name: this.l_name,
     permissions: this.permissions,
     exp: parseInt(exp.getTime() / 1000),
   }, 'SECRET');

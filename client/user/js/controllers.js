@@ -19,7 +19,8 @@
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isUser = auth.isUser;
   $scope.isAdmin = auth.isAdmin;
-
+  $scope.logOut = auth.logOut;
+  $scope.isThisUser = auth.isThisUser;
 });
 
 
@@ -156,7 +157,7 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
 });
 
 
-app.controller('SettingsCtrl', function ($scope, languages, settings, userPromise) {
+app.controller('SettingsCtrl', function ($scope, languages, settings, userPromise, auth) {
   $scope.user = angular.extend($scope.user, settings.settings);
   $scope.languages = languages.languages;
   $scope.addLanguage = function(){
@@ -180,6 +181,7 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   console.log(userPromise);
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
+  $scope.isThisUser = auth.isThisUser;
 });
 
 app.controller('GroupsCtrl',
