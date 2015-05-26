@@ -41,6 +41,10 @@
 	  	<td>Permissions</td> 
 	    <td>{{user.permissions}}</td>
 	  </tr>
+	  <tr>
+	  	<td>Followers</td>
+	  	<td>{{user.followers}}</td>
+	  </tr>
 	</table>
 </div>
 <div ng-show="view">
@@ -75,6 +79,10 @@
 	  <tr>
 	  	<td>Permissions</td> 
 	    <td><input ng-model="user.permissions" style="width:100%;"></td>
+	  </tr>
+	  <tr>
+	  	<td>Followers</td> 
+	    <td>{{user.followers}}</td>
 	  </tr>
 	</table>
 	<button type="submit" class="btn btn-primary" ng-click="view = !view">Update</button>
