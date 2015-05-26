@@ -18,6 +18,7 @@
     });
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isUser = auth.isUser;
+  $scope.isAdmin = auth.isAdmin;
 
 });
 
@@ -46,6 +47,8 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
     // mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 
 });
 
@@ -80,6 +83,8 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
     posts.upvoteComment($scope.post, comment);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 
@@ -108,7 +113,8 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Shop Page: Upvoted Comment");
   };  
-
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 
@@ -123,7 +129,8 @@ app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise) {
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Items Page: Upvoted Comment");
   };
-
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 
@@ -144,6 +151,8 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
     // mixpanel.track("Checkout: Purchase Item");
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 
@@ -169,6 +178,8 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   };
   $scope.user = userPromise.data;
   console.log(userPromise);
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 app.controller('GroupsCtrl',
@@ -184,6 +195,8 @@ function ($scope, groups, auth) {
   };
   $scope.group = '';
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 app.controller('GHomeCtrl',
@@ -215,6 +228,8 @@ function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
     console.log(gpost);
     console.log($scope.gcomment);
   };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
   
   // $scope.addComment = function(){
   //   console.log($scope.post);
@@ -257,5 +272,7 @@ function($scope, $stateParams, gposts, gcomments, auth){
     gposts.upvoteGroupComment(gpost, gcomment);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 }]);
 

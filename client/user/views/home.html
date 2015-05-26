@@ -1,6 +1,6 @@
 <div ng-show="isUser()">
       <div class="page-header">
-        <h1>Mean Starter || <a href="#/shop">Shop</a> || <a href="#/groups">Groups</a> || <a href="#/messenger">Messenger</a></h1>
+        <h3>Mean Starter || <a href="#/shop">Shop</a> || <a href="#/groups">Groups</a> || <a href="#/messenger">Messenger</a> || <a href="/admin/#/home" ng-if="isAdmin()">Administrator</a></h3>
        You are logged in as {{ user.username }}. Not you? Click <a ng-click="logOut()">here</a>.
       </div>
       <div ng-repeat="post in posts | orderBy:'-upvotes'">
