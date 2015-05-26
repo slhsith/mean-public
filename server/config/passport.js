@@ -34,7 +34,7 @@ passport.use(new FacebookStrategy({
     profileFields: ['id', 'displayName', 'photos']
   },
   function (accessToken, refreshToken, profile, done) {
-    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+    User.findOrCreate({ facebookId: profile.id }, {f_name: first_name}, {l_name: last_name}, {email: email}, function (err, user) {
       return done(err, user);
     });
   }
