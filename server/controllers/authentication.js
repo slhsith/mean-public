@@ -34,18 +34,12 @@ exports.doRegistration = function(req, res, next) {
 		return res.status(400).json({message: 'Emails do not match'});
 	} else if (req.body.password !== req.body.repeat_password) {
 		return res.status(400).json({message: 'Passwords do not match'});
-	} else if (checkEmail){
-    return res.status(400).json({message: 'Email is in use'});
-  }
+	}
 
   // User.findOne({ username: req.username}), function (err, user, next) {
   //   if (!user) { next(); }
   //   if (user) { res.status(400).json({message: 'Email in use'}); }
   // }
-  
-
-	
-	
 
 	var user = new User();
 
@@ -88,7 +82,7 @@ exports.doLogin = function(req, res, next) {
     res.status(400).json({message: 'Please fill out all fields'});
   }
 
-  passport.authenticate(['local'], function(err, user, info) {
+  passport.authenticate(['local', 'facebook'], function(err, user, info) {
     if (err) { next(err); }
 
     if (user) {

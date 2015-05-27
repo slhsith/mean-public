@@ -30,6 +30,7 @@ require('./server/models/Languages');
 require('./server/models/Groups');
 require('./server/models/Gposts');
 require('./server/models/Gcomments');
+require('./server/models/Followers');
 
 // messaging
 require('./server/models/Messages');

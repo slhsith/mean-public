@@ -199,6 +199,36 @@ app.factory('auth', function($http, $window){
         return payload.username;
       }
     };
+    auth.isThisUser = function() {
+      if(auth.isLoggedIn()){
+        var token = auth.getToken();
+        var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload._id;
+      }
+    }
+    auth.isUser = function(){
+      var token = auth.getToken();
+
+      if(token){
+       var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.permissions === 'User' || 'Admin' || 'Collaborator';
+      } else {
+        return false;
+      }
+    };
+    auth.isAdmin = function(){
+      var token = auth.getToken();
+
+      if(token){
+       var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.permissions === 'Admin';
+      } else {
+        return false;
+      }
+    };
     auth.logOut = function(){
       $window.localStorage.removeItem('admin-token');
       $window.location = "http://localhost:3000";
@@ -227,7 +257,7 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   };
   lang.addLanguage = function (language) {
     console.log(language);
-    return $http.post('/api/languages', { 'name': language }).success(function(data){
+    return $http.post('/api/user/:id/languages', { 'name': language }).success(function(data){
       console.log(data);
       lang.languages.push(data);
     });
@@ -235,6 +265,8 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   
   return lang; 
 }]);
+
+// SETTINGS
 
 app.factory('settings', function ($http, $window) {
    var s = { settings : {} };
@@ -258,6 +290,8 @@ app.factory('settings', function ($http, $window) {
    return s;
 });
 
+//USERS
+
 app.factory('users', function ($http, $window, auth) {
   var u = { users: [] };
 
@@ -278,10 +312,23 @@ app.factory('users', function ($http, $window, auth) {
       return data;
     });
   };
+  u.get = function (id) {
+    return $http.get('/api/user/' + id).success(function(data){
+      console.log(data);
+      return data;
+    });
+  };
+  u.update = function (user){
+    console.log('updating user', user);
+    return $http.put('/api/settings', user).success(function(data){
+        u.users = data;
+    });
+  };
 
   u.get = function (id) {
-    return $http.get('/api/user/' + id).then(function(res){
-      return res.data;
+    return $http.get('/api/user/' + id).success(function(data){
+      console.log(data);
+      return data;
     });
   };
 
@@ -314,7 +361,6 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
   }; 
   o.create = function (group) {
    console.log(group);
-
    return $http.post('/api/groups', group ).success(function(data){
      console.log(data);
      o.groups.push(data);
@@ -326,6 +372,19 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
       return data;
     });
   };
+  o.createGpost = function(group, gpost) {
+    console.log(group, gpost);
+    return $http.post('/api/group/' + group._id + '/gposts', gpost, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  o.createGcomment = function (gpost, gcomment) {
+    console.log(gpost);
+    console.log(gcomment);
+    // return $http.post('/api/group/'+group._id+'gpost/' + gpost._id + '/gcomments', gcomment, {
+    //   headers: {Authorization: 'Bearer '+auth.getToken()}
+    // });
+  };
   return o;
 }]);
 
@@ -336,18 +395,13 @@ app.factory('gposts', ['$http', 'auth', function($http, auth){
     gpost: {}
   };
 
-  o.getAll = function() {
-    return $http.get('/api/gposts').success(function(data){
+  o.getAll = function(id) {
+    return $http.get('/api/group/' + id + '/gposts').success(function(data){
       console.log(data);
       angular.copy(data, o.gposts);
     });
   };
-  o.create = function(gpost) {
-    console.log(gpost);
-    return $http.post('/api/gposts', gpost).success(function(data){
-      o.gposts.push(data);
-    });
-  };
+
   // o.upvote = function(gpost) {
   //   return $http.put('/api/gposts/' + post._id + '/upvote', null, {
   //     headers: {Authorization: 'Bearer '+auth.getToken()}

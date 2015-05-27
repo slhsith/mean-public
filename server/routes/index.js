@@ -70,15 +70,17 @@ router.get('/api/groups', groups.getGroups );
 router.post('/api/groups', groups.createGroup );
 router.get('/api/group/:id', groups.getGroupById );
 // router.param('/api/group', groups.getGroupByIdParam );
+
 router.get('/api/group/:id/gposts', groups.getGposts );
-// router.post('/api/group/:id/gposts', auth, groups.createGpost );
+router.post('/api/group/:id/gposts', groups.createGpost );
+
 // router.param('/api/group/:id/gpost', groups.getGpostByIdParam );
 
 // //post page & comments
 // router.param('/api/gpost', groups.getGPostByIdParam );
 // router.get('/api/gposts/:gpost', groups.getGPostById );
 // router.put('/api/gposts/:gpost/upvote', auth, groups.upvoteGPost );
-// router.post('/api/gposts/:gpost/gcomments', auth, groups.createGPostComment );
+router.post('/api/gpost/:gpost/gcomments', groups.newGcomment );
 // router.put('/api/gposts/:gpost/gcomments/:gcomment/upvote', auth, groups.upvoteGPostComment );
 // router.param('gcomment', groups.getGPostCommentByIdParam );
 
@@ -91,14 +93,18 @@ router.get('/api/resetpassword/:username/:user_token', authentication.getResetPa
 router.put('/api/resetpassword/:username/:user_token', authentication.doResetPassword );
 //Facebook Integration
 router.get('/auth/facebook', passport.authenticate('facebook'));
-router.get('/auth/facebook/callback', passport.authenticate('facebook', 
-  { successRedirect: '/',
-    failureRedirect: '/login' }) );
+router.get('/auth/facebook/callback',
+  passport.authenticate('facebook', { successRedirect: '/user/#/home', failureRedirect: '/#/' })
+  // function(req, res) {
+  //   successRedirect: '/'
+  //   // Successful authentication, redirect home.
+  //   res.redirect('/');
+  );
 
 
 // ----------------------- USER and SETTINGS  --------------------------------//
 router.get('/api/languages', settings.getLanguages );
-router.post('/api/languages', settings.createLanguage );
+router.post('/api/user/:id/languages', settings.createLanguage );
 router.get('/api/settings', settings.getSettings );
 router.put('/api/settings', settings.updateSettings );
 
@@ -111,6 +117,7 @@ router.get('/api/users/:start/:end', settings.getUsersByPage );
 router.get('/api/user/:id', settings.getUserById );
 //for public profiles
 router.get('/api/user/handle/:handle', settings.getUserByHandle );
+router.post('/api/user/:handle/followers', settings.addFollower );
 
 
 
@@ -121,3 +128,8 @@ router.get('/api/conversation/:id', messaging.getConversationById );
 router.post('/api/conversation', auth, messaging.createConversation );
 router.put('/api/conversation/:id/read', messaging.readMessages );
 router.post('/api/conversation/:id/messages', auth, messaging.createMessage );
+
+
+//------------------------------- MAP ----------------------------------------//
+
+

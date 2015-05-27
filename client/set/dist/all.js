@@ -5,8 +5,8 @@ var app = angular.module('mainApp', ['ui.router','templates', 'uiGmapgoogle-maps
 
 app.config([
 '$stateProvider',
-'$urlRouterProvider','uiGmapGoogleMapApiProvider',
-function($stateProvider, $urlRouterProvider, GoogleMapApi) {
+'$urlRouterProvider',
+function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('emailVerify', {
       url: '/emailverify/:username/:user_token',
@@ -49,7 +49,7 @@ function($stateProvider, $urlRouterProvider, GoogleMapApi) {
       }
     })
     .state('mapResults', {
-      url: '/mapResults',
+      url: '/mapResults/:query',
       templateUrl: 'map.html',
       controller: 'MapCtrl'
     })
@@ -64,11 +64,7 @@ function($stateProvider, $urlRouterProvider, GoogleMapApi) {
       }
     });
   // $urlRouterProvider.otherwise('home');
-// GoogleMapApi.configure({
-//     // key: 'your api key',
-//     v: '3.17',
-//     libraries: 'places'
-//   });
+
 }]);
 /*  -----------------  *
     CONTROLLERS - SET
@@ -112,22 +108,30 @@ app.controller('SearchCtrl', function ($scope, search, searchPromise) {
 
 
 
-// app.controller('MapCtrl', function ($scope) {
-//   var events = {
-//     places_changed: function (searchBox) {}
-//   };
-//   $scope.map = { 
-//     center: { latitude: 45, longitude: -73 }, 
-//     zoom: 8,
-//     options: {scrollwheel: false},
-//     searchbox: { template:'searchbox.tpl.html', events:events}
-//   };
-// });
+app.controller('MapCtrl', function ($scope) {
+  var mapOptions = {};
+  var map = new google.maps.Map(document.getElementById("map_canvas"),
+    mapOptions);
+  var events = {
+    places_changed: function (searchBox) {}
+  };
+  $scope.map = { 
+    center: { latitude: 45, longitude: -99 }, 
+    zoom: 8,
+    options: {scrollwheel: false},
+    searchbox: { template:'searchbox.tpl.html', events:events}
+  };
+});
 
 
-app.controller('UserCtrl', function ($scope, users, userPromise) {
+app.controller('UserCtrl', function ($scope, users, $stateParams, userPromise, auth) {
   $scope.user = userPromise.data;
   console.log(userPromise);
+  $scope.followUser = function () {
+    users.addFollower($stateParams.handle);
+  };
+  $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isFollowing = auth.isFollowing;
 });
 /*  ---------------  *
     FACTORIES - SET
@@ -179,5 +183,54 @@ app.factory('users', function ($http, $window) {
       return data;
     });
   };
+  u.addFollower = function (id, user) {
+    return $http.post('/api/user/'+ id + '/followers', user).success(function(data){
+      return data;
+    });
+  };
   return u;
+});
+
+// AUTH
+app.factory('auth', function($http, $window){
+   var auth = {};
+   auth.saveToken = function (token){
+      $window.localStorage['admin-token'] = token;
+    };
+
+    auth.getToken = function (){
+      return $window.localStorage['admin-token'];
+    };
+    auth.isLoggedIn = function(){
+      var token = auth.getToken();
+
+      if(token){
+        var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.exp > Date.now() / 1000;
+      } else {
+        return false;
+      }
+    };
+    auth.currentUser = function(){
+      if(auth.isLoggedIn()){
+        var token = auth.getToken();
+        var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.username;
+      }
+    };
+    auth.logOut = function(){
+      $window.localStorage.removeItem('admin-token');
+      $window.location = "http://localhost:3000";
+    };
+    auth.getUser = function (){
+      if(auth.isLoggedIn()){
+        var token = auth.getToken();
+        var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload;
+      }
+    };
+  return auth;
 });

@@ -17,7 +17,10 @@
         "$last_login": new Date()
     });
   $scope.isLoggedIn = auth.isLoggedIn;
-
+  $scope.isUser = auth.isUser;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.logOut = auth.logOut;
+  $scope.isThisUser = auth.isThisUser;
 });
 
 
@@ -45,6 +48,8 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
     // mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 
 });
 
@@ -79,6 +84,8 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
     posts.upvoteComment($scope.post, comment);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 
@@ -107,7 +114,8 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Shop Page: Upvoted Comment");
   };  
-
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 
@@ -122,7 +130,8 @@ app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise) {
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Items Page: Upvoted Comment");
   };
-
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 
@@ -143,10 +152,12 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
     // mixpanel.track("Checkout: Purchase Item");
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 
-app.controller('SettingsCtrl', function ($scope, languages, settings, userPromise) {
+app.controller('SettingsCtrl', function ($scope, languages, settings, userPromise, auth) {
   $scope.user = angular.extend($scope.user, settings.settings);
   $scope.languages = languages.languages;
   $scope.addLanguage = function(){
@@ -168,6 +179,9 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   };
   $scope.user = userPromise.data;
   console.log(userPromise);
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
+  $scope.isThisUser = auth.isThisUser;
 });
 
 app.controller('GroupsCtrl',
@@ -183,11 +197,14 @@ function ($scope, groups, auth) {
   };
   $scope.group = '';
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 app.controller('GHomeCtrl',
-function ($scope, auth, groups, groupsPromise, gposts, $stateParams){
+function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
   var group = groups.group[$stateParams.id];
+  var gpost = gposts.gpost[$stateParams.id];
   // var gpost = gposts.gpost[$stateParams.id];
   $scope.group = groupsPromise.data;
   console.log(groupsPromise.data);
@@ -197,14 +214,25 @@ function ($scope, auth, groups, groupsPromise, gposts, $stateParams){
   $scope.currentUser = auth.currentUser();
   $scope.groups = groups.groups;
   $scope.gposts = gposts.gposts;
+  $scope.gcomments = gcomments.gcomments;
   $scope.addGpost = function(){
     // if(!$scope.body || $scope.body === '') { return; }
-    groups.gposts.create($scope.gpost);
-    $scope.body = '';
+    groups.createGpost($scope.group, $scope.gpost).success(function(gpost) {
+      $scope.group.gposts.push(gpost);
+      $scope.gpost.body = null;
+    });
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
   };
+  $scope.addGcomment = function (gpost) {
+    // groups.createGcomment($scope.gpost, $scope.gcomment)
+    console.log(gpost);
+    console.log($scope.gcomment);
+  };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
+  
   // $scope.addComment = function(){
   //   console.log($scope.post);
   //   // posts.addComment(posts.post._id, {
@@ -232,9 +260,9 @@ function($scope, $stateParams, gposts, gcomments, auth){
   $scope.get(gpost._id);
   $scope.gpost = gposts.gpost;
   $scope.gcomments = gcomments.gcomments;
-  $scope.addGroupComment = function(){
+  $scope.addGcomment = function(){
     if(!scope.body || $scope.body === '') { return; }
-    gposts.addGroupComment(gposts.gpost._id, {
+    gposts.addGcomment(gposts.gpost._id, {
       body: $scope.body,
       author: 'user',
     }).success(function(gcomment) {
@@ -246,4 +274,7 @@ function($scope, $stateParams, gposts, gcomments, auth){
     gposts.upvoteGroupComment(gpost, gcomment);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 }]);
+

@@ -1,3 +1,12 @@
+<div ng-show="isUser()">
+      <div id="fb-root"></div>
+      <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.3&appId=692480267528460";
+        fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));</script>
       <div class="page-header">
         <h1>Shop from the windows to the walls</h1>
       </div>
@@ -9,8 +18,8 @@
            {{item.upvotes}}
         <span style="font-size:20px; margin-left:10px;">
           <span>
-            {{item.name}},
-            {{item.price}},
+            {{item.name}}
+            {{item.price}}
             {{item.duration? item.duration + ',' : '' }}
             {{item.genre? item.genre + ',' : '' }}
           </span>
@@ -20,6 +29,7 @@
           <a ng-show="item.type === 'DietPlan'" href="#/items/diet/{{item._id}}">Go to Diet Page</a>
         </span>
       </div>
+        <div class="fb-like" data-href="https://developers.facebook.com/docs/plugins/" data-layout="standard" data-action="like" data-show-faces="false" data-share="false"></div>
 <!--       <div ng-repeat="video in videos">
         <span>
             {{video.duration}},
@@ -174,4 +184,5 @@
         <span>
           <a href="#/home">Home Page</a>
         </span>
-      </div>    
+      </div>  
+</div>  

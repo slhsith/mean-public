@@ -37,13 +37,13 @@ app.config(function ($stateProvider, $urlRouterProvider) {
 
 app.controller('MainCtrl', function ($scope, users, auth){
   $scope.isLoggedIn = auth.isLoggedIn;
-
+  $scope.isAdmin = auth.isAdmin;
   $scope.users = users.users;
 });
 
 app.controller('UserCtrl', function ($scope, users, auth, userPromise) {
   $scope.user = userPromise.data;
-
+  $scope.isAdmin = auth.isAdmin;
   $scope.update = function() {
     console.log($scope.user);
     users.update($scope.user);
@@ -56,6 +56,7 @@ app.controller('NavCtrl', [
 '$scope',
 'auth',
 function($scope, auth){
+  $scope.isAdmin = auth.isAdmin;
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.currentUser = auth.currentUser;
   $scope.logOut = auth.logOut;
@@ -129,6 +130,17 @@ app.factory('auth', ['$http', '$window', function($http, $window){
         var payload = JSON.parse($window.atob(token.split('.')[1]));
 
         return payload.username;
+      }
+    };
+    auth.isAdmin = function(){
+      var token = auth.getToken();
+
+      if(token){
+       var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.permissions === 'Admin';
+      } else {
+        return false;
       }
     };
     auth.logOut = function(){
