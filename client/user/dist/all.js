@@ -642,7 +642,7 @@ app.factory('auth', function($http, $window){
 
         return payload._id;
       }
-    }
+    };
     auth.isUser = function(){
       var token = auth.getToken();
 
