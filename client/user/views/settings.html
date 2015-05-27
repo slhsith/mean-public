@@ -18,7 +18,7 @@
   <div style="padding-bottom:20px;">
   <a href="/set/#/user/{{user.handle}}"><button class="btn btn-primary" style="width:100%;">View Profile</button></a>
   </div>
-  <button class="btn btn-primary" ng-click="view = !view" style="width:100%;">Edit</button>
+  <button class="btn btn-primary" ng-click="view = !view" style="width:100%;">Edit Details</button>
   <h3>Details for {{user.f_name}} {{user.l_name}}</h3>
   <table class="table">
     <tr>
@@ -47,9 +47,12 @@
     </tr>
   </table>
 </div>
-<div ng-show="view">
+<div ng-show="view" style="padding-top:50px;">
 <form ng-submit="updateSettings()">
-<button class="btn btn-primary" ng-click="view = !view" style="width:100%;">View</button>
+<div style="padding-bottom:20px;">
+  <a href="/set/#/user/{{user.handle}}"><button class="btn btn-primary" style="width:100%;">View Profile</button></a>
+  </div>
+<button class="btn btn-primary" ng-click="view = !view" style="width:100%;">View Details</button>
   <h3>Editing {{user.f_name}} {{user.l_name}}</h3>
   <table class="table">
     <tr>
@@ -72,8 +75,12 @@
       <td>Handle</td> 
       <td><input ng-model="user.handle" style="width:100%;"></td>
     </tr>
+    <tr>
+      <td>Email</td>
+      <td><input ng-model="user.username" style="width:100%;"></td>
+    </tr>
   </table>
-  <button type="submit" class="btn btn-primary" ng-click="view = !view">Update</button>
+  <button type="submit" class="btn btn-primary" ng-click="view = !view" style="width:100%;">Update</button>
 </form>
 </div>
 </div>

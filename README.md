@@ -46,8 +46,6 @@ Things Left to do:
 
 * Make Notifications system
 * Make Support ticket system with zendesk
-* Make Public Profile Search
 
 * Make User Events and Purchasing
-* Allow users to Follow Eachother
 * Allow users to see the users they follow
