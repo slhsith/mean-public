@@ -1,13 +1,12 @@
 /*  -----------------  *
     APP MODULE - USER 
  *  -----------------  */
- var app = angular.module('mainApp', ['ui.router','templates']);
+var app = angular.module('mainApp', ['ui.router','templates']);
 
 app.config([
 '$stateProvider',
 '$urlRouterProvider',
 function($stateProvider, $urlRouterProvider) {
-
   $stateProvider
     .state('home', {
       url: '/home',
@@ -129,7 +128,7 @@ function($stateProvider, $urlRouterProvider) {
     //   }
     // })
     .state('settings', {
-       url: '/settings',
+       url: '/settings/:id',
        templateUrl: 'settings.html',
        controller: 'SettingsCtrl',
        resolve: {
@@ -173,7 +172,10 @@ function($stateProvider, $urlRouterProvider) {
         "$last_login": new Date()
     });
   $scope.isLoggedIn = auth.isLoggedIn;
-
+  $scope.isUser = auth.isUser;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.logOut = auth.logOut;
+  $scope.isThisUser = auth.isThisUser;
 });
 
 
@@ -201,6 +203,8 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
     // mixpanel.track("User Dashboard: Upvoted Comment");
   };
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 
 });
 
@@ -235,6 +239,8 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
     posts.upvoteComment($scope.post, comment);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 
@@ -263,7 +269,8 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Shop Page: Upvoted Comment");
   };  
-
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 
@@ -278,7 +285,8 @@ app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise) {
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Items Page: Upvoted Comment");
   };
-
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 
@@ -299,10 +307,12 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
     // mixpanel.track("Checkout: Purchase Item");
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 
-app.controller('SettingsCtrl', function ($scope, languages, settings, userPromise) {
+app.controller('SettingsCtrl', function ($scope, languages, settings, userPromise, auth) {
   $scope.user = angular.extend($scope.user, settings.settings);
   $scope.languages = languages.languages;
   $scope.addLanguage = function(){
@@ -324,6 +334,9 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   };
   $scope.user = userPromise.data;
   console.log(userPromise);
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
+  $scope.isThisUser = auth.isThisUser;
 });
 
 app.controller('GroupsCtrl',
@@ -339,6 +352,8 @@ function ($scope, groups, auth) {
   };
   $scope.group = '';
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 });
 
 app.controller('GHomeCtrl',
@@ -370,6 +385,8 @@ function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
     console.log(gpost);
     console.log($scope.gcomment);
   };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
   
   // $scope.addComment = function(){
   //   console.log($scope.post);
@@ -412,6 +429,8 @@ function($scope, $stateParams, gposts, gcomments, auth){
     gposts.upvoteGroupComment(gpost, gcomment);
   };
   $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
 }]);
 
 
@@ -616,6 +635,36 @@ app.factory('auth', function($http, $window){
         return payload.username;
       }
     };
+    auth.isThisUser = function() {
+      if(auth.isLoggedIn()){
+        var token = auth.getToken();
+        var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload._id;
+      }
+    }
+    auth.isUser = function(){
+      var token = auth.getToken();
+
+      if(token){
+       var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.permissions === 'User' || 'Admin' || 'Collaborator';
+      } else {
+        return false;
+      }
+    };
+    auth.isAdmin = function(){
+      var token = auth.getToken();
+
+      if(token){
+       var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.permissions === 'Admin';
+      } else {
+        return false;
+      }
+    };
     auth.logOut = function(){
       $window.localStorage.removeItem('admin-token');
       $window.location = "http://localhost:3000";
@@ -644,7 +693,7 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   };
   lang.addLanguage = function (language) {
     console.log(language);
-    return $http.post('/api/languages', { 'name': language }).success(function(data){
+    return $http.post('/api/user/:id/languages', { 'name': language }).success(function(data){
       console.log(data);
       lang.languages.push(data);
     });
@@ -652,6 +701,8 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   
   return lang; 
 }]);
+
+// SETTINGS
 
 app.factory('settings', function ($http, $window) {
    var s = { settings : {} };
@@ -674,6 +725,8 @@ app.factory('settings', function ($http, $window) {
    };
    return s;
 });
+
+//USERS
 
 app.factory('users', function ($http, $window, auth) {
   var u = { users: [] };
@@ -709,8 +762,9 @@ app.factory('users', function ($http, $window, auth) {
   };
 
   u.get = function (id) {
-    return $http.get('/api/user/' + id).then(function(res){
-      return res.data;
+    return $http.get('/api/user/' + id).success(function(data){
+      console.log(data);
+      return data;
     });
   };
 

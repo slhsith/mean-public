@@ -42,7 +42,7 @@ app.controller('SearchCtrl', function ($scope, search, searchPromise) {
 
 app.controller('MapCtrl', function ($scope) {
   var mapOptions = {};
-  var map = new google.maps.Map(document.getElementById("map-canvas"),
+  var map = new google.maps.Map(document.getElementById("map_canvas"),
     mapOptions);
   var events = {
     places_changed: function (searchBox) {}

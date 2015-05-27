@@ -1,13 +1,12 @@
 /*  -----------------  *
     APP MODULE - USER 
  *  -----------------  */
- var app = angular.module('mainApp', ['ui.router','templates']);
+var app = angular.module('mainApp', ['ui.router','templates']);
 
 app.config([
 '$stateProvider',
 '$urlRouterProvider',
 function($stateProvider, $urlRouterProvider) {
-
   $stateProvider
     .state('home', {
       url: '/home',
@@ -129,7 +128,7 @@ function($stateProvider, $urlRouterProvider) {
     //   }
     // })
     .state('settings', {
-       url: '/settings',
+       url: '/settings/:id',
        templateUrl: 'settings.html',
        controller: 'SettingsCtrl',
        resolve: {

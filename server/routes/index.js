@@ -94,7 +94,7 @@ router.put('/api/resetpassword/:username/:user_token', authentication.doResetPas
 //Facebook Integration
 router.get('/auth/facebook', passport.authenticate('facebook'));
 router.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { successRedirect: '/user/#/home', failureRedirect: '/api/login' })
+  passport.authenticate('facebook', { successRedirect: '/user/#/home', failureRedirect: '/#/' })
   // function(req, res) {
   //   successRedirect: '/'
   //   // Successful authentication, redirect home.
@@ -104,7 +104,7 @@ router.get('/auth/facebook/callback',
 
 // ----------------------- USER and SETTINGS  --------------------------------//
 router.get('/api/languages', settings.getLanguages );
-router.post('/api/languages', settings.createLanguage );
+router.post('/api/user/:id/languages', settings.createLanguage );
 router.get('/api/settings', settings.getSettings );
 router.put('/api/settings', settings.updateSettings );
 

@@ -5,8 +5,8 @@ var app = angular.module('mainApp', ['ui.router','templates', 'uiGmapgoogle-maps
 
 app.config([
 '$stateProvider',
-'$urlRouterProvider','uiGmapGoogleMapApiProvider',
-function($stateProvider, $urlRouterProvider, GoogleMapApi) {
+'$urlRouterProvider',
+function($stateProvider, $urlRouterProvider) {
   $stateProvider
     .state('emailVerify', {
       url: '/emailverify/:username/:user_token',
@@ -49,14 +49,9 @@ function($stateProvider, $urlRouterProvider, GoogleMapApi) {
       }
     })
     .state('mapResults', {
-      url: '/mapResults',
+      url: '/mapResults/:query',
       templateUrl: 'map.html',
-      controller: 'MapCtrl',
-      config: GoogleMapApi.configure({
-        key: 'AIzaSyDHlTfALoPx_zwBB15W1obqHcrtXk8ObVA',
-        v: '3.17',
-        libraries: 'places'
-      })
+      controller: 'MapCtrl'
     })
     .state('userProfile', {
       url: '/user/:handle',
@@ -68,7 +63,8 @@ function($stateProvider, $urlRouterProvider, GoogleMapApi) {
         }
       }
     });
-  $urlRouterProvider.otherwise('home');
+  // $urlRouterProvider.otherwise('home');
+
 }]);
 /*  -----------------  *
     CONTROLLERS - SET
@@ -114,7 +110,7 @@ app.controller('SearchCtrl', function ($scope, search, searchPromise) {
 
 app.controller('MapCtrl', function ($scope) {
   var mapOptions = {};
-  var map = new google.maps.Map(document.getElementById("map-canvas"),
+  var map = new google.maps.Map(document.getElementById("map_canvas"),
     mapOptions);
   var events = {
     places_changed: function (searchBox) {}
