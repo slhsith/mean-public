@@ -44,9 +44,11 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'items.html',
       controller: 'ItemsCtrl',
       resolve: {
-        item: ['$stateParams', 'items', function($stateParams, items) {
-          return items.get($stateParams.id);
-        }]
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams);
+      
+          return items.get($stateParams.item);
+        }
       }
     })
     .state('diet', {
@@ -253,10 +255,10 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
 });
 
 
-app.controller('ItemsCtrl', function ($scope, items, auth) {
+app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise) {
 
   $scope.items = items.items;
-  $scope.item = items.item;
+  $scope.item = itemPromise;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     // mixpanel.alias($scope.user._id);
@@ -492,8 +494,8 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
-  o.get = function(id) {
-    return $http.get('/api/items/' + id).then(function(res){
+  o.get = function(item) {
+    return $http.get('/api/items/' + item).then(function(res){
       return res.data;
     });
   };

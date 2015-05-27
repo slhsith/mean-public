@@ -194,8 +194,7 @@ gulp.task('server', function (cb) {
 });
 gulp.task('start', function () {
   nodemon({
-    ext: 'js html',
-    env: 'development'
+    ext: 'js html'
   })
 });
 

@@ -77,7 +77,8 @@ exports.readMessages = function(req, res, next) {
   .limit(100)
   .exec(function(err, messages) {
     messages.forEach(function(message) {
-      message.update({timeread: {$nin: [ {user: user_id} ] }},
+      message.update(
+        {timeread: {$nin: [ {user: user_id} ] }},
         {'$push': { timeread: timestamp } },
         function() {
         console.log('-------message', message);

@@ -111,10 +111,10 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
 });
 
 
-app.controller('ItemsCtrl', function ($scope, items, auth) {
+app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise) {
 
   $scope.items = items.items;
-  $scope.item = items.item;
+  $scope.item = itemPromise;
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     // mixpanel.alias($scope.user._id);
