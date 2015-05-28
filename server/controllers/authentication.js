@@ -34,6 +34,7 @@ exports.doRegistration = function(req, res, next) {
 		return res.status(400).json({message: 'Emails do not match'});
 	} else if (req.body.password !== req.body.repeat_password) {
 		return res.status(400).json({message: 'Passwords do not match'});
+
 	}
 
   // User.findOne({ username: req.username}), function (err, user, next) {
