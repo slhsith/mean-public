@@ -30,6 +30,7 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
 
   // ------ METHODS FOR CONVERSATIONS ------ //
 
+
   // Set the focus on a particular conversation
   // establishes the conversation._id in the newmessage
   // marks read timestamps for messages

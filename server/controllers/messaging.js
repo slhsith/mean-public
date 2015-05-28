@@ -13,16 +13,13 @@ var
 
 // --- Exported Methods --- //
 exports.getConversations = function(req, res, next) {
-	// req.params.start
-	// req.params.end
-	Conversation.find({users: req.payload._id}, '-__v -latest.user')
+	Conversation.find({users: req.payload._id}, '-__v')
   .populate('messages', 'body user handle f_name l_name time_sent time_read -id')
   .populate('users', 'handle username f_name l_name')
-  .sort('latest.time_sent')
   .exec(function (err, conversations) {
     User.populate(conversations, {path: 'messages.time_read.user', select: 'f_name l_name -_id'}, function(err, convo) {
-      if (err) { return next(err); }
-      res.json(conversations);
+      // if (err) { return next(err); }
+      return res.json(conversations);
     });
 
 		// if (err) { return next(err); }

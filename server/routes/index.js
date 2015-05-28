@@ -1,4 +1,5 @@
 // Module Dependencies
+var app = require('../../app');
 var express = require('express');
 var router = express.Router();
 var mongoose = require('mongoose');
@@ -99,7 +100,7 @@ router.get('/auth/facebook/callback',
   //   successRedirect: '/'
   //   // Successful authentication, redirect home.
   //   res.redirect('/');
-  );
+);
 
 
 // ----------------------- USER and SETTINGS  --------------------------------//

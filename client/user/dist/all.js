@@ -2,6 +2,7 @@
     APP MODULE - USER 
  *  -----------------  */
 var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
+// var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
 
 app.config([
 '$stateProvider',
@@ -109,6 +110,10 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
+        userPromise: function(auth, users) {
+          var _id = auth.isThisUser();
+          return users.get(_id);
+        },
         usersPromise: function(users) {
           return users.getAll();
         },
@@ -729,7 +734,7 @@ app.factory('settings', function ($http, $window) {
 //USERS
 
 app.factory('users', function ($http, $window, auth) {
-  var u = { users: [] };
+  var u = { users: [], user: {} };
 
   u.getAll = function() {
     return $http.get('/api/users').success(function(data) {
@@ -763,7 +768,7 @@ app.factory('users', function ($http, $window, auth) {
 
   u.get = function (id) {
     return $http.get('/api/user/' + id).success(function(data){
-      console.log(data);
+      u.user = data;
       return data;
     });
   };
@@ -871,6 +876,7 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   return o;
 }]); 
 
+
 /*  ----------------------  *
     CONTROLLER - MESSENGER
  *  ----------------------  */
@@ -880,37 +886,39 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
 /* --> when a conversation is focused from list, defaults to [0]th one
 /* ---------------------------- */
 
-app.controller('MessengerCtrl', function ($scope, settings, users, messenger, messengerSocket, Conversation, Message) {
+app.controller('MessengerCtrl', function ($scope, settings, users, messenger, messageSocket, Conversation, Message) {
 
   $scope.debug = true;
 
-  // ----- SET UP PREREQUISITE SCOPE VARIABLES  -----
+  // ---- INIT SCOPE ----  //
 
   // for selecting users to talk to
   $scope.users = users.getAllButSelf();
-
   // get all of user's metadata and extend scope user object
-  users.get($scope.user._id).then(function(res) {
-    angular.extend($scope.user, res.data);
-    // set up metadata on the newmessage object
-    $scope.newmessage = new Message($scope.user);
-  });
+  angular.extend($scope.user, users.user);
+  // set up metadata on the newmessage object
+  $scope.newmessage = new Message($scope.user);
 
   // get all conversations
   $scope.conversations = messenger.conversations || [];
 
-
+  if ($scope.conversations.length > 0) {
+    if($scope.debug) console.log('we got a convo to see');
+    setFocus($scope.conversations[0]);
+  } 
 
   // ------ METHODS FOR CONVERSATIONS ------ //
+
 
   // Set the focus on a particular conversation
   // establishes the conversation._id in the newmessage
   // marks read timestamps for messages
-  $scope.focusConversation = function(conversation) {
+  $scope.focusConversation = setFocus;
+  function setFocus(conversation) {
     $scope.mainConversation = conversation;
     $scope.newmessage.conversation = conversation._id;
     if (!conversation.new) messenger.readMessages(conversation);
-  };
+  }
 
   // Starting a new conversation
   $scope.initConversation = function() {
@@ -957,7 +965,8 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
   };
   
   function postMessage () {
-    messenger.createMessage($scope.mainConversation, $scope.newmessage).then(
+    messageSocket.emit('message', $scope.user.handle, $scope.newmessage.body);
+    messenger.postMessage($scope.mainConversation, $scope.newmessage).then(
       // success
       function(data) {
         $scope.mainConversation.messages.push(data);
@@ -971,15 +980,20 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
     $scope.addUserModal = false;
   }
 
+  // ----- RECEIVING MESSAGES in realtime via socket.io ----- //
+  $scope.$on('socket:broadcast', function (event, data) {
+    console.log('got a message', event.name, data);
+    if (!data.payload) {
+      console.log('invalid message | event', event, 'data', JSON.stringify(data));
+      return;
+    }
+    $scope.$apply(function() {
+      // $scope.mainConversation.messages.push(new Message(data));
+    });
+  });
 
 
 
-  // ---- INIT MODULE ----  //
-
-  if ($scope.conversations.length > 0) {
-    if($scope.debug) console.log('we got a convo to see');
-    $scope.focusConversation($scope.conversations[0]);
-  } 
 
 
 
@@ -1074,7 +1088,7 @@ app.factory('messenger', function ($http, auth) {
     });
   };
 
-  o.createMessage = function(convo, message) {
+  o.postMessage = function(convo, message) {
     console.log('convo', convo, 'message', message.body, message);
     return $http.post('/api/conversation/' + convo._id + '/messages', message, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -1122,8 +1136,10 @@ app.factory('Message', function() {
 });
 
 
-app.factory('messengerSocket', function(socketFactory) {
+app.factory('messageSocket', function(socketFactory) {
   var socket = socketFactory();
+
   socket.forward('broadcast');
+  
   return socket;
 });
