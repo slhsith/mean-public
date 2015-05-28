@@ -1,4 +1,7 @@
-var app = angular.module('mainApp', ['templates']);
+var app = angular.module('mainApp', [
+  'templates', 
+  'bt-ford.socket-io'
+]);
 app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, auth) {
   $scope.user = {};
   $scope.register = function () {

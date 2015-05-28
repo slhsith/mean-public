@@ -8,7 +8,7 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 var nodemailer = require('nodemailer');
 var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
-var io = require('socket.io')(app);
+var http = require('http');
 
 // MODELS
 // posts
@@ -61,7 +61,14 @@ var routes = require('./server/routes/index');
 var users = require('./server/routes/users');
 
 var app = express();
+
 var jsonParser = bodyParser.json();
+
+// socket.io
+app.io = require('socket.io')();
+require('./server/config/socketio')(app.io);
+
+
 
 /**
  * Enable CORS (http://enable-cors.org/server_expressjs.html)

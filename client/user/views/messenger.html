@@ -56,16 +56,16 @@
         <conversation-add-users ng-show="mainConversation.new && addUserModal"></conversation-add-users>
       </div>
 
-      <div class="message-container">
+      <div message-box class="message-container">
         <!-- message in conversation.messages -->
         <div class="col-sm-12 message-row" ng-repeat="message in mainConversation.messages">
           <!-- message.body -->
           <div class="{{ isSelf(message.user) ? 'text-right' : ''}}">
             <span class="message-body {{ isSelf(message.user) ? 'message-outgoing' : 'message-incoming'}}">{{message.body}}</span>
           </div>
-          <!-- message.timesent or message.timeread -->
-          <div ng-show="!isSelf(message.user)"><small>Sent: {{message.timesent | date: 'MMM dd hh:mm'}}<small></div>
-          <div class="text-right" ng-show="isSelf(message.user) && message.timeread.length > 0"><small>Read: {{message.timeread.time | date: 'MMM dd hh:mm'}}</small></div>
+          <!-- message.time_sent or message.time_read -->
+          <div ng-show="!isSelf(message.user)"><small>Sent: {{message.time_sent | date: 'MMM dd hh:mm'}}<small></div>
+          <div class="text-right" ng-show="isSelf(message.user) && message.timeread.length > 0"><small>Read: {{message.time_read[0].time | date: 'MMM dd hh:mm'}}</small></div>
         </div> <!-- /end right column -->
       </div>
 
@@ -74,7 +74,7 @@
         <!-- emoji picker -->
         <!-- send button-->
 
-      <form name="messageForm" class="message-form" ng-submit="createMessage()" novalidate>
+      <form name="messageForm" class="message-form" ng-submit="sendMessage()" novalidate>
         <div class="input-group">
           <input type="text" class="form-control" placeholder="message" ng-model="newmessage.body">
           <!-- <span class="input-group-btn"> <button class="btn btn-primary">Emoji</button> </span> -->
@@ -85,7 +85,13 @@
     </div> <!-- /end row -->
   </div> <!-- /end row -->
 
+<p><a id='customAlert' href="#" onclick='socket.send("customAlert")'>publish customAlert</a></p>
+<p><a id='customAlert2' href="#" onclick='socket.send("customAlert2")'>publish customAlert2</a></p>
+
+
   <div ng-show="debug" class="row"><div class="col-sm-12"><pre>
+    newMessage {{newmessage|json}}
+   --------
     mainConversation {{mainConversation|json}}
    -------- 
     user {{user|json}}
@@ -95,3 +101,12 @@
     conversations {{conversations|json}}
   </pre></div></div>
 </div>
+
+<script type="text/javascript">
+// Start the socket
+  var socket = new io.Socket(null, {port: 8080});
+  socket.connect();
+  socket.on('message', function(msg){
+    console.log(msg);
+  });
+</script>

@@ -1,1 +1,4 @@
-var app = angular.module('mainApp', ['templates']);
+var app = angular.module('mainApp', [
+  'templates', 
+  'bt-ford.socket-io'
+]);
