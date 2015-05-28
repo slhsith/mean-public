@@ -27,7 +27,7 @@ app.factory('messenger', function ($http, auth) {
     });
   };
 
-  o.createMessage = function(convo, message) {
+  o.postMessage = function(convo, message) {
     console.log('convo', convo, 'message', message.body, message);
     return $http.post('/api/conversation/' + convo._id + '/messages', message, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -75,8 +75,10 @@ app.factory('Message', function() {
 });
 
 
-app.factory('messengerSocket', function(socketFactory) {
+app.factory('messageSocket', function(socketFactory) {
   var socket = socketFactory();
+
   socket.forward('broadcast');
+  
   return socket;
 });
