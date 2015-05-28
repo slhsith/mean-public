@@ -51,9 +51,7 @@ require('./server/config/passport');
 
 
 mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/news');
-
 var db = mongoose.connection;
-
 db.on('error', console.error.bind(console, 'connection error:'));
 
 var routes = require('./server/routes/index');
@@ -61,12 +59,11 @@ var users = require('./server/routes/users');
 
 var app = express();
 
+app.io = require('socket.io')();
+require('./server/config/socketio')(app.io);
+
 var jsonParser = bodyParser.json();
 
-// socket.io
-var io = require('socket.io');
-app.io = io();
-require('./server/config/socketio')(app.io);
 
 
 
