@@ -85,14 +85,11 @@
     </div> <!-- /end row -->
   </div> <!-- /end row -->
 
-<p><a id='customAlert' href="#" onclick='socket.send("customAlert")'>publish customAlert</a></p>
-<p><a id='customAlert2' href="#" onclick='socket.send("customAlert2")'>publish customAlert2</a></p>
-
 
   <div ng-show="debug" class="row"><div class="col-sm-12"><pre>
     newMessage {{newmessage|json}}
    --------
-    mainConversation {{mainConversation|json}}
+    mainConversation : {{mainConversation.users.length}} people involved {{mainConversation|json}}
    -------- 
     user {{user|json}}
    -------- 
