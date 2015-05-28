@@ -56,7 +56,6 @@ var db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection error:'));
 
-
 var routes = require('./server/routes/index');
 var users = require('./server/routes/users');
 
@@ -65,7 +64,8 @@ var app = express();
 var jsonParser = bodyParser.json();
 
 // socket.io
-app.io = require('socket.io')();
+var io = require('socket.io');
+app.io = io();
 require('./server/config/socketio')(app.io);
 
 

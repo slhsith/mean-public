@@ -102,11 +102,3 @@
   </pre></div></div>
 </div>
 
-<script type="text/javascript">
-// Start the socket
-  var socket = new io.Socket(null, {port: 8080});
-  socket.connect();
-  socket.on('message', function(msg){
-    console.log(msg);
-  });
-</script>

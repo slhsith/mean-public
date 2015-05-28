@@ -1,7 +1,7 @@
 /*  -----------------  *
     APP MODULE - USER 
  *  -----------------  */
-var app = angular.module('mainApp', ['ui.router','templates']);
+var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
 
 app.config([
 '$stateProvider',

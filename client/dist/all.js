@@ -1,6 +1,5 @@
 var app = angular.module('mainApp', [
-  'templates', 
-  'bt-ford.socket-io'
+  'templates'
 ]);
 app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, auth) {
   $scope.user = {};
