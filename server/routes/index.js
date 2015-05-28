@@ -50,7 +50,8 @@ router.get('/api/items', shop.getItems );
 router.post('/api/items', auth, shop.postItem );
 router.param('/api/item', shop.getItemByIdParam );
 router.get('/api/items/:item', shop.getItemById );
-router.put('/api/items/:item/upvote', auth, shop.upvoteItem )
+router.post('/api/items/diet/:item', shop.createDay );
+router.put('/api/items/:item/upvote', auth, shop.upvoteItem );
 
 // Item page & transaction
 router.post('/api/transactions', auth, shop.createTransaction );

@@ -35,6 +35,9 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function (items) {
           return items.getAll();
+        },
+        userPromise: function ($stateParams, users) {
+          return users.get($stateParams.id);
         }
       }
     })
@@ -51,13 +54,27 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('diet', {
-      url: '/items/diet/:item',
+      url: '/items/diet/:id',
       templateUrl: 'diet.html',
       controller: 'ItemsCtrl',
       resolve: {
-        item: function($stateParams, items) {
-          console.log($stateParams.item);
-          return items.get($stateParams.item);
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+    .state('challenge', {
+      url: '/items/challenge/:id/:user',
+      templateUrl: 'challenge.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        },
+        userPromise: function ($stateParams, users) {
+          return users.get(req.payload._id);
         }
       }
     })

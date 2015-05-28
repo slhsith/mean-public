@@ -35,6 +35,9 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function (items) {
           return items.getAll();
+        },
+        userPromise: function ($stateParams, users) {
+          return users.get($stateParams.id);
         }
       }
     })
@@ -51,13 +54,27 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('diet', {
-      url: '/items/diet/:item',
+      url: '/items/diet/:id',
       templateUrl: 'diet.html',
       controller: 'ItemsCtrl',
       resolve: {
-        item: function($stateParams, items) {
-          console.log($stateParams.item);
-          return items.get($stateParams.item);
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+    .state('challenge', {
+      url: '/items/challenge/:id',
+      templateUrl: 'challenge.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        },
+        userPromise: function (req, users) {
+          return users.get(req.payload._id);
         }
       }
     })
@@ -244,10 +261,10 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 });
 
 
-app.controller('ShopCtrl', function ($scope, items, auth) {
+app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
 
   $scope.items = items.items;
-
+  $scope.user = userPromise;
   $scope.addItem = function() {
     items.create($scope.item).success(function(data){
       console.log('success');
@@ -278,6 +295,10 @@ app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise) {
 
   $scope.items = items.items;
   $scope.item = itemPromise;
+  $scope.createDay = function(){
+    console.log($scope.day.day);
+    items.newDay($scope.day.day);
+  };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     // mixpanel.alias($scope.user._id);
@@ -503,6 +524,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
   return o;
 }]);  
 
+// ITEMS
 
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
@@ -536,6 +558,14 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
+  o.newDay = function (day) {
+    return $http.post('/api/items/diet/').success(function(data) {
+      return data;
+    });
+  };
+  // o.getDays = function() {
+  //   return $http.get('/api/days/' + )
+  // }
   o.get = function(item) {
     return $http.get('/api/items/' + item).then(function(res){
       return res.data;
@@ -642,7 +672,7 @@ app.factory('auth', function($http, $window){
 
         return payload._id;
       }
-    }
+    };
     auth.isUser = function(){
       var token = auth.getToken();
 
@@ -726,7 +756,7 @@ app.factory('settings', function ($http, $window) {
    return s;
 });
 
-//USERS
+// USERS
 
 app.factory('users', function ($http, $window, auth) {
   var u = { users: [] };

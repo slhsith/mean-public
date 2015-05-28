@@ -89,10 +89,10 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 });
 
 
-app.controller('ShopCtrl', function ($scope, items, auth) {
+app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
 
   $scope.items = items.items;
-
+  $scope.user = userPromise;
   $scope.addItem = function() {
     items.create($scope.item).success(function(data){
       console.log('success');
@@ -123,6 +123,10 @@ app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise) {
 
   $scope.items = items.items;
   $scope.item = itemPromise;
+  $scope.createDay = function(){
+    console.log($scope.day.day);
+    items.newDay($scope.day.day);
+  };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     // mixpanel.alias($scope.user._id);
