@@ -24,7 +24,7 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'PostCtrl',
       resolve: {
         postPromise: function($stateParams, posts) {
-          return posts.get($stateParams.post);
+        return posts.get($stateParams.post);
         }
       }
     })
@@ -45,7 +45,6 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function($stateParams, items) {
           console.log($stateParams);
-      
           return items.get($stateParams.item);
         }
       }

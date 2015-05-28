@@ -6,6 +6,7 @@ var ItemSchema = new mongoose.Schema({
   author: String,
   price: String,
   type: String,
+  user: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   transaction: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }],
   video: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }],
   book: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }],

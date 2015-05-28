@@ -24,7 +24,7 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'PostCtrl',
       resolve: {
         postPromise: function($stateParams, posts) {
-          return posts.get($stateParams.post);
+        return posts.get($stateParams.post);
         }
       }
     })
@@ -45,7 +45,6 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function($stateParams, items) {
           console.log($stateParams);
-      
           return items.get($stateParams.item);
         }
       }
@@ -244,10 +243,14 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 });
 
 
-app.controller('ShopCtrl', function ($scope, items, auth) {
-
+app.controller('ShopCtrl', function ($scope, items, auth, $stateParams) {
   $scope.items = items.items;
-
+  // $scope.deleteItem = function () {
+  //   console.log();
+  //   items.delete().success(function(data){
+  //     console.log('success');
+  //   });
+  // };
   $scope.addItem = function() {
     items.create($scope.item).success(function(data){
       console.log('success');
@@ -274,10 +277,16 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
 });
 
 
-app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise) {
-
+app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise, $stateParams) {
   $scope.items = items.items;
   $scope.item = itemPromise;
+  item = itemPromise;
+  $scope.deleteItem = function () {
+    console.log(item._id);
+    items.delete(item._id).success(function(data){
+        console.log('success');
+    });
+  };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     // mixpanel.alias($scope.user._id);
@@ -516,6 +525,12 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   o.getAll = function() {
     return $http.get('/api/items').success(function(data){
       angular.copy(data, o.items);
+    });
+  };
+  o.delete = function(item) {
+    console.log(item);
+    return $http.delete('/api/items/' + item).success(function(data){
+      return data;
     });
   };
   o.getAllVideos = function () {

@@ -89,10 +89,14 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 });
 
 
-app.controller('ShopCtrl', function ($scope, items, auth) {
-
+app.controller('ShopCtrl', function ($scope, items, auth, $stateParams) {
   $scope.items = items.items;
-
+  // $scope.deleteItem = function () {
+  //   console.log();
+  //   items.delete().success(function(data){
+  //     console.log('success');
+  //   });
+  // };
   $scope.addItem = function() {
     items.create($scope.item).success(function(data){
       console.log('success');
@@ -119,10 +123,16 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
 });
 
 
-app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise) {
-
+app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise, $stateParams) {
   $scope.items = items.items;
   $scope.item = itemPromise;
+  item = itemPromise;
+  $scope.deleteItem = function () {
+    console.log(item._id);
+    items.delete(item._id).success(function(data){
+        console.log('success');
+    });
+  };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     // mixpanel.alias($scope.user._id);
