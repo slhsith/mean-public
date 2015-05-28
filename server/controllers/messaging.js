@@ -10,12 +10,13 @@ var
   Message = mongoose.model('Message');
 
 
+
 // --- Exported Methods --- //
 exports.getConversations = function(req, res, next) {
 	// req.params.start
 	// req.params.end
 	Conversation.find({users: req.payload._id}, '-__v -latest.user')
-  .populate('messages', 'body handle f_name l_name time_sent time_read -_id')
+  .populate('messages', 'body user handle f_name l_name time_sent time_read -id')
   .populate('users', 'handle username f_name l_name')
   .sort('latest.time_sent')
   .exec(function (err, conversations) {
@@ -58,17 +59,19 @@ exports.createConversation = function(req, res, next) {
 
 };
 
-exports.createMessage = function(req, res, next) {
-  var message = new Message(req.body);
-  console.log(req.body);
+exports.createMessage = function(io) {
+  return function(req, res, next) {
+    var message = new Message(req.body);
+    console.log(req.body);
 
-  message.save(function(err, message) {
-    // if (err) { return next(err); }
-    Conversation.findByIdAndUpdate(req.params.id, {$push: {messages: message._id}, $set: {latest: req.body }}, function(err, convo) {
-
+    message.save(function(err, message) {
+      if (err) { return next(err); }
+      Conversation.findByIdAndUpdate(req.params.id, {$push: {messages: message._id}, $set: {latest: req.body }}, function(err, convo) {
+        if (io) io.sockets.emit('convoUpdated', convo);
+      });
+      return res.json(message);
     });
-    return res.json(message);
-  });
+  };
 };
 
 exports.readMessages = function(req, res, next) {
