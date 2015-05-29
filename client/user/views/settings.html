@@ -79,30 +79,13 @@
       <td>Email</td>
       <td><input ng-model="user.username" style="width:100%;"></td>
     </tr>
+    <tr>
+      <td><input type="file" id="file_input"/><input type="hidden" id="avatar_url" name="avatar_url" value="/images/default.png" /></td>
+    </tr>
   </table>
   <button type="submit" class="btn btn-primary" ng-click="view = !view" style="width:100%;">Update</button>
 </form>
 </div>
-<h1>Edit your account</h1>
-
-<hr />
-
-<h2>Your avatar</h2>
-
-<input type="file" id="file_input"/>
-<p id="status">Please select a file</p>
-<img style="border:1px solid gray;width:300px;"  id="preview" src="/images/default.png" />
-
-<h2>Your information</h2>
-
-<form method="POST" action="/submit_form/">
-    <input type="hidden" id="avatar_url" name="avatar_url" value="/images/default.png" />
-    <hr />
-    <h2>Save changes</h2>
-
-    <input type="submit" value="Update profile" />
-</form>
-
 
 <script type="text/javascript">
 /*
