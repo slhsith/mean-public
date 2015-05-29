@@ -86,6 +86,7 @@ app.factory('items', ['$http', 'auth', function($http, auth){
     console.log(item);
     return $http.delete('/api/items/' + item).success(function(data){
       return data;
+      // return this.findByIdAndRemove(item);
     });
   };
   o.getAllVideos = function () {
