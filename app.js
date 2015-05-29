@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var passport = require('passport');
 var nodemailer = require('nodemailer');
+var aws = require('aws-sdk');
 var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
 
 // MODELS
@@ -68,6 +69,9 @@ var users = require('./server/routes/users');
 
 var app = express();
 var jsonParser = bodyParser.json();
+var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
+var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
+var S3_BUCKET = process.env.S3_BUCKET
 
 /**
  * Enable CORS (http://enable-cors.org/server_expressjs.html)
