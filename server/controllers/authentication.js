@@ -18,24 +18,26 @@ var
     }
   });
 
+// --- Models --- //
+var
+  User          = mongoose.model('User');
 
 //Methods
 exports.doRegistration = function(req, res, next) {
 	console.log(req.body);
-  var checkEmail = function () {
-    User.findOne({ username: req.body.username }, function (err, user, next) {
-      if (user){ console.log('email exists'); return true; }
-      if (!user){ console.log('email doesnt exists'); return false; }
-    });
-  };
-	if (!req.body.f_name || !req.body.l_name || !req.body.handle || !req.body.username || !req.body.password || !req.body.repeat_username || !req.body.repeat_password) {
-		return res.status(400).json({message: 'Please fill out all fields'});
-	} else if (req.body.username !== req.body.repeat_username) {
-		return res.status(400).json({message: 'Emails do not match'});
-	} else if (req.body.password !== req.body.repeat_password) {
-		return res.status(400).json({message: 'Passwords do not match'});
-
-	}
+ //  var checkEmail = function () {
+ //    User.findOne({ username: req.body.username }, function (err, user, next) {
+ //      if (user){ console.log('email exists'); return true; }
+ //      if (!user){ console.log('email doesnt exists'); return false; }
+ //    });
+ //  };
+	// if (!req.body.f_name || !req.body.l_name || !req.body.handle || !req.body.username || !req.body.password || !req.body.repeat_username || !req.body.repeat_password) {
+	// 	return res.status(400).json({message: 'Please fill out all fields'});
+	// } else if (req.body.username !== req.body.repeat_username) {
+	// 	return res.status(400).json({message: 'Emails do not match'});
+	// } else if (req.body.password !== req.body.repeat_password) {
+	// 	return res.status(400).json({message: 'Passwords do not match'});
+	// }
 
   // User.findOne({ username: req.username}), function (err, user, next) {
   //   if (!user) { next(); }
