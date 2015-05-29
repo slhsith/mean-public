@@ -14,7 +14,7 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
     auth.logIn($scope.login).error(function (error) {
       $scope.error = error;
     }).then(function () {
-      window.location = "https://trainersvault.herokuapp.com//user/#/home";
+      window.location = "https://trainersvault.herokuapp.com/user/#/home";
     });
     // mixpanel.track("User Log-in",{"area":"home", "page":"home", "action":"log-in"});
     // mixpanel.track("HomePage: Login");
