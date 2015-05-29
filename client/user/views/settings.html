@@ -85,9 +85,10 @@
     </tr>
     <tr>
       <td>Upload Avatar</td>
-      <td><input type="file" id="file_input"/><input ng-model="user.avatar_url" type="hidden" id="avatar_url" name="avatar_url" value="/images/default.png" /></td>
+      <td><input type="file" id="file_input"/></td>
     </tr>
   </table>
+  <input ng-model="user.avatar_url" type="hidden" id="avatar_url" name="avatar_url" value="/images/default.png" />
   <button type="submit" class="btn btn-primary" ng-click="view = !view" style="width:100%;">Update</button>
 </form>
 </div>
