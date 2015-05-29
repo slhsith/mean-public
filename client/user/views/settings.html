@@ -45,6 +45,10 @@
       <td>Email</td>
       <td>{{user.username}}</td>
     </tr>
+    <tr>
+      <td>Avatar Link</td>
+      <td>{{user.avatar_url}}</td>
+    </tr>
   </table>
 </div>
 <div ng-show="view" style="padding-top:50px;">
@@ -80,7 +84,8 @@
       <td><input ng-model="user.username" style="width:100%;"></td>
     </tr>
     <tr>
-      <td><input type="file" id="file_input"/><input type="hidden" id="avatar_url" name="avatar_url" value="/images/default.png" /></td>
+      <td>Upload Avatar</td>
+      <td><input type="file" ng-model="user.avatar_url" id="file_input"/><input type="hidden" id="avatar_url" name="avatar_url" value="/images/default.png" /></td>
     </tr>
   </table>
   <button type="submit" class="btn btn-primary" ng-click="view = !view" style="width:100%;">Update</button>
