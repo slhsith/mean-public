@@ -50,13 +50,13 @@ require('./server/controllers/settings');
 // CONFIG
 require('./server/config/passport');
 
-app.configure('development', function() {
-  mongoose.connect('mongodb://localhost/news');
-});
+// app.configure('development', function() {
+//   mongoose.connect('mongodb://localhost/news');
+// });
 
-app.configure('production', function() {
-  mongoose.connect('mongodb://' + process.env.MONGOLAB_URI + '/news');
-});
+// app.configure('production', function() {
+mongoose.connect('mongodb://' + process.env.MONGOLAB_URI + '/news' || 'mongodb://localhost/news');
+// });
 
 var db = mongoose.connection;
 
