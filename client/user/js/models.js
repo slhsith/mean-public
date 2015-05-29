@@ -83,10 +83,13 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       angular.copy(data, o.items);
     });
   };
-  o.delete = function(item) {
+  o.delete = function(id) {
     console.log(item);
-    return $http.delete('/api/items/' + item).success(function(data){
-      return data;
+    return $http.delete('/api/items/' + item._id, item, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
+    // return $http.delete('/api/items/' + item).success(function(data){
+    //   return data;
       // return this.findByIdAndRemove(item);
     });
   };

@@ -124,6 +124,13 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
 
   $scope.items = items.items;
   $scope.item = itemPromise;
+  item = itemPromise;
+  $scope.deleteItem = function () {
+    console.log(item._id);
+    items.delete(item._id).success(function(data){
+        console.log('success');
+    });
+  };
   $scope.createDay = function(){
     items.newDay($stateParams.id, $scope.day.day).success(function(day) {
       $scope.item.days.push(day);
