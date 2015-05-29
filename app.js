@@ -55,7 +55,7 @@ require('./server/config/passport');
 // });
 
 // app.configure('production', function() {
-mongoose.connect('mongodb://' + process.env.MONGOLAB_URI + '/news' || 'mongodb://localhost/news');
+mongoose.connect('mongodb://' + process.env.MONGOLAB_URI + '/news');
 // });
 
 var db = mongoose.connection;
