@@ -14,7 +14,10 @@ var
   Book          = mongoose.model('Book'),
   Podcast       = mongoose.model('Podcast'),
   DietPlan      = mongoose.model('DietPlan'),
-
+  Day           = mongoose.model('Day'),
+  Bootcamp      = mongoose.model('Bootcamp'),
+  Challenge     = mongoose.model('Challenge'),
+  User          = mongoose.model('User'),
   Transaction   = mongoose.model('Transaction'),
   Customer      = mongoose.model('Customer');
 
@@ -26,7 +29,7 @@ exports.getItems = function(req, res, next) {
    Item.find({}, function (err, items) {
     if(err){ return next(err); }
       res.json(items);
-  });
+  }).populate('days');
 };
 
 exports.deleteItem = function(req, res, next, item) {
@@ -50,19 +53,24 @@ exports.postItem = function(req, res, next) {
   item.author = req.payload.username;
   item.save(function(err, item){
     if (err) { return next(err); }
-    Item.findByIdAndUpdate(item._id, { $set: { user: [req.payload._id] }}, function (err, item) {
-      if (err) { return next(err); }
+    User.findByIdAndUpdate(req.payload._id, { $push: { items: [item._id] }}, function (err, item) {
+      if (err) {return next(err); }
       return item;
     });
-    // res.json(item);
   }).then(function () {
     if (req.body.type === 'Video'){
       var video = new Video(req.body);
       video.author = req.payload.username;
       video.item = [item._id]
+      var user = function () {
+        User.findById(req.payload._id), function (err, user) {
+          if(err) { return next(err); }
+          return user;
+        };
+      };
       video.save(function(err, video){
         if(err){ return next(err); }
-        Item.findByIdAndUpdate(item._id, { $set: { video: [video._id] }}, function (err, item) {
+        Item.findByIdAndUpdate(item._id, { $set: { video: [video._id], user: [req.payload._id] }}, function (err, item) {
           if (err) { return next(err); }
           return item;
         });
@@ -74,7 +82,7 @@ exports.postItem = function(req, res, next) {
       book.item = [item._id]
       book.save(function(err, book){
         if(err){ return next(err); }
-        Item.findByIdAndUpdate(item._id, { $set: { video: [book._id] }}, function (err, item) {
+        Item.findByIdAndUpdate(item._id, { $set: { book: [book._id] }}, function (err, item) {
           if (err) { return next(err); }
           return item;
         });
@@ -96,18 +104,28 @@ exports.postItem = function(req, res, next) {
     if (req.body.type === 'DietPlan'){
       var dietPlan = new DietPlan(req.body);
       dietPlan.author = req.payload.username;
-      dietPlan.item = [item._id]
+      dietPlan.item = [item._id];
       dietPlan.save(function(err, dietPlan){
         if(err){ return next(err); }
-        Item.findByIdAndUpdate(item._id, { $set: { dietPlan: [dietPlan._id] }}, function (err, item) {
+        Item.findByIdAndUpdate(item._id, { $set: { dietPlans: [dietPlan._id] }}, function (err, item) {
           if (err) { return next(err); }
           return item;
           //random comment
         });
-        DietPlan.findByIdAndUpdate(dietPlan._id, { $set: { category: req.body.category }}, function  (err, dietPlan) {
+        return dietPlan;
+      });
+    }
+    if (req.body.type === 'Bootcamp'){
+      var bootcamp = new Bootcamp(req.body);
+      bootcamp.author = req.payload.username;
+      bootcamp.item = [item._id];
+      bootcamp.save(function(err, bootcamp){
+        if(err){ return next(err); }
+        Item.findByIdAndUpdate(item._id, { $set: { bootcamp: [bootcamp._id] }}, function (err, item) {
           if (err) { return next(err); }
-          return dietPlan;
-        })
+          return item;
+          //random comment
+        });
       });
     }
   }) 
@@ -115,6 +133,24 @@ exports.postItem = function(req, res, next) {
     res.json(item);
   });
 
+};
+
+exports.createDay = function(req, res, next) {
+  var day = new Day(req.body.day);
+  console.log(req.body.day);
+  var item_id = req.body.item;
+
+
+  day.save(function(err, day) {
+    if (err) { return next(err); }
+    var update = { $push: { item: item._id }};
+
+    Item.findByIdAndUpdate(item_id, update)
+    .exec(function(err, item) {
+      if(err){ return next(err); }
+      res.json(day);
+    });
+  });
 };
 
 exports.getItemByIdParam = function(req, res, next, id) {

@@ -35,6 +35,9 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function (items) {
           return items.getAll();
+        },
+        userPromise: function ($stateParams, users) {
+          return users.get($stateParams.id);
         }
       }
     })
@@ -50,13 +53,24 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('diet', {
-      url: '/items/diet/:item',
+      url: '/items/:id/diet/',
       templateUrl: 'diet.html',
       controller: 'ItemsCtrl',
       resolve: {
-        item: function($stateParams, items) {
-          console.log($stateParams.item);
-          return items.get($stateParams.item);
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+    .state('challenge', {
+      url: '/items/challenge/:id',
+      templateUrl: 'challenge.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
         }
       }
     })
@@ -243,14 +257,10 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 });
 
 
-app.controller('ShopCtrl', function ($scope, items, auth, $stateParams) {
+app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
+
   $scope.items = items.items;
-  // $scope.deleteItem = function () {
-  //   console.log();
-  //   items.delete().success(function(data){
-  //     console.log('success');
-  //   });
-  // };
+  $scope.user = userPromise;
   $scope.addItem = function() {
     items.create($scope.item).success(function(data){
       console.log('success');
@@ -277,14 +287,13 @@ app.controller('ShopCtrl', function ($scope, items, auth, $stateParams) {
 });
 
 
-app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise, $stateParams) {
+app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
+
   $scope.items = items.items;
   $scope.item = itemPromise;
-  item = itemPromise;
-  $scope.deleteItem = function () {
-    console.log(item._id);
-    items.delete(item._id).success(function(data){
-        console.log('success');
+  $scope.createDay = function(){
+    items.newDay($stateParams.id, $scope.day.day).success(function(day) {
+      $scope.item.days.push(day);
     });
   };
   $scope.incrementUpvotes = function(item){
@@ -512,6 +521,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
   return o;
 }]);  
 
+// ITEMS
 
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
@@ -552,6 +562,14 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
+  o.newDay = function (id, day) {
+    return $http.post('/api/items/' + id + '/diet', day).success(function(data) {
+      return data;
+    });
+  };
+  // o.getDays = function() {
+  //   return $http.get('/api/days/' + )
+  // }
   o.get = function(item) {
     return $http.get('/api/items/' + item).then(function(res){
       return res.data;
@@ -742,7 +760,7 @@ app.factory('settings', function ($http, $window) {
    return s;
 });
 
-//USERS
+// USERS
 
 app.factory('users', function ($http, $window, auth) {
   var u = { users: [] };

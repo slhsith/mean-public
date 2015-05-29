@@ -89,14 +89,11 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 });
 
 
-app.controller('ShopCtrl', function ($scope, items, auth, $stateParams) {
+
+app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
+
   $scope.items = items.items;
-  // $scope.deleteItem = function () {
-  //   console.log();
-  //   items.delete().success(function(data){
-  //     console.log('success');
-  //   });
-  // };
+  $scope.user = userPromise;
   $scope.addItem = function() {
     items.create($scope.item).success(function(data){
       console.log('success');
@@ -123,14 +120,13 @@ app.controller('ShopCtrl', function ($scope, items, auth, $stateParams) {
 });
 
 
-app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise, $stateParams) {
+app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
+
   $scope.items = items.items;
   $scope.item = itemPromise;
-  item = itemPromise;
-  $scope.deleteItem = function () {
-    console.log(item._id);
-    items.delete(item._id).success(function(data){
-        console.log('success');
+  $scope.createDay = function(){
+    items.newDay($stateParams.id, $scope.day.day).success(function(day) {
+      $scope.item.days.push(day);
     });
   };
   $scope.incrementUpvotes = function(item){

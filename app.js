@@ -22,6 +22,9 @@ require('./server/models/Podcasts');
 require('./server/models/Transactions');
 require('./server/models/Customers');
 require('./server/models/DietPlans');
+require('./server/models/Bootcamps');
+require('./server/models/Challenges');
+require('./server/models/Days');
 
 // user and groups
 require('./server/models/Users');
