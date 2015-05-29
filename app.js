@@ -69,9 +69,6 @@ var users = require('./server/routes/users');
 
 var app = express();
 var jsonParser = bodyParser.json();
-var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
-var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
-var S3_BUCKET = process.env.S3_BUCKET
 
 /**
  * Enable CORS (http://enable-cors.org/server_expressjs.html)
@@ -96,6 +93,12 @@ app.use(passport.session());
 
 app.use('/', routes);
 app.use('/users', users);
+
+//aws secret keys -- available in the .env and on heroku
+
+var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
+var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
+var S3_BUCKET = process.env.S3_BUCKET;
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
