@@ -6,7 +6,7 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
     }).then(function () {
       window.location = "http://localhost:3000/user/#/home";
     });
-    mixpanel.track("User Register",{"area":"home", "page":"home", "action":"register"});
+    // mixpanel.track("User Register",{"area":"home", "page":"home", "action":"register"});
     // mixpanel.track("HomePage: Register");
   };
 

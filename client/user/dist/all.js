@@ -293,9 +293,7 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
   $scope.items = items.items;
   $scope.item = itemPromise;
   $scope.createDay = function(){
-    items.newDay($stateParams.id, $scope.day.day).success(function(day) {
-      $scope.item.days.push(day);
-    });
+    items.newDay($stateParams.id, $scope.day.day);
   };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
@@ -556,8 +554,8 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
-  o.newDay = function (id, day) {
-    return $http.post('/api/items/' + id + '/diet', day).success(function(data) {
+  o.newDay = function (item, day) {
+    return $http.post('/api/items/' + item + '/diet', day).success(function(data) {
       return data;
     });
   };
