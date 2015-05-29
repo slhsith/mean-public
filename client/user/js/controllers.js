@@ -119,13 +119,12 @@ app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
 });
 
 
-app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise) {
+app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
 
   $scope.items = items.items;
   $scope.item = itemPromise;
   $scope.createDay = function(){
-    console.log($scope.day.day);
-    items.newDay($scope.day.day);
+    items.newDay($stateParams.id, $scope.day.day);
   };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);

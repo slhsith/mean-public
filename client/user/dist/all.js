@@ -54,7 +54,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('diet', {
-      url: '/items/diet/:id',
+      url: '/items/:id/diet/',
       templateUrl: 'diet.html',
       controller: 'ItemsCtrl',
       resolve: {
@@ -72,9 +72,6 @@ function($stateProvider, $urlRouterProvider) {
         itemPromise: function($stateParams, items) {
           console.log($stateParams.id);
           return items.get($stateParams.id);
-        },
-        userPromise: function (req, users) {
-          return users.get(req.payload._id);
         }
       }
     })
@@ -291,13 +288,12 @@ app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
 });
 
 
-app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise) {
+app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
 
   $scope.items = items.items;
   $scope.item = itemPromise;
   $scope.createDay = function(){
-    console.log($scope.day.day);
-    items.newDay($scope.day.day);
+    items.newDay($stateParams.id, $scope.day.day);
   };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
@@ -558,8 +554,8 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
-  o.newDay = function (day) {
-    return $http.post('/api/items/diet/').success(function(data) {
+  o.newDay = function (item, day) {
+    return $http.post('/api/items/' + item + '/diet', day).success(function(data) {
       return data;
     });
   };

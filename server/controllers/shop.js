@@ -92,15 +92,12 @@ exports.postItem = function(req, res, next) {
       dietPlan.item = [item._id];
       dietPlan.save(function(err, dietPlan){
         if(err){ return next(err); }
-        Item.findByIdAndUpdate(item._id, { $set: { dietPlan: [dietPlan._id] }}, function (err, item) {
+        Item.findByIdAndUpdate(item._id, { $set: { dietPlans: [dietPlan._id] }}, function (err, item) {
           if (err) { return next(err); }
           return item;
           //random comment
         });
-        DietPlan.findByIdAndUpdate(dietPlan._id, { $set: { category: req.body.category }}, function  (err, dietPlan) {
-          if (err) { return next(err); }
-          return dietPlan;
-        })
+        return dietPlan;
       });
     }
     if (req.body.type === 'Bootcamp'){
@@ -124,11 +121,7 @@ exports.postItem = function(req, res, next) {
 };
 
 exports.createDay = function(req, res, next) {
-  DietPlan.findByIdAndUpdate(req.params.id, { $push: { days: [day.day] }}, function (err, dietPlan) {
-    if (err) { return next(err); }
-    return dietPlan;
-    //random comment
-  });
+  console.log('hello')
 };
 
 exports.getItemByIdParam = function(req, res, next, id) {

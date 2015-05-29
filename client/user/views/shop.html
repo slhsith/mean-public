@@ -20,7 +20,7 @@
         </span>
         <span>
           <a ng-hide="item.type === 'DietPlan' || item.type==='WorkoutPlan' || item.type==='Challenge'" href="#/items/{{item._id}}">Go to Item Page</a>
-          <a ng-if="item.type === 'DietPlan'" href="#/items/diet/{{item._id}}">Go to Diet Page</a>
+          <a ng-if="item.type === 'DietPlan'" href="#/items/{{item._id}}/diet/">Go to Diet Page</a>
           <a ng-if="item.type === 'Challenge'" href="#/items/challenge/{{item._id}}">Go to Challenge Page</a>
         </span>
       </div>
