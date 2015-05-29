@@ -121,7 +121,21 @@ exports.postItem = function(req, res, next) {
 };
 
 exports.createDay = function(req, res, next) {
-  console.log('hello')
+  var day = new Day(req.body.day);
+  console.log(req.body.day);
+  var item_id = req.body.item;
+
+
+  day.save(function(err, day) {
+    if (err) { return next(err); }
+    var update = { $push: { item: item._id }};
+
+    Item.findByIdAndUpdate(item_id, update)
+    .exec(function(err, item) {
+      if(err){ return next(err); }
+      res.json(day);
+    });
+  });
 };
 
 exports.getItemByIdParam = function(req, res, next, id) {

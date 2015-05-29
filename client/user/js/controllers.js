@@ -124,7 +124,9 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
   $scope.items = items.items;
   $scope.item = itemPromise;
   $scope.createDay = function(){
-    items.newDay($stateParams.id, $scope.day.day);
+    items.newDay($stateParams.id, $scope.day.day).success(function(day) {
+      $scope.item.days.push(day);
+    });
   };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);

@@ -101,8 +101,8 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
-  o.newDay = function (item, day) {
-    return $http.post('/api/items/' + item + '/diet', day).success(function(data) {
+  o.newDay = function (id, day) {
+    return $http.post('/api/items/' + id + '/diet', day).success(function(data) {
       return data;
     });
   };
