@@ -6,7 +6,7 @@ app.controller('MainCtrl', function ($scope, auth) {
     auth.register($scope.user).error(function (error) {
       $scope.error = error;
     }).then(function () {
-      window.location = "//trainersvault.herokuapp.com/user/#/home";
+      window.location = "/user/#/home";
     });
     // mixpanel.track("User Register",{"area":"home", "page":"home", "action":"register"});
     // mixpanel.track("HomePage: Register");
@@ -16,7 +16,7 @@ app.controller('MainCtrl', function ($scope, auth) {
     auth.logIn($scope.login).error(function (error) {
       $scope.error = error;
     }).then(function () {
-      window.location = "//trainersvault.herokuapp.com/user/#/home";
+      window.location = "/user/#/home";
     });
     // mixpanel.track("User Log-in",{"area":"home", "page":"home", "action":"log-in"});
     // mixpanel.track("HomePage: Login");
