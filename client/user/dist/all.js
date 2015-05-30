@@ -748,7 +748,7 @@ app.factory('settings', function ($http, $window) {
    };
    s.uploadAvatar = function (user){
        
-   }
+   };
    s.get = function (handle) {
      return $http.get('/api/user/handle/' + handle).success(function(data){
        console.log(data);
