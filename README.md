@@ -38,14 +38,9 @@ Build Project Template:
 
 Things Left to do:
 
-* Email Verification and Reset Password
-* Integrate S3 for Image and File Upload (Waiting on Amazon Acct)
-
-* Make Standalone public profile pages
-* Make Messanger system
-
+* Deployable on Heroku
+* Integrate S3 for Image and File Upload
 * Make Notifications system
+* Make Events
+* Make Items
 * Make Support ticket system with zendesk
-
-* Make User Events and Purchasing
-* Allow users to see the users they follow
