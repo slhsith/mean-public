@@ -6,8 +6,9 @@ var TimestampSchema = new mongoose.Schema({
 }, {_id : false} );
 
 var MessageSchema = new mongoose.Schema({
-  timesent      : {type: Date, default: Date.now },
-  timeread      : [TimestampSchema],
+  time_sent     : {type: Date, default: Date.now },
+  time_read     : [TimestampSchema],
+  users_read    : [],
   body          : String,
   f_name        : String,
   l_name        : String,

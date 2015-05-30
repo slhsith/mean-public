@@ -7,7 +7,7 @@
 
   <div class="row">
 
-    <div class="col-sm-4">
+    <div class="conversation-list col-sm-4">
 
     <!-- conversations search-->
     <!--       
@@ -42,7 +42,7 @@
 
     <!-- right column -->
     <!-- mainConversation display -->
-    <div class="col-sm-8">
+    <div class="conversation-display col-sm-8">
 
 
       <!-- user in mainConversation.users -->
@@ -56,24 +56,25 @@
         <conversation-add-users ng-show="mainConversation.new && addUserModal"></conversation-add-users>
       </div>
 
-
-      <!-- message in conversation.messages -->
-      <div class="col-sm-12 message-row" ng-repeat="message in mainConversation.messages">
-        <!-- message.body -->
-        <div class="{{ isSelf(message.user) ? 'text-right' : ''}}">
-          <span class="message-body {{ isSelf(message.user) ? 'message-outgoing' : 'message-incoming'}}">{{message.body}}</span>
-        </div>
-        <!-- message.timesent or message.timeread -->
-        <div ng-show="!isSelf(message.user)"><small>Sent: {{message.timesent | date: 'MMM dd hh:mm'}}<small></div>
-        <div class="text-right" ng-show="isSelf(message.user) && message.timeread.length > 0"><small>Read: {{message.timeread.time | date: 'MMM dd hh:mm'}}</small></div>
-      </div> <!-- /end right column -->
+      <div message-box class="message-container">
+        <!-- message in conversation.messages -->
+        <div class="col-sm-12 message-row" ng-repeat="message in mainConversation.messages">
+          <!-- message.body -->
+          <div class="{{ isSelf(message.user) ? 'text-right' : ''}}">
+            <span class="message-body {{ isSelf(message.user) ? 'message-outgoing' : 'message-incoming'}}">{{message.body}}</span>
+          </div>
+          <!-- message.time_sent or message.time_read -->
+          <div ng-show="!isSelf(message.user)"><small>Sent: {{message.time_sent | date: 'MMM dd hh:mm'}}<small></div>
+          <div class="text-right" ng-show="isSelf(message.user) && message.timeread.length > 0"><small>Read: {{message.time_read[0].time | date: 'MMM dd hh:mm'}}</small></div>
+        </div> <!-- /end right column -->
+      </div>
 
       <!-- conversation.newmessage -->
         <!-- conversation.newmessage.body -->
         <!-- emoji picker -->
         <!-- send button-->
 
-      <form name="messageForm" class="message-form" ng-submit="createMessage()" novalidate>
+      <form name="messageForm" class="message-form" ng-submit="sendMessage()" novalidate>
         <div class="input-group">
           <input type="text" class="form-control" placeholder="message" ng-model="newmessage.body">
           <!-- <span class="input-group-btn"> <button class="btn btn-primary">Emoji</button> </span> -->
@@ -84,8 +85,11 @@
     </div> <!-- /end row -->
   </div> <!-- /end row -->
 
+
   <div ng-show="debug" class="row"><div class="col-sm-12"><pre>
-    mainConversation {{mainConversation|json}}
+    newMessage {{newmessage|json}}
+   --------
+    mainConversation : {{mainConversation.users.length}} people involved {{mainConversation|json}}
    -------- 
     user {{user|json}}
    -------- 
@@ -94,3 +98,4 @@
     conversations {{conversations|json}}
   </pre></div></div>
 </div>
+

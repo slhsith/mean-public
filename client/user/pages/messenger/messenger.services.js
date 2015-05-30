@@ -27,8 +27,8 @@ app.factory('messenger', function ($http, auth) {
     });
   };
 
-  o.createMessage = function(convo, message) {
-    console.log('convo', convo, 'message', message);
+  o.postMessage = function(convo, message) {
+    console.log('convo', convo, 'message', message.body, message);
     return $http.post('/api/conversation/' + convo._id + '/messages', message, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).then(function(res) {
@@ -60,3 +60,25 @@ app.factory('Conversation', function() {
 
 });
 
+app.factory('Message', function() {
+  var Message = function(user) {
+    var self = this;
+    self.user = user._id || null;
+    self.f_name = user.f_name || null;
+    self.l_name = user.l_name || null;
+    self.handle = user.handle || null;
+  };
+
+
+  return Message;
+
+});
+
+
+app.factory('messageSocket', function(socketFactory) {
+  var socket = socketFactory();
+
+  socket.forward('broadcast');
+  
+  return socket;
+});

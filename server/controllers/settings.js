@@ -124,7 +124,7 @@ exports.getUsersByPage = function (req, res, next) {
 exports.getUserById = function (req, res, next) {
  // if(err){ next(err); }
  var _id = req.params.id;
- User.findById(_id, function(err, user) {
+ User.findById(_id, '-salt -hash', function(err, user) {
    res.json(user);
  });
 };

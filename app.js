@@ -9,6 +9,7 @@ var passport = require('passport');
 var nodemailer = require('nodemailer');
 var aws = require('aws-sdk');
 var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
+var http = require('http');
 
 // MODELS
 // posts
@@ -60,15 +61,20 @@ mongoose.connect('mongodb://' + process.env.MONGOLAB_URI + '/news');
 // });
 
 var db = mongoose.connection;
-
 db.on('error', console.error.bind(console, 'connection error:'));
-
 
 var routes = require('./server/routes/index');
 var users = require('./server/routes/users');
 
 var app = express();
+
+app.io = require('socket.io')();
+require('./server/config/socketio')(app.io);
+
 var jsonParser = bodyParser.json();
+
+
+
 
 /**
  * Enable CORS (http://enable-cors.org/server_expressjs.html)

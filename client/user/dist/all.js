@@ -1,7 +1,8 @@
 /*  -----------------  *
     APP MODULE - USER 
  *  -----------------  */
-var app = angular.module('mainApp', ['ui.router','templates']);
+var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
+// var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
 
 app.config([
 '$stateProvider',
@@ -123,6 +124,10 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
+        userPromise: function(auth, users) {
+          var _id = auth.isThisUser();
+          return users.get(_id);
+        },
         usersPromise: function(users) {
           return users.getAll();
         },
@@ -761,7 +766,7 @@ app.factory('settings', function ($http, $window) {
 // USERS
 
 app.factory('users', function ($http, $window, auth) {
-  var u = { users: [] };
+  var u = { users: [], user: {} };
 
   u.getAll = function() {
     return $http.get('/api/users').success(function(data) {
@@ -795,7 +800,7 @@ app.factory('users', function ($http, $window, auth) {
 
   u.get = function (id) {
     return $http.get('/api/user/' + id).success(function(data){
-      console.log(data);
+      u.user = data;
       return data;
     });
   };
@@ -903,6 +908,7 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   return o;
 }]); 
 
+
 /*  ----------------------  *
     CONTROLLER - MESSENGER
  *  ----------------------  */
@@ -912,30 +918,43 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
 /* --> when a conversation is focused from list, defaults to [0]th one
 /* ---------------------------- */
 
-app.controller('MessengerCtrl', function ($scope, messenger, settings, users, Conversation) {
-  // $scope.debug = true;
+app.controller('MessengerCtrl', function ($scope, settings, users, messenger, messageSocket, Conversation, Message) {
 
+  $scope.debug = true;
+
+  // ---- INIT SCOPE ----  //
+
+  // for selecting users to talk to
   $scope.users = users.getAllButSelf();
-
-  // get all of user's metadata
-  users.get($scope.user._id).then(function(data) {
-    console.log(data);
-    angular.extend($scope.user, data);
-    $scope.newmessage = { user: $scope.user._id, handle: $scope.user.handle, f_name: $scope.user.f_name, l_name: $scope.user.l_name };
-  });
-
+  // get all of user's metadata and extend scope user object
+  angular.extend($scope.user, users.user);
+  // set up metadata on the newmessage object
+  $scope.newmessage = new Message($scope.user);
 
   // get all conversations
   $scope.conversations = messenger.conversations || [];
 
+  if ($scope.conversations.length > 0) {
+    if($scope.debug) console.log('we got a convo to see');
+    setFocus($scope.conversations[0]);
+  } 
 
-  // sets the focus and marks read timestamps for messages
-  $scope.focusConversation = function(conversation) {
+  // ------ METHODS FOR CONVERSATIONS ------ //
+
+
+  // Set the focus on a particular conversation
+  // establishes the conversation._id in the newmessage
+  // marks read timestamps for messages
+  $scope.focusConversation = setFocus;
+  function setFocus(conversation) {
     $scope.mainConversation = conversation;
-    // messenger.readMessages(conversation);
-  };
+    $scope.newmessage.conversation = conversation._id;
+    if (!conversation.new) messenger.readMessages(conversation);
+  }
 
+  // Starting a new conversation
   $scope.initConversation = function() {
+    if($scope.debug) console.log('main convo', !!$scope.mainConversation);
     // only init a new convo if not already in that mode
     if (!$scope.mainConversation || !$scope.mainConversation.new) {
       $scope.addUserModal = true;
@@ -945,19 +964,28 @@ app.controller('MessengerCtrl', function ($scope, messenger, settings, users, Co
     } 
   };
 
+  // Cancelling a new conversation
   $scope.cancelNewConversation = function() {
     $scope.conversations.splice(0, 1);
     $scope.focusConversation($scope.conversations[0]);
   };
 
-  // if ($scope.conversations.length === 0) {
-    // console.log('no convos yet');
-    // $scope.initConversation();
-  // } else {
-    $scope.focusConversation($scope.conversations[0]);
-  // }
+  // ----- ADDRESSING USERS in a new conversation ----- //
+  // Looking for Users to add to conversation
+  $scope.searchUsers = function() {
+    users.search($scope.conversation.userQuery).success(function(data) {
+      $scope.conversation.userResult = data;
+      if($scope.debug) console.log($scope.conversation);
+    });
+  };
 
-  $scope.createMessage = function() {
+  // Adding a user to a conversation
+  $scope.addToConversation = function(user) {
+    $scope.mainConversation.users.push(user);
+  };
+
+  // ----- SENDING MESSAGES in the focused main conversation ---- //
+  $scope.sendMessage = function() {
     if (!$scope.mainConversation._id) {
       messenger.createConversation($scope.mainConversation).then(function(data) {
         $scope.mainConversation._id = data._id;
@@ -967,27 +995,44 @@ app.controller('MessengerCtrl', function ($scope, messenger, settings, users, Co
       postMessage();
     }
   };
-
-  var postMessage = function() {
-    $scope.newmessage.conversation = $scope.mainConversation._id;
-    messenger.createMessage($scope.mainConversation, $scope.newmessage).then(
+  
+  function postMessage () {
+    messageSocket.emit('message', $scope.user.handle, $scope.newmessage.body);
+    messenger.postMessage($scope.mainConversation, $scope.newmessage).then(
       // success
       function(data) {
         $scope.mainConversation.messages.push(data);
-        $scope.mainConveration.latest = data;
+        $scope.mainConversation.latest = data;
         $scope.newmessage.body = null;
       },
       // error
       function(error) {
-
       }
     );
     $scope.addUserModal = false;
-  };
+  }
 
-  $scope.isSelf = function(user_id) {
-    return user_id === $scope.user._id;
-  };
+  // ----- RECEIVING MESSAGES in realtime via socket.io ----- //
+  $scope.$on('socket:broadcast', function (event, data) {
+    console.log('got a message', event.name, data);
+    if (!data.payload) {
+      console.log('invalid message | event', event, 'data', JSON.stringify(data));
+      return;
+    }
+    $scope.$apply(function() {
+      // $scope.mainConversation.messages.push(new Message(data));
+    });
+  });
+
+
+
+
+
+
+
+
+  // ----- HELPER FUNTIONS ----- //
+  $scope.isSelf = function(user_id) { return user_id === $scope.user._id; };
 
   $scope.otherPeople = function(conversation) {
     var others = angular.copy(conversation.users, others);
@@ -1002,16 +1047,6 @@ app.controller('MessengerCtrl', function ($scope, messenger, settings, users, Co
     return others.join(', ');
   };
 
-  $scope.searchUsers = function() {
-    users.search($scope.conversation.userQuery).success(function(data) {
-      $scope.conversation.userResult = data;
-      console.log($scope.conversation);
-    });
-  };
-
-  $scope.addToConversation = function(user) {
-    $scope.mainConversation.users.push(user);
-  };
 
 });
 
@@ -1037,6 +1072,21 @@ app.directive('conversationAddUsers', function() {
                 '</div>' +
               '</div>',
     link: function(scope, element, attrs) {}
+  };
+});
+
+
+
+app.directive('messageBox', function() {
+  return {
+    restrict: 'EA',
+    // template: '<textarea style="width: 100%; height: 200px" ng-disable="true" ng-model="messageLog"></textarea>',
+    controller: function($scope, $element) {
+      $scope.$watch('messageLog', function() {
+        var textArea = $element[0].children[0];
+        textArea.scrollTop = textArea.scrollHeight;
+      });
+    }
   };
 });
 
@@ -1070,8 +1120,8 @@ app.factory('messenger', function ($http, auth) {
     });
   };
 
-  o.createMessage = function(convo, message) {
-    console.log('convo', convo, 'message', message);
+  o.postMessage = function(convo, message) {
+    console.log('convo', convo, 'message', message.body, message);
     return $http.post('/api/conversation/' + convo._id + '/messages', message, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).then(function(res) {
@@ -1103,3 +1153,25 @@ app.factory('Conversation', function() {
 
 });
 
+app.factory('Message', function() {
+  var Message = function(user) {
+    var self = this;
+    self.user = user._id || null;
+    self.f_name = user.f_name || null;
+    self.l_name = user.l_name || null;
+    self.handle = user.handle || null;
+  };
+
+
+  return Message;
+
+});
+
+
+app.factory('messageSocket', function(socketFactory) {
+  var socket = socketFactory();
+
+  socket.forward('broadcast');
+  
+  return socket;
+});
