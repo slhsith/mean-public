@@ -41,16 +41,7 @@
 
     <!-- right column -->
     <!-- mainConversation display -->
-    <div class="conversation-display col-sm-8">
-      
-        <button ng-hide="mainConversation._id" ng-click="addUserModal = !addUserModal"><i class="fa fa-plus"></i></button>
-
-        <div ng-show="addUserModal">
-          <div ng-repeat="user in users" ng-click="$parent.addToConversation(user)" style="height: 25px">
-            <i class="fa fa-plus"></i> {{user.f_name}} {{user.l_name}}
-          </div>
-        </div>
-
+    <div class="conversation-display col-sm-8" ng-show="mainConversation">
 
       <!-- user in mainConversation.users -->
       <div class="col-sm-12 message-users" title="Recipients">
@@ -58,10 +49,16 @@
           <span ng-hide="isSelf(user._id)"><i class="fa fa-user"></i> {{user.f_name}} {{user.l_name}}</span><!-- <span class="text-right">Online? {{user.status}}</span> -->
         </div>
 
+        <div ng-show="!mainConversation._id" class="add-user-modal">
+          <div ng-repeat="user in copyOfUsers" ng-click="addToConversation(user)" style="height: 25px">
+            <i class="fa fa-plus"></i> {{user.f_name}} {{user.l_name}}
+          </div>
+        </div>
+
 
       </div>
 
-      <div message-box class="col-sm-12 message-container" scrollBottom="mainConversation.messages">
+      <div message-box class="col-sm-12 message-container" scrollBottom="mainConversation.messages" style="border: 1px solid black">
 
         <!-- message in conversation.messages-->
         <div class="col-sm-12 message-row" ng-repeat="message in mainConversation.messages | orderBy: 'time_sent'">

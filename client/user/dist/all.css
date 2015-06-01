@@ -56,6 +56,12 @@ body {
 }
 
 
+.add-user-modal {
+  position: relative;
+  top: 0;
+  height: 40px;
+  overflow-y: auto;
+}
 .message-container {
   position: absolute;
   top: 60px;

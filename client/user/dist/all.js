@@ -1052,6 +1052,7 @@ $scope.print = function(string) {
     // only init a new convo if not already in that mode
     if (!$scope.mainConversation || !$scope.mainConversation.new) {
       $scope.addUserModal = true;
+      $scope.copyOfUsers = angular.copy($scope.users, $scope.copyOfUsers);
       $scope.conversations.unshift(new Conversation());
       $scope.focusConversation($scope.conversations[0]);
       $scope.mainConversation.users.push($scope.user);
@@ -1074,15 +1075,20 @@ $scope.print = function(string) {
 
   // Adding a user to a conversation
   $scope.addToConversation = function(user) {
-    console.log('adding user', user);
-    console.log('main convo users', $scope.mainConversation.users);
     $scope.mainConversation.users.push(user);
+    angular.forEach($scope.copyOfUsers, function(u, i) {
+      if (u._id === user._id) { $scope.copyOfUsers.splice(i, 1); }
+    });
   };
 
   // ----- SENDING MESSAGES in the focused main conversation ---- //
   $scope.sendMessage = function() {
+    if ($scope.mainConversation.users.length < 2) {
+      console.log('need a user to message with besides yourself!');
+      return;
+    }
     if (!$scope.mainConversation._id) {
-      messenger.createConversation($scope.mainConversation).then(function(data) {
+      messenger.createConversation($scope.mainConversation).success(function(data) {
         $scope.mainConversation._id = data._id;
         $scope.addUserModal = false;
         postMessage();
@@ -1236,6 +1242,7 @@ app.factory('messenger', function ($http, auth) {
     return $http.post('/api/conversation', convo, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data) {
+      console.log('create convo data', data);
       return data;
     });
   };
