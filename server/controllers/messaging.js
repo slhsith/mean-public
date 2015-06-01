@@ -76,12 +76,11 @@ exports.createConversation = function(req, res, next) {
     if (err) { return next(err); }
     req.body.users.forEach(function(user) {
       console.log(user);
-      // console.log(req.io.usersockets);
-      // if (req.io.usersockets[user._id]) {
-        // req.io.usersockets[user._id].join(convo._id.toString(), function() {
-          // console.log(user._id + ' subscribed to room for convo ' + convo._id);
-        // });
-      // }
+      if (req.io.usersockets[user]) {
+        req.io.usersockets[user].join(convo._id.toString(), function() {
+          console.log(user._id + ' subscribed to room for convo ' + convo._id);
+        });
+      }
     });
 		return res.json(convo);
 	});
