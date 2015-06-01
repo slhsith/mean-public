@@ -1008,8 +1008,8 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
 /* ---------------------------- */
 app.controller('MessengerCtrl', function ($scope, settings, users, messenger, messageSocket, Conversation, Message) {
 
-  // $scope.debug = true;
-  $scope.debug = false;
+  $scope.debug = true;
+  // $scope.debug = false;
 
   // ---- INIT SCOPE ----  //
 
@@ -1036,12 +1036,17 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
   $scope.focusConversation = setFocus;
 
   function setFocus(convo) {
-    getMessages(convo);
     $scope.mainConversation = convo;
     $scope.newmessage.conversation = convo._id;
-    if (!convo.new) messenger.readMessages(convo);
+    if (convo._id) {
+      getMessages(convo);
+      messenger.readMessages(convo);
+    }
   }
 
+$scope.print = function(string) {
+  console.log(string);
+};
   // Starting a new conversation
   $scope.initConversation = function() {
     // only init a new convo if not already in that mode
@@ -1069,6 +1074,8 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
 
   // Adding a user to a conversation
   $scope.addToConversation = function(user) {
+    console.log('adding user', user);
+    console.log('main convo users', $scope.mainConversation.users);
     $scope.mainConversation.users.push(user);
   };
 
@@ -1292,14 +1299,29 @@ app.factory('messageSocket', function(socketFactory) {
  *  ----------------------  */
 /* 
 /* ---------------------------- */
-app.controller('DietCtrl', function ($scope, Meal) {
+app.controller('DietCtrl', function ($scope, $attrs, Meal, Diet, Recipe, CookingStep, Ingredient) {
   var self = this;
   $scope.debug = true;
 
   // ---- INIT SCOPE ----  //
-  self.init = function(element) {
+  this.init = function(element) {
     self.$element = element;
+    $scope.diet = $scope.item || new Diet({});
   };
+
+
+  $scope.meal = new Meal({});
+  $scope.recipe = new Recipe({});
+  $scope.initStep = function() {
+    $scope.step = new CookingStep({order: $scope.recipe.steps.length});
+  };
+  $scope.initIngredient = function() {
+    $scope.ingredient = new Ingredient({});
+  };
+  $scope.cancelIngredient = function() {
+    $scope.ingredient = null;
+  };
+
 
   $scope.showRecipe = false;
 
@@ -1307,7 +1329,7 @@ app.controller('DietCtrl', function ($scope, Meal) {
 
   $scope.initNewRecipe = function() {
     $scope.showRecipe = true;
-    $scope.recipe = {};
+    $scope.recipe = new Recipe({});
   };
 
 
@@ -1319,7 +1341,7 @@ app.directive('dietPlan', function () {
   return {
     restrict: 'E', 
     scope: {
-      diet: '=item'
+      item: '='
     },
     controller: 'DietCtrl',
     templateUrl: 'shop.dietplan.tpl.html',
@@ -1352,7 +1374,7 @@ app.factory('Diet', function() {
     var self = this;
     self.title = item.title || null;
     self.price = item.price;
-    self.duration = 0;
+    self.duration = 1;
   };
 
   return Diet;
@@ -1362,26 +1384,27 @@ app.factory('Diet', function() {
 app.factory('Recipe', function() {
 
   var Recipe = function (recipe) {
-    this.title       = recipe.title || null;
-    this.type        = recipe.type || null;
-    this.description = recipe.description || null;
+    var self         = this;
+    self.title       = recipe.title || null;
+    self.type        = recipe.type || null;
+    self.description = recipe.description || null;
 
-    this.yield       = recipe.yield || null;
-    this.calories    = recipe.calories || null;
-    this.fats        = recipe.fats || null;
-    this.carbs       = recipe.carbs || null;
-    this.proteins    = recipe.proteins || null;
+    self.yield       = recipe.yield || null;
+    self.calories    = recipe.calories || null;
+    self.fats        = recipe.fats || null;
+    self.carbs       = recipe.carbs || null;
+    self.proteins    = recipe.proteins || null;
 
-    this.cost        = recipe.cost || null;
-    this.preptime    = recipe.preptime || null;
-    this.cooktime    = recipe.cooktime || null;
+    self.cost        = recipe.cost || null;
+    self.preptime    = recipe.preptime || null;
+    self.cooktime    = recipe.cooktime || null;
 
-    this.equipment   = recipe.equipment || [];
-    this.steps       = recipe.steps || [];
+    self.equipment   = recipe.equipment || [];
+    self.steps       = recipe.steps || [];
 
-    this.video       = recipe.video || null;
-    this.coverphoto  = recipe.coverphoto || null;
-    this.photos      = recipe.photos || [];
+    self.video       = recipe.video || null;
+    self.coverphoto  = recipe.coverphoto || null;
+    self.photos      = recipe.photos || [];
 
   };
 

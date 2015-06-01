@@ -42,10 +42,11 @@
       ng-model="diet.description" row="5"></textarea>
   </div>
 
+  <button class="diet-create col-sm-12 btn-primary ">Create</button>
 </div> <!-- end dietplan meta data row -->
 
 <!-- Meal Itinerary -->
-<div class="row">
+<div class="row" ng-show="diet._id">
   <div class="col-sm-10"><span class="diet-title">Meal {{ diet.duration > 0? 'Day ' + meal.day + ' of ' + diet.duration : '' }}</span></div>
   <div class="col-sm-2">
     <button class="meal-day-btn btn-primary" ng-click="back"><i class="fa fa-arrow-left"></i></button>
@@ -179,36 +180,53 @@
       <div class="diet-photo col-sm-6">Upload Cooking Video</div>
     </div>
 
+  <!-- - - - - - - - - - - - - steps - - - - - - - - - - - - - - - - - - -->
+  <div class="col-sm-12">
     <div class="form-group col-sm-6" ng-repeat="step in recipe.steps">
       <i class="fa fa-photo"></i>
       Step {{step.order}}
       {{step.description}}
     </div>
 
-    <!-- form for newest step -->
-    <div class="col-sm-12">
-      <div class="col-sm-6">
-        <div class="form-group col-sm-4"> Upload Pic </div>
-        <div class="form-group col-sm-8">
-          Step {{step.order}}
-          <input type="text" placeholder="Description"
-            ng-model="step.description"></input>
-        </div>
-      </div>
-      <div class="diet-plus form-group col-sm-6 text-center" style="border: 1px solid #999">
-        <i class="fa fa-plus"></i>
+    <!-- - - - - - - - - - - new step - - - - - - - - - - - - - - - - - - -->
+    <div class="col-sm-6 ingredient" ng-show="step"> 
+      <div class="ingredient-part ingredient-photo col-sm-2"><i class="fa fa-3x fa-photo"></i></div>
+      <div class="col-sm-10">
+        Step {{step.order}}
+        <input type="text" placeholder="Description" ng-model="step.description"></input>
+        <input class="ingredient-part ingredient-description col-sm-12" type="text" placeholder="Note" ng-model="ingredient.description">
       </div>
     </div>
 
-    <!-- ingredients -->
-  <div class="col-sm-4" ng-repeat="ingredient in recipe.ingredients">
-    <i class="fa fa-photo"></i>
-    {{ingredient.title}}
-    {{ingredient.measure}} {{ingredient.unit}} {{ingredient.description}}
+    <div class="diet-plus form-group col-sm-6 text-center" style="border: 1px solid #999" ng-click="initStep()" title="Add Cooking Step">
+      <i class="fa fa-3x fa-plus"></i>
+    </div>
   </div>
-  <!-- is this to add a step to same recipe? -->
-  <div class="diet-plus form-group col-sm-4 text-center" style="border: 1px solid #999">
-    <i class="fa fa-plus"></i>
+
+  <!-- - - - - - - - - - - - - ingredients - - - - - - - - - - - - -->
+
+  <div class="col-sm-12">
+    <div class="col-sm-4" ng-repeat="ingredient in recipe.ingredients">
+      <i class="fa fa-3x fa-photo"></i>
+      {{ingredient.title}}
+      {{ingredient.amount.value}} {{ingredient.amount.type}} {{ingredient.description}}
+    </div>
+
+    <!-- - - - - - - - - - - - - new ingredient - - - - - - - - - - - - -->
+
+    <div class="col-sm-4 ingredient" ng-show="ingredient"> 
+      <div class="ingredient-part ingredient-photo col-sm-2"><i class="fa fa-3x fa-photo"></i></div>
+      <div class="col-sm-10">
+        <input class="ingredient-part ingredient-title col-sm-12" type="text" placeholder="Ingredient" ng-model="ingredient.title">
+        <input class="ingredient-part ingredient-amount col-sm-4" type="text" placeholder="Amount" ng-model="ingredient.amount">
+        <input class="ingredient-part ingredient-preparation col-sm-8" type="text" placeholder="Prep Method" title="e.g. 'chopped'" ng-model="ingredient.preparation">
+        <input class="ingredient-part ingredient-description col-sm-12" type="text" placeholder="Note" ng-model="ingredient.description">
+      </div>
+    </div>
+
+    <div class="diet-plus form-group col-sm-4 text-center" style="border: 1px solid #999" ng-click="initIngredient()" title="Add Ingredient">
+      <i class="fa fa-3x fa-plus"></i>
+    </div>
   </div>
 
   <button class="diet-create col-sm-12 btn-primary ">Create</button>

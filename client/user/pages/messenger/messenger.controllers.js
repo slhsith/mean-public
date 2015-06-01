@@ -8,8 +8,8 @@
 /* ---------------------------- */
 app.controller('MessengerCtrl', function ($scope, settings, users, messenger, messageSocket, Conversation, Message) {
 
-  // $scope.debug = true;
-  $scope.debug = false;
+  $scope.debug = true;
+  // $scope.debug = false;
 
   // ---- INIT SCOPE ----  //
 
@@ -36,12 +36,17 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
   $scope.focusConversation = setFocus;
 
   function setFocus(convo) {
-    getMessages(convo);
     $scope.mainConversation = convo;
     $scope.newmessage.conversation = convo._id;
-    if (!convo.new) messenger.readMessages(convo);
+    if (convo._id) {
+      getMessages(convo);
+      messenger.readMessages(convo);
+    }
   }
 
+$scope.print = function(string) {
+  console.log(string);
+};
   // Starting a new conversation
   $scope.initConversation = function() {
     // only init a new convo if not already in that mode
@@ -69,6 +74,8 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
 
   // Adding a user to a conversation
   $scope.addToConversation = function(user) {
+    console.log('adding user', user);
+    console.log('main convo users', $scope.mainConversation.users);
     $scope.mainConversation.users.push(user);
   };
 

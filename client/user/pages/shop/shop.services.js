@@ -18,7 +18,7 @@ app.factory('Diet', function() {
     var self = this;
     self.title = item.title || null;
     self.price = item.price;
-    self.duration = 0;
+    self.duration = 1;
   };
 
   return Diet;
@@ -28,26 +28,27 @@ app.factory('Diet', function() {
 app.factory('Recipe', function() {
 
   var Recipe = function (recipe) {
-    this.title       = recipe.title || null;
-    this.type        = recipe.type || null;
-    this.description = recipe.description || null;
+    var self         = this;
+    self.title       = recipe.title || null;
+    self.type        = recipe.type || null;
+    self.description = recipe.description || null;
 
-    this.yield       = recipe.yield || null;
-    this.calories    = recipe.calories || null;
-    this.fats        = recipe.fats || null;
-    this.carbs       = recipe.carbs || null;
-    this.proteins    = recipe.proteins || null;
+    self.yield       = recipe.yield || null;
+    self.calories    = recipe.calories || null;
+    self.fats        = recipe.fats || null;
+    self.carbs       = recipe.carbs || null;
+    self.proteins    = recipe.proteins || null;
 
-    this.cost        = recipe.cost || null;
-    this.preptime    = recipe.preptime || null;
-    this.cooktime    = recipe.cooktime || null;
+    self.cost        = recipe.cost || null;
+    self.preptime    = recipe.preptime || null;
+    self.cooktime    = recipe.cooktime || null;
 
-    this.equipment   = recipe.equipment || [];
-    this.steps       = recipe.steps || [];
+    self.equipment   = recipe.equipment || [];
+    self.steps       = recipe.steps || [];
 
-    this.video       = recipe.video || null;
-    this.coverphoto  = recipe.coverphoto || null;
-    this.photos      = recipe.photos || [];
+    self.video       = recipe.video || null;
+    self.coverphoto  = recipe.coverphoto || null;
+    self.photos      = recipe.photos || [];
 
   };
 

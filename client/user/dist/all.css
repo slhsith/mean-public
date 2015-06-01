@@ -130,5 +130,13 @@ body {
 }
 
 .meal-day-btn {
-    display: inline-block;
+  display: inline-block;
+}
+
+.ingredient {
+  border: 1px solid #999;
+}
+.ingredient-parts {
+  display: inline-block;
+  text-align: center;
 }
