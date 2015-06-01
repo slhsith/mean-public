@@ -26,6 +26,7 @@ app.factory('messenger', function ($http, auth) {
     return $http.post('/api/conversation', convo, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data) {
+      console.log('create convo data', data);
       return data;
     });
   };
