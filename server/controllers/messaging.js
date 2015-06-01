@@ -74,11 +74,11 @@ exports.createConversation = function(req, res, next) {
 
 	convo.save(function(err, convo) {
     if (err) { return next(err); }
-    req.body.users.forEach(function(user) {
-      console.log(user);
-      if (req.io.usersockets[user]) {
-        req.io.usersockets[user].join(convo._id.toString(), function() {
-          console.log(user._id + ' subscribed to room for convo ' + convo._id);
+    req.body.users.forEach(function(user_id) {
+      if (req.io.usersockets[user_id]) {
+        req.io.usersockets[user_id].join(convo._id.toString(), function() {
+          console.log(user_id + ' subscribed to room for convo ' + convo._id);
+          console.log(req.io.usersockets[user_id].rooms);
         });
       }
     });
@@ -99,7 +99,7 @@ exports.createMessage = function(req, res, next) {
       {$set: {latest: message }},
       {new: true}, // returns new value for convo
       function(err, convo) {
-        req.io.in(message.convo_id)
+        req.io.in(req.params.id)
         // req.io.usersockets[message.user_id].to(message.convo_id)
         .emit('newmessage', {
           'message': message.f_name + ' sent message for ' + message.convo_id,
