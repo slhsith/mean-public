@@ -1,7 +1,8 @@
 /*  -----------------  *
     APP MODULE - USER 
  *  -----------------  */
-var app = angular.module('mainApp', ['ui.router','templates']);
+var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
+// var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
 
 app.config([
 '$stateProvider',
@@ -75,6 +76,32 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
+    .state('workoutPlan', {
+      url: '/items/workoutPlan/:id',
+      templateUrl: 'workoutPlan.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+    .state('exerciseSteps', {
+      url: '/items/exercise/:exercise',
+      templateUrl: 'exerciseSteps.html',
+      controller: 'ExerciseCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        },
+        exercisePromise: function($stateParams, items) {
+          console.log($stateParams.exercise);
+          return items.getExercise($stateParams.exercise);
+        }
+      }
+    })
     .state('transactions', {
       url: '/transactions',
       templateUrl: 'transactions.html',
@@ -123,6 +150,10 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
+        userPromise: function(auth, users) {
+          var _id = auth.isThisUser();
+          return users.get(_id);
+        },
         usersPromise: function(users) {
           return users.getAll();
         },

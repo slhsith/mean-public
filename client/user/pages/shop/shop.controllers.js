@@ -1,34 +1,19 @@
 /*  ----------------------  *
-    CONTROLLER - MESSENGER
+    CONTROLLER - DIETPLAN
  *  ----------------------  */
 
-/* $scope.conversation at the level of the controller is focused convo
-/* --> user initializes new blank conversation
-/* --> when a conversation is focused from list, defaults to [0]th one
+/* 
 /* ---------------------------- */
-app.controller('MessengerCtrl', function ($scope, settings, users, messenger, messageSocket, Conversation, Message) {
+app.controller('DietCtrl', function ($scope, settings, users) {
 
   $scope.debug = true;
 
   // ---- INIT SCOPE ----  //
 
-  // for selecting users to talk to
-  $scope.users = users.getAllButSelf();
-  // get all of user's metadata and extend scope user object
-  angular.extend($scope.user, users.user);
-  // set up metadata on the newmessage object
-  $scope.newmessage = new Message($scope.user);
 
   // get all conversations
-  $scope.conversations = messenger.conversations || [];
-  $scope.map = messenger.map || {};
-
-  if ($scope.conversations.length > 0) {
-    setFocus($scope.conversations[0]);
-  } 
 
   // ------ METHODS FOR CONVERSATIONS ------ //
-
 
   // Set the focus on a particular conversation
   // establishes the conversation._id in the newmessage
@@ -91,43 +76,6 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
     messenger.postMessage($scope.mainConversation, $scope.newmessage).success(function() {
       $scope.newmessage.body = null;
     });
-  }
-
-  // ----- RECEIVING MESSAGES in realtime via socket.io ----- //
-  $scope.$on('socket:newmessage', function (event, data) {
-    console.log('got a new message', event.name, data);
-    if (!data.payload) return;
-      var latest = data.payload;
-      $scope.$apply(function() {
-        update(latest);
-      });
-  });
-
-
-  function update (latest) {
-    console.log('a new message for conversation ' + latest.convo_id);
-    function unwrap (data, to) { to = data; }
-    for (var i=0; i<$scope.conversations.length; i++) {
-      if ($scope.conversations[i]._id === latest.convo_id) {
-        var convo = $scope.conversations[i];
-        convo.latest = latest;
-
-        convo.messages = convo.messages || [];
-
-        if (convo.messages.length === 0) {
-          console.log('havent yet seen this conversation\'s messages, retrieving...');
-          messenger.get(convo._id).success(unwrap(data, convo));
-        } else {
-          var newmessage = {};
-          angular.copy(latest, newmessage);
-          convo.messages.push(newmessage);
-        }
-        if ($scope.mainConversation._id === convo._id) {
-          $scope.mainConversation = convo;
-        }
-        break;
-      }
-    }
   }
 
 

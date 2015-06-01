@@ -72,7 +72,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
     items: [],
-    item: {},
+    item: {}, 
     videos: [],
     video: {},
     books: [],
@@ -88,6 +88,12 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       angular.copy(data, o.videos);
     });
   };
+  o.getExercises = function(id) {
+    return $http.get('/api/items/' + id + '/exercises').success(function(data){
+      console.log(data);
+      angular.copy(data, o.items);
+    });
+  };
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -101,8 +107,31 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
-  o.newDay = function (item, day) {
-    return $http.post('/api/items/' + item + '/diet', day).success(function(data) {
+  o.newPlan = function (plan, id) {
+    return $http.post('/api/workoutPlans/' + id, plan, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, plan);
+      o.items.push(extendedItem);
+    });
+  };
+  o.newStep = function (step, id) {
+    return $http.post('/api/exercise/' + id, step, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, item);
+      o.items.push(extendedItem);
+      // will be added to the appropriate service object subarray
+      // based on submitted type
+      o[item.type + 's'].push(extendedItem);
+    });
+  };
+  o.newDay = function (id, day) {
+    return $http.post('/api/items/' + id + '/diet', day).success(function(data) {
       return data;
     });
   };
@@ -111,6 +140,12 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   // }
   o.get = function(item) {
     return $http.get('/api/items/' + item).then(function(res){
+      return res.data;
+    });
+  };
+  o.getExercise = function(exercise) {
+    console.log(exercise);
+    return $http.get('/api/item/exercise/' + exercise).then(function(res){
       return res.data;
     });
   };
@@ -302,7 +337,7 @@ app.factory('settings', function ($http, $window) {
 // USERS
 
 app.factory('users', function ($http, $window, auth) {
-  var u = { users: [] };
+  var u = { users: [], user: {} };
 
   u.getAll = function() {
     return $http.get('/api/users').success(function(data) {
@@ -336,7 +371,7 @@ app.factory('users', function ($http, $window, auth) {
 
   u.get = function (id) {
     return $http.get('/api/user/' + id).success(function(data){
-      console.log(data);
+      u.user = data;
       return data;
     });
   };
@@ -443,3 +478,4 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   };
   return o;
 }]); 
+

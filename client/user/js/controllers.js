@@ -2,7 +2,7 @@
     CONTROLLERS - USER
  *  ------------------  */
 
- app.controller('MainCtrl', function ($scope, auth) {
+ app.controller('MainCtrl', function ($scope, auth, messageSocket) {
   
     $scope.user = auth.getUser();
     mixpanel.alias($scope.user._id);
@@ -21,6 +21,18 @@
   $scope.isAdmin = auth.isAdmin;
   $scope.logOut = auth.logOut;
   $scope.isThisUser = auth.isThisUser;
+
+
+  $scope.$on('socket:tokenrequest', function(event, data) {
+    console.log('socket:tokenrequest', event.name, data);
+    console.log(data.message);
+    messageSocket.emit('authenticate', { token: auth.getToken() });
+  });
+
+  $scope.$on('socket:broadcast', function(event, data) {
+    console.log('broadcast to socket', event.name, data);
+  });
+  
 });
 
 
@@ -124,7 +136,9 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
   $scope.items = items.items;
   $scope.item = itemPromise;
   $scope.createDay = function(){
-    items.newDay($stateParams.id, $scope.day.day);
+    items.newDay($stateParams.id, $scope.day.day).success(function(day) {
+      $scope.item.days.push(day);
+    });
   };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
@@ -135,6 +149,26 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
   };
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
+  $scope.addPlan = function() {
+    items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
+      console.log('success');
+      $scope.item.exercises.push(data);
+   }).error(function(){
+       console.log('failure');
+   });
+  };
+});
+
+app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
+  $scope.exercise = exercisePromise;
+  $scope.addStep = function() {
+    items.newStep($scope.exercise, $stateParams.id).success(function(data){
+      console.log('success');
+      $scope.exercise.step = null;
+   }).error(function(){
+       console.log('failure');
+   });
+  };
 });
 
 
