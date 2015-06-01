@@ -1008,7 +1008,8 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
 /* ---------------------------- */
 app.controller('MessengerCtrl', function ($scope, settings, users, messenger, messageSocket, Conversation, Message) {
 
-  $scope.debug = true;
+  // $scope.debug = true;
+  $scope.debug = false;
 
   // ---- INIT SCOPE ----  //
 
@@ -1029,16 +1030,13 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
 
   // ------ METHODS FOR CONVERSATIONS ------ //
 
-
   // Set the focus on a particular conversation
   // establishes the conversation._id in the newmessage
   // marks read timestamps for messages
   $scope.focusConversation = setFocus;
 
   function setFocus(convo) {
-    messenger.get(convo._id).success(function(data) {
-      convo.messages = data;
-    });
+    getMessages(convo);
     $scope.mainConversation = convo;
     $scope.newmessage.conversation = convo._id;
     if (!convo.new) messenger.readMessages(convo);
@@ -1097,33 +1095,19 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
   $scope.$on('socket:newmessage', function (event, data) {
     console.log('got a new message', event.name, data);
     if (!data.payload) return;
-      var latest = data.payload;
-      $scope.$apply(function() {
-        update(latest);
-      });
+    $scope.$apply(function() { update(data.payload); });
   });
 
 
   function update (latest) {
     console.log('a new message for conversation ' + latest.convo_id);
-    function unwrap (data, to) { to = data; }
+    // have to find the place in convo list to update
     for (var i=0; i<$scope.conversations.length; i++) {
       if ($scope.conversations[i]._id === latest.convo_id) {
-        var convo = $scope.conversations[i];
-        convo.latest = latest;
+        $scope.conversations[i].latest = latest;
 
-        convo.messages = convo.messages || [];
-
-        if (convo.messages.length === 0) {
-          console.log('havent yet seen this conversation\'s messages, retrieving...');
-          messenger.get(convo._id).success(unwrap(data, convo));
-        } else {
-          var newmessage = {};
-          angular.copy(latest, newmessage);
-          convo.messages.push(newmessage);
-        }
-        if ($scope.mainConversation._id === convo._id) {
-          $scope.mainConversation = convo;
+        if ($scope.mainConversation._id === $scope.conversations[i]._id) {
+          getMessages($scope.mainConversation);
         }
         break;
       }
@@ -1133,6 +1117,12 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
 
 
   // ----- HELPER FUNTIONS ----- //
+  function getMessages (convo) { 
+    messenger.get(convo._id).success(function(data) {
+      convo.messages = data;
+    });
+  }
+
   $scope.isSelf = function(user_id) { return user_id === $scope.user._id; };
 
   $scope.otherPeople = function(conversation) {
@@ -1173,6 +1163,7 @@ app.directive('conversationAddUsers', function() {
                 '</div>' +
               '</div>',
     link: function(scope, element, attrs) {}
+
   };
 });
 
@@ -1191,6 +1182,24 @@ app.directive('messageBox', function() {
   };
 });
 
+
+
+
+app.directive('scrollBottom', function () {
+  return {
+    scope: {
+      scrollBottom: "="
+    },
+    link: function (scope, element) {
+      scope.$watchCollection('scrollBottom', function (newValue) {
+        if (newValue)
+        {
+          $(element).scrollTop($(element)[0].scrollHeight);
+        }
+      });
+    }
+  };
+});
 
 app.factory('messenger', function ($http, auth) {
 
@@ -1211,7 +1220,6 @@ app.factory('messenger', function ($http, auth) {
   };
 
   o.get = function(id) {
-    console.log('getting convo ' + id);
     return $http.get('/api/conversation/' + id).success(function(data) {
       return data;
     });
@@ -1282,115 +1290,127 @@ app.factory('messageSocket', function(socketFactory) {
 /*  ----------------------  *
     CONTROLLER - DIETPLAN
  *  ----------------------  */
-
 /* 
 /* ---------------------------- */
-app.controller('DietCtrl', function ($scope, settings, users) {
-
+app.controller('DietCtrl', function ($scope, Meal) {
+  var self = this;
   $scope.debug = true;
 
   // ---- INIT SCOPE ----  //
-
-
-  // get all conversations
-
-  // ------ METHODS FOR CONVERSATIONS ------ //
-
-  // Set the focus on a particular conversation
-  // establishes the conversation._id in the newmessage
-  // marks read timestamps for messages
-  $scope.focusConversation = setFocus;
-
-  function setFocus(convo) {
-    messenger.get(convo._id).success(function(data) {
-      convo.messages = data;
-    });
-    $scope.mainConversation = convo;
-    $scope.newmessage.conversation = convo._id;
-    if (!convo.new) messenger.readMessages(convo);
-  }
-
-  // Starting a new conversation
-  $scope.initConversation = function() {
-    // only init a new convo if not already in that mode
-    if (!$scope.mainConversation || !$scope.mainConversation.new) {
-      $scope.addUserModal = true;
-      $scope.conversations.unshift(new Conversation());
-      $scope.focusConversation($scope.conversations[0]);
-      $scope.mainConversation.users.push($scope.user);
-    } 
+  self.init = function(element) {
+    self.$element = element;
   };
 
-  // Cancelling a new conversation
-  $scope.cancelNewConversation = function() {
-    $scope.conversations.splice(0, 1);
-    $scope.focusConversation($scope.conversations[0]);
+  $scope.showRecipe = false;
+
+  // // ------ METHODS FOR CONVERSATIONS ------ //
+
+  $scope.initNewRecipe = function() {
+    $scope.showRecipe = true;
+    $scope.recipe = {};
   };
 
-  // ----- ADDRESSING USERS in a new conversation ----- //
-  // Looking for Users to add to conversation
-  $scope.searchUsers = function() {
-    users.search($scope.conversation.userQuery).success(function(data) {
-      $scope.conversation.userResult = data;
-    });
-  };
-
-  // Adding a user to a conversation
-  $scope.addToConversation = function(user) {
-    $scope.mainConversation.users.push(user);
-  };
-
-  // ----- SENDING MESSAGES in the focused main conversation ---- //
-  $scope.sendMessage = function() {
-    if (!$scope.mainConversation._id) {
-      messenger.createConversation($scope.mainConversation).then(function(data) {
-        $scope.mainConversation._id = data._id;
-        $scope.addUserModal = false;
-        postMessage();
-      });
-    } else {
-      postMessage();
-    }
-  };
-  
-  function postMessage () {
-    messenger.postMessage($scope.mainConversation, $scope.newmessage).success(function() {
-      $scope.newmessage.body = null;
-    });
-  }
-
-
-
-  // ----- HELPER FUNTIONS ----- //
-  $scope.isSelf = function(user_id) { return user_id === $scope.user._id; };
-
-  $scope.otherPeople = function(conversation) {
-    var others = angular.copy(conversation.users, others);
-    angular.forEach(others, function(user, i) {
-      if ($scope.isSelf(user._id)) {
-        others.splice(i, 1);
-      }
-    });
-    angular.forEach(others, function(user, i) {
-      others[i] = user.f_name + ' ' + user.l_name;
-    });
-    return others.join(', ');
-  };
 
 
 });
 
-app.directive('dietPlan', function() {
+app.directive('dietPlan', function () {
+  
   return {
-    restrict: 'E',
+    restrict: 'E', 
     scope: {
       diet: '=item'
     },
     controller: 'DietCtrl',
     templateUrl: 'shop.dietplan.tpl.html',
-    link: function(scope, element, attrs) {}
+    link: function(scope, element, attrs, DietCtrl) {
+      DietCtrl.init( element );
+    }
   };
+
 });
 
 
+
+app.factory('Meal', function() {
+  var Meal = function(meal) {
+    var self = this;
+    self.title        = meal.title || null;
+    self.type         = meal.type || null;
+    self.description  = meal.description || null;
+    self.day          = meal.day || 1 || null;
+    self.cooktime     = meal.cooktime || null;
+    self.recipes      = meal.recipes || [];
+  };
+
+  return Meal;
+});
+
+app.factory('Diet', function() {
+
+  var Diet = function(item) {
+    var self = this;
+    self.title = item.title || null;
+    self.price = item.price;
+    self.duration = 0;
+  };
+
+  return Diet;
+
+});
+
+app.factory('Recipe', function() {
+
+  var Recipe = function (recipe) {
+    this.title       = recipe.title || null;
+    this.type        = recipe.type || null;
+    this.description = recipe.description || null;
+
+    this.yield       = recipe.yield || null;
+    this.calories    = recipe.calories || null;
+    this.fats        = recipe.fats || null;
+    this.carbs       = recipe.carbs || null;
+    this.proteins    = recipe.proteins || null;
+
+    this.cost        = recipe.cost || null;
+    this.preptime    = recipe.preptime || null;
+    this.cooktime    = recipe.cooktime || null;
+
+    this.equipment   = recipe.equipment || [];
+    this.steps       = recipe.steps || [];
+
+    this.video       = recipe.video || null;
+    this.coverphoto  = recipe.coverphoto || null;
+    this.photos      = recipe.photos || [];
+
+  };
+
+  return Recipe;
+
+});
+
+app.factory('CookingStep', function() {
+
+  var CookingStep = function() {
+    this.order       = null;
+    this.description = null;
+    this.photo       = null;
+  };
+  return CookingStep;
+
+});
+
+app.factory('Ingredient', function() {
+
+  var Ingredient = function() {
+    this.title       = null;
+    this.description = null;
+    this.photo       = null;
+    this.measure     = null;
+    this.unit        = null;
+  };
+
+  return Ingredient;
+
+});
 

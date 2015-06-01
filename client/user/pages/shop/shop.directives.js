@@ -1,13 +1,17 @@
-app.directive('dietPlan', function() {
+app.directive('dietPlan', function () {
+  
   return {
-    restrict: 'E',
+    restrict: 'E', 
     scope: {
       diet: '=item'
     },
     controller: 'DietCtrl',
     templateUrl: 'shop.dietplan.tpl.html',
-    link: function(scope, element, attrs) {}
+    link: function(scope, element, attrs, DietCtrl) {
+      DietCtrl.init( element );
+    }
   };
+
 });
 
 
