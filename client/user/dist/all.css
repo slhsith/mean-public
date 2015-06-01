@@ -34,19 +34,55 @@ img-crop canvas {
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
   /* mobile webkit */
 }
+body {
+  color: #161616;
+}
+
+.btn-primary {
+  background-color: #01BAFD;
+}
+.conversation-list, .conversation-display {
+  height: 680px;
+}
+.message-container {
+  position: absolute;
+  top: 60px;
+  height: 580px;
+  overflow-y: auto;
+}
+
 .message-users {
   background-color: #e3e3e3;
   padding: 10px;
 }
 
+.message-avatar {
+  display: inline-block;
+  line-height: 35px;
+  text-align: center;
+  width: 35px;
+  height: 35px;
+  border-radius: 35px;
+  background-color: #FEBA11;
+  color: #999;
+}
+
+
+.message-body-row {
+  width: 100%;
+  text-align: right;
+}
+
 .message-body {
   border-radius: 14px;
-  padding: 6px 11px;
-  line-height: 32px;
+  padding: 0 12px;
+  line-height: 30px;
+  display: inline-block;
 }
 
 .message-body.message-outgoing {
-  background-color: lightblue;
+  background-color: #01BAFD;
+  float: right;
 }
 
 .message-body.message-incoming {
@@ -55,7 +91,7 @@ img-crop canvas {
 }
 
 .message-row {
-  padding: 10px 5px;
+  padding: 6px;
 }
   .message-row + .message-row {
     /*border-top: 1px solid lightgray;*/
@@ -63,5 +99,12 @@ img-crop canvas {
 
 .message-form {
   padding-top: 10px;
-
+  position: absolute;
+  bottom: 0;
+}
+.meal-day-title {
+    display: inline-block;
+}
+.meal-day-btn {
+    display: inline-block;
 }

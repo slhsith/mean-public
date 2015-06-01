@@ -74,7 +74,6 @@ mixpanel.init("08314cf925efc4376a17217e8922cd22");</script><!-- end Mixpanel -->
       //     object:'https://developers.facebook.com/docs/',
       //    })
       //   }, function(response){});
-      // };
 
       (function(d, s, id){
          var js, fjs = d.getElementsByTagName(s)[0];
@@ -83,6 +82,7 @@ mixpanel.init("08314cf925efc4376a17217e8922cd22");</script><!-- end Mixpanel -->
          js.src = "//connect.facebook.net/en_US/sdk.js";
          fjs.parentNode.insertBefore(js, fjs);
        }(document, 'script', 'facebook-jssdk'));
+      };
     </script>
 
   <nav class="navbar navbar-default pull-right" ng-controller="NavCtrl">
@@ -112,6 +112,7 @@ mixpanel.init("08314cf925efc4376a17217e8922cd22");</script><!-- end Mixpanel -->
 
   <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.13/angular-ui-router.min.js"></script>
+  <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
 
 <!--
   <script src="app.js"></script>
@@ -123,6 +124,7 @@ mixpanel.init("08314cf925efc4376a17217e8922cd22");</script><!-- end Mixpanel -->
   <script src="js/ng-img-crop.js"></script>
   <script src="js/ng-flow-standalone.min.js"></script>
   <script src="js/angular-payments.min.js"></script>
+  <script src="js/socket.js"></script>
 
   
 <!--  <script type="text/javascript" src="https://js.stripe.com/v2/"></script>-->

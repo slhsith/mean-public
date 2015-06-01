@@ -8,6 +8,7 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 var nodemailer = require('nodemailer');
 var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
+var http = require('http');
 
 // MODELS
 // posts
@@ -57,23 +58,28 @@ require('./server/config/passport');
 
 
 mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/news');
-
 var db = mongoose.connection;
-
 db.on('error', console.error.bind(console, 'connection error:'));
-
 
 var routes = require('./server/routes/index');
 var users = require('./server/routes/users');
 
 var app = express();
+
+app.io = require('socket.io')();
+require('./server/config/socketio')(app.io);
+
 var jsonParser = bodyParser.json();
+
+
+
 
 /**
  * Enable CORS (http://enable-cors.org/server_expressjs.html)
  * to allow different clients to request data from your server
  */
 app.use(function(req, res, next) {
+  req.io = app.io;
   res.header("Access-Control-Allow-Origin", "*");
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");

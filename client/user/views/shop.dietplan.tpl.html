@@ -1,0 +1,121 @@
+
+
+<div class="row">
+
+  <div class="col-sm-6">
+    <div class="form-group col-sm-12">
+      <input type="text"
+      class="form-control"
+      placeholder="Title"
+      ng-model="diet.title"></input>
+    </div>
+
+    <div class="form-group col-sm-6">
+      <input type="text"
+      class="form-control"
+      placeholder="Hashtag"
+      ng-model="diet.hashtag"></input>
+    </div>
+
+    <div class="form-group col-sm-6">
+      <input type="text"
+      class="form-control"
+      placeholder="Price"
+      ng-model="diet.price"></input>
+    </div>
+
+    <div class="form-group col-sm-6">
+      <input type="text"
+        class="form-control"
+        placeholder="Duration"
+        ng-model="diet.duration"></input>
+    </div>
+
+    <div class="form-group col-sm-6">
+      <input type="text"
+        class="form-control"
+        placeholder="Type"
+        ng-model="diet.category"></input>
+    </div>
+
+    <div class="form-group col-sm-6">
+      <input type="text"
+        class="form-control"
+        placeholder="Demo Gender"
+        ng-model="diet.gender"></input>
+    </div>
+
+    <div class="form-group col-sm-6">
+      <input type="text"
+        class="form-control"
+        placeholder="Demo Age"
+        ng-model="diet.age"></input>
+    </div>
+  </div>
+
+  <div class="col-sm-3">Upload Item Pic</div>
+  <div class="col-sm-3">Upload Cover Photo</div>
+
+  <div class="form-group col-sm-12">
+    <textarea 
+      class="form-control"
+      placeholder="Description"
+      ng-model="diet.description" row="5"></textarea>
+  </div>
+</div> <!-- end row -->
+
+<h3 class="meal-day-title">Meal {{ diet.duration > 0? 'Day ' + meal.day + ' of ' + diet.duration : '' }}</h3>
+<button class="meal-day-btn" ng-click="back"><i class="fa fa-arrow-left"></i></button>
+<button class="meal-day-btn" ng-click="forward"><i class="fa fa-arrow-right"></i></button>
+
+<div class="row">
+
+  <div class="col-sm-6">
+    <div class="form-group col-sm-12">
+      <input type="text"
+      class="form-control"
+      placeholder="Title"
+      ng-model="meal.title"></input>
+    </div>
+
+    <div class="form-group col-sm-6">
+      <input type="text"
+      class="form-control"
+      placeholder="Type"
+      ng-model="meal.type"></input>
+    </div>
+
+    <div class="form-group col-sm-6">
+      <input type="text"
+      class="form-control"
+      placeholder="Cook Time"
+      ng-model="meal.time"></input>
+    </div>
+  </div>
+
+  <div class="col-sm-6">
+    <div class="form-group col-sm-12">
+      <textarea 
+        class="form-control"
+        placeholder="Description"
+        ng-model="meal.description" row="5">
+      </textarea>
+    </div>
+  </div>
+</div> <!-- end row -->
+    <div class="form-group col-sm-6" ng-repeat="recipe in meal.recipes">
+      <i class="fa fa-photo"></i>
+      {{recipe.title}}
+      {{recipe.yield}} Servings
+    </div>
+    <div class="form-group col-sm-6" >
+      <i class="fa fa-plus"></i>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-12">
+    <pre>{{diet|json}}</pre>
+  </div>
+</div>

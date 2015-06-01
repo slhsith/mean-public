@@ -1,39 +1,63 @@
 // Module Dependencies
 var 
+  app = require('../../app'),
   mongoose = require('mongoose');
 
 // --- Models --- //
 var
   Conversation = mongoose.model('Conversation'),
   Timestamp = mongoose.model('Timestamp'),
+  User = mongoose.model('User'),
   Message = mongoose.model('Message');
+
 
 
 // --- Exported Methods --- //
 exports.getConversations = function(req, res, next) {
-	// req.params.start
-	// req.params.end
-	Conversation.find({users: req.payload._id}, '-__v')
-  .populate('messages', 'handle body user timesent timeread -_id')
+	Conversation.find({users: req.payload._id }, '-__v')
   .populate('users', 'handle username f_name l_name')
+  .limit(10)
+  .sort('latest.time_sent')
   .exec(function (err, conversations) {
-
-		if (err) { return next(err); }
-		res.json(conversations);
+    if (conversations.length === 0) return res.json([]);
+    getMessagesById(conversations[0]._id, 0, 30)
+    .exec(function(err, messages) {
+      conversations[0].messages = messages || [];
+      return res.json(conversations);
+    });
 	});
 };
 
 exports.getConversationById = function(req, res, next) {
-	// req.params.id
-	Conversation.findOne({ _id: req.params.id }, '-__v')
-  .populate('messages', 'handle body user timesent timeread -_id')
-  .populate('users', 'handle username f_name l_name -_id')
-	.exec(function(err, conversation) {
-    if (err) { return next(err); }
-    res.json(conversation);
+	console.log('--GET-----> grabbing convo for ' + req.params.id);
+  getMessagesById(req.params.id, 0, 30)
+	.exec(function(err, messages) {
+    console.log('--GET---->messages for convo_id' + req.params.id + '\n',
+    messages);
+    // if (err) { return next(err); }
+    return res.json(messages);
   });
-
 };
+
+function getMessagesById (convo_id, start, count) {
+  return Message.find({'convo_id': convo_id})
+  .skip(start)
+  .limit(count);
+}
+
+exports.getConversationsForUser = function(req, res, next) {
+  var user_id = req.params.id;
+  paginateUserConvos(user_id, 0, 100)
+  .exec(function(err, convos) {
+    return res.json(convos);
+  });
+}
+
+function paginateUserConvos (user_id, start, count) {
+  return Conversation.find({users: user_id})
+  .skip(start)
+  .limit(count);
+}
 
 exports.createConversation = function(req, res, next) {
   // users might be an array of objects or just _id numbers
@@ -48,42 +72,48 @@ exports.createConversation = function(req, res, next) {
 
 	convo.save(function(err, convo) {
     if (err) { return next(err); }
-		res.json(convo);
+		return res.json(convo);
 	});
 
 };
 
 exports.createMessage = function(req, res, next) {
   var message = new Message(req.body);
+  message.convo_id = req.params.id;
+  message.user_id = req.payload._id;
 
   message.save(function(err, message) {
     // if (err) { return next(err); }
-    Conversation.findByIdAndUpdate(req.params.id, {$push: {messages: message._id}, $set: {latest: req.body }}, function(err, convo) {
-
+    Conversation.findByIdAndUpdate(
+      req.params.id, 
+      {$set: {latest: message }},
+      {new: true}, // returns new value for convo
+      function(err, convo) {
+        req.io.in(message.convo_id)
+        // req.io.usersockets[message.user_id].to(message.convo_id)
+        .emit('newmessage', {
+          'message': message.f_name + ' sent message for ' + message.convo_id,
+          'payload': message
+        });
+        return res.json(message);
     });
-    return res.json(message);
   });
 };
 
 exports.readMessages = function(req, res, next) {
-  var user_id = req.body.user;
-  var _id = mongoose.Types.ObjectId(req.body.user);
-  console.log('===================' + user_id + '\n================'+ _id)
+  var user_id = req.body.user_id;
   var convo_id = req.params.id;
   var timestamp = new Timestamp(req.body);
-  console.log(user_id + ' is reading messages for conversation ' + convo_id );
+  console.log('--PUT----->]'
+              + user_id + '] reading messages for conversation [' 
+              + convo_id + '] Adding timestamp ' + timestamp );
 
-  Message.find({conversation: convo_id, timeread: {$nin: [ {user: _id} ] } })
-  .limit(100)
-  .exec(function(err, messages) {
-    messages.forEach(function(message) {
-      message.update({},
-        {'$push': { timeread: timestamp } },
-        {upsert: true}, function() {
-        console.log('-------message', message);
-      });
+  Message.update(
+    { 'convo_id': convo_id, 'time_read.user_id': {$nin: [user_id] } },
+    { $push: { time_read: timestamp} },
+    { multi: true }, 
+    function(err, messages) {
+      console.log('updated timestamps', messages);
+      return res.json({message: 'Successfully updated time_read for user ' + user_id })
     });
-    res.json(timestamp);
-  });
-
 };
