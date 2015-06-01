@@ -5,12 +5,12 @@
       </span>
     </h3>
     <h3><b>Steps</b></h3>
-      <div ng-repeat="step in exercise.steps | orderBy: 'step' ">
+      <div ng-repeat="step in exercise.steps | orderBy: 'order'">
         <hr>
         <a href="#/items/step/{{step._id}}"><h4>
-          Title: {{step.title}}
+          {{step.order}}. {{step.title}}
         </h4></a>
-        <span>Description: {{exercise.description}}</span>
+        <span> {{step.description}} ({{step.length}})</span>
         <hr>
       </div>
     <form ng-submit="addStep()">
