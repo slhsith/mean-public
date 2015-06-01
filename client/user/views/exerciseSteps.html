@@ -1,0 +1,71 @@
+<div class="page-header">
+    <h3>
+      <span>
+        {{exercise.title}}, {{exercise.day}}
+      </span>
+    </h3>
+    <h3><b>Steps</b></h3>
+      <div ng-repeat="step in exercise.steps">
+        <hr>
+        <span>Day:{{exercise.day}}</span>
+        <a href="#/items/exercise/{{exercise._id}}"><h4>
+          Title: {{exercise.title}}
+        </h4></a>
+        <span>Description: {{exercise.description}}</span>
+        <hr>
+      </div>
+    <form ng-submit="addPlan()">
+        <input type="text"
+              class="form-control"
+              placeholder="Exercise Title"
+              ng-model="workoutPlan.title"></input>
+        <input type="text"
+              class="form-control"
+              placeholder="Exercise Description"
+              ng-model="workoutPlan.description"></input>
+      </div> 
+    <button type="submit" class="btn btn-primary">Post</button>
+    </form>
+    </h3>
+    <span>
+      <a href="#/transactions">Buy Item</a>
+    </span>
+</div>
+
+
+  <div id="fb-root"></div>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '692480267528460',
+          status     : true, 
+          cookie     : true, 
+          xfbml      : true,
+          version    : 'v2.3'
+        });
+        function share () {
+        FB.ui({
+         method: 'share_open_graph',
+         action_type: 'og.likes',
+         action_properties: JSON.stringify({
+          object:'https://developers.facebook.com/docs/',
+         })
+        }, function(response){});
+      }
+    };
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
+    <a href="https://www.facebook.com/v2.3/dialog/share_open_graph?action_properties=%7B%22object%22%3A%22https%3A%2F%2Fdevelopers.facebook.com%2Fdocs%2F%22%7D&action_type=og.likes&app_id=692480267528460&display=popup&e2e=%7B%7D&locale=en_US&next=http%3A%2F%2Fstatic.ak.facebook.com%2Fconnect%2Fxd_arbiter%2FQrU_tEEWym9.js%3Fversion%3D41%23cb%3Df28454b1c%26domain%3Dlocalhost%26origin%3Dhttp%253A%252F%252Flocalhost%253A3000%252Ff283facdcc%26relation%3Dopener%26frame%3Df3d230ab5%26result%3D%2522xxRESULTTOKENxx%2522&sdk=joey&version=v2.3" ng-click="share();">Share now</a>
+  <div>
+  
+    <span>
+      <a href="#/home">Home Page</a>
+    </span>
+  </div>  
+

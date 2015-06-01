@@ -137,6 +137,17 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
   };
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
+  $scope.addPlan = function() {
+    items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
+      console.log('success');
+      $scope.items = items.items;
+      $scope.item.exercises.push(exercise);
+      $scope.gpost.body = null;
+      $scope.exercises = exercises.exercises;
+   }).error(function(){
+       console.log('failure');
+   });
+  };
 });
 
 

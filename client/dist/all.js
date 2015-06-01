@@ -33,7 +33,8 @@ app.controller('MainCtrl', ['$scope', 'auth', '$location', function ($scope, aut
     mixpanel.track("User Reset Password",{"area":"home", "page":"home", "action":"resetPassword"});
     // mixpanel.track("HomePage: Reset Password, Submit Email");
   };
-    // This function is called when someone finishes with the Login
+    
+  // This function is called when someone finishes with the Login
   // Button.  See the onlogin handler attached to it in the sample
   // code below.
   $scope.checkLoginState = function() {

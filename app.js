@@ -25,6 +25,9 @@ require('./server/models/DietPlans');
 require('./server/models/Bootcamps');
 require('./server/models/Challenges');
 require('./server/models/Days');
+require('./server/models/WorkoutPlans');
+require('./server/models/Exercises');
+
 
 // user and groups
 require('./server/models/Users');

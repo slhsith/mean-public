@@ -50,8 +50,11 @@ router.get('/api/items', shop.getItems );
 router.post('/api/items', auth, shop.postItem );
 router.param('/api/item', shop.getItemByIdParam );
 router.get('/api/items/:item', shop.getItemById );
+router.get('/api/items/:item/exercises', shop.getExercises );
 router.post('/api/items/:item/diet', shop.createDay );
 router.put('/api/items/:item/upvote', auth, shop.upvoteItem );
+router.post('/api/workoutPlans/:id', shop.createExercise );
+router.get('/api/item/exercise/:exercise', shop.getExercise );
 
 // Item page & transaction
 router.post('/api/transactions', auth, shop.createTransaction );

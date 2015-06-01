@@ -75,6 +75,28 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
+    .state('workoutPlan', {
+      url: '/items/workoutPlan/:id',
+      templateUrl: 'workoutPlan.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+    .state('exerciseSteps', {
+      url: '/items/exercise/:exercise',
+      templateUrl: 'exerciseSteps.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        exercisePromise: function($stateParams, items) {
+          console.log($stateParams.exercise);
+          return items.getExercise($stateParams.exercise);
+        }
+      }
+    })
     .state('transactions', {
       url: '/transactions',
       templateUrl: 'transactions.html',
@@ -306,6 +328,17 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
   };
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
+  $scope.addPlan = function() {
+    items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
+      console.log('success');
+      $scope.items = items.items;
+      $scope.item.exercises.push(exercise);
+      $scope.gpost.body = null;
+      $scope.exercises = exercises.exercises;
+   }).error(function(){
+       console.log('failure');
+   });
+  };
 });
 
 
@@ -543,6 +576,12 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       angular.copy(data, o.videos);
     });
   };
+  o.getExercises = function(id) {
+    return $http.get('/api/items/' + id + '/exercises').success(function(data){
+      console.log(data);
+      angular.copy(data, o.items);
+    });
+  };
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -550,6 +589,19 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       // base item data comes back from API, extend it with
       // the item's original submitted descriptive parameters
       var extendedItem = angular.extend(data, item);
+      o.items.push(extendedItem);
+      // will be added to the appropriate service object subarray
+      // based on submitted type
+      o[item.type + 's'].push(extendedItem);
+    });
+  };
+  o.newPlan = function (plan, id) {
+    return $http.post('/api/workoutPlans/' + id, plan, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, plan);
       o.items.push(extendedItem);
       // will be added to the appropriate service object subarray
       // based on submitted type
@@ -566,6 +618,12 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   // }
   o.get = function(item) {
     return $http.get('/api/items/' + item).then(function(res){
+      return res.data;
+    });
+  };
+  o.getExercise = function(exercise) {
+    console.log(exercise);
+    return $http.get('/api/item/exercise/' + exercise).then(function(res){
       return res.data;
     });
   };
