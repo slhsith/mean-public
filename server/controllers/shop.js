@@ -159,10 +159,10 @@ exports.createExercise = function (req, res, next) {
 
 exports.newStep = function (req, res, next) {
  var step = new Step(req.body);
- exercise_id = req.params.exercise;
+ exercise_id = req.body.exercise;
  step.save(function(err, step) {
     if (err) { return next(err); }
-    Exercise.findByIdAndUpdate(item_id, { $push: { steps: exercise._id } }).exec(function(err, exercise) {
+    Exercise.findByIdAndUpdate(exercise_id, { $push: { steps: step._id } }).exec(function(err, exercise) {
       if(err){ return next(err); }
       res.json(exercise);
     });
@@ -205,15 +205,23 @@ exports.getItemById = function (req, res, next) {
  Item.findById(_id, function(err, item, exercises) {
   console.log(item);
    res.json(item);
- }).populate('exercises')
+ }).populate('exercises');
 };
 
 exports.getExercise = function (req, res, next) {
  // if(err){ next(err); }
  var _id = req.params.exercise;
- Exercise.findById(_id, function(err, exercise) {
+ Exercise.findById(_id, function(err, exercise, steps) {
   console.log(exercise);
   res.json(exercise);
+ }).populate('steps');
+};
+
+exports.getStep = function (req, res, next) {
+ var _id = req.params.step;
+ Step.findById(_id, function(err, step) {
+  console.log(step);
+  res.json(step);
  });
 };
 

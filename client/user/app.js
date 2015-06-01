@@ -92,13 +92,20 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'exerciseSteps.html',
       controller: 'ExerciseCtrl',
       resolve: {
-        itemPromise: function($stateParams, items) {
-          console.log($stateParams.id);
-          return items.get($stateParams.id);
-        },
         exercisePromise: function($stateParams, items) {
           console.log($stateParams.exercise);
           return items.getExercise($stateParams.exercise);
+        }
+      }
+    })
+    .state('stepConsumption', {
+      url: '/items/step/:step',
+      templateUrl: 'stepConsumption.html',
+      controller: 'StepCtrl',
+      resolve: {
+        stepPromise: function($stateParams, items) {
+          console.log($stateParams.step);
+          return items.getStep($stateParams.step);
         }
       }
     })

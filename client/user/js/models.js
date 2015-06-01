@@ -118,16 +118,13 @@ app.factory('items', ['$http', 'auth', function($http, auth){
     });
   };
   o.newStep = function (step, id) {
-    return $http.post('/api/exercise/' + id, step, {
+    return $http.post('/api/item/exercise/' + id, step, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data) {
       // base item data comes back from API, extend it with
       // the item's original submitted descriptive parameters
-      var extendedItem = angular.extend(data, item);
+      var extendedItem = angular.extend(data, step);
       o.items.push(extendedItem);
-      // will be added to the appropriate service object subarray
-      // based on submitted type
-      o[item.type + 's'].push(extendedItem);
     });
   };
   o.newDay = function (id, day) {
@@ -146,6 +143,12 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   o.getExercise = function(exercise) {
     console.log(exercise);
     return $http.get('/api/item/exercise/' + exercise).then(function(res){
+      return res.data;
+    });
+  };
+  o.getStep = function(step) {
+    console.log(step);
+    return $http.get('/api/item/step/' + step).then(function(res){
       return res.data;
     });
   };
