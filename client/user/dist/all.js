@@ -92,13 +92,20 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'exerciseSteps.html',
       controller: 'ExerciseCtrl',
       resolve: {
-        itemPromise: function($stateParams, items) {
-          console.log($stateParams.id);
-          return items.get($stateParams.id);
-        },
         exercisePromise: function($stateParams, items) {
           console.log($stateParams.exercise);
           return items.getExercise($stateParams.exercise);
+        }
+      }
+    })
+    .state('stepConsumption', {
+      url: '/items/step/:step',
+      templateUrl: 'stepConsumption.html',
+      controller: 'StepCtrl',
+      resolve: {
+        stepPromise: function($stateParams, items) {
+          console.log($stateParams.step);
+          return items.getStep($stateParams.step);
         }
       }
     })
@@ -362,13 +369,18 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
 app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
   $scope.exercise = exercisePromise;
   $scope.addStep = function() {
-    items.newStep($scope.exercise, $stateParams.id).success(function(data){
+    items.newStep($scope.step, $stateParams.exercise).success(function(data){
       console.log('success');
-      $scope.exercise.step = null;
+      $scope.step = null;
+      $scope.exercise.steps.push(data);
    }).error(function(){
        console.log('failure');
    });
   };
+});
+
+app.controller('StepCtrl', function ($scope, items, stepPromise, $stateParams) {
+  $scope.step = stepPromise;
 });
 
 
@@ -636,16 +648,13 @@ app.factory('items', ['$http', 'auth', function($http, auth){
     });
   };
   o.newStep = function (step, id) {
-    return $http.post('/api/exercise/' + id, step, {
+    return $http.post('/api/item/exercise/' + id, step, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data) {
       // base item data comes back from API, extend it with
       // the item's original submitted descriptive parameters
-      var extendedItem = angular.extend(data, item);
+      var extendedItem = angular.extend(data, step);
       o.items.push(extendedItem);
-      // will be added to the appropriate service object subarray
-      // based on submitted type
-      o[item.type + 's'].push(extendedItem);
     });
   };
   o.newDay = function (id, day) {
@@ -664,6 +673,12 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   o.getExercise = function(exercise) {
     console.log(exercise);
     return $http.get('/api/item/exercise/' + exercise).then(function(res){
+      return res.data;
+    });
+  };
+  o.getStep = function(step) {
+    console.log(step);
+    return $http.get('/api/item/step/' + step).then(function(res){
       return res.data;
     });
   };
