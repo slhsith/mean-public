@@ -127,8 +127,10 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
   item = itemPromise;
   $scope.deleteItem = function () {
     console.log(item._id);
-    items.delete(item._id).success(function(data){
+    items.delete($scope.item._id).success(function(data){
         console.log('success');
+        $scope.items = items.items;
+        console.log(data);
     });
   };
   $scope.createDay = function(){

@@ -32,10 +32,11 @@ exports.getItems = function(req, res, next) {
   }).populate('days');
 };
 
-exports.deleteItem = function(req, res, next, item) {
-  Item.findByIdAndRemove(item._id, function (err, item) {
+exports.deleteItem = function(req, res, next, id) {
+  console.log(item);
+  Item.delete(item._id, function (err, item) {
       if (err) { return next(err); }
-      return this.findByIdAndRemove({ item_id: id });
+      // return this.findByIdAndRemove({ item_id: id });
       // return item;
     }).success(function(){
       res.redirect('#/shop');
