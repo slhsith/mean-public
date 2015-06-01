@@ -23,6 +23,7 @@
           <a ng-hide="item.type === 'DietPlan' || item.type==='WorkoutPlan' || item.type==='Challenge'" href="#/items/{{item._id}}">Go to Item Page</a>
           <a ng-if="item.type === 'DietPlan'" href="#/items/{{item._id}}/diet/">Go to Diet Page</a>
           <a ng-if="item.type === 'Challenge'" href="#/items/challenge/{{item._id}}">Go to Challenge Page</a>
+          <a ng-if="item.type === 'WorkoutPlan'" href="#/items/workoutPlan/{{item._id}}">Go to Workout Plan Page</a>
         </span>
       </div>
         <div class="fb-like" data-href="https://developers.facebook.com/docs/plugins/" data-layout="standard" data-action="like" data-show-faces="false" data-share="false"></div>
@@ -48,6 +49,7 @@
             <option value="DietPlan">Diet Plan</option>
             <option value="Bootcamp">Bootcamp</option>
             <option value="Challenge">Online Challenge</option>
+            <option value="WorkoutPlan">Workout Plan</option>
           </select>
         </div>
 

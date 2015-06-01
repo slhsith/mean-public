@@ -55,5 +55,5 @@ app.directive('scrollBottom', function () {
         }
       });
     }
-  }
-})
+  };
+});

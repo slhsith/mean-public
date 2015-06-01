@@ -76,6 +76,32 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
+    .state('workoutPlan', {
+      url: '/items/workoutPlan/:id',
+      templateUrl: 'workoutPlan.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+    .state('exerciseSteps', {
+      url: '/items/exercise/:exercise',
+      templateUrl: 'exerciseSteps.html',
+      controller: 'ExerciseCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        },
+        exercisePromise: function($stateParams, items) {
+          console.log($stateParams.exercise);
+          return items.getExercise($stateParams.exercise);
+        }
+      }
+    })
     .state('transactions', {
       url: '/transactions',
       templateUrl: 'transactions.html',

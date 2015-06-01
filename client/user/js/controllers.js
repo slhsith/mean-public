@@ -149,6 +149,26 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
   };
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
+  $scope.addPlan = function() {
+    items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
+      console.log('success');
+      $scope.item.exercises.push(data);
+   }).error(function(){
+       console.log('failure');
+   });
+  };
+});
+
+app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
+  $scope.exercise = exercisePromise;
+  $scope.addStep = function() {
+    items.newStep($scope.exercise, $stateParams.id).success(function(data){
+      console.log('success');
+      $scope.exercise.step = null;
+   }).error(function(){
+       console.log('failure');
+   });
+  };
 });
 
 
