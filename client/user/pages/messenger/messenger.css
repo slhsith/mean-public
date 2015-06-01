@@ -5,9 +5,21 @@ body {
 .btn-primary {
   background-color: #01BAFD;
 }
+
 .conversation-list, .conversation-display {
   height: 680px;
 }
+
+.conversation-list-preview {
+    border-bottom: solid 1px black; 
+    padding: 10px 5px;
+}
+.conversation-list-preview-active {
+  background-color: #FEBA11;
+  color: white;
+}
+
+
 .message-container {
   position: absolute;
   top: 60px;
