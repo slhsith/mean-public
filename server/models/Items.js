@@ -6,14 +6,12 @@ var ItemSchema = new mongoose.Schema({
   author: String,
   price: String,
   type: String,
-  transaction: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }],
-  video: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }],
-  book: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }],
-  podcast: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Podcast' }],
-  dietPlan: [{ type: mongoose.Schema.Types.ObjectId, ref: 'DietPlan' }],
+  user: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  transactions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }],
+  videos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }],
+  books: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }],
+  podcasts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Podcast' }],
+  dietPlans: [{ category: String , days: [{day: String, meals : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Meal' }]}]}],
+  bootcamps: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Bootcamp' }],
 });
-ItemSchema.methods.upvote = function(cb) {
-  this.upvotes += 1;
-  this.save(cb);
-};
 mongoose.model('Item', ItemSchema);

@@ -67,6 +67,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
   return o;
 }]);  
 
+// ITEMS
 
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
@@ -100,6 +101,14 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
+  o.newDay = function (id, day) {
+    return $http.post('/api/items/' + id + '/diet', day).success(function(data) {
+      return data;
+    });
+  };
+  // o.getDays = function() {
+  //   return $http.get('/api/days/' + )
+  // }
   o.get = function(item) {
     return $http.get('/api/items/' + item).then(function(res){
       return res.data;
@@ -290,7 +299,7 @@ app.factory('settings', function ($http, $window) {
    return s;
 });
 
-//USERS
+// USERS
 
 app.factory('users', function ($http, $window, auth) {
   var u = { users: [], user: {} };

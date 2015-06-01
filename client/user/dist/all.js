@@ -36,6 +36,9 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function (items) {
           return items.getAll();
+        },
+        userPromise: function ($stateParams, users) {
+          return users.get($stateParams.id);
         }
       }
     })
@@ -52,13 +55,24 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('diet', {
-      url: '/items/diet/:item',
+      url: '/items/:id/diet/',
       templateUrl: 'diet.html',
       controller: 'ItemsCtrl',
       resolve: {
-        item: function($stateParams, items) {
-          console.log($stateParams.item);
-          return items.get($stateParams.item);
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+    .state('challenge', {
+      url: '/items/challenge/:id',
+      templateUrl: 'challenge.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
         }
       }
     })
@@ -261,10 +275,10 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 });
 
 
-app.controller('ShopCtrl', function ($scope, items, auth) {
+app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
 
   $scope.items = items.items;
-
+  $scope.user = userPromise;
   $scope.addItem = function() {
     items.create($scope.item).success(function(data){
       console.log('success');
@@ -291,10 +305,15 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
 });
 
 
-app.controller('ItemsCtrl', function ($scope, items, auth, itemPromise) {
+app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
 
   $scope.items = items.items;
   $scope.item = itemPromise;
+  $scope.createDay = function(){
+    items.newDay($stateParams.id, $scope.day.day).success(function(day) {
+      $scope.item.days.push(day);
+    });
+  };
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     // mixpanel.alias($scope.user._id);
@@ -520,6 +539,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
   return o;
 }]);  
 
+// ITEMS
 
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
@@ -553,6 +573,14 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
+  o.newDay = function (id, day) {
+    return $http.post('/api/items/' + id + '/diet', day).success(function(data) {
+      return data;
+    });
+  };
+  // o.getDays = function() {
+  //   return $http.get('/api/days/' + )
+  // }
   o.get = function(item) {
     return $http.get('/api/items/' + item).then(function(res){
       return res.data;
@@ -743,7 +771,7 @@ app.factory('settings', function ($http, $window) {
    return s;
 });
 
-//USERS
+// USERS
 
 app.factory('users', function ($http, $window, auth) {
   var u = { users: [], user: {} };
@@ -1169,3 +1197,118 @@ app.factory('messageSocket', function(socketFactory) {
   
   return socket;
 });
+/*  ----------------------  *
+    CONTROLLER - DIETPLAN
+ *  ----------------------  */
+
+/* 
+/* ---------------------------- */
+app.controller('DietCtrl', function ($scope, settings, users) {
+
+  $scope.debug = true;
+
+  // ---- INIT SCOPE ----  //
+
+
+  // get all conversations
+
+  // ------ METHODS FOR CONVERSATIONS ------ //
+
+  // Set the focus on a particular conversation
+  // establishes the conversation._id in the newmessage
+  // marks read timestamps for messages
+  $scope.focusConversation = setFocus;
+
+  function setFocus(convo) {
+    messenger.get(convo._id).success(function(data) {
+      convo.messages = data;
+    });
+    $scope.mainConversation = convo;
+    $scope.newmessage.conversation = convo._id;
+    if (!convo.new) messenger.readMessages(convo);
+  }
+
+  // Starting a new conversation
+  $scope.initConversation = function() {
+    // only init a new convo if not already in that mode
+    if (!$scope.mainConversation || !$scope.mainConversation.new) {
+      $scope.addUserModal = true;
+      $scope.conversations.unshift(new Conversation());
+      $scope.focusConversation($scope.conversations[0]);
+      $scope.mainConversation.users.push($scope.user);
+    } 
+  };
+
+  // Cancelling a new conversation
+  $scope.cancelNewConversation = function() {
+    $scope.conversations.splice(0, 1);
+    $scope.focusConversation($scope.conversations[0]);
+  };
+
+  // ----- ADDRESSING USERS in a new conversation ----- //
+  // Looking for Users to add to conversation
+  $scope.searchUsers = function() {
+    users.search($scope.conversation.userQuery).success(function(data) {
+      $scope.conversation.userResult = data;
+    });
+  };
+
+  // Adding a user to a conversation
+  $scope.addToConversation = function(user) {
+    $scope.mainConversation.users.push(user);
+  };
+
+  // ----- SENDING MESSAGES in the focused main conversation ---- //
+  $scope.sendMessage = function() {
+    if (!$scope.mainConversation._id) {
+      messenger.createConversation($scope.mainConversation).then(function(data) {
+        $scope.mainConversation._id = data._id;
+        $scope.addUserModal = false;
+        postMessage();
+      });
+    } else {
+      postMessage();
+    }
+  };
+  
+  function postMessage () {
+    messenger.postMessage($scope.mainConversation, $scope.newmessage).success(function() {
+      $scope.newmessage.body = null;
+    });
+  }
+
+
+
+  // ----- HELPER FUNTIONS ----- //
+  $scope.isSelf = function(user_id) { return user_id === $scope.user._id; };
+
+  $scope.otherPeople = function(conversation) {
+    var others = angular.copy(conversation.users, others);
+    angular.forEach(others, function(user, i) {
+      if ($scope.isSelf(user._id)) {
+        others.splice(i, 1);
+      }
+    });
+    angular.forEach(others, function(user, i) {
+      others[i] = user.f_name + ' ' + user.l_name;
+    });
+    return others.join(', ');
+  };
+
+
+});
+
+app.directive('dietPlan', function() {
+  return {
+    restrict: 'E',
+    scope: {
+      diet: '=item'
+    },
+    controller: 'DietCtrl',
+    templateUrl: 'shop.dietplan.tpl.html',
+    link: function(scope, element, attrs) {}
+  };
+});
+
+
+
