@@ -41,9 +41,21 @@ body {
 .btn-primary {
   background-color: #01BAFD;
 }
+
 .conversation-list, .conversation-display {
   height: 680px;
 }
+
+.conversation-list-preview {
+    border-bottom: solid 1px black; 
+    padding: 10px 5px;
+}
+.conversation-list-preview-active {
+  background-color: #FEBA11;
+  color: white;
+}
+
+
 .message-container {
   position: absolute;
   top: 60px;
@@ -102,9 +114,21 @@ body {
   position: absolute;
   bottom: 0;
 }
-.meal-day-title {
+.diet-title {
     display: inline-block;
 }
+
+.diet-photo {
+    border: 1px solid #999;
+    height: 120px;
+
+}
+
+.diet-plus {
+    height: 45px;
+    line-height: 45px;
+}
+
 .meal-day-btn {
     display: inline-block;
 }

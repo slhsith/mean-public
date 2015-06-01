@@ -17,7 +17,6 @@ app.factory('messenger', function ($http, auth) {
   };
 
   o.get = function(id) {
-    console.log('getting convo ' + id);
     return $http.get('/api/conversation/' + id).success(function(data) {
       return data;
     });

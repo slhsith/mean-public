@@ -20,7 +20,7 @@ exports.getConversations = function(req, res, next) {
   .sort('latest.time_sent')
   .exec(function (err, conversations) {
     if (conversations.length === 0) return res.json([]);
-    getMessagesById(conversations[0]._id, 0, 30)
+    getLatestMessagesById(conversations[0]._id, 0, 30)
     .exec(function(err, messages) {
       conversations[0].messages = messages || [];
       return res.json(conversations);
@@ -30,7 +30,7 @@ exports.getConversations = function(req, res, next) {
 
 exports.getConversationById = function(req, res, next) {
 	console.log('--GET-----> grabbing convo for ' + req.params.id);
-  getMessagesById(req.params.id, 0, 30)
+  getLatestMessagesById(req.params.id, 0, 30)
 	.exec(function(err, messages) {
     console.log('--GET---->messages for convo_id' + req.params.id + '\n',
     messages);
@@ -39,8 +39,9 @@ exports.getConversationById = function(req, res, next) {
   });
 };
 
-function getMessagesById (convo_id, start, count) {
+function getLatestMessagesById (convo_id, start, count) {
   return Message.find({'convo_id': convo_id})
+  .sort({time_sent: -1})
   .skip(start)
   .limit(count);
 }

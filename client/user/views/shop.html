@@ -10,7 +10,7 @@
       <div class="page-header">
         <h1>Shop from the windows to the walls</h1>
       </div>
-      <button ng-click="showproducts = !showproducts" ng-init="showproducts=true">Show/hide</button>
+      <button ng-click="showproducts = !showproducts" ng-init="showproducts=false">Show/hide</button>
       <div ng-repeat="item in items" ng-show="showproducts">
           <h4><span>
             {{item.name}}
@@ -39,15 +39,6 @@
         style="margin-top:30px;">
 
         <h3>Create Digital Item {{ item.type? '- ' + item.type : '' }}</h3>
-
-        <div class="form-group">
-          <input type="text" class="form-control" 
-            placeholder="Title" ng-model="item.name"></input>
-        </div>
-        <div class="form-group">
-          <input type="text" class="form-control"
-            placeholder="Price" ng-model="item.price"></input>
-        </div>
         <div class="form-group">
           <select ng-model="item.type">
             <option value="">Item Type</option>
@@ -58,6 +49,15 @@
             <option value="Bootcamp">Bootcamp</option>
             <option value="Challenge">Online Challenge</option>
           </select>
+        </div>
+
+        <div class="form-group">
+          <input type="text" class="form-control" 
+            placeholder="Title" ng-model="item.name"></input>
+        </div>
+        <div class="form-group">
+          <input type="text" class="form-control"
+            placeholder="Price" ng-model="item.price"></input>
         </div>
         <div ng-show="item.type==='Video'">
           <div class="form-group">
