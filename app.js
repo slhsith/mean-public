@@ -27,6 +27,7 @@ require('./server/models/Challenges');
 require('./server/models/Days');
 require('./server/models/WorkoutPlans');
 require('./server/models/Exercises');
+require('./server/models/Steps');
 
 
 // user and groups

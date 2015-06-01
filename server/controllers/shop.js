@@ -19,6 +19,7 @@ var
   Challenge     = mongoose.model('Challenge'),
   User          = mongoose.model('User'),
   Exercise      = mongoose.model('Exercise'),
+  Step          = mongoose.model('Step'),
   Transaction   = mongoose.model('Transaction'),
   WorkoutPlan   = mongoose.model('WorkoutPlan'),
   Customer      = mongoose.model('Customer');
@@ -152,6 +153,18 @@ exports.createExercise = function (req, res, next) {
     Item.findByIdAndUpdate(item_id, { $push: { exercises: exercise._id } }).exec(function(err, item) {
       if(err){ return next(err); }
       res.json(item);
+    });
+  });
+};
+
+exports.newStep = function (req, res, next) {
+ var step = new Step(req.body);
+ exercise_id = req.params.exercise;
+ step.save(function(err, step) {
+    if (err) { return next(err); }
+    Exercise.findByIdAndUpdate(item_id, { $push: { steps: exercise._id } }).exec(function(err, exercise) {
+      if(err){ return next(err); }
+      res.json(exercise);
     });
   });
 };

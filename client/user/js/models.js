@@ -72,7 +72,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
     items: [],
-    item: {},
+    item: {}, 
     videos: [],
     video: {},
     books: [],
@@ -114,6 +114,16 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       // base item data comes back from API, extend it with
       // the item's original submitted descriptive parameters
       var extendedItem = angular.extend(data, plan);
+      o.items.push(extendedItem);
+    });
+  };
+  o.newStep = function (step, id) {
+    return $http.post('/api/exercise/' + id, step, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, item);
       o.items.push(extendedItem);
       // will be added to the appropriate service object subarray
       // based on submitted type

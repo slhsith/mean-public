@@ -5,7 +5,7 @@
       </span>
     </h3>
     <h3><b>Exercises</b></h3>
-      <div ng-repeat="exercise in item.exercises | orderBy: '-days'">
+      <div ng-repeat="exercise in item.exercises | orderBy: 'day'">
         <hr>
         <span>Day:{{exercise.day}}</span>
         <a href="#/items/exercise/{{exercise._id}}"><h4>

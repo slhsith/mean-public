@@ -55,6 +55,7 @@ router.post('/api/items/:item/diet', shop.createDay );
 router.put('/api/items/:item/upvote', auth, shop.upvoteItem );
 router.post('/api/workoutPlans/:id', shop.createExercise );
 router.get('/api/item/exercise/:exercise', shop.getExercise );
+router.post('/api/item/exercise/:exercise', shop.newStep );
 
 // Item page & transaction
 router.post('/api/transactions', auth, shop.createTransaction );

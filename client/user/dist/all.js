@@ -89,8 +89,12 @@ function($stateProvider, $urlRouterProvider) {
     .state('exerciseSteps', {
       url: '/items/exercise/:exercise',
       templateUrl: 'exerciseSteps.html',
-      controller: 'ItemsCtrl',
+      controller: 'ExerciseCtrl',
       resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        },
         exercisePromise: function($stateParams, items) {
           console.log($stateParams.exercise);
           return items.getExercise($stateParams.exercise);
@@ -331,10 +335,19 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
   $scope.addPlan = function() {
     items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
       console.log('success');
-      $scope.items = items.items;
-      $scope.item.exercises.push(exercise);
-      $scope.gpost.body = null;
-      $scope.exercises = exercises.exercises;
+      $scope.item.exercises.push(data);
+   }).error(function(){
+       console.log('failure');
+   });
+  };
+});
+
+app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
+  $scope.exercise = exercisePromise;
+  $scope.addStep = function() {
+    items.newStep($scope.exercise, $stateParams.id).success(function(data){
+      console.log('success');
+      $scope.exercise.step = null;
    }).error(function(){
        console.log('failure');
    });
@@ -560,7 +573,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
     items: [],
-    item: {},
+    item: {}, 
     videos: [],
     video: {},
     books: [],
@@ -602,6 +615,16 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       // base item data comes back from API, extend it with
       // the item's original submitted descriptive parameters
       var extendedItem = angular.extend(data, plan);
+      o.items.push(extendedItem);
+    });
+  };
+  o.newStep = function (step, id) {
+    return $http.post('/api/exercise/' + id, step, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, item);
       o.items.push(extendedItem);
       // will be added to the appropriate service object subarray
       // based on submitted type
