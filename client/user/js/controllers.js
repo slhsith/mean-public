@@ -2,7 +2,7 @@
     CONTROLLERS - USER
  *  ------------------  */
 
- app.controller('MainCtrl', function ($scope, auth) {
+ app.controller('MainCtrl', function ($scope, auth, messageSocket) {
   
     $scope.user = auth.getUser();
     mixpanel.alias($scope.user._id);
@@ -21,6 +21,18 @@
   $scope.isAdmin = auth.isAdmin;
   $scope.logOut = auth.logOut;
   $scope.isThisUser = auth.isThisUser;
+
+
+  $scope.$on('socket:tokenrequest', function(event, data) {
+    console.log('socket:tokenrequest', event.name, data);
+    console.log(data.message);
+    messageSocket.emit('authenticate', { token: auth.getToken() });
+  });
+
+  $scope.$on('socket:broadcast', function(event, data) {
+    console.log('broadcast to socket', event.name, data);
+  });
+  
 });
 
 

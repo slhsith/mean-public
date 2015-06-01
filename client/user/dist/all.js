@@ -2,6 +2,7 @@
     APP MODULE - USER 
  *  -----------------  */
 var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
+// var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
 
 app.config([
 '$stateProvider',
@@ -109,6 +110,10 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
+        userPromise: function(auth, users) {
+          var _id = auth.isThisUser();
+          return users.get(_id);
+        },
         usersPromise: function(users) {
           return users.getAll();
         },
@@ -157,7 +162,7 @@ function($stateProvider, $urlRouterProvider) {
     CONTROLLERS - USER
  *  ------------------  */
 
- app.controller('MainCtrl', function ($scope, auth) {
+ app.controller('MainCtrl', function ($scope, auth, messageSocket) {
   
     $scope.user = auth.getUser();
     mixpanel.alias($scope.user._id);
@@ -176,6 +181,18 @@ function($stateProvider, $urlRouterProvider) {
   $scope.isAdmin = auth.isAdmin;
   $scope.logOut = auth.logOut;
   $scope.isThisUser = auth.isThisUser;
+
+
+  $scope.$on('socket:tokenrequest', function(event, data) {
+    console.log('socket:tokenrequest', event.name, data);
+    console.log(data.message);
+    messageSocket.emit('authenticate', { token: auth.getToken() });
+  });
+
+  $scope.$on('socket:broadcast', function(event, data) {
+    console.log('broadcast to socket', event.name, data);
+  });
+  
 });
 
 
@@ -729,7 +746,7 @@ app.factory('settings', function ($http, $window) {
 //USERS
 
 app.factory('users', function ($http, $window, auth) {
-  var u = { users: [] };
+  var u = { users: [], user: {} };
 
   u.getAll = function() {
     return $http.get('/api/users').success(function(data) {
@@ -763,7 +780,7 @@ app.factory('users', function ($http, $window, auth) {
 
   u.get = function (id) {
     return $http.get('/api/user/' + id).success(function(data){
-      console.log(data);
+      u.user = data;
       return data;
     });
   };
@@ -871,6 +888,7 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   return o;
 }]); 
 
+
 /*  ----------------------  *
     CONTROLLER - MESSENGER
  *  ----------------------  */
@@ -879,42 +897,45 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
 /* --> user initializes new blank conversation
 /* --> when a conversation is focused from list, defaults to [0]th one
 /* ---------------------------- */
-
-app.controller('MessengerCtrl', function ($scope, settings, users, messenger, messengerSocket, Conversation, Message) {
+app.controller('MessengerCtrl', function ($scope, settings, users, messenger, messageSocket, Conversation, Message) {
 
   $scope.debug = true;
 
-  // ----- SET UP PREREQUISITE SCOPE VARIABLES  -----
+  // ---- INIT SCOPE ----  //
 
   // for selecting users to talk to
   $scope.users = users.getAllButSelf();
-
   // get all of user's metadata and extend scope user object
-  users.get($scope.user._id).then(function(res) {
-    angular.extend($scope.user, res.data);
-    // set up metadata on the newmessage object
-    $scope.newmessage = new Message($scope.user);
-  });
+  angular.extend($scope.user, users.user);
+  // set up metadata on the newmessage object
+  $scope.newmessage = new Message($scope.user);
 
   // get all conversations
   $scope.conversations = messenger.conversations || [];
+  $scope.map = messenger.map || {};
 
-
+  if ($scope.conversations.length > 0) {
+    setFocus($scope.conversations[0]);
+  } 
 
   // ------ METHODS FOR CONVERSATIONS ------ //
 
   // Set the focus on a particular conversation
   // establishes the conversation._id in the newmessage
   // marks read timestamps for messages
-  $scope.focusConversation = function(conversation) {
-    $scope.mainConversation = conversation;
-    $scope.newmessage.conversation = conversation._id;
-    if (!conversation.new) messenger.readMessages(conversation);
-  };
+  $scope.focusConversation = setFocus;
+
+  function setFocus(convo) {
+    messenger.get(convo._id).success(function(data) {
+      convo.messages = data;
+    });
+    $scope.mainConversation = convo;
+    $scope.newmessage.conversation = convo._id;
+    if (!convo.new) messenger.readMessages(convo);
+  }
 
   // Starting a new conversation
   $scope.initConversation = function() {
-    if($scope.debug) console.log('main convo', !!$scope.mainConversation);
     // only init a new convo if not already in that mode
     if (!$scope.mainConversation || !$scope.mainConversation.new) {
       $scope.addUserModal = true;
@@ -935,7 +956,6 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
   $scope.searchUsers = function() {
     users.search($scope.conversation.userQuery).success(function(data) {
       $scope.conversation.userResult = data;
-      if($scope.debug) console.log($scope.conversation);
     });
   };
 
@@ -949,6 +969,7 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
     if (!$scope.mainConversation._id) {
       messenger.createConversation($scope.mainConversation).then(function(data) {
         $scope.mainConversation._id = data._id;
+        $scope.addUserModal = false;
         postMessage();
       });
     } else {
@@ -957,31 +978,47 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
   };
   
   function postMessage () {
-    messenger.createMessage($scope.mainConversation, $scope.newmessage).then(
-      // success
-      function(data) {
-        $scope.mainConversation.messages.push(data);
-        $scope.mainConversation.latest = data;
-        $scope.newmessage.body = null;
-      },
-      // error
-      function(error) {
-      }
-    );
-    $scope.addUserModal = false;
+    messenger.postMessage($scope.mainConversation, $scope.newmessage).success(function() {
+      $scope.newmessage.body = null;
+    });
   }
 
+  // ----- RECEIVING MESSAGES in realtime via socket.io ----- //
+  $scope.$on('socket:newmessage', function (event, data) {
+    console.log('got a new message', event.name, data);
+    if (!data.payload) return;
+      var latest = data.payload;
+      $scope.$apply(function() {
+        update(latest);
+      });
+  });
 
 
+  function update (latest) {
+    console.log('a new message for conversation ' + latest.convo_id);
+    for (var i=0; i<$scope.conversations.length; i++) {
+      if ($scope.conversations[i]._id === latest.convo_id) {
+        var convo = $scope.conversations[i];
+        convo.latest = latest;
 
-  // ---- INIT MODULE ----  //
-
-  if ($scope.conversations.length > 0) {
-    if($scope.debug) console.log('we got a convo to see');
-    $scope.focusConversation($scope.conversations[0]);
-  } 
-
-
+        convo.messages = convo.messages || [];
+        if (convo.messages.length === 0) {
+          console.log('havent yet seen this convo messages');
+          messenger.get(convo._id).success(function(data) {
+            convo = data;
+          });
+        } else {
+          var newmessage = {};
+          angular.copy(latest, newmessage);
+          convo.messages.push(newmessage);
+        }
+        if ($scope.mainConversation._id === convo._id) {
+          $scope.mainConversation = convo;
+        }
+        break;
+      }
+    }
+  }
 
 
 
@@ -1048,19 +1085,23 @@ app.directive('messageBox', function() {
 app.factory('messenger', function ($http, auth) {
 
   var o = {
-    conversations: []
+    conversations: [],
+    map: {}
   };
 
   o.getAll = function() {
     return $http.get('/api/conversations', {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data) {
-      console.log(data);
       angular.copy(data, o.conversations);
+      angular.forEach(data, function(convo) {
+        o.map[convo._id] = convo;
+      });
     });
   };
 
   o.get = function(id) {
+    console.log('getting convo ' + id);
     return $http.get('/api/conversation/' + id).success(function(data) {
       return data;
     });
@@ -1069,23 +1110,21 @@ app.factory('messenger', function ($http, auth) {
   o.createConversation = function(convo) {
     return $http.post('/api/conversation', convo, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      return res.data;
+    }).success(function(data) {
+      return data;
     });
   };
 
-  o.createMessage = function(convo, message) {
-    console.log('convo', convo, 'message', message.body, message);
+  o.postMessage = function(convo, message) {
     return $http.post('/api/conversation/' + convo._id + '/messages', message, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      return res.data;
+    }).success(function(data) {
+      return data;
     });
   };
 
   o.readMessages = function(convo) {
-    console.log('reading messages');
-    return $http.put('/api/conversation/' + convo._id + '/read', { user: auth.getUser()._id }, {
+    return $http.put('/api/conversation/' + convo._id + '/read', { user_id: auth.getUser()._id }, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
@@ -1116,14 +1155,17 @@ app.factory('Message', function() {
     self.handle = user.handle || null;
   };
 
-
   return Message;
 
 });
 
 
-app.factory('messengerSocket', function(socketFactory) {
+app.factory('messageSocket', function(socketFactory) {
   var socket = socketFactory();
+  socket.forward('tokenrequest');
   socket.forward('broadcast');
+  socket.forward('conversations');
+  socket.forward('newmessage');
+  
   return socket;
 });

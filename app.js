@@ -72,6 +72,7 @@ var jsonParser = bodyParser.json();
  * to allow different clients to request data from your server
  */
 app.use(function(req, res, next) {
+  req.io = app.io;
   res.header("Access-Control-Allow-Origin", "*");
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
