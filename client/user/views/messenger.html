@@ -49,7 +49,7 @@
       <div class="col-sm-12 message-users" title="Recipients">
         <div ng-repeat="user in mainConversation.users">
           <span ng-hide="isSelf(user._id)"><i class="fa fa-user"></i> {{user.f_name}} {{user.l_name}}</span><!-- <span class="text-right">Online? {{user.status}}</span> -->
-        </div>
+          </div>
 
         <button ng-hide="mainConversation._id" ng-click="addUserModal = !addUserModal"><i class="fa fa-plus"> </i></button>
 
@@ -93,7 +93,6 @@
    -------- -------- -------- --------
     mainConversation | #people: {{mainConversation.users.length}} | #message: {{mainConversation.messages.length}}
     {{mainConversation|json}}
-   <!-- -------- -------- -------- -------- -->
     <!-- user {{user|json}} / users {{users|json}} -->
    -------- -------- -------- --------
     conversations 

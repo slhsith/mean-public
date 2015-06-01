@@ -948,6 +948,7 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
 
   // ------ METHODS FOR CONVERSATIONS ------ //
 
+
   // Set the focus on a particular conversation
   // establishes the conversation._id in the newmessage
   // marks read timestamps for messages
@@ -1024,17 +1025,17 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
 
   function update (latest) {
     console.log('a new message for conversation ' + latest.convo_id);
+    function unwrap (data, to) { to = data; }
     for (var i=0; i<$scope.conversations.length; i++) {
       if ($scope.conversations[i]._id === latest.convo_id) {
         var convo = $scope.conversations[i];
         convo.latest = latest;
 
         convo.messages = convo.messages || [];
+
         if (convo.messages.length === 0) {
-          console.log('havent yet seen this convo messages');
-          messenger.get(convo._id).success(function(data) {
-            convo = data;
-          });
+          console.log('havent yet seen this conversation\'s messages, retrieving...');
+          messenger.get(convo._id).success(unwrap(data, convo));
         } else {
           var newmessage = {};
           angular.copy(latest, newmessage);

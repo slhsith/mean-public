@@ -102,3 +102,9 @@ body {
   position: absolute;
   bottom: 0;
 }
+.meal-day-title {
+    display: inline-block;
+}
+.meal-day-btn {
+    display: inline-block;
+}

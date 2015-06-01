@@ -11,6 +11,7 @@ var
   Message = mongoose.model('Message');
 
 
+
 // --- Exported Methods --- //
 exports.getConversations = function(req, res, next) {
 	Conversation.find({users: req.payload._id }, '-__v')
