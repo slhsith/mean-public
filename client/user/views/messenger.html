@@ -27,7 +27,7 @@
 
     <!-- conversations list - convo in conversations -->
       <!-- conversation latest message -->
-      <div class="conversation-list-preview {{conversation._id === mainConversation._id? 'conversation-list-preview-active' : ''}}" ng-repeat="conversation in conversations | orderBy: 'latest.time_sent' " ng-click="focusConversation(conversation)">
+      <div class="conversation-list-preview {{conversation._id === mainConversation._id? 'conversation-list-preview-active' : ''}}" ng-repeat="conversation in conversations | orderBy: '-latest.time_sent' " ng-click="focusConversation(conversation)">
         {{!conversation._id? 'New Message' : ''}}
         <span class="text-right" ng-show="!conversation._id" ng-click="cancelNewConversation()"><i class="fa fa-times"></i></span>
         <!-- sender.pic --> <!-- sender.f_name --> <!-- sender.l_name --> <!-- sender.body | limitTo -->
@@ -64,7 +64,7 @@
             <div class="message-avatar" ng-show="mainConversation.users.length > 2 && !isSelf(message.user_id)">{{message.f_name.slice(0, 1) + message.l_name.slice(0, 1)}}</div>
             <div class="message-body {{ isSelf(message.user_id) ? 'message-outgoing' : 'message-incoming'}}">{{message.body}}</div>
           </div>
-          
+
           <!-- message.time_sent or message.time_read -->
           <div ng-show="!isSelf(message.user_id)">
             <small>Sent: {{message.time_sent | date: 'MMM dd hh:mm'}}<small>
