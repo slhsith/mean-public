@@ -13,5 +13,7 @@ var ItemSchema = new mongoose.Schema({
   podcasts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Podcast' }],
   dietPlans: [{ category: String , days: [{ day: String, meals : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Meal' }]}]}],
   bootcamps: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Bootcamp' }],
+  workoutPlan: { type: mongoose.Schema.Types.ObjectId, ref: 'WorkoutPlan' },
+  exercises: [ { type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' } ],
 });
 mongoose.model('Item', ItemSchema);

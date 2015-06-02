@@ -20,6 +20,7 @@ app.directive('conversationAddUsers', function() {
                 '</div>' +
               '</div>',
     link: function(scope, element, attrs) {}
+
   };
 });
 
@@ -38,3 +39,21 @@ app.directive('messageBox', function() {
   };
 });
 
+
+
+
+app.directive('scrollBottom', function () {
+  return {
+    scope: {
+      scrollBottom: "="
+    },
+    link: function (scope, element) {
+      scope.$watchCollection('scrollBottom', function (newValue) {
+        if (newValue)
+        {
+          $(element).scrollTop($(element)[0].scrollHeight);
+        }
+      });
+    }
+  };
+});

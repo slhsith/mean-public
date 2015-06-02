@@ -76,6 +76,39 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
+    .state('workoutPlan', {
+      url: '/items/workoutPlan/:id',
+      templateUrl: 'workoutPlan.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+    .state('exerciseSteps', {
+      url: '/items/exercise/:exercise',
+      templateUrl: 'exerciseSteps.html',
+      controller: 'ExerciseCtrl',
+      resolve: {
+        exercisePromise: function($stateParams, items) {
+          console.log($stateParams.exercise);
+          return items.getExercise($stateParams.exercise);
+        }
+      }
+    })
+    .state('stepConsumption', {
+      url: '/items/step/:step',
+      templateUrl: 'stepConsumption.html',
+      controller: 'StepCtrl',
+      resolve: {
+        stepPromise: function($stateParams, items) {
+          console.log($stateParams.step);
+          return items.getStep($stateParams.step);
+        }
+      }
+    })
     .state('transactions', {
       url: '/transactions',
       templateUrl: 'transactions.html',
@@ -113,11 +146,8 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         groupsPromise: function($stateParams, groups){
           return groups.get($stateParams.id);
-        },
-        gpostsPromise: function ($stateParams, gposts){
-          return gposts.getAll($stateParams.id);
         }
-      }
+      } 
     })
     .state('messenger', {
       url: '/messenger',
@@ -177,7 +207,7 @@ function($stateProvider, $urlRouterProvider) {
     CONTROLLERS - USER
  *  ------------------  */
 
- app.controller('MainCtrl', function ($scope, auth) {
+ app.controller('MainCtrl', function ($scope, auth, messageSocket) {
   
     $scope.user = auth.getUser();
     mixpanel.alias($scope.user._id);
@@ -196,6 +226,18 @@ function($stateProvider, $urlRouterProvider) {
   $scope.isAdmin = auth.isAdmin;
   $scope.logOut = auth.logOut;
   $scope.isThisUser = auth.isThisUser;
+
+
+  $scope.$on('socket:tokenrequest', function(event, data) {
+    console.log('socket:tokenrequest', event.name, data);
+    console.log(data.message);
+    messageSocket.emit('authenticate', { token: auth.getToken() });
+  });
+
+  $scope.$on('socket:broadcast', function(event, data) {
+    console.log('broadcast to socket', event.name, data);
+  });
+  
 });
 
 
@@ -312,6 +354,31 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
   };
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
+  $scope.addPlan = function() {
+    items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
+      console.log('success');
+      $scope.item.exercises.push(data);
+   }).error(function(){
+       console.log('failure');
+   });
+  };
+});
+
+app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
+  $scope.exercise = exercisePromise;
+  $scope.addStep = function() {
+    items.newStep($scope.step, $stateParams.exercise).success(function(data){
+      console.log('success');
+      $scope.step = null;
+      $scope.exercise.steps.push(data);
+   }).error(function(){
+       console.log('failure');
+   });
+  };
+});
+
+app.controller('StepCtrl', function ($scope, items, stepPromise, $stateParams) {
+  $scope.step = stepPromise;
 });
 
 
@@ -396,19 +463,22 @@ function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
   $scope.gposts = gposts.gposts;
   $scope.gcomments = gcomments.gcomments;
   $scope.addGpost = function(){
+    console.log($stateParams.id);
+    console.log($scope.gpost);
     // if(!$scope.body || $scope.body === '') { return; }
-    groups.createGpost($scope.group, $scope.gpost).success(function(gpost) {
+    groups.createGpost($scope.gpost, $stateParams.id).success(function(gpost) {
       $scope.group.gposts.push(gpost);
-      $scope.gpost.body = null;
+      $scope.gpost = null;
     });
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
   };
-  $scope.addGcomment = function (gpost) {
-    // groups.createGcomment($scope.gpost, $scope.gcomment)
-    console.log(gpost);
-    console.log($scope.gcomment);
+  $scope.addGcomment = function (gpost, gcomment) {
+    console.log('in controller', gpost, gcomment);
+    gpost.gcomments.push(gcomment);
+    groups.createGcomment(gpost._id, gcomment); 
+    console.log(gpost._id, gcomment);
   };
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
@@ -533,7 +603,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
     items: [],
-    item: {},
+    item: {}, 
     videos: [],
     video: {},
     books: [],
@@ -549,6 +619,12 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       angular.copy(data, o.videos);
     });
   };
+  o.getExercises = function(id) {
+    return $http.get('/api/items/' + id + '/exercises').success(function(data){
+      console.log(data);
+      angular.copy(data, o.items);
+    });
+  };
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -562,6 +638,26 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
+  o.newPlan = function (plan, id) {
+    return $http.post('/api/workoutPlans/' + id, plan, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, plan);
+      o.items.push(extendedItem);
+    });
+  };
+  o.newStep = function (step, id) {
+    return $http.post('/api/item/exercise/' + id, step, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, step);
+      o.items.push(extendedItem);
+    });
+  };
   o.newDay = function (id, day) {
     return $http.post('/api/items/' + id + '/diet', day).success(function(data) {
       return data;
@@ -572,6 +668,18 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   // }
   o.get = function(item) {
     return $http.get('/api/items/' + item).then(function(res){
+      return res.data;
+    });
+  };
+  o.getExercise = function(exercise) {
+    console.log(exercise);
+    return $http.get('/api/item/exercise/' + exercise).then(function(res){
+      return res.data;
+    });
+  };
+  o.getStep = function(step) {
+    console.log(step);
+    return $http.get('/api/item/step/' + step).then(function(res){
       return res.data;
     });
   };
@@ -845,18 +953,18 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
       return data;
     });
   };
-  o.createGpost = function(group, gpost) {
-    console.log(group, gpost);
-    return $http.post('/api/group/' + group._id + '/gposts', gpost, {
+  o.createGpost = function(gpost, id) {
+    console.log(gpost, id);
+    return $http.post('/api/group/' + id + '/gposts', gpost, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
-  o.createGcomment = function (gpost, gcomment) {
-    console.log(gpost);
-    console.log(gcomment);
-    // return $http.post('/api/group/'+group._id+'gpost/' + gpost._id + '/gcomments', gcomment, {
-    //   headers: {Authorization: 'Bearer '+auth.getToken()}
-    // });
+  o.createGcomment = function (gpost_id, gcomment) {
+    console.log('gpost_id in factory', gpost_id);
+    console.log('gcomment in factory', gcomment);
+    return $http.post('/api/gpost/' + gpost_id + '/gcomments', gcomment, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
   };
   return o;
 }]);
@@ -917,10 +1025,10 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
 /* --> user initializes new blank conversation
 /* --> when a conversation is focused from list, defaults to [0]th one
 /* ---------------------------- */
-
 app.controller('MessengerCtrl', function ($scope, settings, users, messenger, messageSocket, Conversation, Message) {
 
   $scope.debug = true;
+  // $scope.debug = false;
 
   // ---- INIT SCOPE ----  //
 
@@ -933,31 +1041,37 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
 
   // get all conversations
   $scope.conversations = messenger.conversations || [];
+  $scope.map = messenger.map || {};
 
   if ($scope.conversations.length > 0) {
-    if($scope.debug) console.log('we got a convo to see');
     setFocus($scope.conversations[0]);
   } 
 
   // ------ METHODS FOR CONVERSATIONS ------ //
 
-
   // Set the focus on a particular conversation
   // establishes the conversation._id in the newmessage
   // marks read timestamps for messages
   $scope.focusConversation = setFocus;
-  function setFocus(conversation) {
-    $scope.mainConversation = conversation;
-    $scope.newmessage.conversation = conversation._id;
-    if (!conversation.new) messenger.readMessages(conversation);
+
+  function setFocus(convo) {
+    $scope.mainConversation = convo;
+    $scope.newmessage.conversation = convo._id;
+    if (convo._id) {
+      getMessages(convo);
+      messenger.readMessages(convo);
+    }
   }
 
+$scope.print = function(string) {
+  console.log(string);
+};
   // Starting a new conversation
   $scope.initConversation = function() {
-    if($scope.debug) console.log('main convo', !!$scope.mainConversation);
     // only init a new convo if not already in that mode
     if (!$scope.mainConversation || !$scope.mainConversation.new) {
       $scope.addUserModal = true;
+      $scope.copyOfUsers = angular.copy($scope.users, $scope.copyOfUsers);
       $scope.conversations.unshift(new Conversation());
       $scope.focusConversation($scope.conversations[0]);
       $scope.mainConversation.users.push($scope.user);
@@ -975,20 +1089,27 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
   $scope.searchUsers = function() {
     users.search($scope.conversation.userQuery).success(function(data) {
       $scope.conversation.userResult = data;
-      if($scope.debug) console.log($scope.conversation);
     });
   };
 
   // Adding a user to a conversation
   $scope.addToConversation = function(user) {
     $scope.mainConversation.users.push(user);
+    angular.forEach($scope.copyOfUsers, function(u, i) {
+      if (u._id === user._id) { $scope.copyOfUsers.splice(i, 1); }
+    });
   };
 
   // ----- SENDING MESSAGES in the focused main conversation ---- //
   $scope.sendMessage = function() {
+    if ($scope.mainConversation.users.length < 2) {
+      console.log('need a user to message with besides yourself!');
+      return;
+    }
     if (!$scope.mainConversation._id) {
-      messenger.createConversation($scope.mainConversation).then(function(data) {
+      messenger.createConversation($scope.mainConversation).success(function(data) {
         $scope.mainConversation._id = data._id;
+        $scope.addUserModal = false;
         postMessage();
       });
     } else {
@@ -997,41 +1118,43 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
   };
   
   function postMessage () {
-    messageSocket.emit('message', $scope.user.handle, $scope.newmessage.body);
-    messenger.postMessage($scope.mainConversation, $scope.newmessage).then(
-      // success
-      function(data) {
-        $scope.mainConversation.messages.push(data);
-        $scope.mainConversation.latest = data;
-        $scope.newmessage.body = null;
-      },
-      // error
-      function(error) {
-      }
-    );
-    $scope.addUserModal = false;
+    messenger.postMessage($scope.mainConversation, $scope.newmessage).success(function() {
+      $scope.newmessage.body = null;
+    });
   }
 
   // ----- RECEIVING MESSAGES in realtime via socket.io ----- //
-  $scope.$on('socket:broadcast', function (event, data) {
-    console.log('got a message', event.name, data);
-    if (!data.payload) {
-      console.log('invalid message | event', event, 'data', JSON.stringify(data));
-      return;
-    }
-    $scope.$apply(function() {
-      // $scope.mainConversation.messages.push(new Message(data));
-    });
+  $scope.$on('socket:newmessage', function (event, data) {
+    console.log('got a new message', event.name, data);
+    if (!data.payload) return;
+    $scope.$apply(function() { update(data.payload); });
   });
 
 
+  function update (latest) {
+    console.log('a new message for conversation ' + latest.convo_id);
+    // have to find the place in convo list to update
+    for (var i=0; i<$scope.conversations.length; i++) {
+      if ($scope.conversations[i]._id === latest.convo_id) {
+        $scope.conversations[i].latest = latest;
 
-
-
+        if ($scope.mainConversation._id === $scope.conversations[i]._id) {
+          getMessages($scope.mainConversation);
+        }
+        break;
+      }
+    }
+  }
 
 
 
   // ----- HELPER FUNTIONS ----- //
+  function getMessages (convo) { 
+    messenger.get(convo._id).success(function(data) {
+      convo.messages = data;
+    });
+  }
+
   $scope.isSelf = function(user_id) { return user_id === $scope.user._id; };
 
   $scope.otherPeople = function(conversation) {
@@ -1072,6 +1195,7 @@ app.directive('conversationAddUsers', function() {
                 '</div>' +
               '</div>',
     link: function(scope, element, attrs) {}
+
   };
 });
 
@@ -1091,18 +1215,39 @@ app.directive('messageBox', function() {
 });
 
 
+
+
+app.directive('scrollBottom', function () {
+  return {
+    scope: {
+      scrollBottom: "="
+    },
+    link: function (scope, element) {
+      scope.$watchCollection('scrollBottom', function (newValue) {
+        if (newValue)
+        {
+          $(element).scrollTop($(element)[0].scrollHeight);
+        }
+      });
+    }
+  };
+});
+
 app.factory('messenger', function ($http, auth) {
 
   var o = {
-    conversations: []
+    conversations: [],
+    map: {}
   };
 
   o.getAll = function() {
     return $http.get('/api/conversations', {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data) {
-      console.log(data);
       angular.copy(data, o.conversations);
+      angular.forEach(data, function(convo) {
+        o.map[convo._id] = convo;
+      });
     });
   };
 
@@ -1115,23 +1260,22 @@ app.factory('messenger', function ($http, auth) {
   o.createConversation = function(convo) {
     return $http.post('/api/conversation', convo, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      return res.data;
+    }).success(function(data) {
+      console.log('create convo data', data);
+      return data;
     });
   };
 
   o.postMessage = function(convo, message) {
-    console.log('convo', convo, 'message', message.body, message);
     return $http.post('/api/conversation/' + convo._id + '/messages', message, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      return res.data;
+    }).success(function(data) {
+      return data;
     });
   };
 
   o.readMessages = function(convo) {
-    console.log('reading messages');
-    return $http.put('/api/conversation/' + convo._id + '/read', { user: auth.getUser()._id }, {
+    return $http.put('/api/conversation/' + convo._id + '/read', { user_id: auth.getUser()._id }, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
@@ -1162,7 +1306,6 @@ app.factory('Message', function() {
     self.handle = user.handle || null;
   };
 
-
   return Message;
 
 });
@@ -1170,8 +1313,153 @@ app.factory('Message', function() {
 
 app.factory('messageSocket', function(socketFactory) {
   var socket = socketFactory();
-
+  socket.forward('tokenrequest');
   socket.forward('broadcast');
+  socket.forward('conversations');
+  socket.forward('newmessage');
   
   return socket;
 });
+/*  ----------------------  *
+    CONTROLLER - DIETPLAN
+ *  ----------------------  */
+/* 
+/* ---------------------------- */
+app.controller('DietCtrl', function ($scope, $attrs, Meal, Diet, Recipe, CookingStep, Ingredient) {
+  var self = this;
+  $scope.debug = true;
+
+  // ---- INIT SCOPE ----  //
+  this.init = function(element) {
+    self.$element = element;
+    $scope.diet = $scope.item || new Diet({});
+  };
+
+
+  $scope.meal = new Meal({});
+  $scope.recipe = new Recipe({});
+  $scope.initStep = function() {
+    $scope.step = new CookingStep({order: $scope.recipe.steps.length});
+  };
+  $scope.initIngredient = function() {
+    $scope.ingredient = new Ingredient({});
+  };
+  $scope.cancelIngredient = function() {
+    $scope.ingredient = null;
+  };
+
+
+  $scope.showRecipe = false;
+
+  // // ------ METHODS FOR CONVERSATIONS ------ //
+
+  $scope.initNewRecipe = function() {
+    $scope.showRecipe = true;
+    $scope.recipe = new Recipe({});
+  };
+
+
+
+});
+
+app.directive('dietPlan', function () {
+  
+  return {
+    restrict: 'E', 
+    scope: {
+      item: '='
+    },
+    controller: 'DietCtrl',
+    templateUrl: 'shop.dietplan.tpl.html',
+    link: function(scope, element, attrs, DietCtrl) {
+      DietCtrl.init( element );
+    }
+  };
+
+});
+
+
+
+app.factory('Meal', function() {
+  var Meal = function(meal) {
+    var self = this;
+    self.title        = meal.title || null;
+    self.type         = meal.type || null;
+    self.description  = meal.description || null;
+    self.day          = meal.day || 1 || null;
+    self.cooktime     = meal.cooktime || null;
+    self.recipes      = meal.recipes || [];
+  };
+
+  return Meal;
+});
+
+app.factory('Diet', function() {
+
+  var Diet = function(item) {
+    var self = this;
+    self.title = item.title || null;
+    self.price = item.price;
+    self.duration = 1;
+  };
+
+  return Diet;
+
+});
+
+app.factory('Recipe', function() {
+
+  var Recipe = function (recipe) {
+    var self         = this;
+    self.title       = recipe.title || null;
+    self.type        = recipe.type || null;
+    self.description = recipe.description || null;
+
+    self.yield       = recipe.yield || null;
+    self.calories    = recipe.calories || null;
+    self.fats        = recipe.fats || null;
+    self.carbs       = recipe.carbs || null;
+    self.proteins    = recipe.proteins || null;
+
+    self.cost        = recipe.cost || null;
+    self.preptime    = recipe.preptime || null;
+    self.cooktime    = recipe.cooktime || null;
+
+    self.equipment   = recipe.equipment || [];
+    self.steps       = recipe.steps || [];
+
+    self.video       = recipe.video || null;
+    self.coverphoto  = recipe.coverphoto || null;
+    self.photos      = recipe.photos || [];
+
+  };
+
+  return Recipe;
+
+});
+
+app.factory('CookingStep', function() {
+
+  var CookingStep = function() {
+    this.order       = null;
+    this.description = null;
+    this.photo       = null;
+  };
+  return CookingStep;
+
+});
+
+app.factory('Ingredient', function() {
+
+  var Ingredient = function() {
+    this.title       = null;
+    this.description = null;
+    this.photo       = null;
+    this.measure     = null;
+    this.unit        = null;
+  };
+
+  return Ingredient;
+
+});
+

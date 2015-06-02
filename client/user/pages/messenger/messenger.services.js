@@ -1,15 +1,18 @@
 app.factory('messenger', function ($http, auth) {
 
   var o = {
-    conversations: []
+    conversations: [],
+    map: {}
   };
 
   o.getAll = function() {
     return $http.get('/api/conversations', {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data) {
-      console.log(data);
       angular.copy(data, o.conversations);
+      angular.forEach(data, function(convo) {
+        o.map[convo._id] = convo;
+      });
     });
   };
 
@@ -22,23 +25,22 @@ app.factory('messenger', function ($http, auth) {
   o.createConversation = function(convo) {
     return $http.post('/api/conversation', convo, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      return res.data;
+    }).success(function(data) {
+      console.log('create convo data', data);
+      return data;
     });
   };
 
   o.postMessage = function(convo, message) {
-    console.log('convo', convo, 'message', message.body, message);
     return $http.post('/api/conversation/' + convo._id + '/messages', message, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      return res.data;
+    }).success(function(data) {
+      return data;
     });
   };
 
   o.readMessages = function(convo) {
-    console.log('reading messages');
-    return $http.put('/api/conversation/' + convo._id + '/read', { user: auth.getUser()._id }, {
+    return $http.put('/api/conversation/' + convo._id + '/read', { user_id: auth.getUser()._id }, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
@@ -69,7 +71,6 @@ app.factory('Message', function() {
     self.handle = user.handle || null;
   };
 
-
   return Message;
 
 });
@@ -77,8 +78,10 @@ app.factory('Message', function() {
 
 app.factory('messageSocket', function(socketFactory) {
   var socket = socketFactory();
-
+  socket.forward('tokenrequest');
   socket.forward('broadcast');
+  socket.forward('conversations');
+  socket.forward('newmessage');
   
   return socket;
 });

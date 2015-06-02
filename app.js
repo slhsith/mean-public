@@ -27,6 +27,10 @@ require('./server/models/DietPlans');
 require('./server/models/Bootcamps');
 require('./server/models/Challenges');
 require('./server/models/Days');
+require('./server/models/WorkoutPlans');
+require('./server/models/Exercises');
+require('./server/models/Steps');
+
 
 // user and groups
 require('./server/models/Users');
@@ -81,6 +85,7 @@ var jsonParser = bodyParser.json();
  * to allow different clients to request data from your server
  */
 app.use(function(req, res, next) {
+  req.io = app.io;
   res.header("Access-Control-Allow-Origin", "*");
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");

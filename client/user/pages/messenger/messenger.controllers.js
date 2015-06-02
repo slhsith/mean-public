@@ -6,10 +6,10 @@
 /* --> user initializes new blank conversation
 /* --> when a conversation is focused from list, defaults to [0]th one
 /* ---------------------------- */
-
 app.controller('MessengerCtrl', function ($scope, settings, users, messenger, messageSocket, Conversation, Message) {
 
   $scope.debug = true;
+  // $scope.debug = false;
 
   // ---- INIT SCOPE ----  //
 
@@ -22,31 +22,37 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
 
   // get all conversations
   $scope.conversations = messenger.conversations || [];
+  $scope.map = messenger.map || {};
 
   if ($scope.conversations.length > 0) {
-    if($scope.debug) console.log('we got a convo to see');
     setFocus($scope.conversations[0]);
   } 
 
   // ------ METHODS FOR CONVERSATIONS ------ //
 
-
   // Set the focus on a particular conversation
   // establishes the conversation._id in the newmessage
   // marks read timestamps for messages
   $scope.focusConversation = setFocus;
-  function setFocus(conversation) {
-    $scope.mainConversation = conversation;
-    $scope.newmessage.conversation = conversation._id;
-    if (!conversation.new) messenger.readMessages(conversation);
+
+  function setFocus(convo) {
+    $scope.mainConversation = convo;
+    $scope.newmessage.conversation = convo._id;
+    if (convo._id) {
+      getMessages(convo);
+      messenger.readMessages(convo);
+    }
   }
 
+$scope.print = function(string) {
+  console.log(string);
+};
   // Starting a new conversation
   $scope.initConversation = function() {
-    if($scope.debug) console.log('main convo', !!$scope.mainConversation);
     // only init a new convo if not already in that mode
     if (!$scope.mainConversation || !$scope.mainConversation.new) {
       $scope.addUserModal = true;
+      $scope.copyOfUsers = angular.copy($scope.users, $scope.copyOfUsers);
       $scope.conversations.unshift(new Conversation());
       $scope.focusConversation($scope.conversations[0]);
       $scope.mainConversation.users.push($scope.user);
@@ -64,20 +70,27 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
   $scope.searchUsers = function() {
     users.search($scope.conversation.userQuery).success(function(data) {
       $scope.conversation.userResult = data;
-      if($scope.debug) console.log($scope.conversation);
     });
   };
 
   // Adding a user to a conversation
   $scope.addToConversation = function(user) {
     $scope.mainConversation.users.push(user);
+    angular.forEach($scope.copyOfUsers, function(u, i) {
+      if (u._id === user._id) { $scope.copyOfUsers.splice(i, 1); }
+    });
   };
 
   // ----- SENDING MESSAGES in the focused main conversation ---- //
   $scope.sendMessage = function() {
+    if ($scope.mainConversation.users.length < 2) {
+      console.log('need a user to message with besides yourself!');
+      return;
+    }
     if (!$scope.mainConversation._id) {
-      messenger.createConversation($scope.mainConversation).then(function(data) {
+      messenger.createConversation($scope.mainConversation).success(function(data) {
         $scope.mainConversation._id = data._id;
+        $scope.addUserModal = false;
         postMessage();
       });
     } else {
@@ -86,41 +99,43 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
   };
   
   function postMessage () {
-    messageSocket.emit('message', $scope.user.handle, $scope.newmessage.body);
-    messenger.postMessage($scope.mainConversation, $scope.newmessage).then(
-      // success
-      function(data) {
-        $scope.mainConversation.messages.push(data);
-        $scope.mainConversation.latest = data;
-        $scope.newmessage.body = null;
-      },
-      // error
-      function(error) {
-      }
-    );
-    $scope.addUserModal = false;
+    messenger.postMessage($scope.mainConversation, $scope.newmessage).success(function() {
+      $scope.newmessage.body = null;
+    });
   }
 
   // ----- RECEIVING MESSAGES in realtime via socket.io ----- //
-  $scope.$on('socket:broadcast', function (event, data) {
-    console.log('got a message', event.name, data);
-    if (!data.payload) {
-      console.log('invalid message | event', event, 'data', JSON.stringify(data));
-      return;
-    }
-    $scope.$apply(function() {
-      // $scope.mainConversation.messages.push(new Message(data));
-    });
+  $scope.$on('socket:newmessage', function (event, data) {
+    console.log('got a new message', event.name, data);
+    if (!data.payload) return;
+    $scope.$apply(function() { update(data.payload); });
   });
 
 
+  function update (latest) {
+    console.log('a new message for conversation ' + latest.convo_id);
+    // have to find the place in convo list to update
+    for (var i=0; i<$scope.conversations.length; i++) {
+      if ($scope.conversations[i]._id === latest.convo_id) {
+        $scope.conversations[i].latest = latest;
 
-
-
+        if ($scope.mainConversation._id === $scope.conversations[i]._id) {
+          getMessages($scope.mainConversation);
+        }
+        break;
+      }
+    }
+  }
 
 
 
   // ----- HELPER FUNTIONS ----- //
+  function getMessages (convo) { 
+    messenger.get(convo._id).success(function(data) {
+      convo.messages = data;
+    });
+  }
+
   $scope.isSelf = function(user_id) { return user_id === $scope.user._id; };
 
   $scope.otherPeople = function(conversation) {
