@@ -27,8 +27,7 @@
 
     <!-- conversations list - convo in conversations -->
       <!-- conversation latest message -->
-      <div ng-repeat="conversation in conversations" ng-click="focusConversation(conversation)" 
-      style="border-bottom: 1px solid black; padding: 10px 0">
+      <div class="conversation-list-preview {{conversation._id === mainConversation._id? 'conversation-list-preview-active' : ''}}" ng-repeat="conversation in conversations | orderBy: '-latest.time_sent' " ng-click="focusConversation(conversation)">
         {{!conversation._id? 'New Message' : ''}}
         <span class="text-right" ng-show="!conversation._id" ng-click="cancelNewConversation()"><i class="fa fa-times"></i></span>
         <!-- sender.pic --> <!-- sender.f_name --> <!-- sender.l_name --> <!-- sender.body | limitTo -->
@@ -42,8 +41,7 @@
 
     <!-- right column -->
     <!-- mainConversation display -->
-    <div class="conversation-display col-sm-8">
-
+    <div class="conversation-display col-sm-8" ng-show="mainConversation">
 
       <!-- user in mainConversation.users -->
       <div class="col-sm-12 message-users" title="Recipients">
@@ -51,21 +49,32 @@
           <span ng-hide="isSelf(user._id)"><i class="fa fa-user"></i> {{user.f_name}} {{user.l_name}}</span><!-- <span class="text-right">Online? {{user.status}}</span> -->
         </div>
 
-        <button ng-hide="mainConversation._id" ng-click="addUserModal = !addUserModal"><i class="fa fa-plus"> </i></button>
+        <div ng-show="!mainConversation._id" class="add-user-modal">
+          <div ng-repeat="user in copyOfUsers" ng-click="addToConversation(user)" style="height: 25px">
+            <i class="fa fa-plus"></i> {{user.f_name}} {{user.l_name}}
+          </div>
+        </div>
 
-        <conversation-add-users ng-show="mainConversation.new && addUserModal"></conversation-add-users>
+
       </div>
 
-      <div message-box class="message-container">
-        <!-- message in conversation.messages -->
-        <div class="col-sm-12 message-row" ng-repeat="message in mainConversation.messages">
-          <!-- message.body -->
-          <div class="{{ isSelf(message.user) ? 'text-right' : ''}}">
-            <span class="message-body {{ isSelf(message.user) ? 'message-outgoing' : 'message-incoming'}}">{{message.body}}</span>
+      <div message-box class="col-sm-12 message-container" scrollBottom="mainConversation.messages" style="border: 1px solid black">
+
+        <!-- message in conversation.messages-->
+        <div class="col-sm-12 message-row" ng-repeat="message in mainConversation.messages | orderBy: 'time_sent'">
+          <!-- message.body - leftside for others, rightside for self -->
+          <div class="{{ isSelf(message.user_id) ? 'message-body-self' : 'message-body-other'}}">
+            <div class="message-avatar" ng-show="mainConversation.users.length > 2 && !isSelf(message.user_id)">{{message.f_name.slice(0, 1) + message.l_name.slice(0, 1)}}</div>
+            <div class="message-body {{ isSelf(message.user_id) ? 'message-outgoing' : 'message-incoming'}}">{{message.body}}</div>
           </div>
+
           <!-- message.time_sent or message.time_read -->
-          <div ng-show="!isSelf(message.user)"><small>Sent: {{message.time_sent | date: 'MMM dd hh:mm'}}<small></div>
-          <div class="text-right" ng-show="isSelf(message.user) && message.timeread.length > 0"><small>Read: {{message.time_read[0].time | date: 'MMM dd hh:mm'}}</small></div>
+          <div ng-show="!isSelf(message.user_id)">
+            <small>Sent: {{message.time_sent | date: 'MMM dd hh:mm'}}<small>
+          </div>
+          <!-- <div class="text-right" ng-show="isSelf(message.user_id) && message.time_read.length > 0">
+            <small>Read: {{message.time_read[0].time | date: 'MMM dd hh:mm'}}</small>
+          </div> -->
         </div> <!-- /end right column -->
       </div>
 
@@ -86,16 +95,16 @@
   </div> <!-- /end row -->
 
 
-  <div ng-show="debug" class="row"><div class="col-sm-12"><pre>
+  <div style="margin-top: 20px" ng-show="debug" class="row"><div class="col-sm-12"><pre>
+
     newMessage {{newmessage|json}}
-   --------
-    mainConversation : {{mainConversation.users.length}} people involved {{mainConversation|json}}
-   -------- 
-    user {{user|json}}
-   -------- 
-    users {{users|json}}
-   -------- 
-    conversations {{conversations|json}}
+   -------- -------- -------- --------
+    mainConversation | #people: {{mainConversation.users.length}} | #message: {{mainConversation.messages.length}}
+    {{mainConversation|json}}
+    <!-- user {{user|json}} / users {{users|json}} -->
+   -------- -------- -------- --------
+    conversations 
+    {{conversations|json}}
   </pre></div></div>
 </div>
 

@@ -18,7 +18,10 @@ var
   Bootcamp      = mongoose.model('Bootcamp'),
   Challenge     = mongoose.model('Challenge'),
   User          = mongoose.model('User'),
+  Exercise      = mongoose.model('Exercise'),
+  Step          = mongoose.model('Step'),
   Transaction   = mongoose.model('Transaction'),
+  WorkoutPlan   = mongoose.model('WorkoutPlan'),
   Customer      = mongoose.model('Customer');
 
 // --- Exported Methods --- //
@@ -29,24 +32,34 @@ exports.getItems = function(req, res, next) {
    Item.find({}, function (err, items) {
     if(err){ return next(err); }
       res.json(items);
-  }).populate('days');
+  }).populate('exercise');
 };
 
-exports.deleteItem = function(req, res, next, id) {
-  console.log(item);
-  Item.delete(item._id, function (err, item) {
-      if (err) { return next(err); }
-      // return this.findByIdAndRemove({ item_id: id });
-      // return item;
-    }).success(function(){
-      res.redirect('#/shop');
-    });
-  };
-//   Item.findOneAndRemove({ user : req.payload._id }, function (err, items) {
-//     if(err){ return next(err); }
-//     res.redirect('#/shop');
-//   });
-// };
+
+// exports.deleteItem = function(req, res, next, id) {
+//   console.log(item);
+//   Item.delete(item._id, function (err, item) {
+//       if (err) { return next(err); }
+//       // return this.findByIdAndRemove({ item_id: id });
+//       // return item;
+//     }).success(function(){
+//       res.redirect('#/shop');
+//     });
+//   };
+// //   Item.findOneAndRemove({ user : req.payload._id }, function (err, items) {
+// //     if(err){ return next(err); }
+// //     res.redirect('#/shop');
+// //   });
+// // };
+exports.getExercises = function(req, res, next) {
+  console.log(req.params._id);
+  var _id = req.params._id;
+  Exercise.findById(_id, function (err, exercise) {
+    console.log(exercise);
+    res.json(exercise);
+  });
+};
+
 
 exports.postItem = function(req, res, next) {
   var item = new Item(req.body);
@@ -129,11 +142,47 @@ exports.postItem = function(req, res, next) {
         });
       });
     }
+    if (req.body.type === 'WorkoutPlan'){
+      var workoutPlan = new WorkoutPlan(req.body);
+      workoutPlan.item = [item._id];
+      workoutPlan.save(function(err, workoutPlan){
+        if(err){ return next(err); }
+        Item.findByIdAndUpdate(item._id, { $set: { workoutPlan: [workoutPlan._id] }}, function (err, item) {
+          if (err) { return next(err); }
+          return item;
+          //random comment
+        });
+      });
+    }
   }) 
   .then(function() {
     res.json(item);
   });
 
+};
+
+exports.createExercise = function (req, res, next) {
+ var exercise = new Exercise(req.body);
+ item_id = req.params.item;
+ exercise.save(function(err, exercise) {
+    if (err) { return next(err); }
+    Item.findByIdAndUpdate(item_id, { $push: { exercises: exercise._id } }).exec(function(err, item) {
+      if(err){ return next(err); }
+      res.json(item);
+    });
+  });
+};
+
+exports.newStep = function (req, res, next) {
+ var step = new Step(req.body);
+ exercise_id = req.body.exercise;
+ step.save(function(err, step) {
+    if (err) { return next(err); }
+    Exercise.findByIdAndUpdate(exercise_id, { $push: { steps: step._id } }).exec(function(err, exercise) {
+      if(err){ return next(err); }
+      res.json(exercise);
+    });
+  });
 };
 
 exports.createDay = function(req, res, next) {
@@ -166,15 +215,31 @@ exports.getItemByIdParam = function(req, res, next, id) {
   });
 };
 
-// this seems incomplete, the GET /:item  route
-exports.getItemById = function(req, res, next) {
-  Item.findById(req.params.item, function(err, item) {
-
-  if(err) { return next(err); }
-  return res.json(item);
-  });
+exports.getItemById = function (req, res, next) {
+ // if(err){ next(err); }
+ var _id = req.params.item;
+ Item.findById(_id, function(err, item, exercises) {
+  console.log(item);
+   res.json(item);
+ }).populate('exercises');
 };
 
+exports.getExercise = function (req, res, next) {
+ // if(err){ next(err); }
+ var _id = req.params.exercise;
+ Exercise.findById(_id, function(err, exercise, steps) {
+  console.log(exercise);
+  res.json(exercise);
+ }).populate('steps');
+};
+
+exports.getStep = function (req, res, next) {
+ var _id = req.params.step;
+ Step.findById(_id, function(err, step) {
+  console.log(step);
+  res.json(step);
+ });
+};
 
 // also seems incomplete, to be implemented
 exports.upvoteItem = function(req, res, next) {

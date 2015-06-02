@@ -2,7 +2,7 @@
     CONTROLLERS - USER
  *  ------------------  */
 
- app.controller('MainCtrl', function ($scope, auth) {
+ app.controller('MainCtrl', function ($scope, auth, messageSocket) {
   
     $scope.user = auth.getUser();
     mixpanel.alias($scope.user._id);
@@ -21,6 +21,18 @@
   $scope.isAdmin = auth.isAdmin;
   $scope.logOut = auth.logOut;
   $scope.isThisUser = auth.isThisUser;
+
+
+  $scope.$on('socket:tokenrequest', function(event, data) {
+    console.log('socket:tokenrequest', event.name, data);
+    console.log(data.message);
+    messageSocket.emit('authenticate', { token: auth.getToken() });
+  });
+
+  $scope.$on('socket:broadcast', function(event, data) {
+    console.log('broadcast to socket', event.name, data);
+  });
+  
 });
 
 
@@ -147,6 +159,31 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
   };
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
+  $scope.addPlan = function() {
+    items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
+      console.log('success');
+      $scope.item.exercises.push(data);
+   }).error(function(){
+       console.log('failure');
+   });
+  };
+});
+
+app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
+  $scope.exercise = exercisePromise;
+  $scope.addStep = function() {
+    items.newStep($scope.step, $stateParams.exercise).success(function(data){
+      console.log('success');
+      $scope.step = null;
+      $scope.exercise.steps.push(data);
+   }).error(function(){
+       console.log('failure');
+   });
+  };
+});
+
+app.controller('StepCtrl', function ($scope, items, stepPromise, $stateParams) {
+  $scope.step = stepPromise;
 });
 
 
@@ -231,19 +268,22 @@ function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
   $scope.gposts = gposts.gposts;
   $scope.gcomments = gcomments.gcomments;
   $scope.addGpost = function(){
+    console.log($stateParams.id);
+    console.log($scope.gpost);
     // if(!$scope.body || $scope.body === '') { return; }
-    groups.createGpost($scope.group, $scope.gpost).success(function(gpost) {
+    groups.createGpost($scope.gpost, $stateParams.id).success(function(gpost) {
       $scope.group.gposts.push(gpost);
-      $scope.gpost.body = null;
+      $scope.gpost = null;
     });
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
   };
-  $scope.addGcomment = function (gpost) {
-    // groups.createGcomment($scope.gpost, $scope.gcomment)
-    console.log(gpost);
-    console.log($scope.gcomment);
+  $scope.addGcomment = function (gpost, gcomment) {
+    console.log('in controller', gpost, gcomment);
+    gpost.gcomments.push(gcomment);
+    groups.createGcomment(gpost._id, gcomment); 
+    console.log(gpost._id, gcomment);
   };
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;

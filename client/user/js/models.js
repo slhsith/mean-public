@@ -72,7 +72,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 app.factory('items', ['$http', 'auth', function($http, auth){
   var o = {
     items: [],
-    item: {},
+    item: {}, 
     videos: [],
     video: {},
     books: [],
@@ -96,6 +96,12 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       angular.copy(data, o.videos);
     });
   };
+  o.getExercises = function(id) {
+    return $http.get('/api/items/' + id + '/exercises').success(function(data){
+      console.log(data);
+      angular.copy(data, o.items);
+    });
+  };
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -109,6 +115,26 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o[item.type + 's'].push(extendedItem);
     });
   };
+  o.newPlan = function (plan, id) {
+    return $http.post('/api/workoutPlans/' + id, plan, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, plan);
+      o.items.push(extendedItem);
+    });
+  };
+  o.newStep = function (step, id) {
+    return $http.post('/api/item/exercise/' + id, step, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, step);
+      o.items.push(extendedItem);
+    });
+  };
   o.newDay = function (id, day) {
     return $http.post('/api/items/' + id + '/diet', day).success(function(data) {
       return data;
@@ -119,6 +145,18 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   // }
   o.get = function(item) {
     return $http.get('/api/items/' + item).then(function(res){
+      return res.data;
+    });
+  };
+  o.getExercise = function(exercise) {
+    console.log(exercise);
+    return $http.get('/api/item/exercise/' + exercise).then(function(res){
+      return res.data;
+    });
+  };
+  o.getStep = function(step) {
+    console.log(step);
+    return $http.get('/api/item/step/' + step).then(function(res){
       return res.data;
     });
   };
@@ -392,18 +430,18 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
       return data;
     });
   };
-  o.createGpost = function(group, gpost) {
-    console.log(group, gpost);
-    return $http.post('/api/group/' + group._id + '/gposts', gpost, {
+  o.createGpost = function(gpost, id) {
+    console.log(gpost, id);
+    return $http.post('/api/group/' + id + '/gposts', gpost, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
-  o.createGcomment = function (gpost, gcomment) {
-    console.log(gpost);
-    console.log(gcomment);
-    // return $http.post('/api/group/'+group._id+'gpost/' + gpost._id + '/gcomments', gcomment, {
-    //   headers: {Authorization: 'Bearer '+auth.getToken()}
-    // });
+  o.createGcomment = function (gpost_id, gcomment) {
+    console.log('gpost_id in factory', gpost_id);
+    console.log('gcomment in factory', gcomment);
+    return $http.post('/api/gpost/' + gpost_id + '/gcomments', gcomment, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
   };
   return o;
 }]);

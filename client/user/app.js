@@ -75,6 +75,39 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
+    .state('workoutPlan', {
+      url: '/items/workoutPlan/:id',
+      templateUrl: 'workoutPlan.html',
+      controller: 'ItemsCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+    .state('exerciseSteps', {
+      url: '/items/exercise/:exercise',
+      templateUrl: 'exerciseSteps.html',
+      controller: 'ExerciseCtrl',
+      resolve: {
+        exercisePromise: function($stateParams, items) {
+          console.log($stateParams.exercise);
+          return items.getExercise($stateParams.exercise);
+        }
+      }
+    })
+    .state('stepConsumption', {
+      url: '/items/step/:step',
+      templateUrl: 'stepConsumption.html',
+      controller: 'StepCtrl',
+      resolve: {
+        stepPromise: function($stateParams, items) {
+          console.log($stateParams.step);
+          return items.getStep($stateParams.step);
+        }
+      }
+    })
     .state('transactions', {
       url: '/transactions',
       templateUrl: 'transactions.html',
@@ -112,11 +145,8 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         groupsPromise: function($stateParams, groups){
           return groups.get($stateParams.id);
-        },
-        gpostsPromise: function ($stateParams, gposts){
-          return gposts.getAll($stateParams.id);
         }
-      }
+      } 
     })
     .state('messenger', {
       url: '/messenger',

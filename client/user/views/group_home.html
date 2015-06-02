@@ -12,12 +12,22 @@
         <div>
           <span style="font-size:18px;">{{gpost.body}}</span>
           <span style="font-size:12px;">By {{gpost.author}}</span>
-          <span><a ng-click="view = !view">Add Comment</a></span>
-        </div>
-        <div ng-repeat="gcomment in gpost.gcomments">
-          <span style="font-size:14px;">{{gcomment.body}}</span>
-          <span style="font-size:12px;">By {{gcomment.author}}</span>
-          <span><a ng-click="gpost.replyComment = gcomment">Reply</a>span>
+          <form ng-submit="addGcomment(gpost, gcomment)"
+          style="margin-top:30px; border-top: 1px; border-style: solid; border-bottom:none; border-left: none; border-right:none; padding-top: 1px;  border-color: #eee">
+            <div class="form-group">
+            {{gpost}} {{gcomment}}
+              <input type="text"
+                class="form-control"
+                placeholder="Comment Body"
+                ng-model="gcomment.body">
+              </input>
+            </div>
+            <button type="submit" class="btn btn-primary">Post</button>
+          </form>
+          <div ng-repeat="gcomment in gpost.gcomments">
+            <span style="font-size:14px;">{{gcomment.body}}</span>
+            <span style="font-size:12px;">By {{gcomment.author}}</span>
+          </div>
         </div>
 <!--         <span style="font-size:10px;">
           {{post.comment.body}}

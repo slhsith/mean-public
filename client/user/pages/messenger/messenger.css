@@ -1,5 +1,30 @@
+body {
+  color: #161616;
+}
+
+.btn-primary {
+  background-color: #01BAFD;
+}
+
 .conversation-list, .conversation-display {
   height: 680px;
+}
+
+.conversation-list-preview {
+    border-bottom: solid 1px black; 
+    padding: 10px 5px;
+}
+.conversation-list-preview-active {
+  background-color: #FEBA11;
+  color: white;
+}
+
+
+.add-user-modal {
+  position: relative;
+  top: 0;
+  height: 40px;
+  overflow-y: auto;
 }
 .message-container {
   position: absolute;
@@ -13,14 +38,33 @@
   padding: 10px;
 }
 
+.message-avatar {
+  display: inline-block;
+  line-height: 35px;
+  text-align: center;
+  width: 35px;
+  height: 35px;
+  border-radius: 35px;
+  background-color: #FEBA11;
+  color: #999;
+}
+
+
+.message-body-row {
+  width: 100%;
+  text-align: right;
+}
+
 .message-body {
   border-radius: 14px;
-  padding: 6px 11px;
-  line-height: 32px;
+  padding: 0 12px;
+  line-height: 30px;
+  display: inline-block;
 }
 
 .message-body.message-outgoing {
-  background-color: lightblue;
+  background-color: #01BAFD;
+  float: right;
 }
 
 .message-body.message-incoming {

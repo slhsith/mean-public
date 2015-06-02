@@ -28,7 +28,7 @@ gulp.task('lint', function() {
         'client/user/app.js','client/user/js/controllers.js','client/user/js/models.js',
         'client/admin/app.js','client/admin/js/controllers.js','client/admin/js/models.js',
         'client/set/app.js','client/set/js/controllers.js','client/set/js/models.js',
-        'client/user/pages/messenger/*.js'])
+        'client/user/pages/messenger/*.js', 'client/user/pages/shop/*.js'])
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
 });
