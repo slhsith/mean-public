@@ -8,8 +8,8 @@
 /* ---------------------------- */
 app.controller('MessengerCtrl', function ($scope, settings, users, messenger, messageSocket, Conversation, Message) {
 
-  // $scope.debug = true;
-  $scope.debug = false;
+  $scope.debug = true;
+  // $scope.debug = false;
 
   // ---- INIT SCOPE ----  //
 
@@ -36,17 +36,23 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
   $scope.focusConversation = setFocus;
 
   function setFocus(convo) {
-    getMessages(convo);
     $scope.mainConversation = convo;
     $scope.newmessage.conversation = convo._id;
-    if (!convo.new) messenger.readMessages(convo);
+    if (convo._id) {
+      getMessages(convo);
+      messenger.readMessages(convo);
+    }
   }
 
+$scope.print = function(string) {
+  console.log(string);
+};
   // Starting a new conversation
   $scope.initConversation = function() {
     // only init a new convo if not already in that mode
     if (!$scope.mainConversation || !$scope.mainConversation.new) {
       $scope.addUserModal = true;
+      $scope.copyOfUsers = angular.copy($scope.users, $scope.copyOfUsers);
       $scope.conversations.unshift(new Conversation());
       $scope.focusConversation($scope.conversations[0]);
       $scope.mainConversation.users.push($scope.user);
@@ -70,12 +76,19 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
   // Adding a user to a conversation
   $scope.addToConversation = function(user) {
     $scope.mainConversation.users.push(user);
+    angular.forEach($scope.copyOfUsers, function(u, i) {
+      if (u._id === user._id) { $scope.copyOfUsers.splice(i, 1); }
+    });
   };
 
   // ----- SENDING MESSAGES in the focused main conversation ---- //
   $scope.sendMessage = function() {
+    if ($scope.mainConversation.users.length < 2) {
+      console.log('need a user to message with besides yourself!');
+      return;
+    }
     if (!$scope.mainConversation._id) {
-      messenger.createConversation($scope.mainConversation).then(function(data) {
+      messenger.createConversation($scope.mainConversation).success(function(data) {
         $scope.mainConversation._id = data._id;
         $scope.addUserModal = false;
         postMessage();

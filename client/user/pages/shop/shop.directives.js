@@ -3,7 +3,7 @@ app.directive('dietPlan', function () {
   return {
     restrict: 'E', 
     scope: {
-      diet: '=item'
+      item: '='
     },
     controller: 'DietCtrl',
     templateUrl: 'shop.dietplan.tpl.html',

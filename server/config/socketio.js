@@ -26,16 +26,19 @@ module.exports = function (io) {
         if (!err && decoded) {
           console.log("Authenticated socket for " + decoded.username, socket.id, decoded._id);
           socket.auth = true;
+          // user's socket is stored for usage via io object throughout app
           io.usersockets[decoded._id] = socket;
+
+          // user is subscribed to their existing conversation streams
           Conversation.find({users: decoded._id})
           .stream()
           .on('data', function(convo) {
             socket.join(convo._id.toString(), function() {
-              console.log('rooms', socket.rooms);
             });
           })
           .on('close', function() {
             setTimeout(function() {
+              console.log(decoded.username + ' subscribed to rooms\n', socket.rooms);
               socket.emit('broadcast', {
                 'message': decoded.username + ' authenticated socket [' + socket.id + ']',
                 'rooms': socket.rooms

@@ -56,6 +56,12 @@ body {
 }
 
 
+.add-user-modal {
+  position: relative;
+  top: 0;
+  height: 40px;
+  overflow-y: auto;
+}
 .message-container {
   position: absolute;
   top: 60px;
@@ -130,5 +136,13 @@ body {
 }
 
 .meal-day-btn {
-    display: inline-block;
+  display: inline-block;
+}
+
+.ingredient {
+  border: 1px solid #999;
+}
+.ingredient-parts {
+  display: inline-block;
+  text-align: center;
 }
