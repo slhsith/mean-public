@@ -13,6 +13,7 @@ var ItemSchema = new mongoose.Schema({
   podcast: { type: mongoose.Schema.Types.ObjectId, ref: 'Podcast' },
   dietPlan: { type: mongoose.Schema.Types.ObjectId, ref: 'DietPlan' },
   bootcamp: { type: mongoose.Schema.Types.ObjectId, ref: 'Bootcamp' },
+  challenge: { type: mongoose.Schema.Types.ObjectId, ref: 'Challenge' },
   workoutPlan: { type: mongoose.Schema.Types.ObjectId, ref: 'WorkoutPlan' },
   exercise: { type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' },
 });

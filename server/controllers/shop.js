@@ -58,14 +58,7 @@ exports.postItem = function(req, res, next) {
   }).then(function () {
     if (req.body.type === 'Video'){
       var video = new Video(req.body);
-      video.author = req.payload.username;
       video.item = [item._id]
-      var user = function () {
-        User.findById(req.payload._id), function (err, user) {
-          if(err) { return next(err); }
-          return user;
-        };
-      };
       video.save(function(err, video){
         if(err){ return next(err); }
         Item.findByIdAndUpdate(item._id, { $set: { video: [video._id], user: [req.payload._id] }}, function (err, item) {
@@ -76,7 +69,6 @@ exports.postItem = function(req, res, next) {
     }
     if (req.body.type === 'Book'){
       var book = new Book(req.body);
-      book.author = req.payload.username;
       book.item = [item._id]
       book.save(function(err, book){
         if(err){ return next(err); }
@@ -88,7 +80,6 @@ exports.postItem = function(req, res, next) {
     }
     if (req.body.type === 'Podcast'){
       var podcast = new Podcast(req.body);
-      podcast.author = req.payload.username;
       podcast.item = [item._id]
       podcast.save(function(err, podcast){
         if(err){ return next(err); }
@@ -101,7 +92,6 @@ exports.postItem = function(req, res, next) {
     }
     if (req.body.type === 'DietPlan'){
       var dietPlan = new DietPlan(req.body);
-      dietPlan.author = req.payload.username;
       dietPlan.item = [item._id];
       dietPlan.save(function(err, dietPlan){
         if(err){ return next(err); }
@@ -115,7 +105,6 @@ exports.postItem = function(req, res, next) {
     }
     if (req.body.type === 'Bootcamp'){
       var bootcamp = new Bootcamp(req.body);
-      bootcamp.author = req.payload.username;
       bootcamp.item = [item._id];
       bootcamp.save(function(err, bootcamp){
         if(err){ return next(err); }

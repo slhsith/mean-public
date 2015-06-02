@@ -69,7 +69,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 
 // ITEMS
 
-app.factory('items', ['$http', 'auth', function($http, auth){
+app.factory('items', function($http, auth){
   var o = {
     items: [],
     item: {}, 
@@ -104,7 +104,7 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o.items.push(extendedItem);
       // will be added to the appropriate service object subarray
       // based on submitted type
-      o[item.type + 's'].push(extendedItem);
+      return data;
     });
   };
   o.newPlan = function (plan, id) {
@@ -169,13 +169,8 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   };
   return o;
   
-  // var t = function(){
-  //   console.log(item.name);
-  // };
 
-
-  // t();
-}]);
+});
 
 
 // TRANSACTIONS

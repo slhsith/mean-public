@@ -42,6 +42,19 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
+    .state('events', {
+      url: '/events',
+      templateUrl: 'events.html',
+      controller: 'ShopCtrl',
+      resolve: {
+        itemPromise: function (items) {
+          return items.getAll();
+        },
+        userPromise: function ($stateParams, users) {
+          return users.get($stateParams.id);
+        }
+      }
+    })
     .state('items', {
       url: '/items/:item',
       templateUrl: 'items.html',
