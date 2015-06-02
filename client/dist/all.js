@@ -45,12 +45,12 @@ app.controller('MainCtrl', function ($scope, auth) {
     });
   };
 
-  // $scope.getMyLastName = function () {
-  //  facebookService.getMyLastName() 
-  //    .then(function(response) {
-  //      $scope.last_name = response.user.l_name;
-  //    });
-  //  };
+  // $scope.checkLoginState = function() {
+  //   auth.facebook(user._id);
+  //   FB.getLoginStatus(function(response) {
+  //     statusChangeCallback(response);
+  //   });
+  // };
 
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.currentUser = auth.currentUser;
@@ -161,36 +161,5 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
 //   };
 //   return confirmEmail;
 // }]);
-app.factory('facebookService', function($q) {
-  var facebookService = {};
-
-
-  facebookServce.getMyLastName = function() {
-      var deferred = $q.defer();
-        FB.api('/me', {
-            fields: 'last_name'
-        }, function(response) {
-            if (!response || response.error) {
-              deferred.reject('Error occured');
-            } else {
-              deferred.resolve(response);
-              }
-          });
-    return deferred.promise;
-  };
-  // facebookServce.getMyFirstName = function() {
-  //     var deferred = $q.defer();
-  //       FB.api('/me', {
-  //           fields: 'first_name'
-  //       }, function(response) {
-  //           if (!response || response.error) {
-  //             deferred.reject('Error occured');
-  //           } else {
-  //             deferred.resolve(response);
-  //             }
-  //         });
-  //   return deferred.promise;
-  // };
-});
 
 
