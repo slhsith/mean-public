@@ -9,7 +9,7 @@ app.controller('MainCtrl', function ($scope, auth) {
     }).then(function () {
       window.location = "http://localhost:3000/user/#/home";
     });
-    mixpanel.track("User Register",{"area":"home", "page":"home", "action":"register"});
+    // mixpanel.track("User Register",{"area":"home", "page":"home", "action":"register"});
     // mixpanel.track("HomePage: Register");
   };
 
@@ -19,7 +19,7 @@ app.controller('MainCtrl', function ($scope, auth) {
     }).then(function () {
       window.location = "http://localhost:3000/user/#/home";
     });
-    mixpanel.track("User Log-in",{"area":"home", "page":"home", "action":"log-in"});
+    // mixpanel.track("User Log-in",{"area":"home", "page":"home", "action":"log-in"});
     // mixpanel.track("HomePage: Login");
   };
 

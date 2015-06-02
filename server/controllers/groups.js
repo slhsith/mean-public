@@ -33,7 +33,7 @@ exports.getGroupById = function (req, res, next) {
  Group.findById(_id, function(err, group, gposts, gcomments) {
   console.log(group);
    res.json(group);
- }).populate('gposts', 'gcomments')
+ }).populate('gposts').populate('gcomments');
 };
 
 exports.getGroupByIdParam = function(req, res, next, id) {
@@ -53,41 +53,29 @@ exports.getGposts = function(req, res, next) {
   Gpost.findById(_id, function (err, gpost, gcomments) {
     console.log(gpost);
     res.json(gpost);
-  }).populate('gcomments')
+  }).populate('gcomments');
 };
 
-exports.createGpost = function(req, res, next) {
-  var gpost = new Gpost(req.body);
-  console.log(req.body);
-  var group_id = req.body.group;
-
-
-  gpost.save(function(err, gpost) {
+exports.createGpost = function (req, res, next) {
+ var gpost = new Gpost(req.body);
+ group_id = req.params.id;
+ gpost.save(function(err, gpost) {
     if (err) { return next(err); }
-    var update = { $push: { gposts: gpost._id }};
-
-    Group.findByIdAndUpdate(group_id, update)
-    .exec(function(err, group) {
+    Group.findByIdAndUpdate(group_id, { $push: { gposts: gpost._id } }).exec(function(err, group) {
       if(err){ return next(err); }
-      res.json(gpost);
+      res.json(group);
     });
   });
 };
 
 exports.newGcomment = function (req, res, next) {
   var gcomment = new Gcomment(req.body);
-  console.log(req.body);
-  var gpost_id = req.body.gpost;
-
-
+  gpost_id = req.params.gpost;
   gcomment.save(function(err, gcomment) {
     if (err) { return next(err); }
-    var update = { $push: { gcomments: gcomment._id }};
-
-    Gpost.findByIdAndUpdate(gpost_id, update)
-    .exec(function(err, gpost) {
+    Gpost.findByIdAndUpdate(gpost_id, { $push: { gcomments: gcomment._id } }).exec(function(err, gpost) {
       if(err){ return next(err); }
-      res.json(gcomment);
+      res.json(gpost);
     });
   });
 };
