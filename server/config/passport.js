@@ -8,6 +8,16 @@ var User = mongoose.model('User');
 var FACEBOOK_APP_ID = "692480267528460"
 var FACEBOOK_APP_SECRET = "5291485b14fff8e81428d10c9a0c164a";
 
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    done(err, user);
+  });
+});  
+
 passport.use(new LocalStrategy(
   function (username, password, done) {
     console.log(username);
@@ -39,12 +49,4 @@ passport.use(new FacebookStrategy({
     });
   }
 ));
-
-passport.serializeUser(function(user, done) {
-  done(null, user);
-});
-
-passport.deserializeUser(function(obj, done) {
-  done(null, obj);
-});
 
