@@ -202,6 +202,7 @@ function($stateProvider, $urlRouterProvider) {
     });
   // $urlRouterProvider.otherwise('home');
 }]);
+
 /*  ------------------  *
     CONTROLLERS - USER
  *  ------------------  */
@@ -857,6 +858,9 @@ app.factory('settings', function ($http, $window) {
     return $http.put('/api/settings', user).success(function(data){
         s.settings = data;
       });
+   };
+   s.uploadAvatar = function (user){
+       
    };
    s.get = function (handle) {
      return $http.get('/api/user/handle/' + handle).success(function(data){
