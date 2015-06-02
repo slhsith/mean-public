@@ -11,7 +11,7 @@ var ItemSchema = new mongoose.Schema({
   videos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Video' }],
   books: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }],
   podcasts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Podcast' }],
-  dietPlans: [{ category: String , days: [{day: String, meals : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Meal' }]}]}],
+  dietPlans: [{ category: String , days: [{ day: String, meals : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Meal' }]}]}],
   bootcamps: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Bootcamp' }],
 });
 mongoose.model('Item', ItemSchema);

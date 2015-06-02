@@ -298,6 +298,9 @@ app.factory('settings', function ($http, $window) {
         s.settings = data;
       });
    };
+   s.uploadAvatar = function (user){
+       
+   };
    s.get = function (handle) {
      return $http.get('/api/user/handle/' + handle).success(function(data){
        console.log(data);
@@ -310,7 +313,7 @@ app.factory('settings', function ($http, $window) {
 // USERS
 
 app.factory('users', function ($http, $window, auth) {
-  var u = { users: [] };
+  var u = { users: [], user: {} };
 
   u.getAll = function() {
     return $http.get('/api/users').success(function(data) {
@@ -344,7 +347,7 @@ app.factory('users', function ($http, $window, auth) {
 
   u.get = function (id) {
     return $http.get('/api/user/' + id).success(function(data){
-      console.log(data);
+      u.user = data;
       return data;
     });
   };
@@ -451,3 +454,4 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   };
   return o;
 }]); 
+
