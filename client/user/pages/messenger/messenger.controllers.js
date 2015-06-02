@@ -36,11 +36,11 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
   $scope.focusConversation = setFocus;
 
   function setFocus(convo) {
-    $scope.mainConversation = convo;
-    $scope.newmessage.conversation = convo._id;
     if (convo._id) {
+      $scope.newmessage.conversation = convo._id;
       getMessages(convo);
       messenger.readMessages(convo);
+      $scope.mainConversation = convo;
     }
   }
 
@@ -54,7 +54,7 @@ $scope.print = function(string) {
       $scope.addUserModal = true;
       $scope.copyOfUsers = angular.copy($scope.users, $scope.copyOfUsers);
       $scope.conversations.unshift(new Conversation());
-      $scope.focusConversation($scope.conversations[0]);
+      setFocus($scope.conversations[0]);
       $scope.mainConversation.users.push($scope.user);
     } 
   };
@@ -62,7 +62,7 @@ $scope.print = function(string) {
   // Cancelling a new conversation
   $scope.cancelNewConversation = function() {
     $scope.conversations.splice(0, 1);
-    $scope.focusConversation($scope.conversations[0]);
+    setFocus($scope.conversations[0]);
   };
 
   // ----- ADDRESSING USERS in a new conversation ----- //
@@ -111,6 +111,26 @@ $scope.print = function(string) {
     $scope.$apply(function() { update(data.payload); });
   });
 
+  $scope.$on('socket:newconversation', function(event, data) {
+    console.log('get a new convo', event.name, data.payload);
+    $scope.$apply(function() { 
+      messenger.getAll().success(function(convos) {
+        $scope.conversations = convos;
+        if (data.payload.initiator === $scope.user._id) {
+          setFocus(data.payload.convo);
+        }
+      });
+    });
+  });
+
+  $scope.$on('socket:readmessages', function(event, data) {
+    console.log('new read timestamps on convo', data);
+    $scope.$apply(function() {
+      if (data.payload._id === $scope.mainConversation._id) {
+        getMessages($scope.mainConversation);
+      }
+    });
+  });
 
   function update (latest) {
     console.log('a new message for conversation ' + latest.convo_id);

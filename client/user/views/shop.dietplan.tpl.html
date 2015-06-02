@@ -46,15 +46,14 @@
 </div> <!-- end dietplan meta data row -->
 
 <!-- Meal Itinerary -->
-<div class="row" ng-show="diet._id">
-  <div class="col-sm-10"><span class="diet-title">Meal {{ diet.duration > 0? 'Day ' + meal.day + ' of ' + diet.duration : '' }}</span></div>
+<div class="diet-meal" ng-show="diet._id">
+  <div class="col-sm-10"><span class="diet-title">
+    Meal {{ diet.duration > 0? 'Day ' + meal.day + ' of ' + diet.duration : '' }}</span>
+  </div>
   <div class="col-sm-2">
     <button class="meal-day-btn btn-primary" ng-click="back"><i class="fa fa-arrow-left"></i></button>
     <button class="meal-day-btn btn-primary" ng-click="forward"><i class="fa fa-arrow-right"></i></button>
   </div>
-</div>
-
-<div class="row">
 
   <div class="col-sm-6">
     <div class="form-group col-sm-12">
@@ -88,9 +87,7 @@
       </textarea>
     </div>
   </div>
-</div> <!-- end row -->
 
-<div class="row">
   <div class="form-group col-sm-6" ng-repeat="recipe in meal.recipes">
     <i class="fa fa-photo"></i>
     {{recipe.title}}
@@ -110,7 +107,6 @@
     <i class="fa fa-plus"></i>
   </div>
 
-</div>
 
 <div class="row"> 
 <button class="diet-create col-sm-12 btn-primary ">Create</button>
