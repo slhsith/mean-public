@@ -29,12 +29,28 @@ var
 
 // ----------------------------- ITEMS --------------------------------- //
 exports.getItems = function(req, res, next) {
-   Item.find({}, function(err, items){
+   Item.find({}, function (err, items) {
     if(err){ return next(err); }
       res.json(items);
   }).populate('exercise');
 };
 
+
+// exports.deleteItem = function(req, res, next, id) {
+//   console.log(item);
+//   Item.delete(item._id, function (err, item) {
+//       if (err) { return next(err); }
+//       // return this.findByIdAndRemove({ item_id: id });
+//       // return item;
+//     }).success(function(){
+//       res.redirect('#/shop');
+//     });
+//   };
+// //   Item.findOneAndRemove({ user : req.payload._id }, function (err, items) {
+// //     if(err){ return next(err); }
+// //     res.redirect('#/shop');
+// //   });
+// // };
 exports.getExercises = function(req, res, next) {
   console.log(req.params._id);
   var _id = req.params._id;

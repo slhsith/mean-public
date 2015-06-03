@@ -44,12 +44,12 @@ app.controller('MainCtrl', function ($scope, auth) {
     });
   };
 
-  // $scope.getMyLastName = function () {
-  //  facebookService.getMyLastName() 
-  //    .then(function(response) {
-  //      $scope.last_name = response.user.l_name;
-  //    });
-  //  };
+  // $scope.checkLoginState = function() {
+  //   auth.facebook(user._id);
+  //   FB.getLoginStatus(function(response) {
+  //     statusChangeCallback(response);
+  //   });
+  // };
 
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.currentUser = auth.currentUser;

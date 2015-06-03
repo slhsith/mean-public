@@ -83,6 +83,14 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       angular.copy(data, o.items);
     });
   };
+  o.delete = function(id) {
+    console.log(item);
+    return $http.delete('/api/items/' + item._id, item).success(function(data) {
+    // return $http.delete('/api/items/' + item).success(function(data){
+    //   return data;
+      // return this.findByIdAndRemove(item);
+    });
+  };
   o.getAllVideos = function () {
     return $http.get('/api/videos').success(function(data){
       angular.copy(data, o.videos);
