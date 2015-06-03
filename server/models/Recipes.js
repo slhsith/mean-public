@@ -17,8 +17,8 @@ var RecipeSchema = new mongoose.Schema({
 
   yield: Number, // servings
   cost: Number,
-  cooktime: Number,
-  preptime: Number,
+  cook_time: Number,
+  prep_time: Number,
   equipment: String,
   steps: [ CookingStepSchema ],
 

@@ -1,19 +1,18 @@
 var mongoose = require('mongoose');
 
-var CreatorSchema = new mongoose.Schema({
-  username : String,
-  _id      : { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-});
 
 var ItemSchema = new mongoose.Schema({
 
   name: String,
-  creator: CreatorSchema,
+  creator: { username: String, 
+             _id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+           },
 
-  price: String,
-  upvotes: {type: Number, default: 0},
+  price   : Number, // in cents
+  upvotes : {type: Number, default: 0},
 
-  type: String,
+  // should be lowercase so we can easily map to correct field to store ref
+  type: String, 
 
   workoutplan : { type: mongoose.Schema.Types.ObjectId, ref: 'WorkoutPlan' },
   dietplan    : { type: mongoose.Schema.Types.ObjectId, ref: 'DietPlan' },
@@ -22,11 +21,10 @@ var ItemSchema = new mongoose.Schema({
   podcast     : { type: mongoose.Schema.Types.ObjectId, ref: 'Podcast' },
 
   // this could grow insane, maybe better to do Transactions.find({item_id: _id})
+  // TODO REFACTOR
   transactions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }]
-
 
 });
 
-mongoose.model('Creator', CreatorSchema);
 mongoose.model('Item', ItemSchema);
 

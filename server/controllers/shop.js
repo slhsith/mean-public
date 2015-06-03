@@ -8,22 +8,31 @@ var
 
 // --- Models --- //
 var
-  Item          = mongoose.model('Item'),
+  User          = mongoose.model('User'),
   Language      = mongoose.model('Language'),
+
+  Item          = mongoose.model('Item'),
+
+  WorkoutPlan   = mongoose.model('WorkoutPlan'),
+  Exercise      = mongoose.model('Exercise'),
+  Step          = mongoose.model('Step'),
+
+  DietPlan      = mongoose.model('DietPlan'),
+  Day           = mongoose.model('Day'),
+  Meal          = mongoose.model('Meal'),
+  Recipe        = mongoose.model('Recipe'),
+  CookingStep   = mongoose.model('CookingStep'),
+  Ingredient    = mongoose.model('Ingredient'),
+
   Video         = mongoose.model('Video'),
   Book          = mongoose.model('Book'),
   Podcast       = mongoose.model('Podcast'),
 
-  WorkoutPlan   = mongoose.model('WorkoutPlan'),
-  DietPlan      = mongoose.model('DietPlan'),
   Bootcamp      = mongoose.model('Bootcamp'),
   Challenge     = mongoose.model('Challenge'),
-  User          = mongoose.model('User'),
-  Exercise      = mongoose.model('Exercise'),
-  Step          = mongoose.model('Step'),
+
   Transaction   = mongoose.model('Transaction'),
   Customer      = mongoose.model('Customer');
-  Creator       = mongoose.model('Creator');
 
 // --- Exported Methods --- //
 
@@ -66,10 +75,14 @@ exports.getExercises = function(req, res, next) {
     3) updateItem: update Item with refence to SubType
     4) updateUser: update User with item._id
  */
+
+function saveItem (req, callback) {
+} 
+
 exports.postItem = function(req, res, next) {
   var item = new Item(req.body);
-  item.creator = new Creator(req.payload);
-  console.log('============== POSTING NEw ITEM ====>\n', item);
+  item.creator = req.payload;
+  console.log('============== POSTING NEW ITEM ====>\n', item);
 
   item.save(function (err, item) {
     if (err) { return next(err); }

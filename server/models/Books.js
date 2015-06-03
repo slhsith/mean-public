@@ -1,12 +1,13 @@
 var mongoose = require('mongoose');
 
 var BookSchema = new mongoose.Schema({
-  pages: String,
-  genre: String,
-  language: String,
-  year: String,
+  pages    : Number,
+  genre    : String,
+  language : String,
+  year     : Number,
   publisher: String,
-  isbn: String,
-  item: { type: mongoose.Schema.Types.ObjectId, ref: 'Item' }
+  isbn     : String,
+  item     : { type: mongoose.Schema.Types.ObjectId, ref: 'Item' }
 });
+
 mongoose.model('Book', BookSchema);
