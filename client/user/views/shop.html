@@ -26,7 +26,7 @@
     </h4>
           
     <a ng-hide="item.type === 'DietPlan' || item.type==='WorkoutPlan' || item.type==='Challenge'" href="#/items/{{item._id}}">Go to Item Page</a>
-    <a ng-if="item.type === 'DietPlan'" href="#/items/{{item._id}}/diet/">Go to Diet Page</a>
+    <a ng-if="item.type === 'DietPlan'" ng-click="editItem(item)">Edit</a>
     <a ng-if="item.type === 'Challenge'" href="#/items/challenge/{{item._id}}">Go to Challenge Page</a>
     <a ng-if="item.type === 'WorkoutPlan'" href="#/items/workoutPlan/{{item._id}}">Go to Workout Plan Page</a>
   </div>

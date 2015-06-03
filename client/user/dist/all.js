@@ -349,6 +349,13 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth, userPromise) {
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Shop Page: Upvoted Comment");
   };  
+
+  $scope.editItem = function(item) {
+    items.populate(item).success(function() {
+      $scope.item = item;
+    });
+  };
+
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
 });
@@ -616,6 +623,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 // ITEMS
 
 app.factory('items', function($http, auth){
+
   var o = {
     items: [],
     item: {}, 
@@ -624,22 +632,22 @@ app.factory('items', function($http, auth){
     books: [],
     book: {}
   };
-  o.getAll = function() {
-    return $http.get('/api/items').success(function(data){
-      angular.copy(data, o.items);
-    });
+
+  var _typePopulate = {
+    DietPlan: function(item) {
+      console.log('dietplan._id', item.dietplan);
+      return $http.get('/api/item/dietplan/' + item.dietplan, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      });
+    },
+    WorkoutPlan: function(item) {
+      return $http.get('/api/item/workoutplan/' + item.workoutplan, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      });
+    }
   };
-  o.getAllVideos = function () {
-    return $http.get('/api/videos').success(function(data){
-      angular.copy(data, o.videos);
-    });
-  };
-  o.getExercises = function(id) {
-    return $http.get('/api/items/' + id + '/exercises').success(function(data){
-      console.log(data);
-      angular.copy(data, o.items);
-    });
-  };
+
+  // CREATE
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -653,6 +661,47 @@ app.factory('items', function($http, auth){
       return data;
     });
   };
+
+  // READ - basic getting of data
+  o.getAll = function() {
+    return $http.get('/api/items').success(function(data){
+      angular.copy(data, o.items);
+    });
+  };
+  o.get = function(item) {
+    return $http.get('/api/items/' + item).then(function(res){
+      return res.data;
+    });
+  };
+
+  o.populate = function(item) {
+    console.log('populate ' + item.type, item);
+    return _typePopulate[item.type](item);
+  };
+
+  o.getAllVideos = function () {
+    return $http.get('/api/videos').success(function(data){
+      angular.copy(data, o.videos);
+    });
+  };
+
+  // UPDATE
+  o.upvote = function(item) {
+    return $http.put('/api/items/' + item._id + '/upvote', null, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      item.upvotes += 1;
+    });
+  };
+
+  o.addTransaction = function(id, transaction) {
+    return $http.post('/api/items/' + id + '/transactions', transaction, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).success(function(data){
+      transactions.push(data);
+    });
+  };
+
   o.newPlan = function (plan, id) {
     return $http.post('/api/workoutPlans/' + id, plan, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -673,23 +722,16 @@ app.factory('items', function($http, auth){
       o.items.push(extendedItem);
     });
   };
-  o.newDay = function (id, day) {
-    return $http.post('/api/items/' + id + '/diet', day).success(function(data) {
-      return data;
-    });
-  };
-  // o.getDays = function() {
-  //   return $http.get('/api/days/' + )
-  // }
-  o.get = function(item) {
-    return $http.get('/api/items/' + item).then(function(res){
-      return res.data;
-    });
-  };
   o.getExercise = function(exercise) {
     console.log(exercise);
     return $http.get('/api/item/exercise/' + exercise).then(function(res){
       return res.data;
+    });
+  };
+  o.getExercises = function(id) {
+    return $http.get('/api/items/' + id + '/exercises').success(function(data){
+      console.log(data);
+      angular.copy(data, o.items);
     });
   };
   o.getStep = function(step) {
@@ -698,21 +740,11 @@ app.factory('items', function($http, auth){
       return res.data;
     });
   };
-  o.upvote = function(item) {
-    return $http.put('/api/items/' + item._id + '/upvote', null, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      item.upvotes += 1;
-    });
-  };
 
-  o.addTransaction = function(id, transaction) {
-    return $http.post('/api/items/' + id + '/transactions', transaction, {
-      headers: {Authorization: 'Bearer '+transactions.getToken()}
-    }).success(function(data){
-      transactions.push(data);
-    });
-  };
+
+  // DELETE
+  //  ...
+
   return o;
   
 
@@ -1355,7 +1387,7 @@ app.factory('messageSocket', function(socketFactory) {
  *  ----------------------  */
 /* 
 /* ---------------------------- */
-app.controller('DietCtrl', function ($scope, $attrs, dietPlans, Meal, Diet, Recipe, CookingStep, Ingredient) {
+app.controller('DietCtrl', function ($scope, $attrs, items, dietPlans, Meal, Diet, Recipe, CookingStep, Ingredient) {
   var self = this;
   $scope.debug = true;
 
@@ -1398,9 +1430,15 @@ app.controller('DietCtrl', function ($scope, $attrs, dietPlans, Meal, Diet, Reci
   };
 
   $scope.saveDiet     = function() {
-    dietPlans.create($scope.diet).success(function(data) {
-      $scope.diet._id = data._id;
-    });
+    if ($scope.diet._id) {
+      dietPlans.update($scope.diet);
+    } else {
+      items.create($scope.diet).success(function(data) {
+        $scope.diet = data;
+        $scope.initMeal();
+        $scope.meal.day = 1;
+      });
+    }
   };
 
   $scope.saveMeal     = function() {
@@ -1416,7 +1454,6 @@ app.controller('DietCtrl', function ($scope, $attrs, dietPlans, Meal, Diet, Reci
   $scope.saveIngredient = function() {
     $scope.ingredient = new Ingredient();
   };
-
 
 
 
@@ -1566,13 +1603,13 @@ app.factory('Ingredient', function() {
 
 
 
-app.factory('dietPlans', function ($http, auth, items) {
+app.factory('dietPlans', function ($http, auth) {
   var o = {};
 
-  o.create = function(diet) {
-    return items.create(diet).success(function(data) {
-      console.log('itemcreatedata', data);
-      return $http.post('/api/dietPlans/' + data._id, diet );
+  o.update = function(diet) {
+    // diet._id
+    return $http.put('/api/item/dietplan/' + diet.dietplan, diet, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
 

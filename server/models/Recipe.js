@@ -29,4 +29,5 @@ var RecipeSchema = new mongoose.Schema({
   
 });
 
+mongoose.model('CookingStep', CookingStepSchema);
 mongoose.model('Recipe', RecipeSchema);

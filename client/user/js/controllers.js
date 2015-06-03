@@ -129,6 +129,13 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth, userPromise) {
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Shop Page: Upvoted Comment");
   };  
+
+  $scope.editItem = function(item) {
+    items.populate(item).success(function() {
+      $scope.item = item;
+    });
+  };
+
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
 });

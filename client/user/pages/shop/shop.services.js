@@ -107,13 +107,13 @@ app.factory('Ingredient', function() {
 
 
 
-app.factory('dietPlans', function ($http, auth, items) {
+app.factory('dietPlans', function ($http, auth) {
   var o = {};
 
-  o.create = function(diet) {
-    return items.create(diet).success(function(data) {
-      console.log('itemcreatedata', data);
-      return $http.post('/api/dietPlans/' + data._id, diet );
+  o.update = function(diet) {
+    // diet._id
+    return $http.put('/api/item/dietplan/' + diet.dietplan, diet, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
 

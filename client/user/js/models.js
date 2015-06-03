@@ -70,6 +70,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 // ITEMS
 
 app.factory('items', function($http, auth){
+
   var o = {
     items: [],
     item: {}, 
@@ -78,22 +79,22 @@ app.factory('items', function($http, auth){
     books: [],
     book: {}
   };
-  o.getAll = function() {
-    return $http.get('/api/items').success(function(data){
-      angular.copy(data, o.items);
-    });
+
+  var _typePopulate = {
+    DietPlan: function(item) {
+      console.log('dietplan._id', item.dietplan);
+      return $http.get('/api/item/dietplan/' + item.dietplan, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      });
+    },
+    WorkoutPlan: function(item) {
+      return $http.get('/api/item/workoutplan/' + item.workoutplan, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      });
+    }
   };
-  o.getAllVideos = function () {
-    return $http.get('/api/videos').success(function(data){
-      angular.copy(data, o.videos);
-    });
-  };
-  o.getExercises = function(id) {
-    return $http.get('/api/items/' + id + '/exercises').success(function(data){
-      console.log(data);
-      angular.copy(data, o.items);
-    });
-  };
+
+  // CREATE
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -107,6 +108,47 @@ app.factory('items', function($http, auth){
       return data;
     });
   };
+
+  // READ - basic getting of data
+  o.getAll = function() {
+    return $http.get('/api/items').success(function(data){
+      angular.copy(data, o.items);
+    });
+  };
+  o.get = function(item) {
+    return $http.get('/api/items/' + item).then(function(res){
+      return res.data;
+    });
+  };
+
+  o.populate = function(item) {
+    console.log('populate ' + item.type, item);
+    return _typePopulate[item.type](item);
+  };
+
+  o.getAllVideos = function () {
+    return $http.get('/api/videos').success(function(data){
+      angular.copy(data, o.videos);
+    });
+  };
+
+  // UPDATE
+  o.upvote = function(item) {
+    return $http.put('/api/items/' + item._id + '/upvote', null, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      item.upvotes += 1;
+    });
+  };
+
+  o.addTransaction = function(id, transaction) {
+    return $http.post('/api/items/' + id + '/transactions', transaction, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).success(function(data){
+      transactions.push(data);
+    });
+  };
+
   o.newPlan = function (plan, id) {
     return $http.post('/api/workoutPlans/' + id, plan, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -127,23 +169,16 @@ app.factory('items', function($http, auth){
       o.items.push(extendedItem);
     });
   };
-  o.newDay = function (id, day) {
-    return $http.post('/api/items/' + id + '/diet', day).success(function(data) {
-      return data;
-    });
-  };
-  // o.getDays = function() {
-  //   return $http.get('/api/days/' + )
-  // }
-  o.get = function(item) {
-    return $http.get('/api/items/' + item).then(function(res){
-      return res.data;
-    });
-  };
   o.getExercise = function(exercise) {
     console.log(exercise);
     return $http.get('/api/item/exercise/' + exercise).then(function(res){
       return res.data;
+    });
+  };
+  o.getExercises = function(id) {
+    return $http.get('/api/items/' + id + '/exercises').success(function(data){
+      console.log(data);
+      angular.copy(data, o.items);
     });
   };
   o.getStep = function(step) {
@@ -152,21 +187,11 @@ app.factory('items', function($http, auth){
       return res.data;
     });
   };
-  o.upvote = function(item) {
-    return $http.put('/api/items/' + item._id + '/upvote', null, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      item.upvotes += 1;
-    });
-  };
 
-  o.addTransaction = function(id, transaction) {
-    return $http.post('/api/items/' + id + '/transactions', transaction, {
-      headers: {Authorization: 'Bearer '+transactions.getToken()}
-    }).success(function(data){
-      transactions.push(data);
-    });
-  };
+
+  // DELETE
+  //  ...
+
   return o;
   
 

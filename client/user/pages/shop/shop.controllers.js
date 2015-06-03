@@ -3,7 +3,7 @@
  *  ----------------------  */
 /* 
 /* ---------------------------- */
-app.controller('DietCtrl', function ($scope, $attrs, dietPlans, Meal, Diet, Recipe, CookingStep, Ingredient) {
+app.controller('DietCtrl', function ($scope, $attrs, items, dietPlans, Meal, Diet, Recipe, CookingStep, Ingredient) {
   var self = this;
   $scope.debug = true;
 
@@ -46,9 +46,15 @@ app.controller('DietCtrl', function ($scope, $attrs, dietPlans, Meal, Diet, Reci
   };
 
   $scope.saveDiet     = function() {
-    dietPlans.create($scope.diet).success(function(data) {
-      $scope.diet._id = data._id;
-    });
+    if ($scope.diet._id) {
+      dietPlans.update($scope.diet);
+    } else {
+      items.create($scope.diet).success(function(data) {
+        $scope.diet = data;
+        $scope.initMeal();
+        $scope.meal.day = 1;
+      });
+    }
   };
 
   $scope.saveMeal     = function() {
@@ -64,7 +70,6 @@ app.controller('DietCtrl', function ($scope, $attrs, dietPlans, Meal, Diet, Reci
   $scope.saveIngredient = function() {
     $scope.ingredient = new Ingredient();
   };
-
 
 
 

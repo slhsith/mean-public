@@ -7,6 +7,6 @@ var BookSchema = new mongoose.Schema({
   year: String,
   publisher: String,
   isbn: String,
-  item: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
+  item: { type: mongoose.Schema.Types.ObjectId, ref: 'Item' }
 });
 mongoose.model('Book', BookSchema);

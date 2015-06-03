@@ -59,6 +59,9 @@ router.get('/api/item/exercise/:exercise', shop.getExercise );
 router.post('/api/item/exercise/:exercise', shop.newStep );
 router.get('/api/item/step/:step', shop.getStep );
 
+router.get('/api/item/dietplan/:dietplanid', auth, shop.getDietPlanById );
+router.put('/api/item/dietplan/:dietplanid', auth, shop.updateDietPlan );
+
 // Item page & transaction
 router.post('/api/transactions', auth, shop.createTransaction );
 //transaction page & create customer
