@@ -5,8 +5,8 @@ var app = angular.module('mainApp', ['ui.router','templates', 'uiGmapgoogle-maps
 
 app.config([
 '$stateProvider',
-'$urlRouterProvider',
-function($stateProvider, $urlRouterProvider) {
+'$urlRouterProvider','uiGmapGoogleMapApiProvider',
+function($stateProvider, $urlRouterProvider, GoogleMapApi) {
   $stateProvider
     .state('emailVerify', {
       url: '/emailverify/:username/:user_token',
@@ -49,9 +49,14 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('mapResults', {
-      url: '/mapResults/:query',
+      url: '/mapResults',
       templateUrl: 'map.html',
-      controller: 'MapCtrl'
+      controller: 'MapCtrl',
+      config: GoogleMapApi.configure({
+        key: 'AIzaSyDHlTfALoPx_zwBB15W1obqHcrtXk8ObVA',
+        v: '3.17',
+        libraries: 'places'
+      })
     })
     .state('userProfile', {
       url: '/user/:handle',
@@ -63,8 +68,7 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     });
-  // $urlRouterProvider.otherwise('home');
-
+  $urlRouterProvider.otherwise('home');
 }]);
 /*  -----------------  *
     CONTROLLERS - SET

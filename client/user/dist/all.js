@@ -25,7 +25,7 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'PostCtrl',
       resolve: {
         postPromise: function($stateParams, posts) {
-          return posts.get($stateParams.post);
+        return posts.get($stateParams.post);
         }
       }
     })
@@ -49,7 +49,6 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function($stateParams, items) {
           console.log($stateParams);
-      
           return items.get($stateParams.item);
         }
       }
@@ -306,6 +305,7 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 });
 
 
+
 app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
 
   $scope.items = items.items;
@@ -340,6 +340,15 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
 
   $scope.items = items.items;
   $scope.item = itemPromise;
+  item = itemPromise;
+  $scope.deleteItem = function () {
+    console.log(item._id);
+    items.delete($scope.item._id).success(function(data){
+        console.log('success');
+        $scope.items = items.items;
+        console.log(data);
+    });
+  };
   $scope.createDay = function(){
     items.newDay($stateParams.id, $scope.day.day).success(function(day) {
       $scope.item.days.push(day);
@@ -612,6 +621,14 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   o.getAll = function() {
     return $http.get('/api/items').success(function(data){
       angular.copy(data, o.items);
+    });
+  };
+  o.delete = function(id) {
+    console.log(item);
+    return $http.delete('/api/items/' + item._id, item).success(function(data) {
+    // return $http.delete('/api/items/' + item).success(function(data){
+    //   return data;
+      // return this.findByIdAndRemove(item);
     });
   };
   o.getAllVideos = function () {
