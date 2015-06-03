@@ -34,6 +34,33 @@ img-crop canvas {
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
   /* mobile webkit */
 }
+.diet-title {
+    display: inline-block;
+}
+
+.diet-photo {
+    border: 1px solid #999;
+    height: 120px;
+
+}
+
+.diet-plus {
+    height: 45px;
+    line-height: 45px;
+}
+
+.meal-day-btn {
+  display: inline-block;
+}
+
+.ingredient {
+  border: 1px solid #999;
+}
+.ingredient-parts {
+  display: inline-block;
+  text-align: center;
+}
+
 body {
   color: #161616;
 }
@@ -119,30 +146,4 @@ body {
   padding-top: 10px;
   position: absolute;
   bottom: 0;
-}
-.diet-title {
-    display: inline-block;
-}
-
-.diet-photo {
-    border: 1px solid #999;
-    height: 120px;
-
-}
-
-.diet-plus {
-    height: 45px;
-    line-height: 45px;
-}
-
-.meal-day-btn {
-  display: inline-block;
-}
-
-.ingredient {
-  border: 1px solid #999;
-}
-.ingredient-parts {
-  display: inline-block;
-  text-align: center;
 }
