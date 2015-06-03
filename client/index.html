@@ -146,6 +146,14 @@ for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElemen
         <button type="submit" class="btn btn-primary">Log In</button>
       </form>
 
+      <div class="button-list hidden-sm hidden-xs">
+            <a href="/auth/facebook" class="btn btn-lg btn-social-facebook" style="padding-left: 0px"><i class="fa fa-facebook-square"></i> Facebook</a>
+      </div>
+
+      <div class="button-list visible-xs visible-sm">
+              <a href="/auth/facebook" class="btn btn-lg btn-social-logo facebook"><i class="fa fa-facebook-square"></i></a>
+      </div>
+
       
       <form ng-model="forgot" ng-submit="forgotPassword()"
         style="margin-top:30px;">
@@ -157,16 +165,8 @@ for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElemen
           placeholder="Enter Email"
           ng-model="forgot.username"></input>
         </div>
-        <button type="submit" class="btn btn-primary">Reset Your Password</button>
+        <button type="submit" class="btn btn-primary" style="margin-bottom: 20px">Reset Your Password</button>
       </form>
-
-      <div class="button-list hidden-sm hidden-xs">
-            <a href="/auth/facebook" class="btn btn-lg btn-social-facebook"><i class="fa fa-facebook-square"></i> Facebook</a>
-      </div>
-
-      <div class="button-list visible-xs visible-sm">
-              <a href="/auth/facebook" class="btn btn-lg btn-social-logo facebook"><i class="fa fa-facebook-square"></i></a>
-      </div>
     </div>
 </div>
 

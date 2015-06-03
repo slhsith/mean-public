@@ -102,12 +102,14 @@ router.put('/api/resetpassword/:username/:user_token', authentication.doResetPas
 //Facebook Integration
 router.get('/auth/facebook', passport.authenticate('facebook'));
 router.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { successRedirect: '/user/#/home', failureRedirect: '/#/' })
+  passport.authenticate('facebook', { failureRedirect: '/#/' }),
+  function(req, res) {
+    res.redirect('/');
+  });
   // function(req, res) {
   //   successRedirect: '/'
   //   // Successful authentication, redirect home.
   //   res.redirect('/');
-);
 
 
 // ----------------------- USER and SETTINGS  --------------------------------//

@@ -8,6 +8,50 @@ var User = mongoose.model('User');
 var FACEBOOK_APP_ID = "692480267528460"
 var FACEBOOK_APP_SECRET = "5291485b14fff8e81428d10c9a0c164a";
 
+
+
+
+passport.use(new FacebookStrategy({
+    clientID: "692480267528460",
+    clientSecret: "5291485b14fff8e81428d10c9a0c164a",
+    callbackURL: "http://localhost:3000/auth/facebook/callback",
+    enableProof: false,
+    profileFields: ['id', 'displayName', 'photos']
+  },
+  function (accessToken, refreshToken, profile, done) {
+    process.nextTick(function () {
+
+    User.findOne({facebookId: profile.id}, function (err, user) {
+
+      if (err) {
+        return done(err);
+      }
+
+      if (user) {
+
+        return done(null, user);
+
+      } else {
+
+        var data = {
+          facebookId: profile.id,
+          f_name: profile.first_name,
+          l_name: profile.last_name,
+          username: profile.email
+        };
+
+        if (profile.emails && profile.emails[0] && profile.emails[0].value) {
+          data.username = profile.emails[0].value;
+        }
+
+        User.create(data, function (err, user) {
+          return done(err, user);
+        });
+      }
+    });
+    });
+  }));
+
 passport.serializeUser(function(user, done) {
   done(null, user.id);
 });
@@ -34,19 +78,3 @@ passport.use(new LocalStrategy(
     });
   }
 ));
-
-
-passport.use(new FacebookStrategy({
-    clientID: "692480267528460",
-    clientSecret: "5291485b14fff8e81428d10c9a0c164a",
-    callbackURL: "http://localhost:3000/auth/facebook/callback",
-    enableProof: false,
-    profileFields: ['id', 'displayName', 'photos']
-  },
-  function (accessToken, refreshToken, profile, done) {
-    User.findOrCreate({ facebookId: profile.id }, {f_name: first_name}, {l_name: last_name}, {email: email}, function (err, user) {
-      return done(err, user);
-    });
-  }
-));
-
