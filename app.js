@@ -28,8 +28,9 @@ require('./server/models/Items');
 
 require('./server/models/Exercises');
 require('./server/models/Steps');
-require('./server/models/Ingredients');
 require('./server/models/Recipes');
+require('./server/models/Ingredients');
+require('./server/models/Meals');
 require('./server/models/Days');
 
 require('./server/models/WorkoutPlans');

@@ -6,6 +6,17 @@ var CookingStepSchema = new mongoose.Schema({
   // photo       : 
 }, {_id : false} );
 
+var IngredientSchema = new mongoose.Schema({
+  name: String,
+  category: String,
+  description: String,
+  // photo: { ref},
+
+  value: Number, // 1.25
+  unit: String,  // Tbs
+  preparation: String,
+});
+
 var RecipeSchema = new mongoose.Schema({
   name: String,
   type: String, // entree, appetizer, snack
@@ -21,6 +32,15 @@ var RecipeSchema = new mongoose.Schema({
   prep_time: Number,
   equipment: String,
   steps: [ CookingStepSchema ],
+  ingredients: [ { ingredient : { type: mongoose.Schema.Types.ObjectId, ref: 'Ingredient' },
+                   name  : String,
+                   amount: { value: Number, // 1.25
+                             unit: String  // Tbs
+                            },
+                   preparation: String, 
+                   description: String
+                  } 
+               ],
 
   calories: Number,
   fats: Number,

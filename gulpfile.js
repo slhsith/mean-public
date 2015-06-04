@@ -25,10 +25,12 @@ var exec = require('child_process').exec;
 // Lint Task
 gulp.task('lint', function() {
     return gulp.src(['client/app.js','client/js/controllers.js','client/js/models.js', 
-        'client/user/app.js','client/user/js/controllers.js','client/user/js/models.js',
+        'client/user/app.js','client/user/js/controllers.js','client/user/js/models.js','client/user/js/filters.js',
         'client/admin/app.js','client/admin/js/controllers.js','client/admin/js/models.js',
         'client/set/app.js','client/set/js/controllers.js','client/set/js/models.js',
-        'client/user/pages/messenger/*.js', 'client/user/pages/shop/*.js'])
+        'client/user/pages/messenger/*.js', 'client/user/pages/shop/*.js',
+        'client/user/elements/addwidget/*.js'
+        ])
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
 });
@@ -45,7 +47,7 @@ gulp.task('scripts', function() {
 });
 
 gulp.task('userscripts', function() {
-    return gulp.src(['client/user/app.js','client/user/js/controllers.js','client/user/js/models.js', 'client/user/pages/*/*.js'])
+    return gulp.src(['client/user/app.js','client/user/js/controllers.js','client/user/js/models.js', 'client/user/pages/*/*.js', 'client/user/elements/*/*.js'])
         .pipe(concat('all.js'))
         .pipe(gulp.dest('client/user/dist'))
         .pipe(rename('all.min.js'))
@@ -85,7 +87,7 @@ gulp.task('styles', function () {
 });
 
 gulp.task('userstyles', function () {
-    gulp.src(['client/user/css/*.css','client/user/pages/*/*.css'])
+    gulp.src(['client/user/css/*.css','client/user/pages/*/*.css','client/user/elements/*/*.css'])
         .pipe(concat('all.css'))
         .pipe(gulp.dest('client/user/dist'))
         .pipe(minifyCSS())
@@ -120,7 +122,10 @@ gulp.task('markup', function () {
 });
 
 gulp.task('usermarkup', function () {
-    gulp.src(['client/user/*.html','client/user/views/*.html'])
+    gulp.src(['client/user/*.html','client/user/views/*.html',
+        'client/user/pages/shop/*.html',
+        'client/user/pages/messenger/*.html',
+        'client/user/elements/addwidget/*.html'])
         .pipe(htmlify())
         .pipe(templateCache({standalone:true}))
         .pipe(gulp.dest("client/user/dist"))
@@ -162,6 +167,7 @@ gulp.task('watch', function() {
     gulp.watch('client/user/*.html', ['usermarkup']);
     gulp.watch('client/user/views/*.html', ['usermarkup']);
     gulp.watch('client/user/pages/*/*.html', ['usermarkup']);
+    gulp.watch('client/user/elements/*/*.html', ['usermarkup']);
     gulp.watch('client/admin/*.html', ['adminmarkup']);
     gulp.watch('client/admin/views/*.html', ['adminmarkup']);
     gulp.watch('client/set/*.html', ['setmarkup']);

@@ -49,8 +49,8 @@ router.param('comment', posts.getCommentByIdParam )
 // Items
 router.get('/api/items', shop.getItems );
 router.post('/api/items', auth, shop.postItem );
-router.param('/api/item', shop.getItemByIdParam );
-router.get('/api/items/:item', shop.getItemById );
+// router.param('/api/item', shop.getItemByIdParam );
+router.get('/api/item/:id', shop.getItemById );
 router.put('/api/items/:item/upvote', auth, shop.upvoteItem );
 
 router.get('/api/items/:item/exercises', shop.getExercises );
@@ -61,6 +61,10 @@ router.get('/api/item/step/:step', shop.getStep );
 
 router.get('/api/item/dietplan/:dietplanid', auth, shop.getDietPlanById );
 router.put('/api/item/dietplan/:dietplanid', auth, shop.updateDietPlan );
+router.post('/api/item/dietplans/recipes', auth, shop.createRecipe );
+router.post('/api/item/dietplans/ingredients', auth, shop.createIngredient );
+router.get('/api/item/dietplans/recipes/:query', auth, shop.searchRecipes );
+router.get('/api/item/dietplans/ingredients/:query', auth, shop.searchIngredients );
 
 // Item page & transaction
 router.post('/api/transactions', auth, shop.createTransaction );

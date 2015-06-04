@@ -2,10 +2,12 @@ app.factory('Item', function() {
 
   var ItemConstructor = function ItemConstructor () {
     this.name         = null;
-    this.type         = null;
-    this.author       = null;
+    this.creator      = { username: null, _id: null };
+
     this.price        = null;
     this.upvotes      = null;
+
+    this.type         = null;
   };
 
   return ItemConstructor;
@@ -16,7 +18,7 @@ app.factory('Item', function() {
 app.factory('Diet', function() {
 
   var DietConstructor = function DietConstructor () {
-    this.type         = null;
+    this.category     = null;
     this.hashtag      = null;
     this.description  = null;
 
@@ -29,6 +31,18 @@ app.factory('Diet', function() {
   return DietConstructor;
 });
 
+app.factory('Day', function() {
+
+  var DayConstructor = function DayConstructor () {
+    this.day       = { name: null, order: null };
+    this.title     = null; // for dietplans, like 'carb load'
+    this.meals     = [];
+    this.exercises = [];
+  };
+
+  return DayConstructor;
+
+});
 
 app.factory('Meal', function() {
 
@@ -63,8 +77,9 @@ app.factory('Recipe', function() {
     this.cost        = null;
     this.preptime    = null;
     this.cooktime    = null;
-    this.equipment   = [];
+    this.equipment   = null;
     this.steps       = [];
+    this.ingredients = [];
 
     this.calories    = null;
     this.fats        = null;
@@ -107,9 +122,14 @@ app.factory('Ingredient', function() {
 
 
 
-app.factory('dietPlans', function ($http, auth) {
+app.factory('dietplans', function ($http, auth) {
   var o = {};
 
+  o.get = function(diet_id) {
+    return $http.get('/api/item/dietplan/' + diet_id, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
   o.update = function(diet) {
     // diet._id
     return $http.put('/api/item/dietplan/' + diet.dietplan, diet, {
@@ -117,40 +137,18 @@ app.factory('dietPlans', function ($http, auth) {
     });
   };
 
+  o.createRecipe = function(recipe) {
+    return $http.post('/api/item/dietplan/recipes', recipe, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
+  o.createIngredient = function(ingredient) {
+    return $http.post('/api/item/dietplan/ingredients', ingredient, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
   return o;
 });
 
-
-
-//   o.newPlan = function (plan, id) {
-//     return $http.post('/api/workoutPlans/' + id, plan, {
-//       headers: {Authorization: 'Bearer '+auth.getToken()}
-//     }).success(function(data) {
-//       // base item data comes back from API, extend it with
-//       // the item's original submitted descriptive parameters
-//       var extendedItem = angular.extend(data, plan);
-//       o.items.push(extendedItem);
-//     });
-//   };
-//   o.newStep = function (step, id) {
-//     return $http.post('/api/item/exercise/' + id, step, {
-//       headers: {Authorization: 'Bearer '+auth.getToken()}
-//     }).success(function(data) {
-//       // base item data comes back from API, extend it with
-//       // the item's original submitted descriptive parameters
-//       var extendedItem = angular.extend(data, step);
-//       o.items.push(extendedItem);
-//     });
-//   };
-
-//   o.addTransaction = function(id, transaction) {
-//     return $http.post('/api/items/' + id + '/transactions', transaction, {
-//       headers: {Authorization: 'Bearer '+transactions.getToken()}
-//     }).success(function(data){
-//       transactions.push(data);
-//     });
-//   };
-//   return o;
-  
-
-// });

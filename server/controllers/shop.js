@@ -5,6 +5,9 @@
 // --- Module Dependencies --- //
 var 
   mongoose = require('mongoose');
+var extend = require('util')._extend;
+
+// { foo: 'bar', another: 'attribute' }
 
 // --- Models --- //
 var
@@ -34,15 +37,36 @@ var
   Transaction   = mongoose.model('Transaction'),
   Customer      = mongoose.model('Customer');
 
-// --- Exported Methods --- //
+var subItemInstantiation = {
+  workoutplan: function(item) { return new WorkoutPlan(item); },
+  dietplan   : function(item) { return new DietPlan(item); },
+  video      : function(item) { return new Video(item); },
+  book       : function(item) { return new Book(item); },
+  podcast    : function(item) { return new Podcast(item); }
+};
+var subItemModel = {
+  workoutplan: WorkoutPlan,
+  dietplan: DietPlan,
+  video: Video,
+  book: Book,
+  podcast: Podcast
+};
 
+// --- Exported Methods --- //
 
 // ----------------------------- ITEMS --------------------------------- //
 exports.getItems = function(req, res, next) {
-   Item.find({}, function(err, items){
-    if(err){ return next(err); }
-      res.json(items);
-  }).populate('exercise');
+   Item.find({})
+   .populate('exercise')
+   .populate('workoutplan')
+   .populate('dietplan')
+   .populate('video')
+   .populate('book')
+   .populate('podcast')
+   .exec(function(err, items){
+      if(err){ return next(err); }
+      return res.json(items);
+   });
 };
 
 exports.getExercises = function(req, res, next) {
@@ -54,20 +78,16 @@ exports.getExercises = function(req, res, next) {
   });
 };
 
-/* ----------------- ITEM is a purchasable item in the system
- Properties
- ----
+/* ---------- ITEM is a purchasable item in the system
+---- Properties ----
  name: String
  upvotes: Number
  creator: { _id, username} from req.payload
  price: Number (dollar amount x 100 = cents)
  type: various subtypes | workoutplan, dietplan, video, book, podcast
 
- Refs
- ----
- in the creator 
- &
- <subtype> : subtype._id
+---- Refs ----
+ in the creator   &   <subtype> : subtype._id
 
  To create new item, must
     1) saveItem: Item.save
@@ -76,103 +96,66 @@ exports.getExercises = function(req, res, next) {
     4) updateUser: update User with item._id
  */
 
-function saveItem (req, callback) {
-} 
+function saveItem (item, callback) {
+  item.save(function (err, item) {
+    if (err) { return next(err); }
+    console.log('------> item after saving', item);
+    callback(null, item);
+  });
+}
+
+
+function saveSubItem (err, item, subitem, callback) {
+  subitem.item = item._id;
+  subitem.save(function(err, subitem) {
+    if(err){ return next(err); }
+    callback(null, item, subitem);
+  });
+}
+
+function updateItem (err, item, subitem, callback) {
+  // this will be the update needed, matching the type of the item
+  // e.g. { $set : { 'video' : video._id }} 
+  var update = {};
+  update[item.type] = subitem._id;
+  Item.findByIdAndUpdate(
+    item._id, 
+    { $set : update },
+    { new: true},
+    function(err, item) {
+      if (err) { return next(err); }
+      callback(null, item, subitem);
+  });
+}
+
 
 exports.postItem = function(req, res, next) {
   var item = new Item(req.body);
-  item.creator = req.payload;
-  console.log('============== POSTING NEW ITEM ====>\n', item);
-
-  item.save(function (err, item) {
-    if (err) { return next(err); }
-    return item;
-  }).then(function(err, item) {
-    console.log('------> item after saving', item);
-    User.findByIdAndUpdate(req.payload._id, 
-      { $push: { items: item._id }}, 
-      function (err, user) {
-        if (err) { return next(err); }
-        return item;
+      item.creator = req.payload;
+  var subitem = subItemInstantiation[item.type](req.body);
+  var user = { _id: req.payload._id };
+  console.log('------>', item);
+  console.log('------>', subitem);
+  console.log('------>', user);
+  saveItem(item, function(err, item) {
+    saveSubItem(err, item, subitem, function(err, item, subitem) {
+      updateItem(err, item, subitem, function(err, item, subitem) {
+        User.findByIdAndUpdate(
+          req.payload._id,
+          { $push: { items: item._id } },
+          { new: true },
+          function(err, user) {
+            if (err) { return next(err); }
+            console.log('------>ITEM ', item.type, item._id);
+            console.log('------>USER ITEMS ', user.items);
+            item[item.type] = subitem._id;
+            console.log('------>RESULT', item);
+            return res.json(item);
+          }
+        );
+      });
     });
-  }).then(function () {
-    console.log('------> item after saving to user', item);
-    if (req.body.type === 'Video'){
-      var video = new Video(req.body);
-      video.item = item._id;
-      video.save(function (err, video) {
-        if(err){ return next(err); }
-        Item.findByIdAndUpdate(item._id, { $set: { video: video._id, user: req.payload._id }}, function (err, item) {
-          if (err) { return next(err); }
-          return item;
-        });
-      });
-    }
-    if (req.body.type === 'Book'){
-      var book = new Book(req.body);
-      book.item = [item._id]
-      book.save(function(err, book){
-        if(err){ return next(err); }
-        Item.findByIdAndUpdate(item._id, { $set: { book: book._id }}, function (err, item) {
-          if (err) { return next(err); }
-          return item;
-        });
-      });
-    }
-    if (req.body.type === 'Podcast'){
-      var podcast = new Podcast(req.body);
-      podcast.item = [item._id]
-      podcast.save(function(err, podcast){
-        if(err){ return next(err); }
-        Item.findByIdAndUpdate(item._id, { $set: { podcast: podcast._id }}, function (err, item) {
-          if (err) { return next(err); }
-          return item;
-          //random comment
-        });
-      });
-    }
-    if (req.body.type === 'DietPlan'){
-      var dietPlan = new DietPlan(req.body);
-      dietPlan.item = item._id;
-      dietPlan.save(function(err, dietPlan){
-        console.log('------------- diet plan ' + dietPlan._id, dietPlan);
-        console.log('------------- item _id' + item._id + ' will receive dietplan: dietPlan._id');
-        if(err){ return next(err); }
-        Item.findByIdAndUpdate(item._id, { $set: { dietplan: dietPlan._id }}, function (err, item) {
-          if (err) { return next(err); }
-          return item;
-        });
-      });
-    }
-    if (req.body.type === 'Bootcamp'){
-      var bootcamp = new Bootcamp(req.body);
-      bootcamp.item = [item._id];
-      bootcamp.save(function(err, bootcamp){
-        if(err){ return next(err); }
-        Item.findByIdAndUpdate(item._id, { $set: { bootcamp: [bootcamp._id] }}, function (err, item) {
-          if (err) { return next(err); }
-          return item;
-          //random comment
-        });
-      });
-    }
-    if (req.body.type === 'WorkoutPlan'){
-      var workoutPlan = new WorkoutPlan(req.body);
-      workoutPlan.item = item._id;
-      workoutPlan.save(function(err, workoutPlan){
-        if(err){ return next(err); }
-        Item.findByIdAndUpdate(item._id, { $set: { workoutplan: [workoutPlan._id] }}, function (err, item) {
-          if (err) { return next(err); }
-          return item;
-          //random comment
-        });
-      });
-    }
-  }) 
-  .then(function(item) {
-    return res.json(item);
   });
-
 };
 
 exports.createExercise = function (req, res, next) {
@@ -200,35 +183,86 @@ exports.newStep = function (req, res, next) {
 };
 
 exports.updateDietPlan = function(req, res, next) {
-  var dietPlan = new DietPlan(req.body);
-  console.log('----> updating', dietPlan);
+  // front end sees items with item_id as _id,
+  // and subitem id in subitem field
+  var  item_id  = req.body._id,
+    subitem_id  = req.body[req.body.type];
+  req.body._id  = subitem_id;
+  req.body.item = item_id;
+  console.log('----> updating', req.body);
 
-  dietPlan.save(function(err, dietPlan) {
+  DietPlan.findByIdAndUpdate(subitem_id, req.body, { new : true }, function(err, dietplan) {
     if (err) { return next(err); }
-    return res.json({'message': 'Successfully saved changes to diet plan.'});
+    return res.json(dietplan);//{'message': 'Successfully saved changes to diet plan.'});
   });
 };
 
-exports.getItemByIdParam = function(req, res, next, id) {
-  var query = Item.findById(id);
-
-  query.exec(function (err, item){
-    if (err) { next(err); }
-    if (!item) { next(new Error('can\'t find item')); }
-
-    req.item = item;
-    next();
-  });
+exports.createRecipe = function (req, res, next) {
+ var recipe = new Recipe(req.body);
+ recipe.save(function(err, recipe) {
+    if (err) { return next(err); }
+    return res.json(recipe);
+ });
 };
+
+exports.createIngredient = function(req, res, next) {
+  var ingredient = new Ingredient(req.body);
+  ingredient.save(function(err, ingredient) {
+    if (err) { return next(err); }
+    return res.json(ingredient);
+ });
+};
+
+exports.searchRecipes = function(req, res, next) {
+  var re = new RegExp(req.params.query, 'i');
+  Recipe.find({name: { $regex: re }})
+    .limit(25)
+    .exec(function(err,recipes) {
+      if (err) { return next(err); }
+      console.log(recipes);
+      return res.json(recipes); 
+  });
+
+};
+
+exports.searchIngredients = function(req, res, next) {
+  var re = new RegExp(req.params.query, 'i');
+  Ingredient.find()
+    .or( [{name: { $regex: re }}, {category: {$regex: re}}, {keywords: {$regex: re}}] )
+    .limit(25)
+    .exec(function(err,ingredients) {
+      if (err) { return next(err); }
+      console.log(ingredients);
+      return res.json(ingredients); 
+  });
+
+};
+
+// exports.getItemByIdParam = function(req, res, next, id) {
+//   var query = Item.findById(id);
+
+//   query.exec(function (err, item){
+//     if (err) { next(err); }
+//     if (!item) { next(new Error('can\'t find item')); }
+
+//     req.item = item;
+//     next();
+//   });
+// };
 
 exports.getItemById = function (req, res, next) {
- // if(err){ next(err); }
- var _id = req.params.item;
- Item.findById(_id, function(err, item, exercises) {
-    // if (err) { return next(err); }
-    console.log(item);
-    res.json(item);
- }).populate('exercises');
+ var item_id = req.params.id;
+ Item.findById(item_id)
+ .populate('dietplan')
+ .populate('workoutplan')
+ .populate('video')
+ .populate('book')
+ .populate('podcast')
+ .exec(function(err, item) {
+    if (err) { return next(err); }
+    console.log('----> populated\n', item);
+    return res.json(item);
+ });
 };
 
 exports.getDietPlanById = function(req, res, next) {
@@ -336,3 +370,30 @@ exports.getCustomerById = function(req, res, next) {
   // to be completed
   // Customer.findById(id, ...)
 };
+
+
+
+
+
+
+
+//   Bootcamp: function(err, item) {
+//     var bootcamp = new Bootcamp(item);
+//     bootcamp.item = [item._id];
+//     bootcamp.save(function (err, bootcamp) {
+//       if(err){ return next(err); }
+//       return bootcamp;
+//     });
+//   },
+//   Challenge: function(err, item) {
+//     var challenge = new Challenge(item);
+//     challenge.item = [item._id];
+//     challenge.save(function (err, challenge) {
+//       if(err){ return next(err); }
+//       return challenge;
+//     });
+//   },
+// };
+  // bootcamp: function(event) {
+  //   return new Bootcamp(event);
+  // }

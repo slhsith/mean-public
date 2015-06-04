@@ -1,6 +1,7 @@
 .item-title {
   font-size: 28px;
   line-height: 36px;
+  padding: 10px 0;
 }
 .item-types {
   font-size: 14px;
@@ -10,16 +11,20 @@
   text-decoration: underline;
 }
 
-.diet-title {
+.upload-photo-title {
     display: inline-block;
+    font-size: 12px;
 }
 
-.diet-photo {
+.upload-photo {
     border: 1px solid #999;
-    height: 120px;
-
+    height: 60px;
 }
 
+.diet-days {
+  margin-top: 30px;
+  border: 1px solid #999;
+}
 .diet-plus {
     height: 45px;
     line-height: 45px;

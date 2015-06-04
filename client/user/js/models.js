@@ -81,13 +81,13 @@ app.factory('items', function($http, auth){
   };
 
   var _typePopulate = {
-    DietPlan: function(item) {
+    dietplan: function(item) {
       console.log('dietplan._id', item.dietplan);
       return $http.get('/api/item/dietplan/' + item.dietplan, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
       });
     },
-    WorkoutPlan: function(item) {
+    workoutplan: function(item) {
       return $http.get('/api/item/workoutplan/' + item.workoutplan, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
       });
@@ -115,9 +115,18 @@ app.factory('items', function($http, auth){
       angular.copy(data, o.items);
     });
   };
-  o.get = function(item) {
-    return $http.get('/api/items/' + item).then(function(res){
-      return res.data;
+  o.get = function(item_id) {
+    return $http.get('/api/item/' + item_id).then(function(res){
+      var item = res.data;
+      var subitem = item[item.type];
+      for (var k in subitem) {
+        if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
+          console.log(subitem[k]);
+          item[k] = subitem[k];
+          item[item.type] = subitem._id;
+        }
+      }
+      return item;
     });
   };
 
@@ -133,6 +142,15 @@ app.factory('items', function($http, auth){
   };
 
   // UPDATE
+
+  // API hits specific to item type
+  o.update = function(item) {
+    // e.g. PUT diet @ /api/item/dietplan/dietplan_id, 
+    return $http.put('/api/item/' + item.type + '/' + item[item.type], item, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
   o.upvote = function(item) {
     return $http.put('/api/items/' + item._id + '/upvote', null, {
       headers: {Authorization: 'Bearer '+auth.getToken()}

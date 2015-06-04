@@ -1,17 +1,6 @@
 var mongoose = require('mongoose');
-var Recipe = mongoose.model('Recipe');
 
-var MealSchema = new mongoose.Schema({
-  name: String,
-  type: String, // lunch, dinner, etc
-  description: String,
-  
-  cooktime : Number,
-  preptime : Number,
-  cost     : Number,
-
-  recipes: [ Recipe ],
-});
+var Meal = mongoose.model('Meal');
 
 var DaySchema = new mongoose.Schema({
   day: { name: String,
@@ -19,12 +8,11 @@ var DaySchema = new mongoose.Schema({
        },
 
   title: String, // for diet days
-  meals: [ MealSchema ], // for diet
+  meals: [ Meal ], // for diet
 
   exercises: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Exercise' }],
 
   item: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
 });
 
-mongoose.model('Meal', MealSchema);
 mongoose.model('Day', DaySchema);
