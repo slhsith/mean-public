@@ -1,21 +1,23 @@
 var mongoose = require('mongoose');
 
-// ItemSchema
-// name: String,
-// upvotes: {type: Number, default: 0},
-// author: String,
-// price: String,
-// type: String,
+
+var Day = mongoose.model('Day');
 
 var DietPlanSchema = new mongoose.Schema({
+
+  item        : { type: mongoose.Schema.Types.ObjectId, ref: 'Item' },
+
   description : String,
-  type        : String, // e.g. weight loss
+  category    : String, // e.g. weight loss
   hashtag     : String,
 
   duration    : Number, // days
   gender      : String,
-  age         : Number,
-  meals       : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Meal' }],
+  maxage      : Number,
+  minage      : Number,
+
+  days        : [ Day ]
+
 });
 
 mongoose.model('DietPlan', DietPlanSchema);

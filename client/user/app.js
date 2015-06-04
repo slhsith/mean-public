@@ -55,25 +55,13 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
-    .state('items', {
-      url: '/items/:item',
-      templateUrl: 'items.html',
-      controller: 'ItemsCtrl',
+    .state('item', {
+      url: '/item/:id',
+      templateUrl: 'item.html',
+      controller: 'ItemCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
-          console.log($stateParams);
-      
-          return items.get($stateParams.item);
-        }
-      }
-    })
-    .state('diet', {
-      url: '/items/:id/diet/',
-      templateUrl: 'diet.html',
-      controller: 'ItemsCtrl',
-      resolve: {
-        itemPromise: function($stateParams, items) {
-          console.log($stateParams.id);
+          console.log('item state');
           return items.get($stateParams.id);
         }
       }
@@ -90,7 +78,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('workoutPlan', {
-      url: '/items/workoutPlan/:id',
+      url: '/items/workoutplan/:id',
       templateUrl: 'workoutPlan.html',
       controller: 'ItemsCtrl',
       resolve: {

@@ -70,6 +70,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 // ITEMS
 
 app.factory('items', function($http, auth){
+
   var o = {
     items: [],
     item: {}, 
@@ -78,22 +79,22 @@ app.factory('items', function($http, auth){
     books: [],
     book: {}
   };
-  o.getAll = function() {
-    return $http.get('/api/items').success(function(data){
-      angular.copy(data, o.items);
-    });
+
+  var _typePopulate = {
+    dietplan: function(item) {
+      console.log('dietplan._id', item.dietplan);
+      return $http.get('/api/item/dietplan/' + item.dietplan, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      });
+    },
+    workoutplan: function(item) {
+      return $http.get('/api/item/workoutplan/' + item.workoutplan, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      });
+    }
   };
-  o.getAllVideos = function () {
-    return $http.get('/api/videos').success(function(data){
-      angular.copy(data, o.videos);
-    });
-  };
-  o.getExercises = function(id) {
-    return $http.get('/api/items/' + id + '/exercises').success(function(data){
-      console.log(data);
-      angular.copy(data, o.items);
-    });
-  };
+
+  // CREATE
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -107,6 +108,65 @@ app.factory('items', function($http, auth){
       return data;
     });
   };
+
+  // READ - basic getting of data
+  o.getAll = function() {
+    return $http.get('/api/items').success(function(data){
+      angular.copy(data, o.items);
+    });
+  };
+  o.get = function(item_id) {
+    return $http.get('/api/item/' + item_id).then(function(res){
+      var item = res.data;
+      var subitem = item[item.type];
+      for (var k in subitem) {
+        if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
+          console.log(subitem[k]);
+          item[k] = subitem[k];
+          item[item.type] = subitem._id;
+        }
+      }
+      return item;
+    });
+  };
+
+  o.populate = function(item) {
+    console.log('populate ' + item.type, item);
+    return _typePopulate[item.type](item);
+  };
+
+  o.getAllVideos = function () {
+    return $http.get('/api/videos').success(function(data){
+      angular.copy(data, o.videos);
+    });
+  };
+
+  // UPDATE
+
+  // API hits specific to item type
+  o.update = function(item) {
+    // e.g. PUT diet @ /api/item/dietplan/dietplan_id, 
+    return $http.put('/api/item/' + item.type + '/' + item[item.type], item, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
+  o.upvote = function(item) {
+    return $http.put('/api/items/' + item._id + '/upvote', null, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      item.upvotes += 1;
+    });
+  };
+
+  o.addTransaction = function(id, transaction) {
+    return $http.post('/api/items/' + id + '/transactions', transaction, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).success(function(data){
+      transactions.push(data);
+    });
+  };
+
   o.newPlan = function (plan, id) {
     return $http.post('/api/workoutPlans/' + id, plan, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -127,23 +187,16 @@ app.factory('items', function($http, auth){
       o.items.push(extendedItem);
     });
   };
-  o.newDay = function (id, day) {
-    return $http.post('/api/items/' + id + '/diet', day).success(function(data) {
-      return data;
-    });
-  };
-  // o.getDays = function() {
-  //   return $http.get('/api/days/' + )
-  // }
-  o.get = function(item) {
-    return $http.get('/api/items/' + item).then(function(res){
-      return res.data;
-    });
-  };
   o.getExercise = function(exercise) {
     console.log(exercise);
     return $http.get('/api/item/exercise/' + exercise).then(function(res){
       return res.data;
+    });
+  };
+  o.getExercises = function(id) {
+    return $http.get('/api/items/' + id + '/exercises').success(function(data){
+      console.log(data);
+      angular.copy(data, o.items);
     });
   };
   o.getStep = function(step) {
@@ -152,21 +205,11 @@ app.factory('items', function($http, auth){
       return res.data;
     });
   };
-  o.upvote = function(item) {
-    return $http.put('/api/items/' + item._id + '/upvote', null, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      item.upvotes += 1;
-    });
-  };
 
-  o.addTransaction = function(id, transaction) {
-    return $http.post('/api/items/' + id + '/transactions', transaction, {
-      headers: {Authorization: 'Bearer '+transactions.getToken()}
-    }).success(function(data){
-      transactions.push(data);
-    });
-  };
+
+  // DELETE
+  //  ...
+
   return o;
   
 

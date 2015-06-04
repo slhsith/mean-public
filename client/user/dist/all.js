@@ -55,25 +55,13 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
-    .state('items', {
-      url: '/items/:item',
-      templateUrl: 'items.html',
-      controller: 'ItemsCtrl',
+    .state('item', {
+      url: '/item/:id',
+      templateUrl: 'item.html',
+      controller: 'ItemCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
-          console.log($stateParams);
-      
-          return items.get($stateParams.item);
-        }
-      }
-    })
-    .state('diet', {
-      url: '/items/:id/diet/',
-      templateUrl: 'diet.html',
-      controller: 'ItemsCtrl',
-      resolve: {
-        itemPromise: function($stateParams, items) {
-          console.log($stateParams.id);
+          console.log('item state');
           return items.get($stateParams.id);
         }
       }
@@ -90,7 +78,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('workoutPlan', {
-      url: '/items/workoutPlan/:id',
+      url: '/items/workoutplan/:id',
       templateUrl: 'workoutPlan.html',
       controller: 'ItemsCtrl',
       resolve: {
@@ -340,6 +328,16 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth, userPromise) {
    // mixpanel.track("Shop Page: Added Item");
  };
 
+ $scope.itemTitles = {
+  workoutplan: 'Workout Plan',
+  dietplan: 'Diet Plan',
+  book: 'Book',
+  video: 'Video',
+  podcast: 'Podcast',
+  bootcamp: 'Bootcamp',
+  challenge: 'Online Challenge'
+ };
+
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     // mixpanel.alias($scope.user._id);
@@ -347,15 +345,23 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth, userPromise) {
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Shop Page: Upvoted Comment");
   };  
+
+  $scope.editItem = function(item) {
+    items.populate(item).success(function(item) {
+      $scope.item = item;
+    });
+  };
+
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
 });
 
 
-app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
+app.controller('ItemCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
 
   $scope.items = items.items;
   $scope.item = itemPromise;
+
   $scope.createDay = function(){
     items.newDay($stateParams.id, $scope.day.day).success(function(day) {
       $scope.item.days.push(day);
@@ -617,6 +623,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 // ITEMS
 
 app.factory('items', function($http, auth){
+
   var o = {
     items: [],
     item: {}, 
@@ -625,22 +632,22 @@ app.factory('items', function($http, auth){
     books: [],
     book: {}
   };
-  o.getAll = function() {
-    return $http.get('/api/items').success(function(data){
-      angular.copy(data, o.items);
-    });
+
+  var _typePopulate = {
+    dietplan: function(item) {
+      console.log('dietplan._id', item.dietplan);
+      return $http.get('/api/item/dietplan/' + item.dietplan, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      });
+    },
+    workoutplan: function(item) {
+      return $http.get('/api/item/workoutplan/' + item.workoutplan, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      });
+    }
   };
-  o.getAllVideos = function () {
-    return $http.get('/api/videos').success(function(data){
-      angular.copy(data, o.videos);
-    });
-  };
-  o.getExercises = function(id) {
-    return $http.get('/api/items/' + id + '/exercises').success(function(data){
-      console.log(data);
-      angular.copy(data, o.items);
-    });
-  };
+
+  // CREATE
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -654,6 +661,65 @@ app.factory('items', function($http, auth){
       return data;
     });
   };
+
+  // READ - basic getting of data
+  o.getAll = function() {
+    return $http.get('/api/items').success(function(data){
+      angular.copy(data, o.items);
+    });
+  };
+  o.get = function(item_id) {
+    return $http.get('/api/item/' + item_id).then(function(res){
+      var item = res.data;
+      var subitem = item[item.type];
+      for (var k in subitem) {
+        if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
+          console.log(subitem[k]);
+          item[k] = subitem[k];
+          item[item.type] = subitem._id;
+        }
+      }
+      return item;
+    });
+  };
+
+  o.populate = function(item) {
+    console.log('populate ' + item.type, item);
+    return _typePopulate[item.type](item);
+  };
+
+  o.getAllVideos = function () {
+    return $http.get('/api/videos').success(function(data){
+      angular.copy(data, o.videos);
+    });
+  };
+
+  // UPDATE
+
+  // API hits specific to item type
+  o.update = function(item) {
+    // e.g. PUT diet @ /api/item/dietplan/dietplan_id, 
+    return $http.put('/api/item/' + item.type + '/' + item[item.type], item, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
+  o.upvote = function(item) {
+    return $http.put('/api/items/' + item._id + '/upvote', null, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      item.upvotes += 1;
+    });
+  };
+
+  o.addTransaction = function(id, transaction) {
+    return $http.post('/api/items/' + id + '/transactions', transaction, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).success(function(data){
+      transactions.push(data);
+    });
+  };
+
   o.newPlan = function (plan, id) {
     return $http.post('/api/workoutPlans/' + id, plan, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -674,23 +740,16 @@ app.factory('items', function($http, auth){
       o.items.push(extendedItem);
     });
   };
-  o.newDay = function (id, day) {
-    return $http.post('/api/items/' + id + '/diet', day).success(function(data) {
-      return data;
-    });
-  };
-  // o.getDays = function() {
-  //   return $http.get('/api/days/' + )
-  // }
-  o.get = function(item) {
-    return $http.get('/api/items/' + item).then(function(res){
-      return res.data;
-    });
-  };
   o.getExercise = function(exercise) {
     console.log(exercise);
     return $http.get('/api/item/exercise/' + exercise).then(function(res){
       return res.data;
+    });
+  };
+  o.getExercises = function(id) {
+    return $http.get('/api/items/' + id + '/exercises').success(function(data){
+      console.log(data);
+      angular.copy(data, o.items);
     });
   };
   o.getStep = function(step) {
@@ -699,21 +758,11 @@ app.factory('items', function($http, auth){
       return res.data;
     });
   };
-  o.upvote = function(item) {
-    return $http.put('/api/items/' + item._id + '/upvote', null, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      item.upvotes += 1;
-    });
-  };
 
-  o.addTransaction = function(id, transaction) {
-    return $http.post('/api/items/' + id + '/transactions', transaction, {
-      headers: {Authorization: 'Bearer '+transactions.getToken()}
-    }).success(function(data){
-      transactions.push(data);
-    });
-  };
+
+  // DELETE
+  //  ...
+
   return o;
   
 
@@ -1359,16 +1408,56 @@ app.factory('messageSocket', function(socketFactory) {
  *  ----------------------  */
 /* 
 /* ---------------------------- */
-app.controller('DietCtrl', function ($scope, $attrs, dietPlans, Meal, Diet, Recipe, CookingStep, Ingredient) {
+app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Diet, Day, Recipe, CookingStep, Ingredient) {
   var self = this;
   $scope.debug = true;
+
+  var _viewingDay, _mealCount, _dietduration;
 
   // ---- INIT SCOPE ----  //
   this.init = function(element) {
     self.$element = element;
+
+    generateDaysForFullDuration($scope.item);
+
+    $scope.dayIndex  = 1;
+    $scope.mealIndex = 1;
+    _viewingDay = $scope.item.days[0];
+    _mealCount  = _viewingDay.meals.length;
+    console.log('_mealCount', _mealCount);
   };
 
-  //$scope.diet       = item comes from directive
+  function generateDaysForFullDuration (item) {
+    _dietduration = item.duration;
+    var days_existing = item.days.length, day;
+    while (days_existing < _dietduration) {
+        day = new Day();
+        day.day.order = days_existing+1;
+        item.days.push(day);
+        days_existing++;
+    } 
+  }
+
+
+  $scope.decrementDay = function() {
+    if ($scope.dayIndex > 1) $scope.dayIndex--;
+    _viewingDay = $scope.item.days[$scope.dayIndex];
+    _mealCount = _viewingDay.meals.length;
+  };
+  $scope.incrementDay = function() {
+    if ($scope.dayIndex < ($scope.item.days.length)) $scope.dayIndex++;
+    _viewingDay = $scope.item.days[$scope.dayIndex];
+    _mealCount  = _viewingDay.meals.length;
+  };
+
+  $scope.decrementMeal = function() {
+    if ($scope.mealIndex > 1) $scope.mealIndex--;
+  };
+  $scope.incrementMeal = function() {
+    if ($scope.mealIndex < (_mealCount+1)) $scope.mealIndex++;
+  };
+
+  //$scope.item   = item comes from directive
   $scope.meal         = null;
   $scope.recipe       = null;
   $scope.step         = null;
@@ -1382,7 +1471,7 @@ app.controller('DietCtrl', function ($scope, $attrs, dietPlans, Meal, Diet, Reci
   };
   $scope.initStep     = function() {
     $scope.step = new CookingStep();
-    $scope.step.order = $scope.recipe.steps.length;
+    $scope.step.order = $scope.recipe.steps.length+1;
   };
   $scope.initIngredient = function() {
     $scope.ingredient = new Ingredient();
@@ -1402,25 +1491,35 @@ app.controller('DietCtrl', function ($scope, $attrs, dietPlans, Meal, Diet, Reci
   };
 
   $scope.saveDiet     = function() {
-    dietPlans.create($scope.diet).success(function(data) {
-      $scope.diet._id = data._id;
-    });
+    if ($scope.item._id) {
+      items.update($scope.item);
+    } else {
+      items.create($scope.item).success(function(data) {
+        $scope.item = data;
+        $scope.initMeal();
+        $scope.meal.day = 1;
+      });
+    }
   };
 
   $scope.saveMeal     = function() {
+    $scope.item.day.push($scope.meal);
+    items.update($scope.item);
     $scope.meal = new Meal();
   };
   $scope.saveRecipe   = function() {
-    $scope.recipe = new Recipe();
+    dietplans.createRecipe($scope.recipe);
+    $scope.meal.recipes.push($scope.recipe);
+    $scope.recipe = null;
   };
   $scope.saveStep     = function() {
-    $scope.step = new CookingStep();
-    $scope.step.order = $scope.recipe.steps.length;
+    $scope.recipe.steps.push($scope.step);
+    $scope.step = null;
   };
   $scope.saveIngredient = function() {
-    $scope.ingredient = new Ingredient();
+    $scope.recipe.ingredients.push($scope.ingredient);
+    $scope.ingredient = null;
   };
-
 
 
 
@@ -1433,9 +1532,7 @@ app.directive('dietPlan', function () {
   
   return {
     restrict: 'E', 
-    scope: {
-      diet: '=item'
-    },
+    scope: { item: '=item' },
     controller: 'DietCtrl',
     templateUrl: 'shop.dietplan.tpl.html',
     link: function(scope, element, attrs, DietCtrl) {
@@ -1444,6 +1541,63 @@ app.directive('dietPlan', function () {
   };
 
 });
+
+app.directive('mealRecipes', function() {
+  return {
+    restrict: 'E',
+    // scope: {
+    //   recipes: '='
+    // },
+    template: ['<div ng-repeat="recipe in recipes">',
+                '<div class="col-sm-3><i class="fa fa-2x fa-photo"></i></div>',
+                '<div class="col-sm-9>{{recipe.title}} <br/>',
+                '{{recipe.yield}} Servings</div>',
+                '</div>'].join(),
+    link: function() {}
+
+  };
+});
+
+app.directive('mealRecipeAdder', function() {
+  return {
+    restrict: 'E',
+    template: ['<div>', 
+                 '<div ng-show="recipe"><small>upload</small> <i class="fa fa-lg fa-photo"></i>',
+                   '<input type="text" placeholder="Recipe" ng-model="recipe.title" ng-blur="searchRecipes()">',
+                   '<input type="text" placeholder="Servings" ng-model="recipe.yield">',
+                   '<br/><a ng-click="initRecipe()">+ new recipe</a>',
+                 '</div>',
+                 '<div style="border: 1px solid #999" ng-click="initMeal()" ><i class="fa fa-2x fa-plus"></i></div>',
+               '</div>'].join(),
+//     link: function() {}
+  };
+});
+
+app.directive('recipeCreator', function () {
+  
+  return {
+    restrict: 'E', 
+    controller: 'DietCtrl',
+    templateUrl: 'shop.recipe.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
+
+app.directive('workoutPlan', function () {
+
+  return {
+    restrict: 'E', 
+    scope: false,
+    templateUrl: 'shop.workoutplan.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
+
+
 
 
 app.directive('digitalMedia', function () {
@@ -1465,10 +1619,12 @@ app.factory('Item', function() {
 
   var ItemConstructor = function ItemConstructor () {
     this.name         = null;
-    this.type         = null;
-    this.author       = null;
+    this.creator      = { username: null, _id: null };
+
     this.price        = null;
     this.upvotes      = null;
+
+    this.type         = null;
   };
 
   return ItemConstructor;
@@ -1479,7 +1635,7 @@ app.factory('Item', function() {
 app.factory('Diet', function() {
 
   var DietConstructor = function DietConstructor () {
-    this.type         = null;
+    this.category     = null;
     this.hashtag      = null;
     this.description  = null;
 
@@ -1492,6 +1648,18 @@ app.factory('Diet', function() {
   return DietConstructor;
 });
 
+app.factory('Day', function() {
+
+  var DayConstructor = function DayConstructor () {
+    this.day       = { name: null, order: null };
+    this.title     = null; // for dietplans, like 'carb load'
+    this.meals     = [];
+    this.exercises = [];
+  };
+
+  return DayConstructor;
+
+});
 
 app.factory('Meal', function() {
 
@@ -1526,8 +1694,9 @@ app.factory('Recipe', function() {
     this.cost        = null;
     this.preptime    = null;
     this.cooktime    = null;
-    this.equipment   = [];
+    this.equipment   = null;
     this.steps       = [];
+    this.ingredients = [];
 
     this.calories    = null;
     this.fats        = null;
@@ -1570,13 +1739,30 @@ app.factory('Ingredient', function() {
 
 
 
-app.factory('dietPlans', function ($http, auth, items) {
+app.factory('dietplans', function ($http, auth) {
   var o = {};
 
-  o.create = function(diet) {
-    return items.create(diet).success(function(data) {
-      console.log('itemcreatedata', data);
-      return $http.post('/api/dietPlans/' + data._id, diet );
+  o.get = function(diet_id) {
+    return $http.get('/api/item/dietplan/' + diet_id, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  o.update = function(diet) {
+    // diet._id
+    return $http.put('/api/item/dietplan/' + diet.dietplan, diet, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
+  o.createRecipe = function(recipe) {
+    return $http.post('/api/item/dietplan/recipes', recipe, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
+  o.createIngredient = function(ingredient) {
+    return $http.post('/api/item/dietplan/ingredients', ingredient, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
 
@@ -1584,36 +1770,85 @@ app.factory('dietPlans', function ($http, auth, items) {
 });
 
 
+/*
 
-//   o.newPlan = function (plan, id) {
-//     return $http.post('/api/workoutPlans/' + id, plan, {
-//       headers: {Authorization: 'Bearer '+auth.getToken()}
-//     }).success(function(data) {
-//       // base item data comes back from API, extend it with
-//       // the item's original submitted descriptive parameters
-//       var extendedItem = angular.extend(data, plan);
-//       o.items.push(extendedItem);
-//     });
-//   };
-//   o.newStep = function (step, id) {
-//     return $http.post('/api/item/exercise/' + id, step, {
-//       headers: {Authorization: 'Bearer '+auth.getToken()}
-//     }).success(function(data) {
-//       // base item data comes back from API, extend it with
-//       // the item's original submitted descriptive parameters
-//       var extendedItem = angular.extend(data, step);
-//       o.items.push(extendedItem);
-//     });
-//   };
+ROW WIDGET FOR ADDING UNITS TO SUBARRAYS OF ITEMS & EVENTS
+- subobject                   -> OBJECT
+--------------------------------------------------
+- meals, recipes, ingredients -> DIETPLANS
+- packages                    -> BOOTCAMPS
+- items                       -> ONLINE CHALLENGES
+- exercises                   -> WORKOUTPLANS ?
+<!-- <add-widget class="colasyoulike" parent="recipe" children="ingredients"> -->
+<!-- recipe.ingredients = [ ingredient ] -->
+<add-widget parent="recipe" child="'ingredient'" children="recipe.ingredients"></add-widget>
+*/
+app.directive('tvAddWidget', function () {
 
-//   o.addTransaction = function(id, transaction) {
-//     return $http.post('/api/items/' + id + '/transactions', transaction, {
-//       headers: {Authorization: 'Bearer '+transactions.getToken()}
-//     }).success(function(data){
-//       transactions.push(data);
-//     });
-//   };
-//   return o;
-  
+  return {
+    restrict: 'E', 
+    scope: {
+      parent: '=parent',
+      items: '=children'
+    },
+    transclude: true,
+    controller: 'addWidgetCtrl',
+    template: ['<div>',
+               '<ng-transclude></ng-transclude>',
+               // '<tv-add-widget-item ng-repeat="item in items"></tv-add-widget-item>',
+               // '<tv-add-widget-form></add-widget-form>',
+               // '<tv-add-widget-plus><tv-add-widget-plus>',
+               '</div>'
+               ].join(),
+    // templateUrl: 'addwidget.tpl.html',
+    // link: function(scope, element, attrs) {}
+  };
 
-// });
+});
+
+app.directive('tvAddWidgetItem', function () {
+
+  return {
+    restrict: 'E', 
+    require: 'tvAddWidget',
+    transclude: true,
+    replace: true,
+    template: ['<div>',
+                 '<div class="add-widget-photo"><i class="fa fa-3x fa-photo"></i></div>',
+                 // '<div class="add-widget-photo"><img src="item.photo"/></div>',
+                 '<div class="add-widget-title">{{item.name}}</div>',
+                 '<div class="add-widget-body"><ng-transclude></ng-transclude></div>',
+               '</div>'
+              ].join()
+    }
+  };
+
+});
+
+app.directive('tvAddWidgetForm', function () {
+
+  return {
+    restrict: 'E', 
+    require: 'tvAddWidget',
+    transclude: true,
+    replace: true,
+    template: '<div><ng-transclude></ng-transclude></div>',
+    link: function(scope, element, attrs) {
+    }
+  };
+});
+
+app.directive('tvAddWidgetPlus', function () {
+  return {
+    restrict: 'E', 
+    template: '<div style="border: 1px solid #999"><i class="fa fa-2x fa-plus"></i></div>'
+  };
+});
+
+
+app.controller('addWidgetCtrl', function($scope) {
+    $scope.initChild = function() {
+        console.log('init child');
+
+    };
+});

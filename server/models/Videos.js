@@ -7,6 +7,6 @@ var VideoSchema = new mongoose.Schema({
   year: String,
   studio: String,
   description: String,
-  item: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }]
+  item: { type: mongoose.Schema.Types.ObjectId, ref: 'Item' }
 });
 mongoose.model('Video', VideoSchema);

@@ -122,6 +122,16 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth, userPromise) {
    // mixpanel.track("Shop Page: Added Item");
  };
 
+ $scope.itemTitles = {
+  workoutplan: 'Workout Plan',
+  dietplan: 'Diet Plan',
+  book: 'Book',
+  video: 'Video',
+  podcast: 'Podcast',
+  bootcamp: 'Bootcamp',
+  challenge: 'Online Challenge'
+ };
+
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     // mixpanel.alias($scope.user._id);
@@ -129,15 +139,23 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth, userPromise) {
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Shop Page: Upvoted Comment");
   };  
+
+  $scope.editItem = function(item) {
+    items.populate(item).success(function(item) {
+      $scope.item = item;
+    });
+  };
+
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
 });
 
 
-app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
+app.controller('ItemCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
 
   $scope.items = items.items;
   $scope.item = itemPromise;
+
   $scope.createDay = function(){
     items.newDay($stateParams.id, $scope.day.day).success(function(day) {
       $scope.item.days.push(day);
