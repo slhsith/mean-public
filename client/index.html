@@ -18,7 +18,7 @@
     <link rel="SHORTCUT ICON" href="images/favicon.ico" />
 
     <!-- //// BOOTSTRAP \\\\ -->
-    <link rel="stylesheet" href="//ajax.aspnetcdn.com/ajax/bootstrap/3.3.2/css/bootstrap.min.css" />m
+    <link rel="stylesheet" href="//ajax.aspnetcdn.com/ajax/bootstrap/3.3.2/css/bootstrap.min.css" />
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css" />
     <!-- //// CSS \\\\ -->
 <!--
@@ -61,117 +61,112 @@ for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElemen
 
 </head>
 <body ng-controller="MainCtrl">
-  <div id="fb-root"></div>
-    <script>(function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s); js.id = id;
-        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.3&appId=692480267528460";
-        fjs.parentNode.insertBefore(js, fjs);
-      }(document, 'script', 'facebook-jssdk'));
-   </script>
-   
+
   <div class="row">
     <div class="col-md-6 col-md-offset-3">
 
-  <div class="page-header">
-    <h1>Mean Starter</h1>
-  </div>
+      <div class="page-header">
+        <h1>Mean Starter</h1>
+      </div>
 
-  <div ng-show="error" class="alert alert-danger row">
-    <span>{{ error.message }}</span>
-  </div>
+      <div ng-show="error" class="alert alert-danger row">
+        <span>{{ error.message }}</span>
+      </div>
 
-  <div ng-show="success" class="alert alert-success row">
-    <span>Check your email</span>
-  </div>
+      <div ng-show="success" class="alert alert-success row">
+        <span>Check your email</span>
+      </div>
 
-  <form ng-model="register" ng-submit="register()"
-    style="margin-top:30px;">
-    <h3>Register</h3>
-    
-    <div class="form-group">
-      <input type="text"
-      class="form-control"
-      placeholder="First Name"
-      ng-model="user.f_name"></input>
-    </div>
-    <div class="form-group">
-      <input type="text"
-      class="form-control"
-      placeholder="Last Name"
-      ng-model="user.l_name"></input>
-    </div>
-    <div class="form-group">
-      <input type="text"
-      class="form-control"
-      placeholder="Handle"
-      ng-model="user.handle"></input>
-    </div>
-    <div class="form-group">
-      <input type="email"
-      class="form-control"
-      placeholder="Email"
-      ng-model="user.username"></input>
-    </div>
-    <div class="form-group">
-      <input type="email"
-      class="form-control"
-      placeholder="Repeat Email"
-      ng-model="user.repeat_username"></input>
-    </div>
-    <div class="form-group">
-      <input type="password"
-      class="form-control"
-      placeholder="Password"
-      ng-model="user.password"></input>
-    </div>
-    <div class="form-group">
-      <input type="password"
-      class="form-control"
-      placeholder="Repeat Password"
-      ng-model="user.repeat_password"></input>
-    </div>
-    <button type="submit" class="btn btn-primary">Register</button>
-  </form>
+      <form ng-model="register" ng-submit="register()"
+        style="margin-top:30px;">
+        <h3>Register</h3>
+        
+        <div class="form-group">
+          <input type="text"
+          class="form-control"
+          placeholder="First Name"
+          ng-model="user.f_name"></input>
+        </div>
+        <div class="form-group">
+          <input type="text"
+          class="form-control"
+          placeholder="Last Name"
+          ng-model="user.l_name"></input>
+        </div>
+        <div class="form-group">
+          <input type="text"
+          class="form-control"
+          placeholder="Handle"
+          ng-model="user.handle"></input>
+        </div>
+        <div class="form-group">
+          <input type="email"
+          class="form-control"
+          placeholder="Email"
+          ng-model="user.username"></input>
+        </div>
+        <div class="form-group">
+          <input type="email"
+          class="form-control"
+          placeholder="Repeat Email"
+          ng-model="user.repeat_username"></input>
+        </div>
+        <div class="form-group">
+          <input type="password"
+          class="form-control"
+          placeholder="Password"
+          ng-model="user.password"></input>
+        </div>
+        <div class="form-group">
+          <input type="password"
+          class="form-control"
+          placeholder="Repeat Password"
+          ng-model="user.repeat_password"></input>
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+      </form>
 
 
-  <form ng-model="login" ng-submit="logIn()"
-    style="margin-top:30px;">
-    <h3>Log In</h3>
+      <form ng-model="login" ng-submit="logIn()"
+        style="margin-top:30px;">
+        <h3>Log In</h3>
 
-    <div class="form-group">
-      <input id="login" type="email"
-      class="form-control"
-      placeholder="Email"
-      ng-model="login.username"></input>
-    </div>
-    <div class="form-group">
-      <input id="login" type="password"
-      class="form-control"
-      placeholder="Password"
-      ng-model="login.password"></input>
-    </div>
-    <button type="submit" class="btn btn-primary">Log In</button>
-  </form>
+        <div class="form-group">
+          <input id="login" type="email"
+          class="form-control"
+          placeholder="Email"
+          ng-model="login.username"></input>
+        </div>
+        <div class="form-group">
+          <input id="login" type="password"
+          class="form-control"
+          placeholder="Password"
+          ng-model="login.password"></input>
+        </div>
+        <button type="submit" class="btn btn-primary">Log In</button>
+      </form>
 
-  
-  <form ng-model="forgot" ng-submit="forgotPassword()"
-    style="margin-top:30px;">
-    <h3>Reset Your Password</h3>
+      <div class="button-list hidden-sm hidden-xs">
+            <a href="/auth/facebook" class="btn btn-lg btn-social-facebook" style="padding-left: 0px"><i class="fa fa-facebook-square"></i> Facebook</a>
+      </div>
 
-    <div class="form-group">
-      <input id="forgot" type="email"
-      class="form-control"
-      placeholder="Enter Email"
-      ng-model="forgot.username"></input>
-    </div>
-    <button type="submit" class="btn btn-primary">Reset Your Password</button>
-  </form>
+      <div class="button-list visible-xs visible-sm">
+              <a href="/auth/facebook" class="btn btn-lg btn-social-logo facebook"><i class="fa fa-facebook-square"></i></a>
+      </div>
 
-  <div style="margin-top: 30px">
-    <a href="/auth/facebook">Login with Facebook</a>
-  </div>
+      
+      <form ng-model="forgot" ng-submit="forgotPassword()"
+        style="margin-top:30px;">
+        <h3>Reset Your Password</h3>
+
+        <div class="form-group">
+          <input id="forgot" type="email"
+          class="form-control"
+          placeholder="Enter Email"
+          ng-model="forgot.username"></input>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-bottom: 20px">Reset Your Password</button>
+      </form>
     </div>
 </div>
 
@@ -187,57 +182,6 @@ for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElemen
  <script src="dist/all.min.js"></script>
  <script src="dist/templates.js"></script>
 
-<!-- 
-  // Load the SDK asynchronously
-  (function(d, s, id) {
-    var js, fjs = d.getElementsByTagName(s)[0];
-    if (d.getElementById(id)) return;
-    js = d.createElement(s); js.id = id;
-    js.src = "//connect.facebook.net/en_US/sdk.js";
-    fjs.parentNode.insertBefore(js, fjs);
-  }(document, 'script', 'facebook-jssdk'));
-
-  // Here we run a very simple test of the Graph API after login is
-  // successful.  See statusChangeCallback() for when this call is made.
-  function testAPI() {
-    console.log('Welcome!  Fetching your information.... ');
-    FB.api('/me', function(response) {
-      console.log('Successful login for: ' + response.name);
-      document.getElementById('status').innerHTML =
-        'Thanks for logging in, ' + response.name + '!';
-    });
-  }
-/script>
- -->
-<!-- <!
-  Below we include the Login Button social plugin. This button uses
-  the JavaScript SDK to present a graphical Login button that triggers
-  the FB.login() function when clicked.
-
-
-<!fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
-/fb:login-button>  -->
-<!-- 
-<div id="status">
-</div> -->
-
-<!--       window.fbAsyncInit = function() {
-        FB.init({
-          appId      : '692480267528460',
-          status: true, 
-          cookie: true, 
-          xfbml: true,
-          version    : 'v2.3'
-        });
-      };
-
-      (function(d, s, id){
-         var js, fjs = d.getElementsByTagName(s)[0];
-         if (d.getElementById(id)) {return;}
-         js = d.createElement(s); js.id = id;
-         js.src = "//connect.facebook.net/en_US/sdk.js";
-         fjs.parentNode.insertBefore(js, fjs);
-       }(document, 'script', 'facebook-jssdk')); -->
 
 </body>
 </html>

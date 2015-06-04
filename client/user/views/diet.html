@@ -7,7 +7,7 @@
     <span>
       <a href="#/transactions">Buy Item</a><br>
     </span>
-    <form ng-submit="createDay()"
+    <form ng-submit="createDiet()"
         ng-show="isLoggedIn()"
         style="margin-top:30px;">
       <select ng-model="day.day">
@@ -21,11 +21,15 @@
         <option value="Saturday">Saturday</option>
       </select>
       <br>
-      <button class="btn btn-primary" type="submit">Add Day</button>
+      <input ng-model="day.title" placeholder="Title for Meal"/>
+      <button class="btn btn-primary" type="submit">Post</button>
+
+      ng-model=diet.day, diet.meal, diet.recipe {}
+      $scope.diet{ 'day': 'Sunday', 'meal': 'Breakfast', 'recipe': 210W(%)35DS35 }
+
     </form>
 </div>
 
-  <div>
     <span>
       <a href="#/home">Home Page</a>
     </span>

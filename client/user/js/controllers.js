@@ -101,6 +101,7 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 });
 
 
+
 app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
 
   $scope.items = items.items;
@@ -135,6 +136,15 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
 
   $scope.items = items.items;
   $scope.item = itemPromise;
+  item = itemPromise;
+  $scope.deleteItem = function () {
+    console.log(item._id);
+    items.delete($scope.item._id).success(function(data){
+        console.log('success');
+        $scope.items = items.items;
+        console.log(data);
+    });
+  };
   $scope.createDay = function(){
     items.newDay($stateParams.id, $scope.day.day).success(function(day) {
       $scope.item.days.push(day);
@@ -258,19 +268,22 @@ function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
   $scope.gposts = gposts.gposts;
   $scope.gcomments = gcomments.gcomments;
   $scope.addGpost = function(){
+    console.log($stateParams.id);
+    console.log($scope.gpost);
     // if(!$scope.body || $scope.body === '') { return; }
-    groups.createGpost($scope.group, $scope.gpost).success(function(gpost) {
+    groups.createGpost($scope.gpost, $stateParams.id).success(function(gpost) {
       $scope.group.gposts.push(gpost);
-      $scope.gpost.body = null;
+      $scope.gpost = null;
     });
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
   };
-  $scope.addGcomment = function (gpost) {
-    // groups.createGcomment($scope.gpost, $scope.gcomment)
-    console.log(gpost);
-    console.log($scope.gcomment);
+  $scope.addGcomment = function (gpost, gcomment) {
+    console.log('in controller', gpost, gcomment);
+    gpost.gcomments.push(gcomment);
+    groups.createGcomment(gpost._id, gcomment); 
+    console.log(gpost._id, gcomment);
   };
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;

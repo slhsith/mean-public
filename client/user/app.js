@@ -25,7 +25,7 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'PostCtrl',
       resolve: {
         postPromise: function($stateParams, posts) {
-          return posts.get($stateParams.post);
+        return posts.get($stateParams.post);
         }
       }
     })
@@ -49,7 +49,6 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function($stateParams, items) {
           console.log($stateParams);
-      
           return items.get($stateParams.item);
         }
       }
@@ -146,11 +145,8 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         groupsPromise: function($stateParams, groups){
           return groups.get($stateParams.id);
-        },
-        gpostsPromise: function ($stateParams, gposts){
-          return gposts.getAll($stateParams.id);
         }
-      }
+      } 
     })
     .state('messenger', {
       url: '/messenger',
@@ -203,5 +199,5 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     });
-  // $urlRouterProvider.otherwise('home');
+  $urlRouterProvider.otherwise('home');
 }]);

@@ -25,7 +25,7 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'PostCtrl',
       resolve: {
         postPromise: function($stateParams, posts) {
-          return posts.get($stateParams.post);
+        return posts.get($stateParams.post);
         }
       }
     })
@@ -49,7 +49,6 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function($stateParams, items) {
           console.log($stateParams);
-      
           return items.get($stateParams.item);
         }
       }
@@ -146,11 +145,8 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         groupsPromise: function($stateParams, groups){
           return groups.get($stateParams.id);
-        },
-        gpostsPromise: function ($stateParams, gposts){
-          return gposts.getAll($stateParams.id);
         }
-      }
+      } 
     })
     .state('messenger', {
       url: '/messenger',
@@ -203,8 +199,9 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     });
-  // $urlRouterProvider.otherwise('home');
+  $urlRouterProvider.otherwise('home');
 }]);
+
 /*  ------------------  *
     CONTROLLERS - USER
  *  ------------------  */
@@ -308,6 +305,7 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 });
 
 
+
 app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
 
   $scope.items = items.items;
@@ -342,6 +340,15 @@ app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPro
 
   $scope.items = items.items;
   $scope.item = itemPromise;
+  item = itemPromise;
+  $scope.deleteItem = function () {
+    console.log(item._id);
+    items.delete($scope.item._id).success(function(data){
+        console.log('success');
+        $scope.items = items.items;
+        console.log(data);
+    });
+  };
   $scope.createDay = function(){
     items.newDay($stateParams.id, $scope.day.day).success(function(day) {
       $scope.item.days.push(day);
@@ -465,19 +472,22 @@ function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
   $scope.gposts = gposts.gposts;
   $scope.gcomments = gcomments.gcomments;
   $scope.addGpost = function(){
+    console.log($stateParams.id);
+    console.log($scope.gpost);
     // if(!$scope.body || $scope.body === '') { return; }
-    groups.createGpost($scope.group, $scope.gpost).success(function(gpost) {
+    groups.createGpost($scope.gpost, $stateParams.id).success(function(gpost) {
       $scope.group.gposts.push(gpost);
-      $scope.gpost.body = null;
+      $scope.gpost = null;
     });
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
   };
-  $scope.addGcomment = function (gpost) {
-    // groups.createGcomment($scope.gpost, $scope.gcomment)
-    console.log(gpost);
-    console.log($scope.gcomment);
+  $scope.addGcomment = function (gpost, gcomment) {
+    console.log('in controller', gpost, gcomment);
+    gpost.gcomments.push(gcomment);
+    groups.createGcomment(gpost._id, gcomment); 
+    console.log(gpost._id, gcomment);
   };
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
@@ -611,6 +621,14 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   o.getAll = function() {
     return $http.get('/api/items').success(function(data){
       angular.copy(data, o.items);
+    });
+  };
+  o.delete = function(id) {
+    console.log(item);
+    return $http.delete('/api/items/' + item._id, item).success(function(data) {
+    // return $http.delete('/api/items/' + item).success(function(data){
+    //   return data;
+      // return this.findByIdAndRemove(item);
     });
   };
   o.getAllVideos = function () {
@@ -858,6 +876,9 @@ app.factory('settings', function ($http, $window) {
         s.settings = data;
       });
    };
+   s.uploadAvatar = function (user){
+       
+   };
    s.get = function (handle) {
      return $http.get('/api/user/handle/' + handle).success(function(data){
        console.log(data);
@@ -949,18 +970,18 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
       return data;
     });
   };
-  o.createGpost = function(group, gpost) {
-    console.log(group, gpost);
-    return $http.post('/api/group/' + group._id + '/gposts', gpost, {
+  o.createGpost = function(gpost, id) {
+    console.log(gpost, id);
+    return $http.post('/api/group/' + id + '/gposts', gpost, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
-  o.createGcomment = function (gpost, gcomment) {
-    console.log(gpost);
-    console.log(gcomment);
-    // return $http.post('/api/group/'+group._id+'gpost/' + gpost._id + '/gcomments', gcomment, {
-    //   headers: {Authorization: 'Bearer '+auth.getToken()}
-    // });
+  o.createGcomment = function (gpost_id, gcomment) {
+    console.log('gpost_id in factory', gpost_id);
+    console.log('gcomment in factory', gcomment);
+    return $http.post('/api/gpost/' + gpost_id + '/gcomments', gcomment, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
   };
   return o;
 }]);
@@ -1011,150 +1032,6 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   };
   return o;
 }]); 
-
-
-/*  ----------------------  *
-    CONTROLLER - DIETPLAN
- *  ----------------------  */
-/* 
-/* ---------------------------- */
-app.controller('DietCtrl', function ($scope, $attrs, Meal, Diet, Recipe, CookingStep, Ingredient) {
-  var self = this;
-  $scope.debug = true;
-
-  // ---- INIT SCOPE ----  //
-  this.init = function(element) {
-    self.$element = element;
-    $scope.diet = $scope.item || new Diet({});
-  };
-
-
-  $scope.meal = new Meal({});
-  $scope.recipe = new Recipe({});
-  $scope.initStep = function() {
-    $scope.step = new CookingStep({order: $scope.recipe.steps.length});
-  };
-  $scope.initIngredient = function() {
-    $scope.ingredient = new Ingredient({});
-  };
-  $scope.cancelIngredient = function() {
-    $scope.ingredient = null;
-  };
-
-
-  $scope.showRecipe = false;
-
-  // // ------ METHODS FOR CONVERSATIONS ------ //
-
-  $scope.initNewRecipe = function() {
-    $scope.showRecipe = true;
-    $scope.recipe = new Recipe({});
-  };
-
-
-
-});
-
-app.directive('dietPlan', function () {
-  
-  return {
-    restrict: 'E', 
-    scope: {
-      item: '='
-    },
-    controller: 'DietCtrl',
-    templateUrl: 'shop.dietplan.tpl.html',
-    link: function(scope, element, attrs, DietCtrl) {
-      DietCtrl.init( element );
-    }
-  };
-
-});
-
-
-
-app.factory('Meal', function() {
-  var Meal = function(meal) {
-    var self = this;
-    self.title        = meal.title || null;
-    self.type         = meal.type || null;
-    self.description  = meal.description || null;
-    self.day          = meal.day || 1 || null;
-    self.cooktime     = meal.cooktime || null;
-    self.recipes      = meal.recipes || [];
-  };
-
-  return Meal;
-});
-
-app.factory('Diet', function() {
-
-  var Diet = function(item) {
-    var self = this;
-    self.title = item.title || null;
-    self.price = item.price;
-    self.duration = 1;
-  };
-
-  return Diet;
-
-});
-
-app.factory('Recipe', function() {
-
-  var Recipe = function (recipe) {
-    var self         = this;
-    self.title       = recipe.title || null;
-    self.type        = recipe.type || null;
-    self.description = recipe.description || null;
-
-    self.yield       = recipe.yield || null;
-    self.calories    = recipe.calories || null;
-    self.fats        = recipe.fats || null;
-    self.carbs       = recipe.carbs || null;
-    self.proteins    = recipe.proteins || null;
-
-    self.cost        = recipe.cost || null;
-    self.preptime    = recipe.preptime || null;
-    self.cooktime    = recipe.cooktime || null;
-
-    self.equipment   = recipe.equipment || [];
-    self.steps       = recipe.steps || [];
-
-    self.video       = recipe.video || null;
-    self.coverphoto  = recipe.coverphoto || null;
-    self.photos      = recipe.photos || [];
-
-  };
-
-  return Recipe;
-
-});
-
-app.factory('CookingStep', function() {
-
-  var CookingStep = function() {
-    this.order       = null;
-    this.description = null;
-    this.photo       = null;
-  };
-  return CookingStep;
-
-});
-
-app.factory('Ingredient', function() {
-
-  var Ingredient = function() {
-    this.title       = null;
-    this.description = null;
-    this.photo       = null;
-    this.measure     = null;
-    this.unit        = null;
-  };
-
-  return Ingredient;
-
-});
 
 
 /*  ----------------------  *
@@ -1460,3 +1337,146 @@ app.factory('messageSocket', function(socketFactory) {
   
   return socket;
 });
+/*  ----------------------  *
+    CONTROLLER - DIETPLAN
+ *  ----------------------  */
+/* 
+/* ---------------------------- */
+app.controller('DietCtrl', function ($scope, $attrs, Meal, Diet, Recipe, CookingStep, Ingredient) {
+  var self = this;
+  $scope.debug = true;
+
+  // ---- INIT SCOPE ----  //
+  this.init = function(element) {
+    self.$element = element;
+    $scope.diet = $scope.item || new Diet({});
+  };
+
+
+  $scope.meal = new Meal({});
+  $scope.recipe = new Recipe({});
+  $scope.initStep = function() {
+    $scope.step = new CookingStep({order: $scope.recipe.steps.length});
+  };
+  $scope.initIngredient = function() {
+    $scope.ingredient = new Ingredient({});
+  };
+  $scope.cancelIngredient = function() {
+    $scope.ingredient = null;
+  };
+
+
+  $scope.showRecipe = false;
+
+  // // ------ METHODS FOR CONVERSATIONS ------ //
+
+  $scope.initNewRecipe = function() {
+    $scope.showRecipe = true;
+    $scope.recipe = new Recipe({});
+  };
+
+
+
+});
+
+app.directive('dietPlan', function () {
+  
+  return {
+    restrict: 'E', 
+    scope: {
+      item: '='
+    },
+    controller: 'DietCtrl',
+    templateUrl: 'shop.dietplan.tpl.html',
+    link: function(scope, element, attrs, DietCtrl) {
+      DietCtrl.init( element );
+    }
+  };
+
+});
+
+
+
+app.factory('Meal', function() {
+  var Meal = function(meal) {
+    var self = this;
+    self.title        = meal.title || null;
+    self.type         = meal.type || null;
+    self.description  = meal.description || null;
+    self.day          = meal.day || 1 || null;
+    self.cooktime     = meal.cooktime || null;
+    self.recipes      = meal.recipes || [];
+  };
+
+  return Meal;
+});
+
+app.factory('Diet', function() {
+
+  var Diet = function(item) {
+    var self = this;
+    self.title = item.title || null;
+    self.price = item.price;
+    self.duration = 1;
+  };
+
+  return Diet;
+
+});
+
+app.factory('Recipe', function() {
+
+  var Recipe = function (recipe) {
+    var self         = this;
+    self.title       = recipe.title || null;
+    self.type        = recipe.type || null;
+    self.description = recipe.description || null;
+
+    self.yield       = recipe.yield || null;
+    self.calories    = recipe.calories || null;
+    self.fats        = recipe.fats || null;
+    self.carbs       = recipe.carbs || null;
+    self.proteins    = recipe.proteins || null;
+
+    self.cost        = recipe.cost || null;
+    self.preptime    = recipe.preptime || null;
+    self.cooktime    = recipe.cooktime || null;
+
+    self.equipment   = recipe.equipment || [];
+    self.steps       = recipe.steps || [];
+
+    self.video       = recipe.video || null;
+    self.coverphoto  = recipe.coverphoto || null;
+    self.photos      = recipe.photos || [];
+
+  };
+
+  return Recipe;
+
+});
+
+app.factory('CookingStep', function() {
+
+  var CookingStep = function() {
+    this.order       = null;
+    this.description = null;
+    this.photo       = null;
+  };
+  return CookingStep;
+
+});
+
+app.factory('Ingredient', function() {
+
+  var Ingredient = function() {
+    this.title       = null;
+    this.description = null;
+    this.photo       = null;
+    this.measure     = null;
+    this.unit        = null;
+  };
+
+  return Ingredient;
+
+});
+
