@@ -59,12 +59,10 @@ router.get('/api/item/exercise/:exercise', shop.getExercise );
 router.post('/api/item/exercise/:exercise', shop.newStep );
 router.get('/api/item/step/:step', shop.getStep );
 
-router.get('/api/item/dietplan/:dietplanid', auth, shop.getDietPlanById );
-router.put('/api/item/dietplan/:dietplanid', auth, shop.updateDietPlan );
-router.post('/api/item/dietplans/recipes', auth, shop.createRecipe );
-router.post('/api/item/dietplans/ingredients', auth, shop.createIngredient );
-router.get('/api/item/dietplans/recipes/:query', auth, shop.searchRecipes );
-router.get('/api/item/dietplans/ingredients/:query', auth, shop.searchIngredients );
+router.post('/api/item/dietplan/recipes', auth, shop.createRecipe );
+router.post('/api/item/dietplan/ingredients', auth, shop.createIngredient );
+router.get('/api/item/dietplan/recipes/:query', auth, shop.searchRecipes );
+router.get('/api/item/dietplan/ingredients/:query', auth, shop.searchIngredients );
 
 // Item page & transaction
 router.post('/api/transactions', auth, shop.createTransaction );

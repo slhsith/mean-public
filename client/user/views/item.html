@@ -5,11 +5,12 @@
       </span>
     </h3>
     <span>
-      <a href="#/transactions">Buy Item</a>
+      <a ng-href="#/transactions/{{item._id}}">Buy Item</a>
     </span>
 </div>
 
-<diet-plan ng-show="item.dietplan" item="item"></diet-plan>
+<digital-media ng-if="item.video || item.book || item.podcast" item="item"></digital-media>
+<diet-plan ng-if="item.dietplan" item="item"></diet-plan>
 
   <div id="fb-root"></div>
     <script>
