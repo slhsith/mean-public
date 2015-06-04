@@ -26,7 +26,7 @@
           {{item.genre? item.genre + ',' : '' }}
     </h4>
           
-    <a ng-hide="item.type === 'dietplan' || item.type==='workoutplan' || item.type==='challenge'" href="#/items/{{item._id}}">Go to Item Page</a>
+    <a ng-hide="item.type === 'dietplan' || item.type==='workoutplan' || item.type==='challenge'" href="#/item/{{item._id}}">Go to Item Page</a>
     <a ng-if="item.type === 'dietplan'" ng-click="editItem(item)">Edit</a>
     <a ng-if="item.type === 'challenge'" href="#/items/challenge/{{item._id}}">Go to Challenge Page</a>
     <a ng-if="item.type === 'workoutplan'" href="#/items/workoutplan/{{item._id}}">Go to Workout Plan Page</a>
@@ -60,11 +60,11 @@
   </div>
 
   <!-- - - - - - - - - - - - - - WORKOUT - - - - - - - - - - - -->
-  <workout-plan item="item" ng-show="item.type === 'workoutplan'"></workout-plan>
+  <workout-plan item="item" ng-show="item.workoutplan"></workout-plan>
   <!-- - - - - - - - - - - - - - DIET - - - - - - - - - - - -->
-  <diet-plan item="item" ng-show="item.type === 'dietplan'"></diet-plan>
+  <diet-plan item="item" ng-if="item.type === 'dietplan'"></diet-plan>
   <!-- - - - - - - - - - - - - - MEDIA - - - - - - - - - - - -->
-  <digital-media item="item" ng-show="item.type === 'video' || item.type === 'podcast' || item.type === 'book'"></digital-media>
+  <digital-media item="item" ng-if="item.type === 'video' || item.type === 'podcast' || item.type === 'book'"></digital-media>
 
 
   <div id="fb-root"></div>
