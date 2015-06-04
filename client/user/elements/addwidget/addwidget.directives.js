@@ -16,38 +16,38 @@ app.directive('tvAddWidget', function () {
   return {
     restrict: 'E', 
     scope: {
-      parent: '=parent',
-      items: '=children'
+      set: '=',
+      item: '='
     },
     transclude: true,
+    replace: true,
     controller: 'addWidgetCtrl',
-    template: ['<div>',
-               '<ng-transclude></ng-transclude>',
+    template: '<div><ng-transclude></ng-transclude></div>'
                // '<tv-add-widget-item ng-repeat="item in items"></tv-add-widget-item>',
                // '<tv-add-widget-form></add-widget-form>',
                // '<tv-add-widget-plus><tv-add-widget-plus>',
-               '</div>'
-               ].join(),
     // templateUrl: 'addwidget.tpl.html',
     // link: function(scope, element, attrs) {}
   };
 
 });
 
-app.directive('tvAddWidgetItem', function () {
+app.directive('tvAddWidgetItems', function () {
+  var template = [
+    '<div ng-repeat="item in set">',
+      '<div class="add-widget-photo"><i class="fa fa-3x fa-photo"></i></div>',
+      // '<div class="add-widget-photo"><img src="item.photo"/></div>',
+      '<div class="add-widget-title">{{set}} {{item.name}}</div>',
+      '<div class="add-widget-body"><ng-transclude></ng-transclude></div>',
+    '</div>'
+  ].join('');
 
   return {
     restrict: 'E', 
     require: 'tvAddWidget',
     transclude: true,
     replace: true,
-    template: ['<div>',
-                 '<div class="add-widget-photo"><i class="fa fa-3x fa-photo"></i></div>',
-                 // '<div class="add-widget-photo"><img src="item.photo"/></div>',
-                 '<div class="add-widget-title">{{item.name}}</div>',
-                 '<div class="add-widget-body"><ng-transclude></ng-transclude></div>',
-               '</div>'
-              ].join()
+    template: template
     };
 
 });

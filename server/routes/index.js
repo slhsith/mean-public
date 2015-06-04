@@ -52,6 +52,7 @@ router.post('/api/items', auth, shop.postItem );
 // router.param('/api/item', shop.getItemByIdParam );
 router.get('/api/item/:id', shop.getItemById );
 router.put('/api/items/:item/upvote', auth, shop.upvoteItem );
+router.put('/api/item/:item', auth, shop.updateItem );
 
 router.get('/api/items/:item/exercises', shop.getExercises );
 router.post('/api/workoutPlans/:id', shop.createExercise );

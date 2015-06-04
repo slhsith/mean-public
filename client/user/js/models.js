@@ -134,7 +134,7 @@ app.factory('items', function($http, auth){
   // API hits specific to item type
   o.update = function(item) {
     // e.g. PUT diet @ /api/item/dietplan/dietplan_id, 
-    return $http.put('/api/item/' + item.type + '/' + item[item.type], item, {
+    return $http.put('/api/item/' + item._id, item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };

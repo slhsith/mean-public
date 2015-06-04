@@ -51,21 +51,29 @@ var subItemModel = {
   book: Book,
   podcast: Podcast
 };
+var types = ['workoutplan', 'dietplan', 'video', 'book', 'podcast'];
 
 // --- Exported Methods --- //
 
 // ----------------------------- ITEMS --------------------------------- //
 exports.getItems = function(req, res, next) {
    Item.find({})
-   .populate('exercise')
-   .populate('workoutplan')
-   .populate('dietplan')
-   .populate('video')
-   .populate('book')
-   .populate('podcast')
+   .populate('exercise workoutplan dietplan video book podcast')
    .exec(function(err, items){
+      var result = [];
+      items.forEach(function(item) {
+        item = item.toObject();
+        types.forEach(function(type) {
+          if (item[type] === null) {
+            console.log('null type');
+            delete item[type];
+          }
+        });
+        result.push(item);
+      });
+      console.log('ooooooo  > > > > items\n', result)
       if(err){ return next(err); }
-      return res.json(items);
+      return res.json(result);
    });
 };
 
@@ -113,7 +121,7 @@ function saveSubItem (err, item, subitem, callback) {
   });
 }
 
-function updateItem (err, item, subitem, callback) {
+function updateItemWithSubitemId (err, item, subitem, callback) {
   // this will be the update needed, matching the type of the item
   // e.g. { $set : { 'video' : video._id }} 
   var update = {};
@@ -135,7 +143,7 @@ exports.postItem = function(req, res, next) {
   var user = { _id: req.payload._id };
   saveItem(item, function(err, item) {
     saveSubItem(err, item, subitem, function(err, item, subitem) {
-      updateItem(err, item, subitem, function(err, item, subitem) {
+      updateItemWithSubitemId(err, item, subitem, function(err, item, subitem) {
         User.findByIdAndUpdate(
           req.payload._id,
           { $push: { items: item._id } },
@@ -178,24 +186,42 @@ exports.newStep = function (req, res, next) {
   });
 };
 
-// PUT FOR DIET PLAN 
-// ---> PUT /api/item/item_id/diet
-// MIGHT BE INTERNAL FUNCTION FOR EACH ITEM TYPE AND THEN WE WILL SWITCH ON SAME API
-// ---> PUT /api/item/item_id
-exports.updateDietPlan = function(req, res, next) {
-  // front end sees items with _id: item_id 
-  // and <Subitem>: subitem_id, swap for PUT 
-  swapIds(req.body);
-  // var  item_id  = req.body._id,
-    // subitem_id  = req.body[req.body.type];
-  // req.body._id  = subitem_id; // make sure what we post gets diet_id as _id
-  // req.body.item = item_id;    // item gets item_id
-  console.log('----> updating', req.body);
+/* in the front end, our items are flattened with the format
+{
+  _id: item_id,
+  <subtype>: subitem_id,
+  ...
+}
+We will want to update the subitem with the _id swapped to 
+{
+  _id: subitem_id,
+  item: item_id,
+  ...
+}
+*/
+exports.updateItem = function(req, res, next) {
+  var type = req.body.type;
+  var subitem_id = req.body[type];
+  var model = subItemModel[type];
 
-  DietPlan.findByIdAndUpdate(subitem_id, req.body, { new : true }, function(err, dietplan) {
-    if (err) { return next(err); }
-    return res.json(dietplan);//{'message': 'Successfully saved changes to diet plan.'});
-  });
+  Item.findByIdAndUpdate(
+    req.body._id,
+    req.body, 
+    function(err, item) {
+      if (err) { return next(err); }
+
+      swapIds(req.body);
+      model.findByIdAndUpdate(
+        subitem_id,
+        req.body,
+        {new: true},
+        function(err, subitem) {
+          if (err) { return next(err); }
+          return res.json(subitem);
+      });
+
+    }
+  );
 };
 
 

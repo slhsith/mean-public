@@ -51,7 +51,7 @@ app.factory('Meal', function() {
     this.type         = null;
     this.description  = null;
 
-    this.day          = null;
+    this.cost         = null;
     this.cooktime     = null;
     this.preptime     = null;
     this.recipes      = [];

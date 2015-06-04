@@ -7,42 +7,39 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
   var self = this;
   $scope.debug = true;
 
-  var _viewingDay, _mealCount, _dietduration;
-
   // ---- INIT SCOPE ----  //
   this.init = function(element) {
     self.$element = element;
 
-    generateDaysForFullDuration($scope.item);
+    // initDaysForFullDuration();
 
-    $scope.dayIndex  = 1;
-    $scope.mealIndex = 1;
-    _viewingDay = $scope.item.days[0];
-    _mealCount  = _viewingDay.meals.length;
-    console.log('_mealCount', _mealCount);
   };
 
-  function generateDaysForFullDuration (item) {
-    _dietduration = item.duration;
-    var days_existing = item.days.length, day;
-    while (days_existing < _dietduration) {
+  function initDaysForFullDuration () {
+    var duration = $scope.item.duration;
+    var day, days_existing = $scope.item.days.length;
+    while (days_existing < duration) {
         day = new Day();
         day.day.order = days_existing+1;
-        item.days.push(day);
+        $scope.item.days.push(day);
         days_existing++;
     } 
+    $scope.dayIndex  = 1;
+    $scope.mealIndex = 1;
+    $scope.viewingDay = $scope.item.days[0];
+    $scope.mealCount  = $scope.viewingDay.meals.length;
   }
 
 
   $scope.decrementDay = function() {
     if ($scope.dayIndex > 1) $scope.dayIndex--;
-    _viewingDay = $scope.item.days[$scope.dayIndex];
-    _mealCount = _viewingDay.meals.length;
+    $scope.viewingDay = $scope.item.days[$scope.dayIndex];
+    $scope.mealCount = $scope.viewingDay.meals.length;
   };
   $scope.incrementDay = function() {
     if ($scope.dayIndex < ($scope.item.days.length)) $scope.dayIndex++;
-    _viewingDay = $scope.item.days[$scope.dayIndex];
-    _mealCount  = _viewingDay.meals.length;
+    $scope.viewingDay = $scope.item.days[$scope.dayIndex];
+    $scope.mealCount  = $scope.viewingDay.meals.length;
   };
 
   $scope.decrementMeal = function() {
@@ -60,6 +57,7 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
 
   $scope.initMeal     = function() {
     $scope.meal = new Meal();
+    $scope.viewingDay.meals.push($scope.meal);
   };
   $scope.initRecipe   = function() {
     $scope.recipe = new Recipe();
@@ -98,9 +96,8 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
   };
 
   $scope.saveMeal     = function() {
-    $scope.item.day.push($scope.meal);
+    console.log('viewingDay', $scope.viewingDay);
     items.update($scope.item);
-    $scope.meal = new Meal();
   };
   $scope.saveRecipe   = function() {
     dietplans.createRecipe($scope.recipe);
