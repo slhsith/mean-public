@@ -16,22 +16,6 @@ var http = require('http');
 require('./server/models/Posts');
 require('./server/models/Comments');
 
-// shop
-require('./server/models/Items');
-require('./server/models/Videos');
-require('./server/models/Books');
-require('./server/models/Podcasts');
-require('./server/models/Transactions');
-require('./server/models/Customers');
-require('./server/models/DietPlans');
-require('./server/models/Bootcamps');
-require('./server/models/Challenges');
-require('./server/models/Days');
-require('./server/models/WorkoutPlans');
-require('./server/models/Exercises');
-require('./server/models/Steps');
-
-
 // user and groups
 require('./server/models/Users');
 require('./server/models/Languages');
@@ -39,6 +23,32 @@ require('./server/models/Groups');
 require('./server/models/Gposts');
 require('./server/models/Gcomments');
 require('./server/models/Followers');
+
+// shop
+require('./server/models/Items');
+
+require('./server/models/Exercises');
+require('./server/models/Steps');
+require('./server/models/Recipes');
+require('./server/models/Ingredients');
+require('./server/models/Meals');
+require('./server/models/Days');
+
+require('./server/models/WorkoutPlans');
+require('./server/models/DietPlans');
+
+require('./server/models/Videos');
+require('./server/models/Books');
+require('./server/models/Podcasts');
+
+require('./server/models/Transactions');
+require('./server/models/Customers');
+
+// events
+require('./server/models/Bootcamps');
+require('./server/models/Challenges');
+
+
 
 // messaging
 require('./server/models/Messages');
@@ -57,11 +67,13 @@ require('./server/controllers/settings');
 require('./server/config/passport');
 
 // app.configure('development', function() {
-  // mongoose.connect('mongodb://localhost/news');
+
+  mongoose.connect('mongodb://localhost/news');
+
 // });
 
 // app.configure('production', function() {
-mongoose.connect('mongodb://' + process.env.MONGOLAB_URI + '/news');
+// mongoose.connect('mongodb://' + process.env.MONGOLAB_URI + '/news');
 // });
 
 // var db = mongoose.connection;

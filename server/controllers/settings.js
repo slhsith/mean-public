@@ -79,7 +79,6 @@ exports.sign_s3 = function (req, res, next) {
 
 exports.submitSearch = function (req, res, next) {
   // let's make our query a regex
-  if (err) { return next(err); }
   var re = new RegExp(req.params.query, 'i');
   User.find()
     .or( [{f_name: { $regex: re }}, {l_name: {$regex: re}}] )
