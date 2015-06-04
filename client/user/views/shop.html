@@ -49,9 +49,9 @@
   <!-- - - - - - - - - - - - - - WORKOUT - - - - - - - - - - - -->
   <workout-plan item="item" ng-show="item.workoutplan"></workout-plan>
   <!-- - - - - - - - - - - - - - DIET - - - - - - - - - - - -->
-  <diet-plan item="item" ng-if="item.dietplan"></diet-plan>
+  <diet-plan item="item" ng-if="item.type === 'dietplan'"></diet-plan>
   <!-- - - - - - - - - - - - - - MEDIA - - - - - - - - - - - -->
-  <digital-media item="item" ng-show="item.video || item.podcast || item.book"></digital-media>
+  <digital-media item="item" ng-if="item.type === 'video' || item.type === 'podcast' || item.type === 'book'"></digital-media>
 
 
   <div id="fb-root"></div>
