@@ -570,7 +570,9 @@ app.factory('posts', function($http, auth){
   o.create = function(post) {
     console.log(post);
 
-    return $http.post('/api/posts', post).success(function(data){
+    return $http.post('/api/posts', post, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
       o.posts.push(data);
     });
 
@@ -1795,7 +1797,7 @@ app.factory('dietplans', function ($http, auth) {
 //                // '<tv-add-widget-form></add-widget-form>',
 //                // '<tv-add-widget-plus><tv-add-widget-plus>',
 //                '</div>'
-//                ].join()
+//                ].join(),
 //     // templateUrl: 'addwidget.tpl.html',
 //     // link: function(scope, element, attrs) {}
 //   };
