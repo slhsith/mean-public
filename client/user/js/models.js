@@ -300,7 +300,18 @@ app.factory('auth', function($http, $window){
       if(token){
        var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-        return payload.permissions === 'User' || 'Admin' || 'Collaborator';
+        return payload.permissions === 'User' || 'Admin' || 'Contributor';
+      } else {
+        return false;
+      }
+    };
+    auth.isContributor = function () {
+      var token = auth.getToken();
+
+      if(token){
+       var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.permissions === 'Admin' || 'Contributor';
       } else {
         return false;
       }

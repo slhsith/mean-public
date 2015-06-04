@@ -1,12 +1,13 @@
 <div ng-show="isUser()">
-  <div class="page-header">
-    <h3 class="text-center">Mean Starter</h3>
-    <button class="btn-primary col-md-4">Create Post</button>
-    <a href="#/shop"><button class="btn-default col-md-4">Create Digital Item</button></a>
-    <a href="#/events"><button class="btn-default col-md-4">Create Event</button></a>
-  </div>
+  <div ng-if="isContributor()">
+    <div class="page-header">
+      <h3 class="text-center">Mean Starter</h3>
+      <button class="btn-primary col-md-4">Create Post</button>
+      <a href="#/shop"><button class="btn-default col-md-4">Create Digital Item</button></a>
+      <a href="#/events"><button class="btn-default col-md-4">Create Event</button></a>
+    </div>
 
-  <form ng-submit="addPost()" ng-show="isLoggedIn()" style="margin-top:30px;">
+    <form ng-submit="addPost()" ng-show="isLoggedIn()" style="margin-top:30px;">
     <h3>Add a new post</h3>
       <div class="form-group">
         <input type="text"
@@ -22,7 +23,7 @@
       </div>
       <button type="submit" class="btn btn-primary col-md-2 col-md-offset-10">Post</button>
     </form>
-
+  </div>  
   <h3>Posts</h3>
   <div ng-repeat="post in posts | orderBy:'-upvotes'">
         <span class="glyphicon glyphicon-thumbs-up" ng-click="incrementUpvotes(post)"> </span>

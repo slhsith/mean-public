@@ -18,6 +18,7 @@
     });
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isUser = auth.isUser;
+  $scope.isContributor = auth.isContributor;
   $scope.isAdmin = auth.isAdmin;
   $scope.logOut = auth.logOut;
   $scope.isThisUser = auth.isThisUser;
