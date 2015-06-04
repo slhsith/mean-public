@@ -71,7 +71,6 @@ exports.getItems = function(req, res, next) {
         });
         result.push(item);
       });
-      console.log('ooooooo  > > > > items\n', result)
       if(err){ return next(err); }
       return res.json(result);
    });
