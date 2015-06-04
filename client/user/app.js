@@ -36,10 +36,10 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function (items) {
           return items.getAll();
-        },
-        userPromise: function ($stateParams, users) {
-          return users.get($stateParams.id);
         }
+        // , userPromise: function (auth, users) {
+          // return users.get(auth.isThisUser());
+        // }
       }
     })
     .state('events', {
@@ -49,10 +49,10 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function (items) {
           return items.getAll();
-        },
-        userPromise: function ($stateParams, users) {
-          return users.get($stateParams.id);
         }
+        // , userPromise: function (auth, users) {
+          // return users.get(auth.isThisUser());
+        // }
       }
     })
     .state('item', {
@@ -61,7 +61,6 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'ItemCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
-          console.log('item state');
           return items.get($stateParams.id);
         }
       }
@@ -158,10 +157,10 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
-        userPromise: function(auth, users) {
-          var _id = auth.isThisUser();
-          return users.get(_id);
-        },
+        // userPromise: function(auth, users) {
+          // var _id = auth.isThisUser();
+          // return users.get(_id);
+        // },
         usersPromise: function(users) {
           return users.getAll();
         },

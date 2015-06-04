@@ -128,15 +128,11 @@ function updateItem (err, item, subitem, callback) {
   });
 }
 
-
 exports.postItem = function(req, res, next) {
   var item = new Item(req.body);
       item.creator = req.payload;
   var subitem = subItemInstantiation[item.type](req.body);
   var user = { _id: req.payload._id };
-  console.log('------>', item);
-  console.log('------>', subitem);
-  console.log('------>', user);
   saveItem(item, function(err, item) {
     saveSubItem(err, item, subitem, function(err, item, subitem) {
       updateItem(err, item, subitem, function(err, item, subitem) {
@@ -182,13 +178,18 @@ exports.newStep = function (req, res, next) {
   });
 };
 
+// PUT FOR DIET PLAN 
+// ---> PUT /api/item/item_id/diet
+// MIGHT BE INTERNAL FUNCTION FOR EACH ITEM TYPE AND THEN WE WILL SWITCH ON SAME API
+// ---> PUT /api/item/item_id
 exports.updateDietPlan = function(req, res, next) {
-  // front end sees items with item_id as _id,
-  // and subitem id in subitem field
-  var  item_id  = req.body._id,
-    subitem_id  = req.body[req.body.type];
-  req.body._id  = subitem_id;
-  req.body.item = item_id;
+  // front end sees items with _id: item_id 
+  // and <Subitem>: subitem_id, swap for PUT 
+  swapIds(req.body);
+  // var  item_id  = req.body._id,
+    // subitem_id  = req.body[req.body.type];
+  // req.body._id  = subitem_id; // make sure what we post gets diet_id as _id
+  // req.body.item = item_id;    // item gets item_id
   console.log('----> updating', req.body);
 
   DietPlan.findByIdAndUpdate(subitem_id, req.body, { new : true }, function(err, dietplan) {
@@ -196,6 +197,7 @@ exports.updateDietPlan = function(req, res, next) {
     return res.json(dietplan);//{'message': 'Successfully saved changes to diet plan.'});
   });
 };
+
 
 exports.createRecipe = function (req, res, next) {
  var recipe = new Recipe(req.body);
@@ -238,17 +240,6 @@ exports.searchIngredients = function(req, res, next) {
 
 };
 
-// exports.getItemByIdParam = function(req, res, next, id) {
-//   var query = Item.findById(id);
-
-//   query.exec(function (err, item){
-//     if (err) { next(err); }
-//     if (!item) { next(new Error('can\'t find item')); }
-
-//     req.item = item;
-//     next();
-//   });
-// };
 
 exports.getItemById = function (req, res, next) {
  var item_id = req.params.id;
@@ -373,6 +364,21 @@ exports.getCustomerById = function(req, res, next) {
 
 
 
+// ---------------  HELPER FUNCTIONS ------------------- //
+function swapIds (item) {
+  // this is an Item, and we want Ids in <Subitem> format
+  if (!item.item) {
+    var  item_id  = item._id,
+      subitem_id  = item[item.type];
+        item._id  = subitem_id; // make sure what we post gets diet_id as _id
+        item.item = item_id;    // item gets item_id
+  } else {
+    var subitem_id = item._id,
+           item_id = item.item;
+          item._id = item_id;    // make sure what we post gets item_id as _id
+   item[item.type] = subitem_id; // item.Subitem gets subitem_id
+  }
+}
 
 
 
