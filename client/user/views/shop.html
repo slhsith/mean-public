@@ -47,7 +47,7 @@
   </div>
 
   <!-- - - - - - - - - - - - - - WORKOUT - - - - - - - - - - - -->
-  <workout-plan item="item" ng-show="item.workoutplan"></workout-plan>
+  <workout-plan item="item" ng-if="item.type === 'workoutplan'"></workout-plan>
   <!-- - - - - - - - - - - - - - DIET - - - - - - - - - - - -->
   <diet-plan item="item" ng-if="item.type === 'dietplan'"></diet-plan>
   <!-- - - - - - - - - - - - - - MEDIA - - - - - - - - - - - -->
