@@ -101,14 +101,17 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 });
 
 
-app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
+app.controller('ShopCtrl', function ($scope, items, Item, auth, userPromise) {
 
   $scope.items = items.items;
+  $scope.item = new Item();
   $scope.user = userPromise;
   $scope.addItem = function() {
+    console.log('adding', $scope.item);
     items.create($scope.item).success(function(data){
       console.log('success');
       $scope.items = items.items;
+      $scope.item = new Item();
       console.log(data);
    }).error(function(){
        console.log('failure');

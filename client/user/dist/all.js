@@ -42,6 +42,19 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
+    .state('events', {
+      url: '/events',
+      templateUrl: 'events.html',
+      controller: 'ShopCtrl',
+      resolve: {
+        itemPromise: function (items) {
+          return items.getAll();
+        },
+        userPromise: function ($stateParams, users) {
+          return users.get($stateParams.id);
+        }
+      }
+    })
     .state('items', {
       url: '/items/:item',
       templateUrl: 'items.html',
@@ -306,14 +319,17 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 });
 
 
-app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
+app.controller('ShopCtrl', function ($scope, items, Item, auth, userPromise) {
 
   $scope.items = items.items;
+  $scope.item = new Item();
   $scope.user = userPromise;
   $scope.addItem = function() {
+    console.log('adding', $scope.item);
     items.create($scope.item).success(function(data){
       console.log('success');
       $scope.items = items.items;
+      $scope.item = new Item();
       console.log(data);
    }).error(function(){
        console.log('failure');
@@ -600,7 +616,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 
 // ITEMS
 
-app.factory('items', ['$http', 'auth', function($http, auth){
+app.factory('items', function($http, auth){
   var o = {
     items: [],
     item: {}, 
@@ -635,7 +651,7 @@ app.factory('items', ['$http', 'auth', function($http, auth){
       o.items.push(extendedItem);
       // will be added to the appropriate service object subarray
       // based on submitted type
-      o[item.type + 's'].push(extendedItem);
+      return data;
     });
   };
   o.newPlan = function (plan, id) {
@@ -700,13 +716,8 @@ app.factory('items', ['$http', 'auth', function($http, auth){
   };
   return o;
   
-  // var t = function(){
-  //   console.log(item.name);
-  // };
 
-
-  // t();
-}]);
+});
 
 
 // TRANSACTIONS
@@ -1055,11 +1066,11 @@ app.controller('MessengerCtrl', function ($scope, settings, users, messenger, me
   $scope.focusConversation = setFocus;
 
   function setFocus(convo) {
-    $scope.mainConversation = convo;
-    $scope.newmessage.conversation = convo._id;
     if (convo._id) {
+      $scope.newmessage.conversation = convo._id;
       getMessages(convo);
       messenger.readMessages(convo);
+      $scope.mainConversation = convo;
     }
   }
 
@@ -1073,7 +1084,7 @@ $scope.print = function(string) {
       $scope.addUserModal = true;
       $scope.copyOfUsers = angular.copy($scope.users, $scope.copyOfUsers);
       $scope.conversations.unshift(new Conversation());
-      $scope.focusConversation($scope.conversations[0]);
+      setFocus($scope.conversations[0]);
       $scope.mainConversation.users.push($scope.user);
     } 
   };
@@ -1081,7 +1092,7 @@ $scope.print = function(string) {
   // Cancelling a new conversation
   $scope.cancelNewConversation = function() {
     $scope.conversations.splice(0, 1);
-    $scope.focusConversation($scope.conversations[0]);
+    setFocus($scope.conversations[0]);
   };
 
   // ----- ADDRESSING USERS in a new conversation ----- //
@@ -1130,6 +1141,26 @@ $scope.print = function(string) {
     $scope.$apply(function() { update(data.payload); });
   });
 
+  $scope.$on('socket:newconversation', function(event, data) {
+    console.log('get a new convo', event.name, data.payload);
+    $scope.$apply(function() { 
+      messenger.getAll().success(function(convos) {
+        $scope.conversations = convos;
+        if (data.payload.initiator === $scope.user._id) {
+          setFocus(data.payload.convo);
+        }
+      });
+    });
+  });
+
+  $scope.$on('socket:readmessages', function(event, data) {
+    console.log('new read timestamps on convo', data);
+    $scope.$apply(function() {
+      if (data.payload._id === $scope.mainConversation._id) {
+        getMessages($scope.mainConversation);
+      }
+    });
+  });
 
   function update (latest) {
     console.log('a new message for conversation ' + latest.convo_id);
@@ -1248,6 +1279,7 @@ app.factory('messenger', function ($http, auth) {
       angular.forEach(data, function(convo) {
         o.map[convo._id] = convo;
       });
+      return data;
     });
   };
 
@@ -1317,6 +1349,8 @@ app.factory('messageSocket', function(socketFactory) {
   socket.forward('broadcast');
   socket.forward('conversations');
   socket.forward('newmessage');
+  socket.forward('newconversation');
+  socket.forward('readmessages');
   
   return socket;
 });
@@ -1325,38 +1359,71 @@ app.factory('messageSocket', function(socketFactory) {
  *  ----------------------  */
 /* 
 /* ---------------------------- */
-app.controller('DietCtrl', function ($scope, $attrs, Meal, Diet, Recipe, CookingStep, Ingredient) {
+app.controller('DietCtrl', function ($scope, $attrs, dietPlans, Meal, Diet, Recipe, CookingStep, Ingredient) {
   var self = this;
   $scope.debug = true;
 
   // ---- INIT SCOPE ----  //
   this.init = function(element) {
     self.$element = element;
-    $scope.diet = $scope.item || new Diet({});
   };
 
+  //$scope.diet       = item comes from directive
+  $scope.meal         = null;
+  $scope.recipe       = null;
+  $scope.step         = null;
+  $scope.ingredient   = null;
 
-  $scope.meal = new Meal({});
-  $scope.recipe = new Recipe({});
-  $scope.initStep = function() {
-    $scope.step = new CookingStep({order: $scope.recipe.steps.length});
+  $scope.initMeal     = function() {
+    $scope.meal = new Meal();
+  };
+  $scope.initRecipe   = function() {
+    $scope.recipe = new Recipe();
+  };
+  $scope.initStep     = function() {
+    $scope.step = new CookingStep();
+    $scope.step.order = $scope.recipe.steps.length;
   };
   $scope.initIngredient = function() {
-    $scope.ingredient = new Ingredient({});
+    $scope.ingredient = new Ingredient();
+  };
+
+  $scope.cancelMeal   = function() {
+    $scope.meal = null;
+  };
+  $scope.cancelRecipe = function() {
+    $scope.recipe = null;
+  };
+  $scope.cancelStep   = function() {
+    $scope.step = null;
   };
   $scope.cancelIngredient = function() {
     $scope.ingredient = null;
   };
 
-
-  $scope.showRecipe = false;
-
-  // // ------ METHODS FOR CONVERSATIONS ------ //
-
-  $scope.initNewRecipe = function() {
-    $scope.showRecipe = true;
-    $scope.recipe = new Recipe({});
+  $scope.saveDiet     = function() {
+    dietPlans.create($scope.diet).success(function(data) {
+      $scope.diet._id = data._id;
+    });
   };
+
+  $scope.saveMeal     = function() {
+    $scope.meal = new Meal();
+  };
+  $scope.saveRecipe   = function() {
+    $scope.recipe = new Recipe();
+  };
+  $scope.saveStep     = function() {
+    $scope.step = new CookingStep();
+    $scope.step.order = $scope.recipe.steps.length;
+  };
+  $scope.saveIngredient = function() {
+    $scope.ingredient = new Ingredient();
+  };
+
+
+
+
 
 
 
@@ -1367,7 +1434,7 @@ app.directive('dietPlan', function () {
   return {
     restrict: 'E', 
     scope: {
-      item: '='
+      diet: '=item'
     },
     controller: 'DietCtrl',
     templateUrl: 'shop.dietplan.tpl.html',
@@ -1379,87 +1446,174 @@ app.directive('dietPlan', function () {
 });
 
 
+app.directive('digitalMedia', function () {
 
-app.factory('Meal', function() {
-  var Meal = function(meal) {
-    var self = this;
-    self.title        = meal.title || null;
-    self.type         = meal.type || null;
-    self.description  = meal.description || null;
-    self.day          = meal.day || 1 || null;
-    self.cooktime     = meal.cooktime || null;
-    self.recipes      = meal.recipes || [];
+  return {
+    restrict: 'E', 
+    scope: false,
+    templateUrl: 'shop.digitalmedia.tpl.html',
+    link: function(scope, element, attrs) {
+    }
   };
 
-  return Meal;
 });
+
+
+
+
+app.factory('Item', function() {
+
+  var ItemConstructor = function ItemConstructor () {
+    this.name         = null;
+    this.type         = null;
+    this.author       = null;
+    this.price        = null;
+    this.upvotes      = null;
+  };
+
+  return ItemConstructor;
+
+});
+
 
 app.factory('Diet', function() {
 
-  var Diet = function(item) {
-    var self = this;
-    self.title = item.title || null;
-    self.price = item.price;
-    self.duration = 1;
+  var DietConstructor = function DietConstructor () {
+    this.type         = null;
+    this.hashtag      = null;
+    this.description  = null;
+
+    this.duration     = 1;
+    this.gender       = null;
+    this.age          = null;
+    this.meals        = [];
   };
 
-  return Diet;
+  return DietConstructor;
+});
+
+
+app.factory('Meal', function() {
+
+  var MealConstructor = function MealConstructor () {
+    this.name         = null;
+    this.type         = null;
+    this.description  = null;
+
+    this.day          = null;
+    this.cooktime     = null;
+    this.preptime     = null;
+    this.recipes      = [];
+  };
+
+  return MealConstructor;
 
 });
+
 
 app.factory('Recipe', function() {
 
-  var Recipe = function (recipe) {
-    var self         = this;
-    self.title       = recipe.title || null;
-    self.type        = recipe.type || null;
-    self.description = recipe.description || null;
+  var RecipeConstructor = function RecipeConstructor () {
+    this.name        = null;
+    this.type        = null;
+    this.description = null;
 
-    self.yield       = recipe.yield || null;
-    self.calories    = recipe.calories || null;
-    self.fats        = recipe.fats || null;
-    self.carbs       = recipe.carbs || null;
-    self.proteins    = recipe.proteins || null;
+    this.video       = null;
+    this.coverphoto  = null;
+    this.photos      = [];
 
-    self.cost        = recipe.cost || null;
-    self.preptime    = recipe.preptime || null;
-    self.cooktime    = recipe.cooktime || null;
+    this.yield       = null;
+    this.cost        = null;
+    this.preptime    = null;
+    this.cooktime    = null;
+    this.equipment   = [];
+    this.steps       = [];
 
-    self.equipment   = recipe.equipment || [];
-    self.steps       = recipe.steps || [];
-
-    self.video       = recipe.video || null;
-    self.coverphoto  = recipe.coverphoto || null;
-    self.photos      = recipe.photos || [];
-
+    this.calories    = null;
+    this.fats        = null;
+    this.carbs       = null;
+    this.proteins    = null;
   };
 
-  return Recipe;
-
+  return RecipeConstructor;
 });
 
-app.factory('CookingStep', function() {
 
-  var CookingStep = function() {
+app.factory('CookingStep', function () {
+
+  var CookingStepConstructor = function CookingStepConstructor () {
     this.order       = null;
     this.description = null;
     this.photo       = null;
   };
-  return CookingStep;
+
+  return CookingStepConstructor;
 
 });
+
 
 app.factory('Ingredient', function() {
 
-  var Ingredient = function() {
-    this.title       = null;
+  var IngredientConstructor = function IngredientConstructor () {
+    this.name        = null;
+    this.category    = null;
     this.description = null;
     this.photo       = null;
-    this.measure     = null;
+
+    this.value       = null;
     this.unit        = null;
+    this.preparation = null;
   };
 
-  return Ingredient;
-
+  return IngredientConstructor;
 });
 
+
+
+app.factory('dietPlans', function ($http, auth, items) {
+  var o = {};
+
+  o.create = function(diet) {
+    return items.create(diet).success(function(data) {
+      console.log('itemcreatedata', data);
+      return $http.post('/api/dietPlans/' + data._id, diet );
+    });
+  };
+
+  return o;
+});
+
+
+
+//   o.newPlan = function (plan, id) {
+//     return $http.post('/api/workoutPlans/' + id, plan, {
+//       headers: {Authorization: 'Bearer '+auth.getToken()}
+//     }).success(function(data) {
+//       // base item data comes back from API, extend it with
+//       // the item's original submitted descriptive parameters
+//       var extendedItem = angular.extend(data, plan);
+//       o.items.push(extendedItem);
+//     });
+//   };
+//   o.newStep = function (step, id) {
+//     return $http.post('/api/item/exercise/' + id, step, {
+//       headers: {Authorization: 'Bearer '+auth.getToken()}
+//     }).success(function(data) {
+//       // base item data comes back from API, extend it with
+//       // the item's original submitted descriptive parameters
+//       var extendedItem = angular.extend(data, step);
+//       o.items.push(extendedItem);
+//     });
+//   };
+
+//   o.addTransaction = function(id, transaction) {
+//     return $http.post('/api/items/' + id + '/transactions', transaction, {
+//       headers: {Authorization: 'Bearer '+transactions.getToken()}
+//     }).success(function(data){
+//       transactions.push(data);
+//     });
+//   };
+//   return o;
+  
+
+// });

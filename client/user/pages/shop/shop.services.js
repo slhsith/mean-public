@@ -1,83 +1,156 @@
-app.factory('Meal', function() {
-  var Meal = function(meal) {
-    var self = this;
-    self.title        = meal.title || null;
-    self.type         = meal.type || null;
-    self.description  = meal.description || null;
-    self.day          = meal.day || 1 || null;
-    self.cooktime     = meal.cooktime || null;
-    self.recipes      = meal.recipes || [];
+app.factory('Item', function() {
+
+  var ItemConstructor = function ItemConstructor () {
+    this.name         = null;
+    this.type         = null;
+    this.author       = null;
+    this.price        = null;
+    this.upvotes      = null;
   };
 
-  return Meal;
+  return ItemConstructor;
+
 });
+
 
 app.factory('Diet', function() {
 
-  var Diet = function(item) {
-    var self = this;
-    self.title = item.title || null;
-    self.price = item.price;
-    self.duration = 1;
+  var DietConstructor = function DietConstructor () {
+    this.type         = null;
+    this.hashtag      = null;
+    this.description  = null;
+
+    this.duration     = 1;
+    this.gender       = null;
+    this.age          = null;
+    this.meals        = [];
   };
 
-  return Diet;
+  return DietConstructor;
+});
+
+
+app.factory('Meal', function() {
+
+  var MealConstructor = function MealConstructor () {
+    this.name         = null;
+    this.type         = null;
+    this.description  = null;
+
+    this.day          = null;
+    this.cooktime     = null;
+    this.preptime     = null;
+    this.recipes      = [];
+  };
+
+  return MealConstructor;
 
 });
+
 
 app.factory('Recipe', function() {
 
-  var Recipe = function (recipe) {
-    var self         = this;
-    self.title       = recipe.title || null;
-    self.type        = recipe.type || null;
-    self.description = recipe.description || null;
+  var RecipeConstructor = function RecipeConstructor () {
+    this.name        = null;
+    this.type        = null;
+    this.description = null;
 
-    self.yield       = recipe.yield || null;
-    self.calories    = recipe.calories || null;
-    self.fats        = recipe.fats || null;
-    self.carbs       = recipe.carbs || null;
-    self.proteins    = recipe.proteins || null;
+    this.video       = null;
+    this.coverphoto  = null;
+    this.photos      = [];
 
-    self.cost        = recipe.cost || null;
-    self.preptime    = recipe.preptime || null;
-    self.cooktime    = recipe.cooktime || null;
+    this.yield       = null;
+    this.cost        = null;
+    this.preptime    = null;
+    this.cooktime    = null;
+    this.equipment   = [];
+    this.steps       = [];
 
-    self.equipment   = recipe.equipment || [];
-    self.steps       = recipe.steps || [];
-
-    self.video       = recipe.video || null;
-    self.coverphoto  = recipe.coverphoto || null;
-    self.photos      = recipe.photos || [];
-
+    this.calories    = null;
+    this.fats        = null;
+    this.carbs       = null;
+    this.proteins    = null;
   };
 
-  return Recipe;
-
+  return RecipeConstructor;
 });
 
-app.factory('CookingStep', function() {
 
-  var CookingStep = function() {
+app.factory('CookingStep', function () {
+
+  var CookingStepConstructor = function CookingStepConstructor () {
     this.order       = null;
     this.description = null;
     this.photo       = null;
   };
-  return CookingStep;
+
+  return CookingStepConstructor;
 
 });
+
 
 app.factory('Ingredient', function() {
 
-  var Ingredient = function() {
-    this.title       = null;
+  var IngredientConstructor = function IngredientConstructor () {
+    this.name        = null;
+    this.category    = null;
     this.description = null;
     this.photo       = null;
-    this.measure     = null;
+
+    this.value       = null;
     this.unit        = null;
+    this.preparation = null;
   };
 
-  return Ingredient;
-
+  return IngredientConstructor;
 });
 
+
+
+app.factory('dietPlans', function ($http, auth, items) {
+  var o = {};
+
+  o.create = function(diet) {
+    return items.create(diet).success(function(data) {
+      console.log('itemcreatedata', data);
+      return $http.post('/api/dietPlans/' + data._id, diet );
+    });
+  };
+
+  return o;
+});
+
+
+
+//   o.newPlan = function (plan, id) {
+//     return $http.post('/api/workoutPlans/' + id, plan, {
+//       headers: {Authorization: 'Bearer '+auth.getToken()}
+//     }).success(function(data) {
+//       // base item data comes back from API, extend it with
+//       // the item's original submitted descriptive parameters
+//       var extendedItem = angular.extend(data, plan);
+//       o.items.push(extendedItem);
+//     });
+//   };
+//   o.newStep = function (step, id) {
+//     return $http.post('/api/item/exercise/' + id, step, {
+//       headers: {Authorization: 'Bearer '+auth.getToken()}
+//     }).success(function(data) {
+//       // base item data comes back from API, extend it with
+//       // the item's original submitted descriptive parameters
+//       var extendedItem = angular.extend(data, step);
+//       o.items.push(extendedItem);
+//     });
+//   };
+
+//   o.addTransaction = function(id, transaction) {
+//     return $http.post('/api/items/' + id + '/transactions', transaction, {
+//       headers: {Authorization: 'Bearer '+transactions.getToken()}
+//     }).success(function(data){
+//       transactions.push(data);
+//     });
+//   };
+//   return o;
+  
+
+// });

@@ -3,7 +3,7 @@ app.directive('dietPlan', function () {
   return {
     restrict: 'E', 
     scope: {
-      item: '='
+      diet: '=item'
     },
     controller: 'DietCtrl',
     templateUrl: 'shop.dietplan.tpl.html',
@@ -13,5 +13,19 @@ app.directive('dietPlan', function () {
   };
 
 });
+
+
+app.directive('digitalMedia', function () {
+
+  return {
+    restrict: 'E', 
+    scope: false,
+    templateUrl: 'shop.digitalmedia.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
+
 
 

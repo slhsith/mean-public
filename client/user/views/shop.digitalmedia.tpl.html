@@ -1,0 +1,118 @@
+<form ng-submit="addItem()" style="margin-top:30px;">
+
+  <div class="form-group">
+      <input type="text" class="form-control" 
+      placeholder="Title" ng-model="item.name"></input>
+  </div>
+  <div class="form-group">
+    <input type="text" class="form-control"
+      placeholder="Price" ng-model="item.price"></input>
+  </div>
+
+  <div ng-show="item.type==='Video'">
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="duration"
+        ng-model="item.duration"></input>
+    </div>
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="genre"
+        ng-model="item.genre"></input>
+    </div>
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="language"
+        ng-model="item.language"></input>
+    </div>
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="studio"
+        ng-model="item.studio"></input>
+    </div>
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="description"
+        ng-model="item.description"></input>
+    </div>
+  </div>
+
+  <div ng-show="item.type==='Book'">
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="Number of Pages"
+        ng-model="item.pages"></input>
+    </div>
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="genre"
+        ng-model="item.genre"></input>
+    </div>
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="language"
+        ng-model="item.language"></input>
+    </div>
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="publisher"
+        ng-model="item.publisher"></input>
+    </div>
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="isbn"
+        ng-model="item.isbn"></input>
+    </div>
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="description"
+        ng-model="item.description"></input>
+    </div>
+  </div>   
+
+  <div ng-show="item.type==='Podcast'">
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="duration"
+        ng-model="item.duration"></input>
+    </div>
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="genre"
+        ng-model="item.genre"></input>
+    </div>
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="language"
+        ng-model="item.language"></input>
+    </div>
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="studio"
+        ng-model="item.studio"></input>
+    </div>
+    <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="description"
+        ng-model="item.description"></input>
+    </div>
+  </div>
+
+  <button type="submit" class="diet-create col-sm-12 btn-default">Create</button>
+</form>

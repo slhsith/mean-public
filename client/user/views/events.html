@@ -1,0 +1,151 @@
+<div ng-show="isUser()">
+  <div class="page-header">
+  <h3 class="text-center">Mean Starter</h3>
+  <a href="#/home"><button class="btn-default col-md-4">Create Post</button></a>
+  <a href="#/shop"><button class="btn-default col-md-4">Create Digital Item</button></a>
+  <button class="btn-primary col-md-4">Create Event</button>
+
+
+  <div class="col-md-6">
+  <h3>Create Digital Item {{item.type? '- ' + item.type : ''}}</h3>
+  </div>
+  <div class="col-md-6">
+    <h6> links to types </h6>
+    <select ng-model="item.type">
+      <option value="">Item Type</option>
+      <option value="Bootcamp">Bootcamp</option>
+      <option value="Challenge">Online Challenge</option>
+    </select>
+  </div>
+  
+  <form ng-submit="addItem()" ng-show="isLoggedIn()" style="margin-top:30px;">
+
+  <div class="form-group">
+      <input type="text" class="form-control" 
+      placeholder="Title" ng-model="item.name"></input>
+    </div>
+    <div class="form-group">
+    <input type="text" class="form-control"
+      placeholder="Price" ng-model="item.price"></input>
+    </div>
+    <!-- - - - - - - - - - - - - - BOOTCAMP - - - - - - - - - - - -->
+    <div ng-show="item.type==='Bootcamp'">
+      <h3>Is it a bootcamp?</h3>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="hashtag"
+        ng-model="item.hashtag"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="recurrence"
+        ng-model="item.recurrence"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="location"
+        ng-model="item.location"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="date"
+        ng-model="item.date"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="time"
+        ng-model="item.time"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="max attendance"
+        ng-model="item.max_attendance"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="duration"
+        ng-model="item.duration"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="demo gender"
+        ng-model="item.demo_gender"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="demo age"
+        ng-model="item.demo_age"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="description"
+        ng-model="item.description"></input>
+      </div>
+    </div>
+    <div ng-show="item.type==='Challenge'">
+      <h3>Is it an online challenge?</h3>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="hashtag"
+        ng-model="item.hashtag"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="recurrence"
+        ng-model="item.recurrence"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="date"
+        ng-model="item.date"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="time"
+        ng-model="item.time"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="max attendance"
+        ng-model="item.max_attendance"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="duration"
+        ng-model="item.duration"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="demo gender"
+        ng-model="item.demo_gender"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="demo age"
+        ng-model="item.demo_age"></input>
+      </div>
+      <div class="form-group">
+      <input type="text"
+        class="form-control"
+        placeholder="description"
+        ng-model="item.description"></input>
+      </div>
+    </div>

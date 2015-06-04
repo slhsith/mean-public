@@ -120,6 +120,18 @@ body {
   position: absolute;
   bottom: 0;
 }
+.item-title {
+  font-size: 28px;
+  line-height: 36px;
+}
+.item-types {
+  font-size: 14px;
+  line-height: 36px;
+}
+.item-types a {
+  text-decoration: underline;
+}
+
 .diet-title {
     display: inline-block;
 }
