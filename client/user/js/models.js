@@ -82,20 +82,6 @@ app.factory('items', function($http, auth){
     book: {}
   };
 
-  var _typePopulate = {
-    dietplan: function(item) {
-      console.log('dietplan._id', item.dietplan);
-      return $http.get('/api/item/dietplan/' + item.dietplan, {
-        headers: {Authorization: 'Bearer '+auth.getToken()}
-      });
-    },
-    workoutplan: function(item) {
-      return $http.get('/api/item/workoutplan/' + item.workoutplan, {
-        headers: {Authorization: 'Bearer '+auth.getToken()}
-      });
-    }
-  };
-
   // CREATE
   o.create = function(item) {
     return $http.post('/api/items', item, {
@@ -114,28 +100,28 @@ app.factory('items', function($http, auth){
   // READ - basic getting of data
   o.getAll = function() {
     return $http.get('/api/items').success(function(data){
+      angular.forEach(data, function(item) {
+        item = flattenItem(item);
+      });
       angular.copy(data, o.items);
     });
   };
+
   o.get = function(item_id) {
-    return $http.get('/api/item/' + item_id).then(function(res){
-      var item = res.data;
-      var subitem = item[item.type];
-      for (var k in subitem) {
-        if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
-          console.log(subitem[k]);
-          item[k] = subitem[k];
-          item[item.type] = subitem._id;
-        }
-      }
-      return item;
+    return $http.get('/api/item/' + item_id).success(function(data){
+      return flattenItem(data);
     });
   };
 
-  o.populate = function(item) {
-    console.log('populate ' + item.type, item);
-    return _typePopulate[item.type](item);
-  };
+  function flattenItem (item) {
+    var subitem = item[item.type];
+    for (var k in subitem) {
+      if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
+        item[k] = subitem[k];
+        item[item.type] = subitem._id;
+      }
+    }
+  }
 
   o.getAllVideos = function () {
     return $http.get('/api/videos').success(function(data){

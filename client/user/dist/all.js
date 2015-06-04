@@ -36,10 +36,10 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function (items) {
           return items.getAll();
-        },
-        userPromise: function ($stateParams, users) {
-          return users.get($stateParams.id);
         }
+        // , userPromise: function (auth, users) {
+          // return users.get(auth.isThisUser());
+        // }
       }
     })
     .state('events', {
@@ -49,10 +49,10 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function (items) {
           return items.getAll();
-        },
-        userPromise: function ($stateParams, users) {
-          return users.get($stateParams.id);
         }
+        // , userPromise: function (auth, users) {
+          // return users.get(auth.isThisUser());
+        // }
       }
     })
     .state('item', {
@@ -61,7 +61,6 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'ItemCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
-          console.log('item state');
           return items.get($stateParams.id);
         }
       }
@@ -155,10 +154,10 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
-        userPromise: function(auth, users) {
-          var _id = auth.isThisUser();
-          return users.get(_id);
-        },
+        // userPromise: function(auth, users) {
+          // var _id = auth.isThisUser();
+          // return users.get(_id);
+        // },
         usersPromise: function(users) {
           return users.getAll();
         },
@@ -308,13 +307,12 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 });
 
 
-app.controller('ShopCtrl', function ($scope, items, Item, auth, userPromise) {
+app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 
   $scope.items = items.items;
   $scope.item = new Item();
-  $scope.user = userPromise;
+  // $scope.user = userPromise;
   $scope.addItem = function() {
-    console.log('adding', $scope.item);
     items.create($scope.item).success(function(data){
       console.log('success');
       $scope.items = items.items;
@@ -348,9 +346,9 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth, userPromise) {
   };  
 
   $scope.editItem = function(item) {
-    items.populate(item).success(function(item) {
+    // items.populate(item).success(function(item) {
       $scope.item = item;
-    });
+    // });
   };
 
   $scope.isAdmin = auth.isAdmin;
@@ -636,20 +634,6 @@ app.factory('items', function($http, auth){
     book: {}
   };
 
-  var _typePopulate = {
-    dietplan: function(item) {
-      console.log('dietplan._id', item.dietplan);
-      return $http.get('/api/item/dietplan/' + item.dietplan, {
-        headers: {Authorization: 'Bearer '+auth.getToken()}
-      });
-    },
-    workoutplan: function(item) {
-      return $http.get('/api/item/workoutplan/' + item.workoutplan, {
-        headers: {Authorization: 'Bearer '+auth.getToken()}
-      });
-    }
-  };
-
   // CREATE
   o.create = function(item) {
     return $http.post('/api/items', item, {
@@ -668,28 +652,28 @@ app.factory('items', function($http, auth){
   // READ - basic getting of data
   o.getAll = function() {
     return $http.get('/api/items').success(function(data){
+      angular.forEach(data, function(item) {
+        item = flattenItem(item);
+      });
       angular.copy(data, o.items);
     });
   };
+
   o.get = function(item_id) {
-    return $http.get('/api/item/' + item_id).then(function(res){
-      var item = res.data;
-      var subitem = item[item.type];
-      for (var k in subitem) {
-        if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
-          console.log(subitem[k]);
-          item[k] = subitem[k];
-          item[item.type] = subitem._id;
-        }
-      }
-      return item;
+    return $http.get('/api/item/' + item_id).success(function(data){
+      return flattenItem(data);
     });
   };
 
-  o.populate = function(item) {
-    console.log('populate ' + item.type, item);
-    return _typePopulate[item.type](item);
-  };
+  function flattenItem (item) {
+    var subitem = item[item.type];
+    for (var k in subitem) {
+      if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
+        item[k] = subitem[k];
+        item[item.type] = subitem._id;
+      }
+    }
+  }
 
   o.getAllVideos = function () {
     return $http.get('/api/videos').success(function(data){
@@ -1784,60 +1768,59 @@ app.factory('dietplans', function ($http, auth) {
 });
 
 
-// /*
+/*
 
-// ROW WIDGET FOR ADDING UNITS TO SUBARRAYS OF ITEMS & EVENTS
-// - subobject                   -> OBJECT
-// --------------------------------------------------
-// - meals, recipes, ingredients -> DIETPLANS
-// - packages                    -> BOOTCAMPS
-// - items                       -> ONLINE CHALLENGES
-// - exercises                   -> WORKOUTPLANS ?
-// <!-- <add-widget class="colasyoulike" parent="recipe" children="ingredients"> -->
-// <!-- recipe.ingredients = [ ingredient ] -->
-// <add-widget parent="recipe" child="'ingredient'" children="recipe.ingredients"></add-widget>
-// */
-// app.directive('tvAddWidget', function () {
+ROW WIDGET FOR ADDING UNITS TO SUBARRAYS OF ITEMS & EVENTS
+- subobject                   -> OBJECT
+--------------------------------------------------
+- meals, recipes, ingredients -> DIETPLANS
+- packages                    -> BOOTCAMPS
+- items                       -> ONLINE CHALLENGES
+- exercises                   -> WORKOUTPLANS ?
+<!-- <add-widget class="colasyoulike" parent="recipe" children="ingredients"> -->
+<!-- recipe.ingredients = [ ingredient ] -->
+<add-widget parent="recipe" child="'ingredient'" children="recipe.ingredients"></add-widget>
+*/
+app.directive('tvAddWidget', function () {
 
-//   return {
-//     restrict: 'E', 
-//     scope: {
-//       parent: '=parent',
-//       items: '=children'
-//     },
-//     transclude: true,
-//     controller: 'addWidgetCtrl',
-//     template: ['<div>',
-//                '<ng-transclude></ng-transclude>',
-//                // '<tv-add-widget-item ng-repeat="item in items"></tv-add-widget-item>',
-//                // '<tv-add-widget-form></add-widget-form>',
-//                // '<tv-add-widget-plus><tv-add-widget-plus>',
-//                '</div>'
-//                ].join(),
-//     // templateUrl: 'addwidget.tpl.html',
-//     // link: function(scope, element, attrs) {}
-//   };
+  return {
+    restrict: 'E', 
+    scope: {
+      parent: '=parent',
+      items: '=children'
+    },
+    transclude: true,
+    controller: 'addWidgetCtrl',
+    template: ['<div>',
+               '<ng-transclude></ng-transclude>',
+               // '<tv-add-widget-item ng-repeat="item in items"></tv-add-widget-item>',
+               // '<tv-add-widget-form></add-widget-form>',
+               // '<tv-add-widget-plus><tv-add-widget-plus>',
+               '</div>'
+               ].join(),
+    // templateUrl: 'addwidget.tpl.html',
+    // link: function(scope, element, attrs) {}
+  };
 
-// });
+});
 
-// app.directive('tvAddWidgetItem', function () {
+app.directive('tvAddWidgetItem', function () {
 
-//   return {
-//     restrict: 'E', 
-//     require: 'tvAddWidget',
-//     transclude: true,
-//     replace: true,
-//     template: ['<div>',
-//                  '<div class="add-widget-photo"><i class="fa fa-3x fa-photo"></i></div>',
-//                  // '<div class="add-widget-photo"><img src="item.photo"/></div>',
-//                  '<div class="add-widget-title">{{item.name}}</div>',
-//                  '<div class="add-widget-body"><ng-transclude></ng-transclude></div>',
-//                '</div>'
-//               ].join()
-//     }
-//   };
+  return {
+    restrict: 'E', 
+    require: 'tvAddWidget',
+    transclude: true,
+    replace: true,
+    template: ['<div>',
+                 '<div class="add-widget-photo"><i class="fa fa-3x fa-photo"></i></div>',
+                 // '<div class="add-widget-photo"><img src="item.photo"/></div>',
+                 '<div class="add-widget-title">{{item.name}}</div>',
+                 '<div class="add-widget-body"><ng-transclude></ng-transclude></div>',
+               '</div>'
+              ].join()
+    };
 
-// });
+});
 
 // app.directive('tvAddWidgetForm', function () {
 
