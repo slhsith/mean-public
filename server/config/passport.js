@@ -14,7 +14,7 @@ var FACEBOOK_APP_SECRET = "5291485b14fff8e81428d10c9a0c164a";
 passport.use(new FacebookStrategy({
     clientID: "692480267528460",
     clientSecret: "5291485b14fff8e81428d10c9a0c164a",
-    callbackURL: "https://trainersvault.herokuapp.com/auth/facebook/callback",
+    callbackURL: "https://trainersvault.herokuapp.com/auth/facebook/callback/",
     enableProof: false,
     profileFields: ['id', 'displayName', 'photos']
   },
@@ -52,13 +52,15 @@ passport.use(new FacebookStrategy({
     });
   }));
 
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
+passport.serializeUser(function(user, callback) {
+  callback(null, user._id);
 });
 
 passport.deserializeUser(function(id, done) {
-  User.findById(id, function(err, user) {
-    done(err, user);
+  User.findById({
+    _id: id
+  }, function(err, user) {
+    callback(err, user);
   });
 });  
 
