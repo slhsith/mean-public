@@ -5,6 +5,7 @@
 // Module Dependencies
 var 
 	mongoose = require('mongoose'),
+  stripe = require('stripe')('sk_test_I2YXlsuXk91TBDtJelFxcuEt'),
 	nodemailer = require('nodemailer'),
   passport = require('passport'),
 	User = mongoose.model('User'),
@@ -74,6 +75,16 @@ exports.doRegistration = function(req, res, next) {
 					console.log('Message sent: ' + info.response);
 			}
 		});
+    var stripeToken = req.body.stripeToken;
+    stripe.customers.create({
+      description: 'Customer for test',
+      email: req.body.username,
+      source: stripeToken //obtained with Stripe.js
+    }, function (err, customer) {
+      if(err) { };
+      console.log('Stripe user created for ' + customer.email)
+    });
+
 
 		res.json({token: user.generateJWT()})
 	});
