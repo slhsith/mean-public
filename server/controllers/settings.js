@@ -33,7 +33,7 @@ exports.getSettings = function (req, res, next) {
   if (err) { return next(err); }
   User.findOne({username : req.body.username}, function(err, user) {
     console.log('user settings', user);
-    return res.json(user); 
+    return res.json(user).populate('followers'); 
   });
 };
 

@@ -110,13 +110,13 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('transactions', {
-      url: '/transactions',
+      url: '/transactions/:item',
       templateUrl: 'transactions.html',
       controller: 'TransCtrl',
       resolve: {
-        item: ['$stateParams', 'items', function($stateParams, items) {
+        itemPromise: function($stateParams, items) {
           return items.get($stateParams.item);
-        }]
+        }
       }    
     })
     .state('checkout', {
@@ -362,7 +362,7 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 app.controller('ItemCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
 
   $scope.items = items.items;
-  $scope.item = itemPromise;
+  $scope.item = itemPromise.data;
 
   $scope.createDay = function(){
     items.newDay($stateParams.id, $scope.day.day).success(function(day) {
@@ -414,7 +414,9 @@ app.controller('NavCtrl', function ($scope, auth) {
   $scope.logOut = auth.logOut;
 });
 
-app.controller('TransCtrl', function ($scope, items, auth, transactions) {
+app.controller('TransCtrl', function ($scope, items, auth, transactions, itemPromise) {
+  $scope.item = itemPromise.data;
+
   $scope.startTrans = function () {
     console.log($scope.card);
     transactions.purchase($scope.card);

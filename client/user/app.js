@@ -110,13 +110,13 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('transactions', {
-      url: '/transactions',
+      url: '/transactions/:item',
       templateUrl: 'transactions.html',
       controller: 'TransCtrl',
       resolve: {
-        item: ['$stateParams', 'items', function($stateParams, items) {
+        itemPromise: function($stateParams, items) {
           return items.get($stateParams.item);
-        }]
+        }
       }    
     })
     .state('checkout', {
