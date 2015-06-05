@@ -111,7 +111,7 @@ router.get('/auth/facebook/callback/:id',
     passport.authenticate('facebook', {
         callbackURL:"/auth/facebook/callback/"+req.params.id,
         successRedirect : '/user/#/home',
-        failureRedirect : '/#'
+        failureRedirect : '/user/#/home'
     }));
   // function(req, res) {
   //   successRedirect: '/'
