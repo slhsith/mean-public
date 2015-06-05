@@ -49,7 +49,6 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function (items) {
           return items.getAll();
-
         }
         // , userPromise: function (auth, users) {
           // return users.get(auth.isThisUser());
@@ -268,6 +267,7 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
   };
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 
 });
@@ -304,9 +304,9 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   };
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 });
-
 
 
 app.controller('ShopCtrl', function ($scope, items, Item, auth) {
@@ -354,6 +354,7 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
   };
 
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 });
 
@@ -375,8 +376,6 @@ app.controller('ItemCtrl', function ($scope, items, auth, $stateParams, itemProm
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Items Page: Upvoted Comment");
   };
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isUser = auth.isUser;
   $scope.addPlan = function() {
     items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
       console.log('success');
@@ -385,6 +384,9 @@ app.controller('ItemCtrl', function ($scope, items, auth, $stateParams, itemProm
        console.log('failure');
    });
   };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
 });
 
 app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
@@ -423,6 +425,7 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions) {
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 });
 
@@ -450,6 +453,7 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   $scope.user = userPromise.data;
   console.log(userPromise);
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
   $scope.isThisUser = auth.isThisUser;
 });
@@ -468,6 +472,7 @@ function ($scope, groups, auth) {
   $scope.group = '';
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 });
 
@@ -504,6 +509,7 @@ function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
     console.log(gpost._id, gcomment);
   };
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
   
   // $scope.addComment = function(){
@@ -548,6 +554,7 @@ function($scope, $stateParams, gposts, gcomments, auth){
   };
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 }]);
 
@@ -840,7 +847,7 @@ app.factory('auth', function($http, $window){
       if(token){
        var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-        return payload.permissions === 'User' || 'Admin' || 'Contributor';
+        return payload.permissions === 'User' || 'Contributor' || 'Admin';
       } else {
         return false;
       }
@@ -851,7 +858,7 @@ app.factory('auth', function($http, $window){
       if(token){
        var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-        return payload.permissions === 'Admin' || 'Contributor';
+        return payload.permissions === 'Contributor' || 'Admin';
       } else {
         return false;
       }

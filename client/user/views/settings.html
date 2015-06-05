@@ -14,7 +14,7 @@
           </div>
           <button type="submit" class="btn btn-primary">Submit</button>
         </form> -->
-<div ng-show="!view" style="padding-top:50px;">
+<div ng-show="!view" ng-if="isCurrentUser" style="padding-top:50px;">
   <div style="padding-bottom:20px;">
   <a href="/set/#/user/{{user.handle}}"><button class="btn btn-primary" style="width:100%;">View Profile</button></a>
   </div>
@@ -48,6 +48,10 @@
     <tr>
       <td>Avatar Link</td>
       <td>{{user.avatar_url}}</td>
+    </tr>
+    <tr>
+      <td>Permissions</td>
+      <td>{{user.permissions}}</td>
     </tr>
   </table>
 </div>
@@ -83,6 +87,10 @@
       <td>Email</td>
       <td><input ng-model="user.username" style="width:100%;"></td>
     </tr>
+    <tr>
+      <td>Permissions</td>
+      <td><input ng-model="user.permissions" style="width:100%;"></td>
+    </tr> 
     <tr>
       <td>Upload Avatar</td>
       <td><input type="file" id="file_input"/></td>

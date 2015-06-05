@@ -14,6 +14,8 @@
         <span>Description: {{exercise.description}}</span>
         <hr>
       </div>
+    <div ng-show="isCurrentUser()">
+    <div ng-if="isContributor()">
     <form ng-submit="addPlan()">
        <div class="form-group">
           <select ng-model="workoutPlan.day">
@@ -43,6 +45,8 @@
     <span>
       <a href="#/transactions">Buy Item</a>
     </span>
+    </div>
+    </div>
 </div>
 
 

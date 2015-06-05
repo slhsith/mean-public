@@ -4,10 +4,12 @@
         {{item.name}}
       </span>
     </h3>
-    <span>
+    <span ng-show="!isCurrentUser()">
       <a href="#/transactions">Buy Item</a>
     </span>
-    <a href="" ng-click="deleteItem()"><span>Delete Item</span></a>
+    <div ng-show="isCurrentUser()" ng-if="isContributor()">
+      <a href="" ng-click="deleteItem()"><span>Delete Item</span></a>
+    </div>
 </div>
 
 <diet-plan ng-show="item.dietplan" item="item"></diet-plan>

@@ -1,3 +1,5 @@
+<div ng-show="isCurrentUser()">
+<div ng-if="isContributor()">
 <form name="newDiet" ng-submit="saveDiet()" style="margin-top:30px;">
 
   <div class="col-sm-6">
@@ -45,7 +47,6 @@
 
   <button type="submit" class="diet-create col-sm-12 btn-default">{{item._id? 'Save' : 'Create'}}</button>
 </form>
-
 
 <!-- Meal Itinerary -->
 <div class="diet-meal" ng-show="item._id">
@@ -240,3 +241,5 @@
 
   </div>
 </div><!-- diet plan meta -->
+</div>   
+</div>              

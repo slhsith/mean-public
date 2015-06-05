@@ -1,3 +1,5 @@
+<div ng-show="isCurrentUser()">
+<div ng-if="isContributor()">
 <form ng-submit="addItem()" style="margin-top:30px;">
 
   <div class="col-md-6">
@@ -97,3 +99,5 @@
 
   <button type="submit" class="diet-create col-md-12 btn-default">Create</button>
 </form>
+</div>
+</div>
