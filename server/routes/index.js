@@ -100,8 +100,19 @@ router.put('/api/emailverify/:username/:user_token', authentication.verifyEmail 
 router.get('/api/resetpassword/:username/:user_token', authentication.getResetPassword );
 router.put('/api/resetpassword/:username/:user_token', authentication.doResetPassword );
 //Facebook Integration
-router.get('/auth/facebook', passport.authenticate('facebook'));
-router.get('/auth/facebook/callback', passport.authenticate('facebook'));
+router.get('/auth/facebook', function(req,res,next) {
+    passport.authenticate(
+      'facebook',
+       {callbackURL:"/auth/facebook/callback/"}
+    ) (req,res,next);
+});
+
+router.get('/auth/facebook/callback/:id',
+    passport.authenticate('facebook', {
+        callbackURL:"/auth/facebook/callback/"+req.params.id,
+        successRedirect : '/user/#/home',
+        failureRedirect : '/#'
+    }));
   // function(req, res) {
   //   successRedirect: '/'
   //   // Successful authentication, redirect home.
