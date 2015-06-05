@@ -107,12 +107,13 @@ router.get('/auth/facebook', function(req,res,next) {
     ) (req,res,next);
 });
 
-router.get('/auth/facebook/callback/:id',
+router.get('/auth/facebook/callback/:id', function(req,res,next) {
     passport.authenticate('facebook', {
         callbackURL:"/auth/facebook/callback/"+req.params.id,
         successRedirect : '/user/#/home',
         failureRedirect : '/user/#/home'
-    }));
+    });
+});
   // function(req, res) {
   //   successRedirect: '/'
   //   // Successful authentication, redirect home.
