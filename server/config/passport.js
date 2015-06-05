@@ -14,6 +14,7 @@ var FACEBOOK_APP_SECRET = "5291485b14fff8e81428d10c9a0c164a";
 passport.use(new FacebookStrategy({
     clientID: "692480267528460",
     clientSecret: "5291485b14fff8e81428d10c9a0c164a",
+    callbackURL: "https://trainersvault.herokuapp.com/auth/facebook/callback/",
     enableProof: false,
     profileFields: ['id', 'displayName', 'photos']
   },
