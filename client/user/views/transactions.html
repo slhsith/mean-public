@@ -3,10 +3,12 @@
     <h1>It's buying time</h1>
   </div>
   <form ng-submit="startTrans()">
-    <input ng-model="card.number" placeholder="Card Number" />
-    <input ng-model="card.month" placeholder="Exp Month" />
-    <input ng-model="card.year" placeholder="Exp Year" />
-    <input ng-model="card.cvc" placeholder="CVC" />
+    <input ng-model="item.price" disabled/>
+    <input ng-model="item.currency" disabled/>
+    <input ng-model="item.number" placeholder="Card Number" required />
+    <input ng-model="item.month" placeholder="Exp Month" required />
+    <input ng-model="item.year" placeholder="Exp Year" required />
+    <input ng-model="item.cvc" placeholder="CVC" required />
     <button type="submit">Submit</button>
   </form>
   <div>

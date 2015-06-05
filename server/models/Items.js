@@ -9,6 +9,7 @@ var ItemSchema = new mongoose.Schema({
            },
 
   price   : Number, // in cents
+  currency: String,
   upvotes : {type: Number, default: 0},
 
   // should be lowercase so we can easily map to correct field to store ref

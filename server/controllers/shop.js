@@ -298,17 +298,12 @@ exports.upvoteItem = function(req, res, next) {
 
 // Item page & transaction
 exports.createTransaction = function(req, res, next) {
-  stripe.token.create({
-    card: {
-      "number": '4242424242424242',
-      "exp_month": 12,
-      "exp_year": 2016,
-      "cvc": '123'
-    }
-  }, function(err, token) {
-    // asynchronously called
-  });
-
+  var customerId = getStripeCustomerId(user);
+  stripe.charges.create({
+    amount: req.body.price,
+    currency: req.body.currency,
+    customer: customerId
+  })
 };
 
 //transaction page & create customer
