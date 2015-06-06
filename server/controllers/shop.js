@@ -52,40 +52,41 @@ var subItemModel = {
   book: Book,
   podcast: Podcast
 };
+var types = ['workoutplan', 'dietplan', 'video', 'book', 'podcast'];
 
 // --- Exported Methods --- //
 
 // ----------------------------- ITEMS --------------------------------- //
 exports.getItems = function(req, res, next) {
    Item.find({})
-   .populate('exercise')
-   .populate('workoutplan')
-   .populate('dietplan')
-   .populate('video')
-   .populate('book')
-   .populate('podcast')
+   .populate('exercise workoutplan dietplan video book podcast')
    .exec(function(err, items){
+      var result = [];
+      items.forEach(function(item) {
+        result.push(removeNullSubtypeFields(item));
+      });
       if(err){ return next(err); }
-      return res.json(items);
+      return res.json(result);
    });
 };
 
 
-// exports.deleteItem = function(req, res, next, id) {
-//   console.log(item);
-//   Item.delete(item._id, function (err, item) {
-//       if (err) { return next(err); }
-//       // return this.findByIdAndRemove({ item_id: id });
-//       // return item;
-//     }).success(function(){
-//       res.redirect('#/shop');
-//     });
-//   };
-// //   Item.findOneAndRemove({ user : req.payload._id }, function (err, items) {
-// //     if(err){ return next(err); }
-// //     res.redirect('#/shop');
-// //   });
-// // };
+exports.deleteItem = function(req, res, next) {
+  var item_id = req.params.item;
+  Item.findByIdAndRemove(item_id, function (err, item) {
+    if (err) { return next(err); }
+
+    User.findByIdAndUpdate(item_id,
+      { $pull: {items: {_id: item_id} }}, 
+      function (err, items) {
+        if(err){ return next(err); }
+        console.log(items);
+        res.json({message: 'Successfully deleted item ' + item_id, success: true});
+    });
+    
+  });
+};
+
 exports.getExercises = function(req, res, next) {
   console.log(req.params._id);
   var _id = req.params._id;
@@ -130,7 +131,7 @@ function saveSubItem (err, item, subitem, callback) {
   });
 }
 
-function updateItem (err, item, subitem, callback) {
+function updateItemWithSubitemId (err, item, subitem, callback) {
   // this will be the update needed, matching the type of the item
   // e.g. { $set : { 'video' : video._id }} 
   var update = {};
@@ -152,7 +153,7 @@ exports.postItem = function(req, res, next) {
   var user = { _id: req.payload._id };
   saveItem(item, function(err, item) {
     saveSubItem(err, item, subitem, function(err, item, subitem) {
-      updateItem(err, item, subitem, function(err, item, subitem) {
+      updateItemWithSubitemId(err, item, subitem, function(err, item, subitem) {
         User.findByIdAndUpdate(
           req.payload._id,
           { $push: { items: item._id } },
@@ -195,26 +196,101 @@ exports.newStep = function (req, res, next) {
   });
 };
 
-// PUT FOR DIET PLAN 
-// ---> PUT /api/item/item_id/diet
-// MIGHT BE INTERNAL FUNCTION FOR EACH ITEM TYPE AND THEN WE WILL SWITCH ON SAME API
-// ---> PUT /api/item/item_id
-exports.updateDietPlan = function(req, res, next) {
-  // front end sees items with _id: item_id 
-  // and <Subitem>: subitem_id, swap for PUT 
-  swapIds(req.body);
-  // var  item_id  = req.body._id,
-    // subitem_id  = req.body[req.body.type];
-  // req.body._id  = subitem_id; // make sure what we post gets diet_id as _id
-  // req.body.item = item_id;    // item gets item_id
-  console.log('----> updating', req.body);
+/* in the front end, our items are flattened with the format
+{
+  _id: item_id,
+  <subtype>: subitem_id,
+  ...
+}
+We will want to update the subitem with the _id swapped to 
+{
+  _id: subitem_id,
+  item: item_id,
+  ...
+}
+*/
+exports.updateItem = function(req, res, next) {
+  var type = req.body.type;
+  var subitem_id = req.body[type];
+  var model = subItemModel[type];
 
-  DietPlan.findByIdAndUpdate(subitem_id, req.body, { new : true }, function(err, dietplan) {
-    if (err) { return next(err); }
-    return res.json(dietplan);//{'message': 'Successfully saved changes to diet plan.'});
+  // Item.findByIdAndUpdate(
+    // req.body._id,
+    // req.body, 
+    // function(err, item) {
+      // if (err) { return next(err); }
+
+      swapIds(req.body);
+      model.findByIdAndUpdate(
+        subitem_id,
+        req.body,
+        {new: true},
+        function(err, subitem) {
+          if (err) { return next(err); }
+          return res.json(subitem);
+      });
+
+    // }
+  // );
+};
+
+// we're going to get a day with ORDER
+// if this order is higher than the current days_set+1
+// we'll need to create Days for the filler days
+// then either way we push this new day data on to the days array
+exports.createDay = function(req, res, next) {
+  var diet_id = req.params.id,
+     days_set = req.body.days_set,
+       newday = { order: req.body.order, title: req.body.title, meals: [] },
+   daysToPush = [],
+       filler = newday.order - days_set - 1;
+
+  req.body.meals.forEach(function(meal) {
+    newday.meals.push(new Meal(meal));
+  });
+
+  if (filler > 0) {
+    console.log('need to create '+ filler + 'filler days');
+    while (filler > 0) {
+      days_set++;
+      daysToPush.push(new Day({order: days_set}));
+      filler--;
+    }
+   }
+  daysToPush.push(newday);
+
+  DietPlan.findByIdAndUpdate(
+    diet_id, 
+    { $push: { days: { $each: daysToPush } },
+      $inc: { days_set: daysToPush.length }
+    },
+    {new: true}, 
+    function(err, dietplan) {
+      console.log('dietplan', dietplan);
+      res.json({days: dietplan.days, days_set: dietplan.days_set});
   });
 };
 
+exports.updateDay = function(req, res, next) {
+  var diet_id = req.params.id,
+    day_index = req.body.order-1,
+    updateday = { order: req.body.order, title: req.body.title, meals: [] };
+    req.body.meals.forEach(function(meal, index) {
+      updateday.meals.push(new Meal(meal));
+    });
+
+  var setModifier = { $set: {} };
+  setModifier.$set['days.' + day_index] = updateday;
+
+  DietPlan.findByIdAndUpdate(
+    diet_id,
+    setModifier,
+    {new: true}, 
+    function(err, dietplan) {
+      console.log('-------dietplan days updated\n', dietplan.days);
+      res.json({days: dietplan.days});
+  });
+};
 
 exports.createRecipe = function (req, res, next) {
  var recipe = new Recipe(req.body);
@@ -257,19 +333,18 @@ exports.searchIngredients = function(req, res, next) {
 
 };
 
-
 exports.getItemById = function (req, res, next) {
- var item_id = req.params.id;
+ var item_id = req.params.item;
  Item.findById(item_id)
- .populate('dietplan')
- .populate('workoutplan')
- .populate('video')
- .populate('book')
- .populate('podcast')
+ .populate('dietplan workoutplan video book podcast')
  .exec(function(err, item) {
     if (err) { return next(err); }
     console.log('----> populated\n', item);
-    return res.json(item);
+    if (item) {
+      return res.json(removeNullSubtypeFields(item));
+    } else {
+      return res.json({message: 'no item found'});
+    }
  });
 };
 
@@ -411,6 +486,15 @@ function swapIds (item) {
   }
 }
 
+function removeNullSubtypeFields(item) {
+  item = item.toObject();
+  types.forEach(function(type) {
+    if (item[type] === null) {
+      delete item[type];
+    }
+  });
+  return item;
+}
 
 
 

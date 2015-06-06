@@ -29,7 +29,7 @@ gulp.task('lint', function() {
         'client/admin/app.js','client/admin/js/controllers.js','client/admin/js/models.js',
         'client/set/app.js','client/set/js/controllers.js','client/set/js/models.js',
         'client/user/pages/messenger/*.js', 'client/user/pages/shop/*.js',
-        'client/user/elements/addwidget/*.js'
+        'client/user/pages/shop/*/*.js', 'client/user/elements/*/*.js'
         ])
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
@@ -47,7 +47,8 @@ gulp.task('scripts', function() {
 });
 
 gulp.task('userscripts', function() {
-    return gulp.src(['client/user/app.js','client/user/js/controllers.js','client/user/js/models.js', 'client/user/pages/*/*.js', 'client/user/elements/*/*.js'])
+    return gulp.src(['client/user/app.js','client/user/js/controllers.js','client/user/js/models.js', 
+        'client/user/pages/*/*.js', 'client/user/pages/*/*/*.js', 'client/user/elements/*/*.js'])
         .pipe(concat('all.js'))
         .pipe(gulp.dest('client/user/dist'))
         .pipe(rename('all.min.js'))
@@ -123,9 +124,16 @@ gulp.task('markup', function () {
 
 gulp.task('usermarkup', function () {
     gulp.src(['client/user/*.html','client/user/views/*.html',
-        'client/user/pages/shop/*.html',
+        'client/user/pages/shop/dietplan/*.html',
+        'client/user/pages/shop/digitalmedia/*.html',
+        'client/user/pages/shop/workoutplan/*.html',
         'client/user/pages/messenger/*.html',
-        'client/user/elements/addwidget/*.html'])
+        'client/user/elements/itemmeta/*.html',
+        'client/user/elements/addwidget/*.html',
+        'client/user/elements/slidedisplay/*.html',
+        // 'client/user/elements/messengerwindow/*.html',
+        // 'client/user/elements/searchbar/*.html'
+        ])
         .pipe(htmlify())
         .pipe(templateCache({standalone:true}))
         .pipe(gulp.dest("client/user/dist"))
@@ -159,6 +167,8 @@ gulp.task('watch', function() {
     gulp.watch('client/js/*.js', ['lint', 'scripts']);
     gulp.watch('client/user/js/*.js', ['lint', 'userscripts']);
     gulp.watch('client/user/pages/*/*.js', ['lint', 'userscripts']);
+    gulp.watch('client/user/pages/*/*/*.js', ['lint', 'userscripts']);
+    gulp.watch('client/user/elements/*/*.js', ['lint', 'userscripts']);
     gulp.watch('client/admin/js/*.js', ['lint', 'adminscripts']);
     gulp.watch('client/set/js/*.js', ['lint', 'setscripts']);
 
@@ -167,6 +177,7 @@ gulp.task('watch', function() {
     gulp.watch('client/user/*.html', ['usermarkup']);
     gulp.watch('client/user/views/*.html', ['usermarkup']);
     gulp.watch('client/user/pages/*/*.html', ['usermarkup']);
+    gulp.watch('client/user/pages/*/*/*.html', ['usermarkup']);
     gulp.watch('client/user/elements/*/*.html', ['usermarkup']);
     gulp.watch('client/admin/*.html', ['adminmarkup']);
     gulp.watch('client/admin/views/*.html', ['adminmarkup']);
