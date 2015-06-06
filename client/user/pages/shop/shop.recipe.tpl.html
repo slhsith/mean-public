@@ -61,60 +61,32 @@
     </div>
 
   <!-- - - - - - - - - - - - - steps - - - - - - - - - - - - - - - - - - -->
-  <div class="col-sm-12">
-    <div class="form-group col-sm-6" ng-repeat="step in recipe.steps">
-      <i class="fa fa-photo"></i>
-      Step {{step.order}}
+  <add-widget set="recipe.steps" widget-class="col-sm-6">
+    <add-widget-item class="col-sm-6" item="step" ng-repeat="step in recipe.steps">
+      Step {{step.order}}<br/>
       {{step.description}}
-    </div>
+    </add-widget-item>
 
-    <!-- - - - - - - - - - - new step - - - - - - - - - - - - - - - - - - -->
-    <div class="col-sm-6 ingredient" ng-show="step"> 
-      <div class="ingredient-part ingredient-photo col-sm-2"><i class="fa fa-3x fa-photo"></i></div>
-      <div class="col-sm-10">
-        <form name="newCookingStep" ng-submit="saveStep()">
-        Step {{step.order}}
-        <input type="text" placeholder="Description" ng-model="step.description">
-        <button type="submit"><i class="fa fa-floppy-o"></i></button>
-        </form>
-      </div>
-    </div>
+    <add-widget-form class="col-sm-6" ng-show="step" fields="addWidgetFields['cookingstep']" save="saveStep()">
+      Step {{step.order}}
+    </add-widget-form>
 
-    <div class="diet-plus form-group col-sm-6 text-center" style="border: 1px solid #999" ng-click="initStep()" title="Add Cooking Step">
-      <i class="fa fa-3x fa-plus"></i>
-    </div>
+    <add-widget-plus class="diet-plus col-sm-6" item-type="cooking step" ng-click="initStep()">
+    </add-widget-plus>
   </div>
 
   <!-- - - - - - - - - - - - - ingredients - - - - - - - - - - - - -->
 
   <div class="col-sm-12">
-    <div class="col-sm-4" ng-repeat="ingredient in recipe.ingredients">
-      <i class="fa fa-3x fa-photo"></i>
-      {{ingredient.title}}
-      {{ingredient.amount.value}} {{ingredient.amount.type}} {{ingredient.description}}
-    </div>
+    <add-widget>
+      <add-widget-item class="col-sm-4" ng-repeat="ingredient in recipe.ingredients" item="ingredient">
+        {{ingredient.amount.value}} {{ingredient.amount.type}} {{ingredient.description}}
+      </add-widget-item>
 
-    <!-- - - - - - - - - - - - - new ingredient - - - - - - - - - - - - -->
+      <add-widget-form class="col-sm-4" item-type="ingredient" item="ingredient" fields="addWidgetFields[ingredient]" searchable="true"> </add-widget-form>
 
-    <div class="col-sm-4 ingredient" ng-show="ingredient"> 
-      <div class="ingredient-part ingredient-photo col-sm-2"><i class="fa fa-3x fa-photo"></i></div>
-      <div class="col-sm-10">
-
-        <input class="ingredient-part ingredient-title col-sm-8" type="text" placeholder="Ingredient" ng-model="ingredient.title"> 
-        <button ng-click="searchIngredients()" class="fa fa-primary col-sm-4"><i class="fa fa-search"></i></button>
-
-        <input class="ingredient-part ingredient-amount col-sm-2" type="text" placeholder="Value" ng-model="ingredient.value">
-        <input class="ingredient-part ingredient-amount col-sm-2" type="text" placeholder="Unit" ng-model="ingredient.unit">
-        <input class="ingredient-part ingredient-preparation col-sm-8" type="text" placeholder="Prep Method" title="e.g. 'chopped'" ng-model="ingredient.preparation">
-
-        <input class="ingredient-part ingredient-description col-sm-10" type="text" placeholder="Note" ng-model="ingredient.description">
-        <button class="col-sm-2" ng-click="saveIngredient()"><i class="fa fa-floppy-o"></i></button>
-      </div>
-    </div>
-
-    <div class="diet-plus form-group col-sm-4 text-center" style="border: 1px solid #999" ng-click="initIngredient()" title="Add Ingredient">
-      <i class="fa fa-3x fa-plus"></i>
-    </div>
+      <add-widget-plus class="col-sm-4" init="initIngredient()" item-type="ingredient"> </add-widget-plus>
+    </add-widget>
   </div>
 
   <button ng-click="saveRecipe()" class="diet-create col-sm-12 btn-primary ">Create</button>

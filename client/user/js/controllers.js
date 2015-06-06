@@ -140,9 +140,7 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
   };  
 
   $scope.editItem = function(item) {
-    // items.populate(item).success(function(item) {
-      $scope.item = item;
-    // });
+    $scope.item = item;
   };
 
   $scope.isAdmin = auth.isAdmin;

@@ -16,7 +16,7 @@
     <a href="#/events"><button class="btn-default col-sm-4">Create Event</button></a>
   </div>
 
-  <button class="btn-default col-sm-12" ng-click="showproducts = !showproducts" ng-init="showproducts=false">Show/hide Items</button>
+  <button class="btn-default col-sm-12" ng-click="showproducts = !showproducts" ng-init="showproducts=true">Show/hide Items</button>
 
   <div ng-repeat="item in items" ng-show="showproducts">
     <h4>  {{item.name}}

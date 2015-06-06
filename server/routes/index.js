@@ -50,9 +50,9 @@ router.param('comment', posts.getCommentByIdParam )
 router.get('/api/items', shop.getItems );
 router.post('/api/items', auth, shop.postItem );
 // router.param('/api/item', shop.getItemByIdParam );
-router.get('/api/item/:id', shop.getItemById );
-router.put('/api/items/:item/upvote', auth, shop.upvoteItem );
+router.get('/api/item/:item', shop.getItemById );
 router.put('/api/item/:item', auth, shop.updateItem );
+router.put('/api/items/:item/upvote', auth, shop.upvoteItem );
 
 router.get('/api/items/:item/exercises', shop.getExercises );
 router.post('/api/workoutPlans/:id', shop.createExercise );
@@ -60,6 +60,9 @@ router.get('/api/item/exercise/:exercise', shop.getExercise );
 router.post('/api/item/exercise/:exercise', shop.newStep );
 router.get('/api/item/step/:step', shop.getStep );
 
+router.post('/api/item/dietplan/:id/days', auth, shop.createDay );
+router.put('/api/item/dietplan/:id/days', auth, shop.updateDay );
+// router.put('/api/item/dietplan/:id/meals', auth, shop.updateMeal);
 router.post('/api/item/dietplan/recipes', auth, shop.createRecipe );
 router.post('/api/item/dietplan/ingredients', auth, shop.createIngredient );
 router.get('/api/item/dietplan/recipes/:query', auth, shop.searchRecipes );

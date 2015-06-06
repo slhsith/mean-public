@@ -347,9 +347,7 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
   };  
 
   $scope.editItem = function(item) {
-    // items.populate(item).success(function(item) {
-      $scope.item = item;
-    // });
+    $scope.item = item;
   };
 
   $scope.isAdmin = auth.isAdmin;
@@ -744,6 +742,31 @@ app.factory('items', function($http, auth){
     return $http.get('/api/item/step/' + step).then(function(res){
       return res.data;
     });
+  };
+
+  o.updateDietplan = function(item, object) {
+    var dietplan_id = item.dietplan;
+    var current_days_set = item.days_set;
+
+    var dietplanAPI = '/api/item/dietplan/' + dietplan_id + '/';
+
+    // saving the whole day, 
+    // basically a meal was added or changed
+    if (object.order) {
+      // this is a new day beyond those set before
+      if (current_days_set < object.order) {
+        object.days_set = current_days_set;
+        return $http.post(dietplanAPI + 'days', object, {
+          headers: {Authorization: 'Bearer '+auth.getToken()}
+        });
+      }
+      // this is an update of a previously set day
+      return $http.put(dietplanAPI + 'days', object, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      });
+    }
+
+
   };
 
 
@@ -1400,42 +1423,40 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
   this.init = function(element) {
     self.$element = element;
 
-    // initDaysForFullDuration();
-
+    if ($scope.item.days.length === 0) {
+      $scope.item.days.push(new Day());
+    } else {
+      $scope.viewingDay = $scope.item.days[0];
+    }
+    $scope.dayIndex = 0;
+    $scope.mealIndex = 0;
   };
-
-  function initDaysForFullDuration () {
-    var duration = $scope.item.duration;
-    var day, days_existing = $scope.item.days.length;
-    while (days_existing < duration) {
-        day = new Day();
-        day.day.order = days_existing+1;
-        $scope.item.days.push(day);
-        days_existing++;
-    } 
-    $scope.dayIndex  = 1;
-    $scope.mealIndex = 1;
-    $scope.viewingDay = $scope.item.days[0];
-    $scope.mealCount  = $scope.viewingDay.meals.length;
-  }
-
 
   $scope.decrementDay = function() {
-    if ($scope.dayIndex > 1) $scope.dayIndex--;
+    if ($scope.dayIndex > 0) $scope.dayIndex--;
     $scope.viewingDay = $scope.item.days[$scope.dayIndex];
-    $scope.mealCount = $scope.viewingDay.meals.length;
   };
   $scope.incrementDay = function() {
-    if ($scope.dayIndex < ($scope.item.days.length)) $scope.dayIndex++;
-    $scope.viewingDay = $scope.item.days[$scope.dayIndex];
-    $scope.mealCount  = $scope.viewingDay.meals.length;
+    // a diet day index goes from 0 to one less than duration
+    if ($scope.dayIndex < $scope.item.duration-1) {
+      $scope.dayIndex++; 
+      $scope.item.days[$scope.dayIndex] = $scope.item.days[$scope.dayIndex] || new Day($scope.dayIndex);
+      $scope.viewingDay = $scope.item.days[$scope.dayIndex];
+      $scope.mealCount  = $scope.viewingDay.meals.length;
+      $scope.viewingMeal = $scope.viewingDay.meals[0] || new Meal();
+    } else {
+      alert('going over days, increase duration confirmation?');
+    }
+
   };
 
   $scope.decrementMeal = function() {
     if ($scope.mealIndex > 1) $scope.mealIndex--;
+    $scope.viewingMeal = $scope.viewingDay.meals[$scope.mealIndex];
   };
   $scope.incrementMeal = function() {
-    if ($scope.mealIndex < (_mealCount+1)) $scope.mealIndex++;
+    if ($scope.mealIndex < ($scope.viewingDay.meals.length)) 
+      $scope.mealIndex++;
   };
 
   //$scope.item   = item comes from directive
@@ -1450,6 +1471,7 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
   };
   $scope.initRecipe   = function() {
     $scope.recipe = new Recipe();
+    $scope.viewingDay.meals.push($scope.recipe);
   };
   $scope.initStep     = function() {
     $scope.step = new CookingStep();
@@ -1486,7 +1508,10 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
 
   $scope.saveMeal     = function() {
     console.log('viewingDay', $scope.viewingDay);
-    items.update($scope.item);
+    items.updateDietplan($scope.item, $scope.viewingDay).success(function(data) {
+      $scope.item.days_set = data.days_set;
+      $scope.item.days     = data.days;
+    });
   };
   $scope.saveRecipe   = function() {
     dietplans.createRecipe($scope.recipe);
@@ -1502,9 +1527,56 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
     $scope.ingredient = null;
   };
 
+  $scope.options = [{
+    fields: [
+      {    field: 'title', 
+            name: 'Title',
+           class: 'col-sm-12',
+        required: true
+      }, {
+           field: 'hashtag',
+            name: 'Hashtag',
+           class: 'col-sm-6',
+      }
+    ]
+  },{
+
+  }];
 
 
 
+  $scope.addWidgetOptions = {
+    ingredient: {
+      name: 'Ingredient',
+      type: 'ingredient',
+      searchable: true,
+      fields: [ {field: 'amount', class: 'col-sm-6'},
+                {field: 'preparation', class: 'col-sm-6'}, 
+                {field: 'note', class: 'col-sm-12'}],
+      item: $scope.ingredient
+      },
+
+    recipe    : {
+      name: 'Recipe',
+      type: 'ingredient',
+      searchable: false,
+      save: $scope.saveMeal,
+      init: $scope.initRecipe,
+      //transclude: + create new recipe
+      fields  : [ {field: 'recipe', class: 'col-sm-6'},
+                  {field: 'servings', class: 'col-sm-6'} ],
+      item: $scope.recipe,
+      },
+
+    step      : {
+      show_name: false,
+      type: 'cookingstep',
+      searchable: false,
+      //transclude: Step #
+      fields: [ {field: 'description', class: 'col-sm-12'} ],
+      item: $scope.step
+    }
+  };
 
 
 });
@@ -1518,9 +1590,77 @@ app.directive('dietPlan', function () {
     templateUrl: 'shop.dietplan.tpl.html',
     link: function(scope, element, attrs, DietCtrl) {
       DietCtrl.init( element );
+      if (scope.item._id) {
+        scope.dayIndex  = 1;
+        scope.mealIndex = 1;
+        scope.viewingDay = scope.item.days[0];
+        scope.mealCount  = scope.viewingDay.meals.length;
+      }
     }
   };
 
+});
+
+app.directive('mealDisplay', function() {
+
+  var mealDisplayCtrl = function($scope) {
+    var self = this,
+        currentIndex = -1,
+        currentMeal;
+    var meals = [];
+
+    $scope.$watch($scope.viewingDay.meals, function(newval) {
+      meals = $scope.viewingDay.meals;
+    });
+
+    $scope.next = function() {
+      var newIndex = (self.getCurrentIndex() + 1) % meals.length;
+    };
+
+    $scope.prev = function() {
+      var newIndex = self.getCurrentIndex() -1 < 0? meals.length -1 : self.getCurrentIndex - 1;
+    };
+
+    $scope.isActive = function(meal) {
+      return self.currentMeal === meal;
+    };
+
+  };
+
+  return {
+    restrict: 'EA',
+    transclude: true,
+    replace: true,
+    controller: mealDisplayCtrl,
+    templateUrl: 'dietplan.mealdisplay.tpl.html',
+  };
+});
+
+app.directive('meal', function() {
+  var template = '<div ng-class="{\'active\': active }" class="item text-center" ng-transclude></div>';
+  return {
+    require: '^mealDisplay',
+    restrict: 'E',
+    transclude: true,
+    replace: true,
+    scope: {
+      active: '=?',
+      index: '=?'
+    },
+    link: function (scope, element, attrs, dietCtrl) {
+      dietCtrl.addSlide(scope, element);
+      //when the scope is destroyed then remove the slide from the current slides array
+      scope.$on('$destroy', function() {
+        dietCtrl.removeMeal(scope);
+      });
+
+      scope.$watch('active', function(active) {
+        if (active) {
+          dietCtrl.select(scope);
+        }
+      });
+    }
+  };
 });
 
 app.directive('mealRecipes', function() {
@@ -1631,8 +1771,9 @@ app.factory('Diet', function() {
 
 app.factory('Day', function() {
 
-  var DayConstructor = function DayConstructor () {
-    this.day       = { name: null, order: null };
+  var DayConstructor = function DayConstructor (order) {
+    this._id       = null;
+    this.order     = order || 1;
     this.title     = null; // for dietplans, like 'carb load'
     this.meals     = [];
     this.exercises = [];
@@ -1753,6 +1894,69 @@ app.factory('dietplans', function ($http, auth) {
 
 /*
 
+ITEM META DATA FORM
+data = scope.item
+options = scope.itemMetaOptions {
+  video: {
+    name: 'Video',
+    type: 'video',
+    fields: [ {field: 'amount', class: 'col-sm-6'},
+                {field: 'preparation', class: 'col-sm-6'}, 
+                {field: 'note', class: 'col-sm-12'}],
+      item: $scope.ingredient
+      },
+
+    recipe    : {
+      name: 'Recipe',
+      type: 'ingredient',
+      searchable: false,
+      save: $scope.saveMeal,
+      init: $scope.initRecipe,
+      //transclude: + create new recipe
+      fields  : [ {field: 'recipe', class: 'col-sm-6'},
+                  {field: 'servings', class: 'col-sm-6'} ],
+      item: $scope.recipe,
+      },
+
+    step      : {
+      show_name: false,
+      type: 'cookingstep',
+      searchable: false,
+      //transclude: Step #
+      fields: [ {field: 'description', class: 'col-sm-12'} ],
+      item: $scope.step
+    }
+  };
+  
+}
+
+<item-meta data="item" options="options"></item-meta>
+
+*/
+
+
+
+
+
+// ------------ CONTAINER
+app.directive('itemMeta', function () {
+  return {
+    restrict: 'E',
+    scope: {
+      data: '=',
+      options: '=', 
+    },
+    controller: 'DietCtrl',
+    templateUrl: 'itemmeta.tpl.html',
+    link: function(scope, elem, attr) {
+      console.log('item meta', scope);
+    }
+
+  };
+});
+
+/*
+
 ROW WIDGET FOR ADDING UNITS TO SUBARRAYS OF ITEMS & EVENTS
 - subobject                   -> OBJECT
 --------------------------------------------------
@@ -1764,66 +1968,101 @@ ROW WIDGET FOR ADDING UNITS TO SUBARRAYS OF ITEMS & EVENTS
 <!-- recipe.ingredients = [ ingredient ] -->
 <add-widget parent="recipe" child="'ingredient'" children="recipe.ingredients"></add-widget>
 */
-app.directive('tvAddWidget', function () {
+
+
+
+
+
+// ------------ CONTAINER
+app.directive('addWidget', function () {
+  return {
+    restrict: 'E',
+    scope: {
+      set: '=',
+      options: '=', // array with fields and styling options objects
+      // save: '&',
+      // init: '&'
+    },
+    transclude: true,
+    controller: 'addWidgetCtrl',
+    template: '<div class="col-sm-12" ng-transclude></div>'
+  };
+});
+
+
+
+
+// ------------ ITEM REPEATS
+app.directive('addWidgetItems', function () {
+
+  var tpl = '<div ng-repeat="item in set">'+
+              '<div class="add-widget-photo">'+
+                '<i class="fa fa-3x fa-photo"></i>'+
+              '</div>'+ 
+            // '<div class="add-widget-photo"><img src="item.photo"/></div>'+
+              '<div class="add-widget-title">{{item.name}}</div>'+
+              '<div class="add-widget-body" ng-transclude></div>'+
+              '</div>';
 
   return {
     restrict: 'E', 
-    scope: {
-      set: '=',
-      item: '='
-    },
+    require: '^addWidget',
     transclude: true,
-    replace: true,
-    controller: 'addWidgetCtrl',
-    template: '<div><ng-transclude></ng-transclude></div>'
-               // '<tv-add-widget-item ng-repeat="item in items"></tv-add-widget-item>',
-               // '<tv-add-widget-form></add-widget-form>',
-               // '<tv-add-widget-plus><tv-add-widget-plus>',
-    // templateUrl: 'addwidget.tpl.html',
-    // link: function(scope, element, attrs) {}
+    template: tpl
   };
 
 });
 
-app.directive('tvAddWidgetItems', function () {
-  var template = [
-    '<div ng-repeat="item in set">',
-      '<div class="add-widget-photo"><i class="fa fa-3x fa-photo"></i></div>',
-      // '<div class="add-widget-photo"><img src="item.photo"/></div>',
-      '<div class="add-widget-title">{{set}} {{item.name}}</div>',
-      '<div class="add-widget-body"><ng-transclude></ng-transclude></div>',
-    '</div>'
-  ].join('');
+// ------------ FORM FOR NEW ITEM
+app.directive('addWidgetForm', function () {
+
+  var tpl = '<div style="border: 1px solid #999" title="New {{item_type}}" ng-show="options.item">'+
+                '<div class="col-sm-2"><i class="fa fa-2x fa-photo"></i></div>'+
+                '<div class="col-sm-10">'+
+                  '<span ng-transclude></span>'+
+                  '<input class="col-sm-{{options.searchable? \'8\' : \'12\'}}" type="text" placeholder="options.name" ng-model="item.name" ng-show="!!options.name">'+
+                  '<button class="btn-sm col-sm-4" ng-click="search()" ng-if="options.search">'+
+                    '<i class="fa fa-search"></i>'+
+                  '</button>'+
+                  '<input ng-class="field.class" type="text" ng-repeat="field in options.fields" placeholder="{{field.field}}" ng-model="item[field.field]">'+
+                  '<button class="form-control btn-xs" ng-click="save()"><i class="fa fa-floppy-o"></i></button>'+
+                '</div>'+
+             '</div>';
 
   return {
     restrict: 'E', 
-    require: 'tvAddWidget',
+    require: '^addWidget',
     transclude: true,
     replace: true,
-    template: template
-    };
-
+    template: tpl,
+    link: function(scope, element, attrs, ctrl) {
+    }
+  };
 });
 
-// app.directive('tvAddWidgetForm', function () {
 
-//   return {
-//     restrict: 'E', 
-//     require: 'tvAddWidget',
-//     transclude: true,
-//     replace: true,
-//     template: '<div><ng-transclude></ng-transclude></div>',
-//     link: function(scope, element, attrs) {
-//     }
-//   };
-// });
 
-// app.directive('tvAddWidgetPlus', function () {
-//   return {
-//     restrict: 'E', 
-//     template: '<div style="border: 1px solid #999"><i class="fa fa-2x fa-plus"></i></div>'
-//   };
-// });
+
+
+// ------------ PLUS BUTTON
+app.directive('addWidgetPlus', function () {
+  var tpl = '<div class="text-center" style="height: 50px; border: 1px solid #999" title="Add {{item_type}}">'+
+            '<i class="fa fa-2x fa-plus"></i> {{item_type}}'+
+            '</div>';
+
+  return {
+    restrict: 'E', 
+    require: '^addWidget',
+    template: tpl,
+    replace: true,
+    link: function(scope, element, attrs, ctrl) {
+      element.bind('click', function() {
+        scope.$apply(scope.$parent.options.init());
+        console.log('clicked');
+      });
+    }
+  };
+});
 
 
 app.controller('addWidgetCtrl', function($scope) {
@@ -1831,4 +2070,36 @@ app.controller('addWidgetCtrl', function($scope) {
         console.log('init child');
 
     };
+});
+/*
+
+SLIDES WIDGET TO VIEW CONTENT THAT CAN BE VIEWED LIKE CAROUSEL
+can tick through a single array
+data = 
+scope.item.days = [
+  { order: 1, meals: [ {}, {}, {} ] },
+  { order: 2, meals: [ {}, {}, {} ] },
+  { order: 3, meals: [ {}, {}, {} ] },
+]
+
+<slide-display data=item.days></slide-display>
+
+*/
+
+
+
+
+
+// ------------ CONTAINER
+app.directive('slideDisplay', function () {
+  return {
+    restrict: 'E',
+    scope: {
+      data: '=',
+      options: '=', 
+    },
+    transclude: true,
+    controller: 'slideCtrl',
+    template: '<div class="col-sm-12" ng-transclude></div>'
+  };
 });

@@ -11,42 +11,40 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
   this.init = function(element) {
     self.$element = element;
 
-    // initDaysForFullDuration();
-
+    if ($scope.item.days.length === 0) {
+      $scope.item.days.push(new Day());
+    } else {
+      $scope.viewingDay = $scope.item.days[0];
+    }
+    $scope.dayIndex = 0;
+    $scope.mealIndex = 0;
   };
-
-  function initDaysForFullDuration () {
-    var duration = $scope.item.duration;
-    var day, days_existing = $scope.item.days.length;
-    while (days_existing < duration) {
-        day = new Day();
-        day.day.order = days_existing+1;
-        $scope.item.days.push(day);
-        days_existing++;
-    } 
-    $scope.dayIndex  = 1;
-    $scope.mealIndex = 1;
-    $scope.viewingDay = $scope.item.days[0];
-    $scope.mealCount  = $scope.viewingDay.meals.length;
-  }
-
 
   $scope.decrementDay = function() {
-    if ($scope.dayIndex > 1) $scope.dayIndex--;
+    if ($scope.dayIndex > 0) $scope.dayIndex--;
     $scope.viewingDay = $scope.item.days[$scope.dayIndex];
-    $scope.mealCount = $scope.viewingDay.meals.length;
   };
   $scope.incrementDay = function() {
-    if ($scope.dayIndex < ($scope.item.days.length)) $scope.dayIndex++;
-    $scope.viewingDay = $scope.item.days[$scope.dayIndex];
-    $scope.mealCount  = $scope.viewingDay.meals.length;
+    // a diet day index goes from 0 to one less than duration
+    if ($scope.dayIndex < $scope.item.duration-1) {
+      $scope.dayIndex++; 
+      $scope.item.days[$scope.dayIndex] = $scope.item.days[$scope.dayIndex] || new Day($scope.dayIndex);
+      $scope.viewingDay = $scope.item.days[$scope.dayIndex];
+      $scope.mealCount  = $scope.viewingDay.meals.length;
+      $scope.viewingMeal = $scope.viewingDay.meals[0] || new Meal();
+    } else {
+      alert('going over days, increase duration confirmation?');
+    }
+
   };
 
   $scope.decrementMeal = function() {
     if ($scope.mealIndex > 1) $scope.mealIndex--;
+    $scope.viewingMeal = $scope.viewingDay.meals[$scope.mealIndex];
   };
   $scope.incrementMeal = function() {
-    if ($scope.mealIndex < (_mealCount+1)) $scope.mealIndex++;
+    if ($scope.mealIndex < ($scope.viewingDay.meals.length)) 
+      $scope.mealIndex++;
   };
 
   //$scope.item   = item comes from directive
@@ -61,6 +59,7 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
   };
   $scope.initRecipe   = function() {
     $scope.recipe = new Recipe();
+    $scope.viewingDay.meals.push($scope.recipe);
   };
   $scope.initStep     = function() {
     $scope.step = new CookingStep();
@@ -97,7 +96,10 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
 
   $scope.saveMeal     = function() {
     console.log('viewingDay', $scope.viewingDay);
-    items.update($scope.item);
+    items.updateDietplan($scope.item, $scope.viewingDay).success(function(data) {
+      $scope.item.days_set = data.days_set;
+      $scope.item.days     = data.days;
+    });
   };
   $scope.saveRecipe   = function() {
     dietplans.createRecipe($scope.recipe);
@@ -113,9 +115,56 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
     $scope.ingredient = null;
   };
 
+  $scope.options = [{
+    fields: [
+      {    field: 'title', 
+            name: 'Title',
+           class: 'col-sm-12',
+        required: true
+      }, {
+           field: 'hashtag',
+            name: 'Hashtag',
+           class: 'col-sm-6',
+      }
+    ]
+  },{
+
+  }];
 
 
 
+  $scope.addWidgetOptions = {
+    ingredient: {
+      name: 'Ingredient',
+      type: 'ingredient',
+      searchable: true,
+      fields: [ {field: 'amount', class: 'col-sm-6'},
+                {field: 'preparation', class: 'col-sm-6'}, 
+                {field: 'note', class: 'col-sm-12'}],
+      item: $scope.ingredient
+      },
+
+    recipe    : {
+      name: 'Recipe',
+      type: 'ingredient',
+      searchable: false,
+      save: $scope.saveMeal,
+      init: $scope.initRecipe,
+      //transclude: + create new recipe
+      fields  : [ {field: 'recipe', class: 'col-sm-6'},
+                  {field: 'servings', class: 'col-sm-6'} ],
+      item: $scope.recipe,
+      },
+
+    step      : {
+      show_name: false,
+      type: 'cookingstep',
+      searchable: false,
+      //transclude: Step #
+      fields: [ {field: 'description', class: 'col-sm-12'} ],
+      item: $scope.step
+    }
+  };
 
 
 });

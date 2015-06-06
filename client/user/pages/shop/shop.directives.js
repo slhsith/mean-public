@@ -7,9 +7,77 @@ app.directive('dietPlan', function () {
     templateUrl: 'shop.dietplan.tpl.html',
     link: function(scope, element, attrs, DietCtrl) {
       DietCtrl.init( element );
+      if (scope.item._id) {
+        scope.dayIndex  = 1;
+        scope.mealIndex = 1;
+        scope.viewingDay = scope.item.days[0];
+        scope.mealCount  = scope.viewingDay.meals.length;
+      }
     }
   };
 
+});
+
+app.directive('mealDisplay', function() {
+
+  var mealDisplayCtrl = function($scope) {
+    var self = this,
+        currentIndex = -1,
+        currentMeal;
+    var meals = [];
+
+    $scope.$watch($scope.viewingDay.meals, function(newval) {
+      meals = $scope.viewingDay.meals;
+    });
+
+    $scope.next = function() {
+      var newIndex = (self.getCurrentIndex() + 1) % meals.length;
+    };
+
+    $scope.prev = function() {
+      var newIndex = self.getCurrentIndex() -1 < 0? meals.length -1 : self.getCurrentIndex - 1;
+    };
+
+    $scope.isActive = function(meal) {
+      return self.currentMeal === meal;
+    };
+
+  };
+
+  return {
+    restrict: 'EA',
+    transclude: true,
+    replace: true,
+    controller: mealDisplayCtrl,
+    templateUrl: 'dietplan.mealdisplay.tpl.html',
+  };
+});
+
+app.directive('meal', function() {
+  var template = '<div ng-class="{\'active\': active }" class="item text-center" ng-transclude></div>';
+  return {
+    require: '^mealDisplay',
+    restrict: 'E',
+    transclude: true,
+    replace: true,
+    scope: {
+      active: '=?',
+      index: '=?'
+    },
+    link: function (scope, element, attrs, dietCtrl) {
+      dietCtrl.addSlide(scope, element);
+      //when the scope is destroyed then remove the slide from the current slides array
+      scope.$on('$destroy', function() {
+        dietCtrl.removeMeal(scope);
+      });
+
+      scope.$watch('active', function(active) {
+        if (active) {
+          dietCtrl.select(scope);
+        }
+      });
+    }
+  };
 });
 
 app.directive('mealRecipes', function() {

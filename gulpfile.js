@@ -29,7 +29,7 @@ gulp.task('lint', function() {
         'client/admin/app.js','client/admin/js/controllers.js','client/admin/js/models.js',
         'client/set/app.js','client/set/js/controllers.js','client/set/js/models.js',
         'client/user/pages/messenger/*.js', 'client/user/pages/shop/*.js',
-        'client/user/elements/addwidget/*.js'
+        'client/user/elements/*/*.js'
         ])
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
@@ -125,7 +125,12 @@ gulp.task('usermarkup', function () {
     gulp.src(['client/user/*.html','client/user/views/*.html',
         'client/user/pages/shop/*.html',
         'client/user/pages/messenger/*.html',
-        'client/user/elements/addwidget/*.html'])
+        'client/user/elements/itemmeta/*.html',
+        'client/user/elements/addwidget/*.html',
+        'client/user/elements/slidedisplay/*.html',
+        // 'client/user/elements/messengerwindow/*.html',
+        // 'client/user/elements/searchbar/*.html'
+        ])
         .pipe(htmlify())
         .pipe(templateCache({standalone:true}))
         .pipe(gulp.dest("client/user/dist"))

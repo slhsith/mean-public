@@ -194,6 +194,31 @@ app.factory('items', function($http, auth){
     });
   };
 
+  o.updateDietplan = function(item, object) {
+    var dietplan_id = item.dietplan;
+    var current_days_set = item.days_set;
+
+    var dietplanAPI = '/api/item/dietplan/' + dietplan_id + '/';
+
+    // saving the whole day, 
+    // basically a meal was added or changed
+    if (object.order) {
+      // this is a new day beyond those set before
+      if (current_days_set < object.order) {
+        object.days_set = current_days_set;
+        return $http.post(dietplanAPI + 'days', object, {
+          headers: {Authorization: 'Bearer '+auth.getToken()}
+        });
+      }
+      // this is an update of a previously set day
+      return $http.put(dietplanAPI + 'days', object, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      });
+    }
+
+
+  };
+
 
   // DELETE
   //  ...

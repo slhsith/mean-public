@@ -65,7 +65,6 @@ exports.getItems = function(req, res, next) {
         item = item.toObject();
         types.forEach(function(type) {
           if (item[type] === null) {
-            console.log('null type');
             delete item[type];
           }
         });
@@ -203,11 +202,11 @@ exports.updateItem = function(req, res, next) {
   var subitem_id = req.body[type];
   var model = subItemModel[type];
 
-  Item.findByIdAndUpdate(
-    req.body._id,
-    req.body, 
-    function(err, item) {
-      if (err) { return next(err); }
+  // Item.findByIdAndUpdate(
+    // req.body._id,
+    // req.body, 
+    // function(err, item) {
+      // if (err) { return next(err); }
 
       swapIds(req.body);
       model.findByIdAndUpdate(
@@ -219,10 +218,67 @@ exports.updateItem = function(req, res, next) {
           return res.json(subitem);
       });
 
-    }
-  );
+    // }
+  // );
 };
 
+// we're going to get a day with ORDER
+// if this order is higher than the current days_set+1
+// we'll need to create Days for the filler days
+// then either way we push this new day data on to the days array
+exports.createDay = function(req, res, next) {
+  var diet_id = req.params.id,
+     days_set = req.body.days_set,
+       newday = { order: req.body.order, title: req.body.title, meals: [] },
+   daysToPush = [],
+       filler = newday.order - days_set - 1;
+
+  req.body.meals.forEach(function(meal) {
+    newday.meals.push(new Meal(meal));
+  });
+
+  if (filler > 0) {
+    console.log('need to create '+ filler + 'filler days');
+    while (filler > 0) {
+      days_set++;
+      daysToPush.push(new Day({order: days_set}));
+      filler--;
+    }
+   }
+  daysToPush.push(newday);
+
+  DietPlan.findByIdAndUpdate(
+    diet_id, 
+    { $push: { days: { $each: daysToPush } },
+      $inc: { days_set: daysToPush.length }
+    },
+    {new: true}, 
+    function(err, dietplan) {
+      console.log('dietplan', dietplan);
+      res.json({days: dietplan.days, days_set: dietplan.days_set});
+  });
+};
+
+exports.updateDay = function(req, res, next) {
+  var diet_id = req.params.id,
+    day_index = req.body.order-1,
+    updateday = { order: req.body.order, title: req.body.title, meals: [] };
+    req.body.meals.forEach(function(meal, index) {
+      updateday.meals.push(new Meal(meal));
+    });
+
+  var setModifier = { $set: {} };
+  setModifier.$set['days.' + day_index] = updateday;
+
+  DietPlan.findByIdAndUpdate(
+    diet_id,
+    setModifier,
+    {new: true}, 
+    function(err, dietplan) {
+      console.log('-------dietplan days updated\n', dietplan.days);
+      res.json({days: dietplan.days});
+  });
+};
 
 exports.createRecipe = function (req, res, next) {
  var recipe = new Recipe(req.body);
