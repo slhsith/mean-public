@@ -18,6 +18,7 @@
     });
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isUser = auth.isUser;
+  $scope.isContributor = auth.isContributor;
   $scope.isAdmin = auth.isAdmin;
   $scope.logOut = auth.logOut;
   $scope.isThisUser = auth.isThisUser;
@@ -100,12 +101,9 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   $scope.isUser = auth.isUser;
 });
 
-
 app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 
   $scope.items = items.items;
-  $scope.item = new Item();
-  // $scope.user = userPromise;
   $scope.addItem = function() {
     items.create($scope.item).success(function(data){
       console.log('success');
@@ -121,15 +119,15 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
    // mixpanel.track("Shop Page: Added Item");
  };
 
- $scope.itemTitles = {
-  workoutplan: 'Workout Plan',
-  dietplan: 'Diet Plan',
-  book: 'Book',
-  video: 'Video',
-  podcast: 'Podcast',
-  bootcamp: 'Bootcamp',
-  challenge: 'Online Challenge'
- };
+   $scope.itemTitles = {
+    workoutplan: 'Workout Plan',
+    dietplan: 'Diet Plan',
+    book: 'Book',
+    video: 'Video',
+    podcast: 'Podcast',
+    bootcamp: 'Bootcamp',
+    challenge: 'Online Challenge'
+   };
 
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
@@ -148,11 +146,21 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 });
 
 
-app.controller('ItemCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
+app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
 
   $scope.items = items.items;
   $scope.item = itemPromise.data;
-
+  item = itemPromise;
+  $scope.deleteItem = function () {
+    console.log('delete', $scope.item._id);
+    if (popupService.showPopup('Are you sure you want to delete this item?')) {
+      items.delete($scope.item._id).success(function(data){
+        console.log(data.message);
+        $scope.items = items.items;
+        $state.go('shop');
+    });
+    }
+  };
   $scope.createDay = function(){
     items.newDay($stateParams.id, $scope.day.day).success(function(day) {
       $scope.item.days.push(day);
@@ -206,8 +214,8 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions, itemPro
   $scope.item = itemPromise.data;
 
   $scope.startTrans = function () {
-    console.log($scope.card);
-    transactions.purchase($scope.card);
+    console.log($scope.item);
+    transactions.purchase($scope.item);
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Start Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});
@@ -278,19 +286,22 @@ function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
   $scope.gposts = gposts.gposts;
   $scope.gcomments = gcomments.gcomments;
   $scope.addGpost = function(){
+    console.log($stateParams.id);
+    console.log($scope.gpost);
     // if(!$scope.body || $scope.body === '') { return; }
-    groups.createGpost($scope.group, $scope.gpost).success(function(gpost) {
+    groups.createGpost($scope.gpost, $stateParams.id).success(function(gpost) {
       $scope.group.gposts.push(gpost);
-      $scope.gpost.body = null;
+      $scope.gpost = null;
     });
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
   };
-  $scope.addGcomment = function (gpost) {
-    // groups.createGcomment($scope.gpost, $scope.gcomment)
-    console.log(gpost);
-    console.log($scope.gcomment);
+  $scope.addGcomment = function (gpost, gcomment) {
+    console.log('in controller', gpost, gcomment);
+    gpost.gcomments.push(gcomment);
+    groups.createGcomment(gpost._id, gcomment); 
+    console.log(gpost._id, gcomment);
   };
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;

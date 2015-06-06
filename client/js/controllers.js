@@ -6,9 +6,9 @@ app.controller('MainCtrl', function ($scope, auth) {
     auth.register($scope.user).error(function (error) {
       $scope.error = error;
     }).then(function () {
-      window.location = "http://localhost:3000/user/#/home";
+      window.location = "/user/#/home";
     });
-    mixpanel.track("User Register",{"area":"home", "page":"home", "action":"register"});
+    // mixpanel.track("User Register",{"area":"home", "page":"home", "action":"register"});
     // mixpanel.track("HomePage: Register");
   };
 
@@ -16,9 +16,9 @@ app.controller('MainCtrl', function ($scope, auth) {
     auth.logIn($scope.login).error(function (error) {
       $scope.error = error;
     }).then(function () {
-      window.location = "http://localhost:3000/user/#/home";
+      window.location = "/user/#/home";
     });
-    mixpanel.track("User Log-in",{"area":"home", "page":"home", "action":"log-in"});
+    // mixpanel.track("User Log-in",{"area":"home", "page":"home", "action":"log-in"});
     // mixpanel.track("HomePage: Login");
   };
 
@@ -44,12 +44,12 @@ app.controller('MainCtrl', function ($scope, auth) {
     });
   };
 
-  // $scope.getMyLastName = function () {
-  //  facebookService.getMyLastName() 
-  //    .then(function(response) {
-  //      $scope.last_name = response.user.l_name;
-  //    });
-  //  };
+  // $scope.checkLoginState = function() {
+  //   auth.facebook(user._id);
+  //   FB.getLoginStatus(function(response) {
+  //     statusChangeCallback(response);
+  //   });
+  // };
 
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.currentUser = auth.currentUser;

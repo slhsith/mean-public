@@ -25,7 +25,7 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'PostCtrl',
       resolve: {
         postPromise: function($stateParams, posts) {
-          return posts.get($stateParams.post);
+        return posts.get($stateParams.post);
         }
       }
     })
@@ -38,7 +38,7 @@ function($stateProvider, $urlRouterProvider) {
           return items.getAll();
         }
         // , userPromise: function (auth, users) {
-          // return users.get(auth.isThisUser());
+        //   return users.get(auth.isThisUser());
         // }
       }
     })
@@ -47,11 +47,12 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'events.html',
       controller: 'ShopCtrl',
       resolve: {
-        itemPromise: function (items) {
-          return items.getAll();
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams);
+          return items.get($stateParams.item);
         }
         // , userPromise: function (auth, users) {
-          // return users.get(auth.isThisUser());
+        //   return users.get(auth.isThisUser());
         // }
       }
     })
@@ -146,11 +147,8 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         groupsPromise: function($stateParams, groups){
           return groups.get($stateParams.id);
-        },
-        gpostsPromise: function ($stateParams, gposts){
-          return gposts.getAll($stateParams.id);
         }
-      }
+      } 
     })
     .state('messenger', {
       url: '/messenger',
@@ -203,8 +201,9 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     });
-  // $urlRouterProvider.otherwise('home');
+  $urlRouterProvider.otherwise('home');
 }]);
+
 /*  ------------------  *
     CONTROLLERS - USER
  *  ------------------  */
@@ -225,6 +224,7 @@ function($stateProvider, $urlRouterProvider) {
     });
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isUser = auth.isUser;
+  $scope.isContributor = auth.isContributor;
   $scope.isAdmin = auth.isAdmin;
   $scope.logOut = auth.logOut;
   $scope.isThisUser = auth.isThisUser;
@@ -307,12 +307,9 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   $scope.isUser = auth.isUser;
 });
 
-
 app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 
   $scope.items = items.items;
-  $scope.item = new Item();
-  // $scope.user = userPromise;
   $scope.addItem = function() {
     items.create($scope.item).success(function(data){
       console.log('success');
@@ -328,15 +325,15 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
    // mixpanel.track("Shop Page: Added Item");
  };
 
- $scope.itemTitles = {
-  workoutplan: 'Workout Plan',
-  dietplan: 'Diet Plan',
-  book: 'Book',
-  video: 'Video',
-  podcast: 'Podcast',
-  bootcamp: 'Bootcamp',
-  challenge: 'Online Challenge'
- };
+   $scope.itemTitles = {
+    workoutplan: 'Workout Plan',
+    dietplan: 'Diet Plan',
+    book: 'Book',
+    video: 'Video',
+    podcast: 'Podcast',
+    bootcamp: 'Bootcamp',
+    challenge: 'Online Challenge'
+   };
 
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
@@ -355,11 +352,21 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 });
 
 
-app.controller('ItemCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
+app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
 
   $scope.items = items.items;
   $scope.item = itemPromise.data;
-
+  item = itemPromise;
+  $scope.deleteItem = function () {
+    console.log('delete', $scope.item._id);
+    if (popupService.showPopup('Are you sure you want to delete this item?')) {
+      items.delete($scope.item._id).success(function(data){
+        console.log(data.message);
+        $scope.items = items.items;
+        $state.go('shop');
+    });
+    }
+  };
   $scope.createDay = function(){
     items.newDay($stateParams.id, $scope.day.day).success(function(day) {
       $scope.item.days.push(day);
@@ -413,8 +420,8 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions, itemPro
   $scope.item = itemPromise.data;
 
   $scope.startTrans = function () {
-    console.log($scope.card);
-    transactions.purchase($scope.card);
+    console.log($scope.item);
+    transactions.purchase($scope.item);
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Start Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});
@@ -485,19 +492,22 @@ function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
   $scope.gposts = gposts.gposts;
   $scope.gcomments = gcomments.gcomments;
   $scope.addGpost = function(){
+    console.log($stateParams.id);
+    console.log($scope.gpost);
     // if(!$scope.body || $scope.body === '') { return; }
-    groups.createGpost($scope.group, $scope.gpost).success(function(gpost) {
+    groups.createGpost($scope.gpost, $stateParams.id).success(function(gpost) {
       $scope.group.gposts.push(gpost);
-      $scope.gpost.body = null;
+      $scope.gpost = null;
     });
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
   };
-  $scope.addGcomment = function (gpost) {
-    // groups.createGcomment($scope.gpost, $scope.gcomment)
-    console.log(gpost);
-    console.log($scope.gcomment);
+  $scope.addGcomment = function (gpost, gcomment) {
+    console.log('in controller', gpost, gcomment);
+    gpost.gcomments.push(gcomment);
+    groups.createGcomment(gpost._id, gcomment); 
+    console.log(gpost._id, gcomment);
   };
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
@@ -673,6 +683,12 @@ app.factory('items', function($http, auth){
     }
   }
 
+  o.delete = function(item_id) {
+    return $http.delete('/api/item/' + item_id, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
   o.getAllVideos = function () {
     return $http.get('/api/videos').success(function(data){
       angular.copy(data, o.videos);
@@ -796,8 +812,10 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
   };
   o.purchase = function(card) {
     console.log(card);
-    return $http.post('api/transactions', {
+    return $http.post('/api/transactions', card, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      console.log(data);
     });
   };
   return o;
@@ -861,7 +879,18 @@ app.factory('auth', function($http, $window){
       if(token){
        var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-        return payload.permissions === 'User' || 'Admin' || 'Collaborator';
+        return payload.permissions === 'User' || 'Admin' || 'Contributor';
+      } else {
+        return false;
+      }
+    };
+    auth.isContributor = function () {
+      var token = auth.getToken();
+
+      if(token){
+       var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.permissions === 'Admin' || 'Contributor';
       } else {
         return false;
       }
@@ -928,6 +957,9 @@ app.factory('settings', function ($http, $window) {
     return $http.put('/api/settings', user).success(function(data){
         s.settings = data;
       });
+   };
+   s.uploadAvatar = function (user){
+       
    };
    s.get = function (handle) {
      return $http.get('/api/user/handle/' + handle).success(function(data){
@@ -1020,18 +1052,18 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
       return data;
     });
   };
-  o.createGpost = function(group, gpost) {
-    console.log(group, gpost);
-    return $http.post('/api/group/' + group._id + '/gposts', gpost, {
+  o.createGpost = function(gpost, id) {
+    console.log(gpost, id);
+    return $http.post('/api/group/' + id + '/gposts', gpost, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
-  o.createGcomment = function (gpost, gcomment) {
-    console.log(gpost);
-    console.log(gcomment);
-    // return $http.post('/api/group/'+group._id+'gpost/' + gpost._id + '/gcomments', gcomment, {
-    //   headers: {Authorization: 'Bearer '+auth.getToken()}
-    // });
+  o.createGcomment = function (gpost_id, gcomment) {
+    console.log('gpost_id in factory', gpost_id);
+    console.log('gcomment in factory', gcomment);
+    return $http.post('/api/gpost/' + gpost_id + '/gcomments', gcomment, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
   };
   return o;
 }]);
@@ -1083,6 +1115,11 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   return o;
 }]); 
 
+app.service('popupService', function($window) {
+  this.showPopup = function(message) {
+    return $window.confirm(message);
+  };
+});
 
 /*  ----------------------  *
     CONTROLLER - MESSENGER
@@ -1410,6 +1447,22 @@ app.factory('messageSocket', function(socketFactory) {
   
   return socket;
 });
+app.factory('Item', function() {
+
+  var ItemConstructor = function ItemConstructor () {
+    this.name         = null;
+    this.creator      = { username: null, _id: null };
+
+    this.price        = null;
+    this.upvotes      = null;
+
+    this.type         = null;
+  };
+
+  return ItemConstructor;
+
+});
+
 /*  ----------------------  *
     CONTROLLER - DIETPLAN
  *  ----------------------  */
@@ -1599,21 +1652,6 @@ app.directive('recipeCreator', function () {
 
 });
 
-app.factory('Item', function() {
-
-  var ItemConstructor = function ItemConstructor () {
-    this.name         = null;
-    this.creator      = { username: null, _id: null };
-
-    this.price        = null;
-    this.upvotes      = null;
-
-    this.type         = null;
-  };
-
-  return ItemConstructor;
-
-});
 
 
 app.factory('Diet', function() {

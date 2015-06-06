@@ -123,6 +123,12 @@ app.factory('items', function($http, auth){
     }
   }
 
+  o.delete = function(item_id) {
+    return $http.delete('/api/item/' + item_id, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
   o.getAllVideos = function () {
     return $http.get('/api/videos').success(function(data){
       angular.copy(data, o.videos);
@@ -246,8 +252,10 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
   };
   o.purchase = function(card) {
     console.log(card);
-    return $http.post('api/transactions', {
+    return $http.post('/api/transactions', card, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      console.log(data);
     });
   };
   return o;
@@ -311,7 +319,18 @@ app.factory('auth', function($http, $window){
       if(token){
        var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-        return payload.permissions === 'User' || 'Admin' || 'Collaborator';
+        return payload.permissions === 'User' || 'Admin' || 'Contributor';
+      } else {
+        return false;
+      }
+    };
+    auth.isContributor = function () {
+      var token = auth.getToken();
+
+      if(token){
+       var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.permissions === 'Admin' || 'Contributor';
       } else {
         return false;
       }
@@ -378,6 +397,9 @@ app.factory('settings', function ($http, $window) {
     return $http.put('/api/settings', user).success(function(data){
         s.settings = data;
       });
+   };
+   s.uploadAvatar = function (user){
+       
    };
    s.get = function (handle) {
      return $http.get('/api/user/handle/' + handle).success(function(data){
@@ -470,18 +492,18 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
       return data;
     });
   };
-  o.createGpost = function(group, gpost) {
-    console.log(group, gpost);
-    return $http.post('/api/group/' + group._id + '/gposts', gpost, {
+  o.createGpost = function(gpost, id) {
+    console.log(gpost, id);
+    return $http.post('/api/group/' + id + '/gposts', gpost, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
-  o.createGcomment = function (gpost, gcomment) {
-    console.log(gpost);
-    console.log(gcomment);
-    // return $http.post('/api/group/'+group._id+'gpost/' + gpost._id + '/gcomments', gcomment, {
-    //   headers: {Authorization: 'Bearer '+auth.getToken()}
-    // });
+  o.createGcomment = function (gpost_id, gcomment) {
+    console.log('gpost_id in factory', gpost_id);
+    console.log('gcomment in factory', gcomment);
+    return $http.post('/api/gpost/' + gpost_id + '/gcomments', gcomment, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
   };
   return o;
 }]);
@@ -533,3 +555,8 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   return o;
 }]); 
 
+app.service('popupService', function($window) {
+  this.showPopup = function(message) {
+    return $window.confirm(message);
+  };
+});

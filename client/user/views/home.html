@@ -1,12 +1,13 @@
 <div ng-show="isUser()">
-  <div class="page-header">
-    <h3 class="text-center">Mean Starter</h3>
-    <button class="btn-primary col-md-4">Create Post</button>
-    <a href="#/shop"><button class="btn-default col-md-4">Create Digital Item</button></a>
-    <a href="#/events"><button class="btn-default col-md-4">Create Event</button></a>
-  </div>
+  <div ng-if="isContributor()">
+    <div class="page-header">
+      <h3 class="text-center">Mean Starter</h3>
+      <button class="btn-primary col-md-4">Create Post</button>
+      <a href="#/shop"><button class="btn-default col-md-4">Create Digital Item</button></a>
+      <a href="#/events"><button class="btn-default col-md-4">Create Event</button></a>
+    </div>
 
-  <form ng-submit="addPost()" ng-show="isLoggedIn()" style="margin-top:30px;">
+    <form ng-submit="addPost()" ng-show="isLoggedIn()" style="margin-top:30px;">
     <h3>Add a new post</h3>
       <div class="form-group">
         <input type="text"
@@ -22,9 +23,9 @@
       </div>
       <button type="submit" class="btn btn-primary col-md-2 col-md-offset-10">Post</button>
     </form>
-
+  </div>  
   <h3>Posts</h3>
-  <div ng-repeat="post in posts | orderBy:'-upvotes'">
+      <div ng-repeat="post in posts | orderBy:'-upvotes'">
         <span class="glyphicon glyphicon-thumbs-up" ng-click="incrementUpvotes(post)"> </span>
         {{post.upvotes}}
         <span style="font-size:20px; margin-left:10px;"> 
@@ -35,8 +36,10 @@
           <a ng-href="#/post/{{post._id}}">Comments</a>
         </span>
       </div>
-
-
+  <div>
+    <h3>Browse Items</h3>
+      <a ng-href="#/shop">Shop</a>
+  </div>
   <footer class="text-center" style="margin-top: 60px">
     <a href="#/groups">Groups</a> || <a href="#/messenger">Messenger</a><span ng-if="isAdmin()"> || <a href="/admin/#/home">Administrator</a></span><br/>
     You are logged in as {{ user.f_name }} {{ user.l_name}}. Not you? Click <a href="" ng-click="logOut()">here</a>.
