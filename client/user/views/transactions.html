@@ -3,10 +3,24 @@
     <h1>It's buying time</h1>
   </div>
   <form ng-submit="startTrans()">
-    <input ng-model="item.price" disabled/>
-    <input ng-model="item.currency" disabled/>
-    <input ng-model="item.number" placeholder="Card Number" required />
-    <input ng-model="item.month" placeholder="Exp Month" required />
+   <input ng-model="item.cardholder_name" placeholder="Cardholder Name">
+   <input ng-model="item.price" disabled/>
+   <input ng-model="item.number" placeholder="Card Number" required />
+   <select ng-model="item.month">
+      <option value="">Choose a Month</option>
+      <option value="1">January</option>
+      <option value="2">Februray</option>
+      <option value="3">March</option>
+      <option value="4">April</option>
+      <option value="5">May</option>
+      <option value="6">June</option>
+      <option value="7">July</option>
+      <option value="8">August</option>
+      <option value="9">September</option>
+      <option value="10">October</option>
+      <option value="11">November</option>
+      <option value="12">December</option>
+    </select>
     <input ng-model="item.year" placeholder="Exp Year" required />
     <input ng-model="item.cvc" placeholder="CVC" required />
     <button type="submit">Submit</button>

@@ -221,8 +221,10 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
   };
   o.purchase = function(card) {
     console.log(card);
-    return $http.post('/api/transactions', {
+    return $http.post('/api/transactions', card, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      console.log(data);
     });
   };
   return o;

@@ -69,7 +69,6 @@ router.post('/api/transactions', auth, shop.createTransaction );
 //transaction page & create customer
 router.get('/api/transactions', shop.getTransactions );
 router.get('/api/transactions/:transaction', shop.getTransactionById );
-router.post('/api/transaction/:transaction/customers', auth, shop.createCustomerOnTransaction );
 
 //customers
 router.get('/api/customers', shop.getCustomers );

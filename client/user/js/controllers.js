@@ -209,8 +209,8 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions, itemPro
   $scope.item = itemPromise.data;
 
   $scope.startTrans = function () {
-    console.log($scope.card);
-    transactions.purchase($scope.card);
+    console.log($scope.item);
+    transactions.purchase($scope.item);
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Start Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});

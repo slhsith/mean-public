@@ -6,6 +6,7 @@
 var 
   mongoose = require('mongoose');
 var extend = require('util')._extend;
+var stripe = require('stripe')('sk_test_I2YXlsuXk91TBDtJelFxcuEt');
 
 // { foo: 'bar', another: 'attribute' }
 
@@ -298,12 +299,31 @@ exports.upvoteItem = function(req, res, next) {
 
 // Item page & transaction
 exports.createTransaction = function(req, res, next) {
-  var customerId = getStripeCustomerId(user);
-  stripe.charges.create({
-    amount: req.body.price,
-    currency: req.body.currency,
-    customer: customerId
-  })
+  console.log(req.payload.stripe_id);
+  var source =  { object: 'card', number: req.body.number, exp_month: req.body.month, exp_year: req.body.year, cvc: req.body.cvc, name: req.body.cardholder_name };
+  stripe.customers.createSource(req.payload.stripe_id,
+    { source: source },
+    function(err, card) {
+      if(err) {return next(err); }
+      User.findByIdAndUpdate(req.payload._id, { $addToSet: { stripe_card: card } }, function(err, user) {
+        if(err){ return next(err); }
+        console.log('Success! Saved card');
+      });
+      stripe.charges.create({
+        amount: req.body.price,
+        currency: "usd", //to be changed
+        source: source
+      }, function(err, charge) {
+        if(err){ return  next(err); }
+        if(charge.paid){
+          User.findByIdAndUpdate(req.payload._id, { $addToSet: { purchases: req.body._id } }, function(err, user) {
+            if(err) { return next(err); }
+            console.log('Success! Saved item to user');
+          });
+        }
+      });
+      res.json(card);
+    });
 };
 
 //transaction page & create customer
