@@ -38,7 +38,7 @@ function($stateProvider, $urlRouterProvider) {
           return items.getAll();
         }
         // , userPromise: function (auth, users) {
-          // return users.get(auth.isThisUser());
+        //   return users.get(auth.isThisUser());
         // }
       }
     })
@@ -52,7 +52,7 @@ function($stateProvider, $urlRouterProvider) {
           return items.get($stateParams.item);
         }
         // , userPromise: function (auth, users) {
-          // return users.get(auth.isThisUser());
+        //   return users.get(auth.isThisUser());
         // }
       }
     })
