@@ -25,7 +25,7 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'PostCtrl',
       resolve: {
         postPromise: function($stateParams, posts) {
-          return posts.get($stateParams.post);
+        return posts.get($stateParams.post);
         }
       }
     })
@@ -47,8 +47,9 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'events.html',
       controller: 'ShopCtrl',
       resolve: {
-        itemPromise: function (items) {
-          return items.getAll();
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams);
+          return items.get($stateParams.item);
         }
         // , userPromise: function (auth, users) {
           // return users.get(auth.isThisUser());
@@ -200,7 +201,7 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     });
-  // $urlRouterProvider.otherwise('home');
+  $urlRouterProvider.otherwise('home');
 }]);
 
 /*  ------------------  *
@@ -306,8 +307,7 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   $scope.isUser = auth.isUser;
 });
 
-
-app.controller('ShopCtrl', function ($scope, items, Item, auth) {
+app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
 
   $scope.items = items.items;
   $scope.item = new Item();
@@ -359,8 +359,16 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 app.controller('ItemCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
 
   $scope.items = items.items;
-  $scope.item = itemPromise.data;
-
+  $scope.item = itemPromise;
+  item = itemPromise;
+  $scope.deleteItem = function () {
+    console.log(item._id);
+    items.delete($scope.item._id).success(function(data){
+        console.log('success');
+        $scope.items = items.items;
+        console.log(data);
+    });
+  };
   $scope.createDay = function(){
     items.newDay($stateParams.id, $scope.day.day).success(function(day) {
       $scope.item.days.push(day);
@@ -676,7 +684,14 @@ app.factory('items', function($http, auth){
       }
     }
   }
-
+  o.delete = function(id) {
+    console.log(item);
+    return $http.delete('/api/items/' + item._id, item).success(function(data) {
+    // return $http.delete('/api/items/' + item).success(function(data){
+    //   return data;
+      // return this.findByIdAndRemove(item);
+    });
+  };
   o.getAllVideos = function () {
     return $http.get('/api/videos').success(function(data){
       angular.copy(data, o.videos);

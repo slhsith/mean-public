@@ -67,15 +67,15 @@ require('./server/controllers/settings');
 require('./server/config/passport');
 
 // app.configure('development', function() {
-  mongoose.connect('mongodb://localhost/news');
+  // mongoose.connect('mongodb://localhost/news');
 // });
 
 // app.configure('production', function() {
-// mongoose.connect('mongodb://' + process.env.MONGOLAB_URI + '/news');
+mongoose.connect('mongodb://' + process.env.MONGOLAB_URI + '/news');
 // });
 
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
+// var db = mongoose.connection;
+// db.on('error', console.error.bind(console, 'connection error:'));
 
 var routes = require('./server/routes/index');
 var users = require('./server/routes/users');

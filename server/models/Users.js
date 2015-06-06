@@ -23,6 +23,13 @@ var UserSchema = new mongoose.Schema({
   items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
   dietPlans: [{ type: mongoose.Schema.Types.ObjectId, ref: 'DietPlan'}],
   avatar_url: String,
+  facebook: {
+    id: String,
+    token: String,
+    email: String,
+    first_name: String,
+    last_name: String
+  }
 });
 
 UserSchema.methods.setPassword = function(password){

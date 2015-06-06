@@ -51,6 +51,9 @@ router.get('/api/items', shop.getItems );
 router.post('/api/items', auth, shop.postItem );
 // router.param('/api/item', shop.getItemByIdParam );
 router.get('/api/item/:id', shop.getItemById );
+// router.param('/api/item', shop.getItemByIdParam );
+router.get('/api/items/:item', shop.getItemById );
+// router.delete('/api/items/:item', shop.deleteItem );
 router.put('/api/items/:item/upvote', auth, shop.upvoteItem );
 
 router.get('/api/items/:item/exercises', shop.getExercises );
@@ -103,14 +106,17 @@ router.put('/api/emailverify/:username/:user_token', authentication.verifyEmail 
 router.get('/api/resetpassword/:username/:user_token', authentication.getResetPassword );
 router.put('/api/resetpassword/:username/:user_token', authentication.doResetPassword );
 //Facebook Integration
-router.get('/auth/facebook', passport.authenticate('facebook'));
+router.get('/auth/facebook', passport.authenticate('facebook', { scope : 'email' }));
+
 router.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { successRedirect: '/user/#/home', failureRedirect: '/#/' })
+        passport.authenticate('facebook', {
+            successRedirect : '/user/#/home',
+            failureRedirect : '/'
+        }));
   // function(req, res) {
   //   successRedirect: '/'
   //   // Successful authentication, redirect home.
   //   res.redirect('/');
-);
 
 
 // ----------------------- USER and SETTINGS  --------------------------------//

@@ -25,7 +25,7 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'PostCtrl',
       resolve: {
         postPromise: function($stateParams, posts) {
-          return posts.get($stateParams.post);
+        return posts.get($stateParams.post);
         }
       }
     })
@@ -47,8 +47,9 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'events.html',
       controller: 'ShopCtrl',
       resolve: {
-        itemPromise: function (items) {
-          return items.getAll();
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams);
+          return items.get($stateParams.item);
         }
         // , userPromise: function (auth, users) {
           // return users.get(auth.isThisUser());
@@ -200,5 +201,5 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     });
-  // $urlRouterProvider.otherwise('home');
+  $urlRouterProvider.otherwise('home');
 }]);

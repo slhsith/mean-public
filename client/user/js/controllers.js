@@ -101,8 +101,7 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   $scope.isUser = auth.isUser;
 });
 
-
-app.controller('ShopCtrl', function ($scope, items, Item, auth) {
+app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
 
   $scope.items = items.items;
   $scope.item = new Item();
@@ -154,8 +153,16 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 app.controller('ItemCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
 
   $scope.items = items.items;
-  $scope.item = itemPromise.data;
-
+  $scope.item = itemPromise;
+  item = itemPromise;
+  $scope.deleteItem = function () {
+    console.log(item._id);
+    items.delete($scope.item._id).success(function(data){
+        console.log('success');
+        $scope.items = items.items;
+        console.log(data);
+    });
+  };
   $scope.createDay = function(){
     items.newDay($stateParams.id, $scope.day.day).success(function(day) {
       $scope.item.days.push(day);
