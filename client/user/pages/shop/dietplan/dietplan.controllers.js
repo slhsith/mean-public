@@ -54,14 +54,16 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
     $scope.recipe = new Recipe();
     var day = $scope.item.days[$scope.dayOrder-1];
     day.meals[day.mealOrder-1].recipes.push($scope.recipe);
-    $scope.addWidgetOptions['recipe'].item = $scope.recipe;
+    $scope.addWidgetOptions.recipe.item = $scope.recipe;
   };
   $scope.initStep     = function() {
     $scope.step = new CookingStep();
     $scope.step.order = $scope.recipe.steps.length+1;
+    $scope.addWidgetOptions.cookingstep.item = $scope.step;
   };
   $scope.initIngredient = function() {
     $scope.ingredient = new Ingredient();
+    $scope.addWidgetOptions.ingredient.item = $scope.step;
   };
 
   $scope.cancelMeal   = function() {
