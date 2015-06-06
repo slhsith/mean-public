@@ -28,7 +28,13 @@ app.directive('addWidget', function () {
     },
     transclude: true,
     controller: 'addWidgetCtrl',
-    template: '<div class="col-sm-12" ng-transclude></div>'
+    template: '<div class="col-sm-12"><div>{{options}}</div></div>',
+    link: function(scope, elem, attr, ctrl, transclude) {
+      transclude(scope, function(clone) {
+        console.log(clone);
+        element.append(clone);
+      });
+    }
   };
 });
 
@@ -59,7 +65,7 @@ app.directive('addWidgetItems', function () {
 // ------------ FORM FOR NEW ITEM
 app.directive('addWidgetForm', function () {
 
-  var tpl = '<div style="border: 1px solid #999" title="New {{item_type}}" ng-show="options.item">'+
+  var tpl = '<div style="border: 1px solid #999" title="New {{item_type}}">'+
                 '<div class="col-sm-2"><i class="fa fa-2x fa-photo"></i></div>'+
                 '<div class="col-sm-10">'+
                   '<span ng-transclude></span>'+
@@ -79,6 +85,10 @@ app.directive('addWidgetForm', function () {
     replace: true,
     template: tpl,
     link: function(scope, element, attrs, ctrl) {
+      // scope.$watch(scope.$parent.options, function(newVal) {
+        // console.log(newVal);
+        // scope.options = newVal;
+      // });
     }
   };
 });

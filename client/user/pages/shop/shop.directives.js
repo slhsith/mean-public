@@ -7,17 +7,22 @@ app.directive('dietPlan', function () {
     templateUrl: 'shop.dietplan.tpl.html',
     link: function(scope, element, attrs, DietCtrl) {
       DietCtrl.init( element );
-      if (scope.item._id) {
-        scope.dayIndex  = 1;
-        scope.mealIndex = 1;
-        scope.viewingDay = scope.item.days[0];
-        scope.mealCount  = scope.viewingDay.meals.length;
-      }
     }
   };
 
 });
 
+app.directive('mealItinerary', function () {
+  
+  return {
+    restrict: 'E', 
+    controller: 'DietCtrl',
+    templateUrl: 'shop.mealitinerary.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
 
 app.directive('recipeCreator', function () {
   

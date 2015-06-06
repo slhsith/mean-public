@@ -1425,38 +1425,31 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
 
     if ($scope.item.days.length === 0) {
       $scope.item.days.push(new Day());
-    } else {
-      $scope.viewingDay = $scope.item.days[0];
-    }
-    $scope.dayIndex = 0;
-    $scope.mealIndex = 0;
+    } 
+    angular.forEach($scope.item.days, function(day) {
+      day.mealOrder = 1;
+    });
+    $scope.dayOrder = 1;
   };
 
   $scope.decrementDay = function() {
-    if ($scope.dayIndex > 0) $scope.dayIndex--;
-    $scope.viewingDay = $scope.item.days[$scope.dayIndex];
+    if ($scope.dayOrder > 1) $scope.dayOrder--;
   };
   $scope.incrementDay = function() {
-    // a diet day index goes from 0 to one less than duration
-    if ($scope.dayIndex < $scope.item.duration-1) {
-      $scope.dayIndex++; 
-      $scope.item.days[$scope.dayIndex] = $scope.item.days[$scope.dayIndex] || new Day($scope.dayIndex);
-      $scope.viewingDay = $scope.item.days[$scope.dayIndex];
-      $scope.mealCount  = $scope.viewingDay.meals.length;
-      $scope.viewingMeal = $scope.viewingDay.meals[0] || new Meal();
+    // a diet day index goes from 1 to duration
+    if ($scope.dayOrder < $scope.item.duration) {
+      $scope.dayOrder++; 
     } else {
       alert('going over days, increase duration confirmation?');
     }
-
   };
 
-  $scope.decrementMeal = function() {
-    if ($scope.mealIndex > 1) $scope.mealIndex--;
-    $scope.viewingMeal = $scope.viewingDay.meals[$scope.mealIndex];
+  $scope.decrementMeal = function(day) {
+    if (day.mealOrder > 1) day.mealOrder--;
   };
-  $scope.incrementMeal = function() {
-    if ($scope.mealIndex < ($scope.viewingDay.meals.length)) 
-      $scope.mealIndex++;
+  $scope.incrementMeal = function(day) {
+    if (day.mealOrder < day.meals.length)
+     day.mealOrder++;
   };
 
   //$scope.item   = item comes from directive
@@ -1467,11 +1460,13 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
 
   $scope.initMeal     = function() {
     $scope.meal = new Meal();
-    $scope.viewingDay.meals.push($scope.meal);
+    $scope.item.day[$scope.dayOrder-1].meals.push($scope.meal);
   };
   $scope.initRecipe   = function() {
     $scope.recipe = new Recipe();
-    $scope.viewingDay.meals.push($scope.recipe);
+    var day = $scope.item.days[$scope.dayOrder-1];
+    day.meals[day.mealOrder-1].recipes.push($scope.recipe);
+    $scope.addWidgetOptions['recipe'].item = $scope.recipe;
   };
   $scope.initStep     = function() {
     $scope.step = new CookingStep();
@@ -1507,8 +1502,8 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
   };
 
   $scope.saveMeal     = function() {
-    console.log('viewingDay', $scope.viewingDay);
-    items.updateDietplan($scope.item, $scope.viewingDay).success(function(data) {
+    items.updateDietplan($scope.item, $scope.item.days[$scope.dayOrder-1]).success(function(data) {
+      console.log(data);
       $scope.item.days_set = data.days_set;
       $scope.item.days     = data.days;
     });
@@ -1541,15 +1536,15 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
 
     recipe    : {
       name: 'Recipe',
-      type: 'ingredient',
+      type: 'recipe',
       searchable: false,
       save: $scope.saveMeal,
       init: $scope.initRecipe,
       //transclude: + create new recipe
       fields  : [ {field: 'recipe', class: 'col-sm-6'},
                   {field: 'servings', class: 'col-sm-6'} ],
-      item: $scope.recipe,
-      },
+      item: null,
+    },
 
     step      : {
       show_name: false,
@@ -1573,17 +1568,22 @@ app.directive('dietPlan', function () {
     templateUrl: 'shop.dietplan.tpl.html',
     link: function(scope, element, attrs, DietCtrl) {
       DietCtrl.init( element );
-      if (scope.item._id) {
-        scope.dayIndex  = 1;
-        scope.mealIndex = 1;
-        scope.viewingDay = scope.item.days[0];
-        scope.mealCount  = scope.viewingDay.meals.length;
-      }
     }
   };
 
 });
 
+app.directive('mealItinerary', function () {
+  
+  return {
+    restrict: 'E', 
+    controller: 'DietCtrl',
+    templateUrl: 'shop.mealitinerary.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
 
 app.directive('recipeCreator', function () {
   
@@ -1668,6 +1668,8 @@ app.factory('Day', function() {
     this.title     = null; // for dietplans, like 'carb load'
     this.meals     = [];
     this.exercises = [];
+
+    this.mealOrder = 1;
   };
 
   return DayConstructor;
@@ -1813,7 +1815,12 @@ app.directive('addWidget', function () {
     },
     transclude: true,
     controller: 'addWidgetCtrl',
-    template: '<div class="col-sm-12" ng-transclude></div>'
+    template: '<div class="col-sm-12">{{options}}</div>',
+    link: function(scope, elem, attr, ctrl, transclude) {
+      transclude(scope, function(clone) {
+        element.append(clone);
+      });
+    }
   };
 });
 
@@ -1844,7 +1851,7 @@ app.directive('addWidgetItems', function () {
 // ------------ FORM FOR NEW ITEM
 app.directive('addWidgetForm', function () {
 
-  var tpl = '<div style="border: 1px solid #999" title="New {{item_type}}" ng-show="options.item">'+
+  var tpl = '<div style="border: 1px solid #999" title="New {{item_type}}">'+
                 '<div class="col-sm-2"><i class="fa fa-2x fa-photo"></i></div>'+
                 '<div class="col-sm-10">'+
                   '<span ng-transclude></span>'+
@@ -1864,6 +1871,10 @@ app.directive('addWidgetForm', function () {
     replace: true,
     template: tpl,
     link: function(scope, element, attrs, ctrl) {
+      // scope.$watch(scope.$parent.options, function(newVal) {
+        // console.log(newVal);
+        // scope.options = newVal;
+      // });
     }
   };
 });

@@ -62,18 +62,13 @@ exports.getItems = function(req, res, next) {
    .exec(function(err, items){
       var result = [];
       items.forEach(function(item) {
-        item = item.toObject();
-        types.forEach(function(type) {
-          if (item[type] === null) {
-            delete item[type];
-          }
-        });
-        result.push(item);
+        result.push(removeNullSubtypeFields(item));
       });
       if(err){ return next(err); }
       return res.json(result);
    });
 };
+
 
 exports.getExercises = function(req, res, next) {
   console.log(req.params._id);
@@ -325,15 +320,11 @@ exports.searchIngredients = function(req, res, next) {
 exports.getItemById = function (req, res, next) {
  var item_id = req.params.id;
  Item.findById(item_id)
- .populate('dietplan')
- .populate('workoutplan')
- .populate('video')
- .populate('book')
- .populate('podcast')
+ .populate('dietplan workoutplan video book podcast')
  .exec(function(err, item) {
     if (err) { return next(err); }
     console.log('----> populated\n', item);
-    return res.json(item);
+    return res.json(removeNullSubtypeFields(item));
  });
 };
 
@@ -461,6 +452,15 @@ function swapIds (item) {
   }
 }
 
+function removeNullSubtypeFields(item) {
+  item = item.toObject();
+  types.forEach(function(type) {
+    if (item[type] === null) {
+      delete item[type];
+    }
+  });
+  return item;
+}
 
 
 

@@ -39,6 +39,8 @@ app.factory('Day', function() {
     this.title     = null; // for dietplans, like 'carb load'
     this.meals     = [];
     this.exercises = [];
+
+    this.mealOrder = 1;
   };
 
   return DayConstructor;
