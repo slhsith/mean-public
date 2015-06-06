@@ -18,6 +18,7 @@
     });
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isUser = auth.isUser;
+  $scope.isContributor = auth.isContributor;
   $scope.isAdmin = auth.isAdmin;
   $scope.logOut = auth.logOut;
   $scope.isThisUser = auth.isThisUser;
@@ -100,16 +101,16 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   $scope.isUser = auth.isUser;
 });
 
-
-
 app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
 
   $scope.items = items.items;
-  $scope.user = userPromise;
+  $scope.item = new Item();
+  // $scope.user = userPromise;
   $scope.addItem = function() {
     items.create($scope.item).success(function(data){
       console.log('success');
       $scope.items = items.items;
+      $scope.item = new Item();
       console.log(data);
    }).error(function(){
        console.log('failure');
@@ -120,6 +121,16 @@ app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
    // mixpanel.track("Shop Page: Added Item");
  };
 
+ $scope.itemTitles = {
+  workoutplan: 'Workout Plan',
+  dietplan: 'Diet Plan',
+  book: 'Book',
+  video: 'Video',
+  podcast: 'Podcast',
+  bootcamp: 'Bootcamp',
+  challenge: 'Online Challenge'
+ };
+
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
     // mixpanel.alias($scope.user._id);
@@ -127,12 +138,19 @@ app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Shop Page: Upvoted Comment");
   };  
+
+  $scope.editItem = function(item) {
+    // items.populate(item).success(function(item) {
+      $scope.item = item;
+    // });
+  };
+
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
 });
 
 
-app.controller('ItemsCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
+app.controller('ItemCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
 
   $scope.items = items.items;
   $scope.item = itemPromise;
@@ -194,10 +212,12 @@ app.controller('NavCtrl', function ($scope, auth) {
   $scope.logOut = auth.logOut;
 });
 
-app.controller('TransCtrl', function ($scope, items, auth, transactions) {
+app.controller('TransCtrl', function ($scope, items, auth, transactions, itemPromise) {
+  $scope.item = itemPromise.data;
+
   $scope.startTrans = function () {
-    console.log($scope.card);
-    transactions.purchase($scope.card);
+    console.log($scope.item);
+    transactions.purchase($scope.item);
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Start Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});

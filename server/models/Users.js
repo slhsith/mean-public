@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var crypto = require('crypto');
 var jwt = require('jsonwebtoken');
+
 var UserSchema = new mongoose.Schema({
   username: { type: String, lowercase: true, unique: true },
   hash: String,
@@ -14,7 +15,9 @@ var UserSchema = new mongoose.Schema({
   address: String,
   dob: String,
   handle: { type: String, unique: true },
-  stripeToken: String,
+  stripe_id: String,
+  stripe_card: [ { id: String, last4: String, name: String, brand: String, exp_month: Number, exp_year: Number }  ],
+  purchases: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
   created: { type: Date, default: Date.now },
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Follower' }],
   items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
@@ -52,7 +55,7 @@ UserSchema.methods.resetUserPassword = function(password){
 
 UserSchema.methods.generateUserToken = function(){
   this.user_token = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 30);
-}
+};
 
 UserSchema.methods.generateJWT = function() {
 
@@ -67,6 +70,7 @@ UserSchema.methods.generateJWT = function() {
     f_name: this.f_name,
     l_name: this.l_name,
     permissions: this.permissions,
+    stripe_id: this.stripe_id,
     exp: parseInt(exp.getTime() / 1000),
   }, 'SECRET');
 };
