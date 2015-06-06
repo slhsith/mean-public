@@ -1527,23 +1527,6 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
     $scope.ingredient = null;
   };
 
-  $scope.options = [{
-    fields: [
-      {    field: 'title', 
-            name: 'Title',
-           class: 'col-sm-12',
-        required: true
-      }, {
-           field: 'hashtag',
-            name: 'Hashtag',
-           class: 'col-sm-6',
-      }
-    ]
-  },{
-
-  }];
-
-
 
   $scope.addWidgetOptions = {
     ingredient: {
@@ -1554,7 +1537,7 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
                 {field: 'preparation', class: 'col-sm-6'}, 
                 {field: 'note', class: 'col-sm-12'}],
       item: $scope.ingredient
-      },
+    },
 
     recipe    : {
       name: 'Recipe',
@@ -1601,98 +1584,6 @@ app.directive('dietPlan', function () {
 
 });
 
-app.directive('mealDisplay', function() {
-
-  var mealDisplayCtrl = function($scope) {
-    var self = this,
-        currentIndex = -1,
-        currentMeal;
-    var meals = [];
-
-    $scope.$watch($scope.viewingDay.meals, function(newval) {
-      meals = $scope.viewingDay.meals;
-    });
-
-    $scope.next = function() {
-      var newIndex = (self.getCurrentIndex() + 1) % meals.length;
-    };
-
-    $scope.prev = function() {
-      var newIndex = self.getCurrentIndex() -1 < 0? meals.length -1 : self.getCurrentIndex - 1;
-    };
-
-    $scope.isActive = function(meal) {
-      return self.currentMeal === meal;
-    };
-
-  };
-
-  return {
-    restrict: 'EA',
-    transclude: true,
-    replace: true,
-    controller: mealDisplayCtrl,
-    templateUrl: 'dietplan.mealdisplay.tpl.html',
-  };
-});
-
-app.directive('meal', function() {
-  var template = '<div ng-class="{\'active\': active }" class="item text-center" ng-transclude></div>';
-  return {
-    require: '^mealDisplay',
-    restrict: 'E',
-    transclude: true,
-    replace: true,
-    scope: {
-      active: '=?',
-      index: '=?'
-    },
-    link: function (scope, element, attrs, dietCtrl) {
-      dietCtrl.addSlide(scope, element);
-      //when the scope is destroyed then remove the slide from the current slides array
-      scope.$on('$destroy', function() {
-        dietCtrl.removeMeal(scope);
-      });
-
-      scope.$watch('active', function(active) {
-        if (active) {
-          dietCtrl.select(scope);
-        }
-      });
-    }
-  };
-});
-
-app.directive('mealRecipes', function() {
-  return {
-    restrict: 'E',
-    // scope: {
-    //   recipes: '='
-    // },
-    template: ['<div ng-repeat="recipe in recipes">',
-                '<div class="col-sm-3><i class="fa fa-2x fa-photo"></i></div>',
-                '<div class="col-sm-9>{{recipe.title}} <br/>',
-                '{{recipe.yield}} Servings</div>',
-                '</div>'].join(),
-    link: function() {}
-
-  };
-});
-
-app.directive('mealRecipeAdder', function() {
-  return {
-    restrict: 'E',
-    template: ['<div>', 
-                 '<div ng-show="recipe"><small>upload</small> <i class="fa fa-lg fa-photo"></i>',
-                   '<input type="text" placeholder="Recipe" ng-model="recipe.title" ng-blur="searchRecipes()">',
-                   '<input type="text" placeholder="Servings" ng-model="recipe.yield">',
-                   '<br/><a ng-click="initRecipe()">+ new recipe</a>',
-                 '</div>',
-                 '<div style="border: 1px solid #999" ng-click="initMeal()" ><i class="fa fa-2x fa-plus"></i></div>',
-               '</div>'].join(),
-//     link: function() {}
-  };
-});
 
 app.directive('recipeCreator', function () {
   
@@ -1894,69 +1785,6 @@ app.factory('dietplans', function ($http, auth) {
 
 /*
 
-ITEM META DATA FORM
-data = scope.item
-options = scope.itemMetaOptions {
-  video: {
-    name: 'Video',
-    type: 'video',
-    fields: [ {field: 'amount', class: 'col-sm-6'},
-                {field: 'preparation', class: 'col-sm-6'}, 
-                {field: 'note', class: 'col-sm-12'}],
-      item: $scope.ingredient
-      },
-
-    recipe    : {
-      name: 'Recipe',
-      type: 'ingredient',
-      searchable: false,
-      save: $scope.saveMeal,
-      init: $scope.initRecipe,
-      //transclude: + create new recipe
-      fields  : [ {field: 'recipe', class: 'col-sm-6'},
-                  {field: 'servings', class: 'col-sm-6'} ],
-      item: $scope.recipe,
-      },
-
-    step      : {
-      show_name: false,
-      type: 'cookingstep',
-      searchable: false,
-      //transclude: Step #
-      fields: [ {field: 'description', class: 'col-sm-12'} ],
-      item: $scope.step
-    }
-  };
-  
-}
-
-<item-meta data="item" options="options"></item-meta>
-
-*/
-
-
-
-
-
-// ------------ CONTAINER
-app.directive('itemMeta', function () {
-  return {
-    restrict: 'E',
-    scope: {
-      data: '=',
-      options: '=', 
-    },
-    controller: 'DietCtrl',
-    templateUrl: 'itemmeta.tpl.html',
-    link: function(scope, elem, attr) {
-      console.log('item meta', scope);
-    }
-
-  };
-});
-
-/*
-
 ROW WIDGET FOR ADDING UNITS TO SUBARRAYS OF ITEMS & EVENTS
 - subobject                   -> OBJECT
 --------------------------------------------------
@@ -2087,11 +1915,32 @@ scope.item.days = [
 */
 
 
-
-
-
 // ------------ CONTAINER
 app.directive('slideDisplay', function () {
+
+  var slideCtrl = function($scope) {
+    var self = this,
+        currentIndex = -1,
+        currentSlide;
+    var slides = [];
+
+    $scope.$watch($scope.viewingDay.meals, function(newval) {
+      meals = $scope.viewingDay.meals;
+    });
+
+    $scope.next = function() {
+      var newIndex = (self.getCurrentIndex() + 1) % meals.length;
+    };
+
+    $scope.prev = function() {
+      var newIndex = self.getCurrentIndex() -1 < 0? meals.length -1 : self.getCurrentIndex - 1;
+    };
+
+    $scope.isActive = function(meal) {
+      return self.currentMeal === meal;
+    };
+
+  };
   return {
     restrict: 'E',
     scope: {
@@ -2102,4 +1951,32 @@ app.directive('slideDisplay', function () {
     controller: 'slideCtrl',
     template: '<div class="col-sm-12" ng-transclude></div>'
   };
+
 });
+
+// app.directive('meal', function() {
+//   var template = '<div ng-class="{\'active\': active }" class="item text-center" ng-transclude></div>';
+//   return {
+//     require: '^mealDisplay',
+//     restrict: 'E',
+//     transclude: true,
+//     replace: true,
+//     scope: {
+//       active: '=?',
+//       index: '=?'
+//     },
+//     link: function (scope, element, attrs, dietCtrl) {
+//       dietCtrl.addSlide(scope, element);
+//       //when the scope is destroyed then remove the slide from the current slides array
+//       scope.$on('$destroy', function() {
+//         dietCtrl.removeMeal(scope);
+//       });
+
+//       scope.$watch('active', function(active) {
+//         if (active) {
+//           dietCtrl.select(scope);
+//         }
+//       });
+//     }
+//   };
+// });

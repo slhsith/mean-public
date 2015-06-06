@@ -115,23 +115,6 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
     $scope.ingredient = null;
   };
 
-  $scope.options = [{
-    fields: [
-      {    field: 'title', 
-            name: 'Title',
-           class: 'col-sm-12',
-        required: true
-      }, {
-           field: 'hashtag',
-            name: 'Hashtag',
-           class: 'col-sm-6',
-      }
-    ]
-  },{
-
-  }];
-
-
 
   $scope.addWidgetOptions = {
     ingredient: {
@@ -142,7 +125,7 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
                 {field: 'preparation', class: 'col-sm-6'}, 
                 {field: 'note', class: 'col-sm-12'}],
       item: $scope.ingredient
-      },
+    },
 
     recipe    : {
       name: 'Recipe',
