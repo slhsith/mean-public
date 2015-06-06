@@ -23,22 +23,17 @@ app.directive('addWidget', function () {
     scope: {
       set: '=',
       options: '=', // array with fields and styling options objects
-      // save: '&',
-      // init: '&'
     },
     transclude: true,
     controller: 'addWidgetCtrl',
-    template: '<div class="col-sm-12"><div>{{options}}</div></div>',
+    template: '<div class="col-sm-12"></div>',
     link: function(scope, elem, attr, ctrl, transclude) {
       transclude(scope, function(clone) {
-        console.log(clone);
-        element.append(clone);
+        elem.append(clone);
       });
     }
   };
 });
-
-
 
 
 // ------------ ITEM REPEATS
@@ -68,13 +63,8 @@ app.directive('addWidgetForm', function () {
   var tpl = '<div style="border: 1px solid #999" title="New {{item_type}}">'+
                 '<div class="col-sm-2"><i class="fa fa-2x fa-photo"></i></div>'+
                 '<div class="col-sm-10">'+
-                  '<span ng-transclude></span>'+
-                  '<input class="col-sm-{{options.searchable? \'8\' : \'12\'}}" type="text" placeholder="options.name" ng-model="item.name" ng-show="!!options.name">'+
-                  '<button class="btn-sm col-sm-4" ng-click="search()" ng-if="options.search">'+
-                    '<i class="fa fa-search"></i>'+
-                  '</button>'+
-                  '<input ng-class="field.class" type="text" ng-repeat="field in options.fields" placeholder="{{field.field}}" ng-model="item[field.field]">'+
-                  '<button class="form-control btn-xs" ng-click="save()"><i class="fa fa-floppy-o"></i></button>'+
+                  '<ng-transclude></ng-transclude>'+
+                  '<button class="btn btn-xs btn-default" ng-click="save()"><i class="fa fa-floppy-o"></i></button>'+
                 '</div>'+
              '</div>';
 
@@ -84,12 +74,7 @@ app.directive('addWidgetForm', function () {
     transclude: true,
     replace: true,
     template: tpl,
-    link: function(scope, element, attrs, ctrl) {
-      // scope.$watch(scope.$parent.options, function(newVal) {
-        // console.log(newVal);
-        // scope.options = newVal;
-      // });
-    }
+    link: function(scope, element, attrs, ctrl) {}
   };
 });
 
