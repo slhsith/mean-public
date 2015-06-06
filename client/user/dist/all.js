@@ -1565,7 +1565,7 @@ app.directive('dietPlan', function () {
     restrict: 'E', 
     scope: { item: '=item' },
     controller: 'DietCtrl',
-    templateUrl: 'shop.dietplan.tpl.html',
+    templateUrl: 'dietplan.tpl.html',
     link: function(scope, element, attrs, DietCtrl) {
       DietCtrl.init( element );
     }
@@ -1578,7 +1578,7 @@ app.directive('mealItinerary', function () {
   return {
     restrict: 'E', 
     controller: 'DietCtrl',
-    templateUrl: 'shop.mealitinerary.tpl.html',
+    templateUrl: 'mealitinerary.tpl.html',
     link: function(scope, element, attrs) {
     }
   };
@@ -1590,42 +1590,12 @@ app.directive('recipeCreator', function () {
   return {
     restrict: 'E', 
     controller: 'DietCtrl',
-    templateUrl: 'shop.recipe.tpl.html',
+    templateUrl: 'recipecreator.tpl.html',
     link: function(scope, element, attrs) {
     }
   };
 
 });
-
-app.directive('workoutPlan', function () {
-
-  return {
-    restrict: 'E', 
-    scope: false,
-    templateUrl: 'shop.workoutplan.tpl.html',
-    link: function(scope, element, attrs) {
-    }
-  };
-
-});
-
-
-
-
-app.directive('digitalMedia', function () {
-
-  return {
-    restrict: 'E', 
-    scope: false,
-    templateUrl: 'shop.digitalmedia.tpl.html',
-    link: function(scope, element, attrs) {
-    }
-  };
-
-});
-
-
-
 
 app.factory('Item', function() {
 
@@ -1785,6 +1755,34 @@ app.factory('dietplans', function ($http, auth) {
 });
 
 
+app.directive('digitalMedia', function () {
+
+  return {
+    restrict: 'E', 
+    scope: false,
+    templateUrl: 'digitalmedia.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
+
+
+
+
+app.directive('workoutPlan', function () {
+
+  return {
+    restrict: 'E', 
+    scope: false,
+    templateUrl: 'workoutplan.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
+
+
 /*
 
 ROW WIDGET FOR ADDING UNITS TO SUBARRAYS OF ITEMS & EVENTS
@@ -1815,9 +1813,10 @@ app.directive('addWidget', function () {
     },
     transclude: true,
     controller: 'addWidgetCtrl',
-    template: '<div class="col-sm-12">{{options}}</div>',
+    template: '<div class="col-sm-12"><div>{{options}}</div></div>',
     link: function(scope, elem, attr, ctrl, transclude) {
       transclude(scope, function(clone) {
+        console.log(clone);
         element.append(clone);
       });
     }
