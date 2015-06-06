@@ -13,6 +13,7 @@ app.factory('messenger', function ($http, auth) {
       angular.forEach(data, function(convo) {
         o.map[convo._id] = convo;
       });
+      return data;
     });
   };
 
@@ -82,6 +83,8 @@ app.factory('messageSocket', function(socketFactory) {
   socket.forward('broadcast');
   socket.forward('conversations');
   socket.forward('newmessage');
+  socket.forward('newconversation');
+  socket.forward('readmessages');
   
   return socket;
 });

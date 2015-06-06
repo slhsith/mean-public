@@ -33,7 +33,7 @@ exports.getSettings = function (req, res, next) {
   if (err) { return next(err); }
   User.findOne({username : req.body.username}, function(err, user) {
     console.log('user settings', user);
-    return res.json(user); 
+    return res.json(user).populate('followers'); 
   });
 };
 
@@ -79,7 +79,6 @@ exports.sign_s3 = function (req, res, next) {
 
 exports.submitSearch = function (req, res, next) {
   // let's make our query a regex
-  if (err) { return next(err); }
   var re = new RegExp(req.params.query, 'i');
   User.find()
     .or( [{f_name: { $regex: re }}, {l_name: {$regex: re}}] )

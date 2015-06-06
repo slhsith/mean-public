@@ -11,7 +11,8 @@ var BootcampSchema = new mongoose.Schema({
   demo_gender: String,
   demo_age: String,
   description: String,
-  item: { type: mongoose.Schema.Types.ObjectId, ref: 'Item' }
+  
+  event: { type: mongoose.Schema.Types.ObjectId, ref: 'Event' }
 });
 
 mongoose.model('Bootcamp', BootcampSchema);

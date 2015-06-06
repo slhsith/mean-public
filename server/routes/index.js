@@ -49,23 +49,29 @@ router.param('comment', posts.getCommentByIdParam )
 // Items
 router.get('/api/items', shop.getItems );
 router.post('/api/items', auth, shop.postItem );
-router.param('/api/item', shop.getItemByIdParam );
+// router.param('/api/item', shop.getItemByIdParam );
+router.get('/api/item/:id', shop.getItemById );
+// router.param('/api/item', shop.getItemByIdParam );
 router.get('/api/items/:item', shop.getItemById );
 // router.delete('/api/items/:item', shop.deleteItem );
-router.get('/api/items/:item/exercises', shop.getExercises );
-router.post('/api/items/:item/diet', shop.createDay );
 router.put('/api/items/:item/upvote', auth, shop.upvoteItem );
+
+router.get('/api/items/:item/exercises', shop.getExercises );
 router.post('/api/workoutPlans/:id', shop.createExercise );
 router.get('/api/item/exercise/:exercise', shop.getExercise );
 router.post('/api/item/exercise/:exercise', shop.newStep );
 router.get('/api/item/step/:step', shop.getStep );
+
+router.post('/api/item/dietplan/recipes', auth, shop.createRecipe );
+router.post('/api/item/dietplan/ingredients', auth, shop.createIngredient );
+router.get('/api/item/dietplan/recipes/:query', auth, shop.searchRecipes );
+router.get('/api/item/dietplan/ingredients/:query', auth, shop.searchIngredients );
 
 // Item page & transaction
 router.post('/api/transactions', auth, shop.createTransaction );
 //transaction page & create customer
 router.get('/api/transactions', shop.getTransactions );
 router.get('/api/transactions/:transaction', shop.getTransactionById );
-router.post('/api/transaction/:transaction/customers', auth, shop.createCustomerOnTransaction );
 
 //customers
 router.get('/api/customers', shop.getCustomers );
@@ -100,12 +106,13 @@ router.put('/api/emailverify/:username/:user_token', authentication.verifyEmail 
 router.get('/api/resetpassword/:username/:user_token', authentication.getResetPassword );
 router.put('/api/resetpassword/:username/:user_token', authentication.doResetPassword );
 //Facebook Integration
-router.get('/auth/facebook', passport.authenticate('facebook'));
+router.get('/auth/facebook', passport.authenticate('facebook', { scope : 'email' }));
+
 router.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/#/' }),
-  function(req, res) {
-    res.redirect('/');
-  });
+        passport.authenticate('facebook', {
+            successRedirect : '/user/#/home',
+            failureRedirect : '/'
+        }));
   // function(req, res) {
   //   successRedirect: '/'
   //   // Successful authentication, redirect home.

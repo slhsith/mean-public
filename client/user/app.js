@@ -36,30 +36,32 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         itemPromise: function (items) {
           return items.getAll();
-        },
-        userPromise: function ($stateParams, users) {
-          return users.get($stateParams.id);
         }
+        // , userPromise: function (auth, users) {
+        //   return users.get(auth.isThisUser());
+        // }
       }
     })
-    .state('items', {
-      url: '/items/:item',
-      templateUrl: 'items.html',
-      controller: 'ItemsCtrl',
+    .state('events', {
+      url: '/events',
+      templateUrl: 'events.html',
+      controller: 'ShopCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
           console.log($stateParams);
           return items.get($stateParams.item);
         }
+        // , userPromise: function (auth, users) {
+        //   return users.get(auth.isThisUser());
+        // }
       }
     })
-    .state('diet', {
-      url: '/items/:id/diet/',
-      templateUrl: 'diet.html',
-      controller: 'ItemsCtrl',
+    .state('item', {
+      url: '/item/:id',
+      templateUrl: 'item.html',
+      controller: 'ItemCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
-          console.log($stateParams.id);
           return items.get($stateParams.id);
         }
       }
@@ -76,7 +78,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('workoutPlan', {
-      url: '/items/workoutPlan/:id',
+      url: '/items/workoutplan/:id',
       templateUrl: 'workoutPlan.html',
       controller: 'ItemsCtrl',
       resolve: {
@@ -109,13 +111,13 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('transactions', {
-      url: '/transactions',
+      url: '/transactions/:item',
       templateUrl: 'transactions.html',
       controller: 'TransCtrl',
       resolve: {
-        item: ['$stateParams', 'items', function($stateParams, items) {
+        itemPromise: function($stateParams, items) {
           return items.get($stateParams.item);
-        }]
+        }
       }    
     })
     .state('checkout', {
@@ -153,10 +155,10 @@ function($stateProvider, $urlRouterProvider) {
       templateUrl: 'messenger.html',
       controller: 'MessengerCtrl',
       resolve: {
-        userPromise: function(auth, users) {
-          var _id = auth.isThisUser();
-          return users.get(_id);
-        },
+        // userPromise: function(auth, users) {
+          // var _id = auth.isThisUser();
+          // return users.get(_id);
+        // },
         usersPromise: function(users) {
           return users.getAll();
         },

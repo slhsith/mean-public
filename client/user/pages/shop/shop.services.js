@@ -1,83 +1,154 @@
-app.factory('Meal', function() {
-  var Meal = function(meal) {
-    var self = this;
-    self.title        = meal.title || null;
-    self.type         = meal.type || null;
-    self.description  = meal.description || null;
-    self.day          = meal.day || 1 || null;
-    self.cooktime     = meal.cooktime || null;
-    self.recipes      = meal.recipes || [];
+app.factory('Item', function() {
+
+  var ItemConstructor = function ItemConstructor () {
+    this.name         = null;
+    this.creator      = { username: null, _id: null };
+
+    this.price        = null;
+    this.upvotes      = null;
+
+    this.type         = null;
   };
 
-  return Meal;
+  return ItemConstructor;
+
 });
+
 
 app.factory('Diet', function() {
 
-  var Diet = function(item) {
-    var self = this;
-    self.title = item.title || null;
-    self.price = item.price;
-    self.duration = 1;
+  var DietConstructor = function DietConstructor () {
+    this.category     = null;
+    this.hashtag      = null;
+    this.description  = null;
+
+    this.duration     = 1;
+    this.gender       = null;
+    this.age          = null;
+    this.meals        = [];
   };
 
-  return Diet;
+  return DietConstructor;
+});
+
+app.factory('Day', function() {
+
+  var DayConstructor = function DayConstructor () {
+    this.day       = { name: null, order: null };
+    this.title     = null; // for dietplans, like 'carb load'
+    this.meals     = [];
+    this.exercises = [];
+  };
+
+  return DayConstructor;
 
 });
+
+app.factory('Meal', function() {
+
+  var MealConstructor = function MealConstructor () {
+    this.name         = null;
+    this.type         = null;
+    this.description  = null;
+
+    this.day          = null;
+    this.cooktime     = null;
+    this.preptime     = null;
+    this.recipes      = [];
+  };
+
+  return MealConstructor;
+
+});
+
 
 app.factory('Recipe', function() {
 
-  var Recipe = function (recipe) {
-    var self         = this;
-    self.title       = recipe.title || null;
-    self.type        = recipe.type || null;
-    self.description = recipe.description || null;
+  var RecipeConstructor = function RecipeConstructor () {
+    this.name        = null;
+    this.type        = null;
+    this.description = null;
 
-    self.yield       = recipe.yield || null;
-    self.calories    = recipe.calories || null;
-    self.fats        = recipe.fats || null;
-    self.carbs       = recipe.carbs || null;
-    self.proteins    = recipe.proteins || null;
+    this.video       = null;
+    this.coverphoto  = null;
+    this.photos      = [];
 
-    self.cost        = recipe.cost || null;
-    self.preptime    = recipe.preptime || null;
-    self.cooktime    = recipe.cooktime || null;
+    this.yield       = null;
+    this.cost        = null;
+    this.preptime    = null;
+    this.cooktime    = null;
+    this.equipment   = null;
+    this.steps       = [];
+    this.ingredients = [];
 
-    self.equipment   = recipe.equipment || [];
-    self.steps       = recipe.steps || [];
-
-    self.video       = recipe.video || null;
-    self.coverphoto  = recipe.coverphoto || null;
-    self.photos      = recipe.photos || [];
-
+    this.calories    = null;
+    this.fats        = null;
+    this.carbs       = null;
+    this.proteins    = null;
   };
 
-  return Recipe;
-
+  return RecipeConstructor;
 });
 
-app.factory('CookingStep', function() {
 
-  var CookingStep = function() {
+app.factory('CookingStep', function () {
+
+  var CookingStepConstructor = function CookingStepConstructor () {
     this.order       = null;
     this.description = null;
     this.photo       = null;
   };
-  return CookingStep;
+
+  return CookingStepConstructor;
 
 });
 
+
 app.factory('Ingredient', function() {
 
-  var Ingredient = function() {
-    this.title       = null;
+  var IngredientConstructor = function IngredientConstructor () {
+    this.name        = null;
+    this.category    = null;
     this.description = null;
     this.photo       = null;
-    this.measure     = null;
+
+    this.value       = null;
     this.unit        = null;
+    this.preparation = null;
   };
 
-  return Ingredient;
+  return IngredientConstructor;
+});
 
+
+
+app.factory('dietplans', function ($http, auth) {
+  var o = {};
+
+  o.get = function(diet_id) {
+    return $http.get('/api/item/dietplan/' + diet_id, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  o.update = function(diet) {
+    // diet._id
+    return $http.put('/api/item/dietplan/' + diet.dietplan, diet, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
+  o.createRecipe = function(recipe) {
+    return $http.post('/api/item/dietplan/recipes', recipe, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
+  o.createIngredient = function(ingredient) {
+    return $http.post('/api/item/dietplan/ingredients', ingredient, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
+  return o;
 });
 

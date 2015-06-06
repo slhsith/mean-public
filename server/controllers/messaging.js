@@ -77,6 +77,11 @@ exports.createConversation = function(req, res, next) {
     req.body.users.forEach(function(user_id) {
       if (req.io.usersockets[user_id]) {
         req.io.usersockets[user_id].join(convo._id.toString(), function() {
+          publishToConvo(req, convo._id,
+            'newconversation',
+            'Newly created conversation for ' + convo._id,
+            {convo: convo, initiator: req.payload._id}
+          );
           console.log(user_id + ' subscribed to room for convo ' + convo._id);
           console.log(req.io.usersockets[user_id].rooms);
         });
@@ -84,8 +89,8 @@ exports.createConversation = function(req, res, next) {
     });
 		return res.json(convo);
 	});
-
 };
+
 
 exports.createMessage = function(req, res, next) {
   var message = new Message(req.body);
@@ -99,12 +104,19 @@ exports.createMessage = function(req, res, next) {
       {$set: {latest: message }},
       {new: true}, // returns new value for convo
       function(err, convo) {
-        req.io.in(req.params.id)
-        // req.io.usersockets[message.user_id].to(message.convo_id)
-        .emit('newmessage', {
-          'message': message.f_name + ' sent message for ' + message.convo_id,
-          'payload': message
-        });
+        publishToConvo(req,
+          message.convo_id,
+          'newmessage',
+           message.f_name + ' sent message for ' + message.convo_id,
+           message
+          );
+
+        // req.io.in(message.convo_id)
+        // // req.io.usersockets[message.user_id].to(message.convo_id)
+        // .emit('newmessage', {
+        //   'message': message.f_name + ' sent message for ' + message.convo_id,
+        //   'payload': message
+        // });
         return res.json(message);
     });
   });
@@ -119,11 +131,21 @@ exports.readMessages = function(req, res, next) {
               + convo_id + '] Adding timestamp ' + timestamp );
 
   Message.update(
-    { 'convo_id': convo_id, 'time_read.user_id': {$nin: [user_id] } },
+    { 'convo_id': convo_id, user_id: {$ne: user_id}, 'time_read.user_id': {$nin: [user_id] } },
     { $push: { time_read: timestamp} },
     { multi: true }, 
     function(err, messages) {
-      console.log('updated timestamps', messages);
+      publishToConvo(req, convo_id, 'readmessages', 'messages read for convo' + convo_id, {_id: convo_id});
+      console.log('-----> updated timestamps for ' + messages.length + 'messages', messages);
       return res.json({message: 'Successfully updated time_read for user ' + user_id })
     });
+};
+
+
+// helper function - publish to conversation room subscribers
+function publishToConvo(req, convo_id, type, message, payload) {
+  req.io.in(convo_id).emit(type, {
+    'message': message,
+    payload: payload,
+  });
 };

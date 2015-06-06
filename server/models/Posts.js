@@ -1,6 +1,9 @@
 var mongoose = require('mongoose');
 
 var PostSchema = new mongoose.Schema({
+  creator: { username: String, 
+             _id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+          },
   title: String,
   link: String,
   upvotes: {type: Number, default: 0},
