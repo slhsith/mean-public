@@ -101,10 +101,10 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   $scope.isUser = auth.isUser;
 });
 
-app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
+app.controller('ShopCtrl', function ($scope, items, auth) {
 
   $scope.items = items.items;
-  $scope.item = new Item();
+  // $scope.item = new Item();
   // $scope.user = userPromise;
   $scope.addItem = function() {
     items.create($scope.item).success(function(data){

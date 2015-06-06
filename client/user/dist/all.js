@@ -38,7 +38,7 @@ function($stateProvider, $urlRouterProvider) {
           return items.getAll();
         }
         // , userPromise: function (auth, users) {
-          // return users.get(auth.isThisUser());
+        //   return users.get(auth.isThisUser());
         // }
       }
     })
@@ -52,7 +52,7 @@ function($stateProvider, $urlRouterProvider) {
           return items.get($stateParams.item);
         }
         // , userPromise: function (auth, users) {
-          // return users.get(auth.isThisUser());
+        //   return users.get(auth.isThisUser());
         // }
       }
     })
@@ -307,10 +307,10 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   $scope.isUser = auth.isUser;
 });
 
-app.controller('ShopCtrl', function ($scope, items, auth, userPromise) {
+app.controller('ShopCtrl', function ($scope, items, auth) {
 
   $scope.items = items.items;
-  $scope.item = new Item();
+  // $scope.item = new Item();
   // $scope.user = userPromise;
   $scope.addItem = function() {
     items.create($scope.item).success(function(data){
