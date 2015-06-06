@@ -49,7 +49,7 @@ router.param('comment', posts.getCommentByIdParam )
 // Items
 router.get('/api/items', shop.getItems );
 router.post('/api/items', auth, shop.postItem );
-// router.param('/api/item', shop.getItemByIdParam );
+router.param('/api/item', shop.getItemByIdParam );
 router.get('/api/item/:id', shop.getItemById );
 // router.param('/api/item', shop.getItemByIdParam );
 router.get('/api/items/:item', shop.getItemById );
