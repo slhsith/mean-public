@@ -100,12 +100,9 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
 });
-
-app.controller('ShopCtrl', function ($scope, items, auth) {
+app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 
   $scope.items = items.items;
-  // $scope.item = new Item();
-  // $scope.user = userPromise;
   $scope.addItem = function() {
     items.create($scope.item).success(function(data){
       console.log('success');
@@ -121,15 +118,15 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
    // mixpanel.track("Shop Page: Added Item");
  };
 
- $scope.itemTitles = {
-  workoutplan: 'Workout Plan',
-  dietplan: 'Diet Plan',
-  book: 'Book',
-  video: 'Video',
-  podcast: 'Podcast',
-  bootcamp: 'Bootcamp',
-  challenge: 'Online Challenge'
- };
+   $scope.itemTitles = {
+    workoutplan: 'Workout Plan',
+    dietplan: 'Diet Plan',
+    book: 'Book',
+    video: 'Video',
+    podcast: 'Podcast',
+    bootcamp: 'Bootcamp',
+    challenge: 'Online Challenge'
+   };
 
   $scope.incrementUpvotes = function(item){
     items.upvoteItem(item);
@@ -140,9 +137,7 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
   };  
 
   $scope.editItem = function(item) {
-    // items.populate(item).success(function(item) {
-      $scope.item = item;
-    // });
+    $scope.item = item;
   };
 
   $scope.isAdmin = auth.isAdmin;
@@ -150,18 +145,20 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
 });
 
 
-app.controller('ItemCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
+app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
 
   $scope.items = items.items;
   $scope.item = itemPromise.data;
   item = itemPromise;
   $scope.deleteItem = function () {
-    console.log(item._id);
-    items.delete($scope.item._id).success(function(data){
-        console.log('success');
+    console.log('delete', $scope.item._id);
+    if (popupService.showPopup('Are you sure you want to delete this item?')) {
+      items.delete($scope.item._id).success(function(data){
+        console.log(data.message);
         $scope.items = items.items;
-        console.log(data);
+        $state.go('shop');
     });
+    }
   };
   $scope.createDay = function(){
     items.newDay($stateParams.id, $scope.day.day).success(function(day) {

@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 
-var Day = mongoose.model('Day');
+var Meal = mongoose.model('Meal');
 
 var DietPlanSchema = new mongoose.Schema({
 
@@ -16,8 +16,11 @@ var DietPlanSchema = new mongoose.Schema({
   maxage      : Number,
   minage      : Number,
 
-  days        : [ Day ]
+  days_set    : { type: Number, default: 0 },
+  days        : []
+
 
 });
+// }, { strict: false} );
 
 mongoose.model('DietPlan', DietPlanSchema);
