@@ -359,7 +359,7 @@ app.controller('ShopCtrl', function ($scope, items, auth) {
 app.controller('ItemCtrl', function ($scope, items, auth, $stateParams, itemPromise) {
 
   $scope.items = items.items;
-  $scope.item = itemPromise;
+  $scope.item = itemPromise.data;
   item = itemPromise;
   $scope.deleteItem = function () {
     console.log(item._id);
