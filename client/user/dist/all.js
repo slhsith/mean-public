@@ -307,17 +307,9 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   $scope.isUser = auth.isUser;
 });
 
-<<<<<<< HEAD
-app.controller('ShopCtrl', function ($scope, items, auth) {
-
-  $scope.items = items.items;
-  // $scope.item = new Item();
-  // $scope.user = userPromise;
-=======
 app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 
   $scope.items = items.items;
->>>>>>> 4b19e9ffc62015d103f1b0121776cfbb0d86611b
   $scope.addItem = function() {
     items.create($scope.item).success(function(data){
       console.log('success');
@@ -366,14 +358,6 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
   $scope.item = itemPromise.data;
   item = itemPromise;
   $scope.deleteItem = function () {
-<<<<<<< HEAD
-    console.log(item._id);
-    items.delete($scope.item._id).success(function(data){
-        console.log('success');
-        $scope.items = items.items;
-        console.log(data);
-    });
-=======
     console.log('delete', $scope.item._id);
     if (popupService.showPopup('Are you sure you want to delete this item?')) {
       items.delete($scope.item._id).success(function(data){
@@ -382,7 +366,6 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
         $state.go('shop');
     });
     }
->>>>>>> 4b19e9ffc62015d103f1b0121776cfbb0d86611b
   };
   $scope.createDay = function(){
     items.newDay($stateParams.id, $scope.day.day).success(function(day) {
@@ -699,24 +682,12 @@ app.factory('items', function($http, auth){
       }
     }
   }
-<<<<<<< HEAD
-  o.delete = function(id) {
-    console.log(item);
-    return $http.delete('/api/items/' + item._id, item).success(function(data) {
-    // return $http.delete('/api/items/' + item).success(function(data){
-    //   return data;
-      // return this.findByIdAndRemove(item);
-    });
-  };
-=======
 
   o.delete = function(item_id) {
     return $http.delete('/api/item/' + item_id, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
-
->>>>>>> 4b19e9ffc62015d103f1b0121776cfbb0d86611b
   o.getAllVideos = function () {
     return $http.get('/api/videos').success(function(data){
       angular.copy(data, o.videos);

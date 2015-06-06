@@ -152,14 +152,6 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
   $scope.item = itemPromise.data;
   item = itemPromise;
   $scope.deleteItem = function () {
-<<<<<<< HEAD
-    console.log(item._id);
-    items.delete($scope.item._id).success(function(data){
-        console.log('success');
-        $scope.items = items.items;
-        console.log(data);
-    });
-=======
     console.log('delete', $scope.item._id);
     if (popupService.showPopup('Are you sure you want to delete this item?')) {
       items.delete($scope.item._id).success(function(data){
@@ -168,7 +160,6 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
         $state.go('shop');
     });
     }
->>>>>>> 4b19e9ffc62015d103f1b0121776cfbb0d86611b
   };
   $scope.createDay = function(){
     items.newDay($stateParams.id, $scope.day.day).success(function(day) {
