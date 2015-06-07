@@ -1,11 +1,13 @@
 /* -----------------------------------------------------
    creating and verifying login / authentication elements
    ----------------------------------------------------- */
+//env
+var config = require('./../../env.json')[process.env.NODE_ENV || 'development'];
 
 // Module Dependencies
 var 
 	mongoose = require('mongoose'),
-  stripe = require('stripe')('sk_test_I2YXlsuXk91TBDtJelFxcuEt'),
+  stripe = require('stripe')(config['STRIPE_SECRET_KEY']),
 	nodemailer = require('nodemailer'),
   passport = require('passport'),
 	User = mongoose.model('User'),
@@ -14,8 +16,8 @@ var
     host: 'smtp.mandrillapp.com',
     port: 587,
     auth: {
-        user: 'trainersvault',
-        pass: 'BGkIPqtGVLNL2JAGAmwHMw'
+        user: config['MANDRILL_USER'],
+        pass: config['MANDRILL_PASSWORD']
     }
   });
 
