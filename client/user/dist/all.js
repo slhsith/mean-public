@@ -909,7 +909,7 @@ app.factory('auth', function($http, $window){
     };
     auth.logOut = function(){
       $window.localStorage.removeItem('admin-token');
-      $window.location = "http://localhost:3000";
+      $window.location = "/";
     };
     auth.getUser = function (){
       if(auth.isLoggedIn()){
@@ -1473,21 +1473,6 @@ app.factory('Item', function() {
 
 });
 
-app.directive('digitalMedia', function () {
-
-  return {
-    restrict: 'E', 
-    scope: false,
-    templateUrl: 'digitalmedia.tpl.html',
-    link: function(scope, element, attrs) {
-    }
-  };
-
-});
-
-
-
-
 /*  ----------------------  *
     CONTROLLER - DIETPLAN
  *  ----------------------  */
@@ -1820,6 +1805,21 @@ app.factory('dietplans', function ($http, auth) {
 });
 
 
+app.directive('digitalMedia', function () {
+
+  return {
+    restrict: 'E', 
+    scope: false,
+    templateUrl: 'digitalmedia.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
+
+
+
+
 app.directive('workoutPlan', function () {
 
   return {
@@ -1959,21 +1959,6 @@ app.controller('addWidgetCtrl', function($scope) {
 
     };
 });
-app.directive('fileUpload', function() {
-  return {
-  	restrict: 'EA',
-  	link: function(scope, elem, attr) {
-  		console.log('directive fileUpload scope\n', scope);
-  		console.log('directive fileUpload elem\n', elem);
-  		elem.bind('change', function(event) {
-          scope.user.avatar = event.target.files[0];
-          console.log(scope.user, event);
-  		});
-  	}
-
-  };
-
-});
 /*
 
 SLIDES WIDGET TO VIEW CONTENT THAT CAN BE VIEWED LIKE CAROUSEL
@@ -2055,3 +2040,19 @@ app.directive('slideDisplay', function () {
 //     }
 //   };
 // });
+
+app.directive('fileUpload', function() {
+  return {
+  	restrict: 'EA',
+  	link: function(scope, elem, attr) {
+  		console.log('directive fileUpload scope\n', scope);
+  		console.log('directive fileUpload elem\n', elem);
+  		elem.bind('change', function(event) {
+          scope.user.avatar = event.target.files[0];
+          console.log(scope.user, event);
+  		});
+  	}
+
+  };
+
+});

@@ -145,7 +145,7 @@ app.factory('auth', ['$http', '$window', function($http, $window){
     };
     auth.logOut = function(){
       $window.localStorage.removeItem('admin-token');
-      $window.location = "http://localhost:3000/";
+      $window.location = "/";
     };
   return auth;
 }]);
