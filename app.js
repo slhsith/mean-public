@@ -8,9 +8,10 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 var nodemailer = require('nodemailer');
 var aws = require('aws-sdk');
-var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
-var http = require('http');
 var config = require('./env.json')[process.env.NODE_ENV || 'development'];
+var stripe = require('stripe')(config['STRIPE_SECRET_KEY']);
+var http = require('http');
+
 
 // MODELS
 // posts
@@ -110,15 +111,9 @@ app.use('/users', users);
 
 //aws secret keys -- available in the .env and on heroku
 
-
-//for heroku live
-// var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
-// var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
-// var S3_BUCKET = process.env.S3_BUCKET;
-
-var AWS_ACCESS_KEY = 'AKIAJ6W52TL4QPDHDOPQ';
-var AWS_SECRET_KEY = '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';
-var S3_BUCKET = 'trainersvault2';
+var AWS_ACCESS_KEY = config['AWS_ACCESS_KEY'];
+var AWS_SECRET_KEY = config['AWS_SECRET_KEY'];
+var S3_BUCKET = config['S3_BUCKET'];
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

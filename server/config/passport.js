@@ -4,9 +4,10 @@ var
  FacebookStrategy = require('passport-facebook').Strategy;
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+var config = require('./../../env.json')[process.env.NODE_ENV || 'development'];
 
-var FACEBOOK_APP_ID = "692480267528460"
-var FACEBOOK_APP_SECRET = "5291485b14fff8e81428d10c9a0c164a";
+var FACEBOOK_APP_ID = config['FACEBOOK_APP_ID'];
+var FACEBOOK_APP_SECRET = config['FACEBOOK_APP_SECRET'];
 
 
 
