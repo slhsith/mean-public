@@ -35,6 +35,8 @@ Build Project Template:
 
 `gulp`
 
+####You will need env.json in your root file system. Please contact [Thomas](https://www.github.com/thessler27) for file to place in your root.
+
 
 Things Left to do:
 
