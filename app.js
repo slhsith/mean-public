@@ -8,9 +8,10 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 var nodemailer = require('nodemailer');
 var aws = require('aws-sdk');
-var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
-var http = require('http');
 var config = require('./env.json')[process.env.NODE_ENV || 'development'];
+var stripe = require('stripe')(config['STRIPE_SECRET_KEY']);
+var http = require('http');
+
 
 // MODELS
 // posts
