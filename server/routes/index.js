@@ -8,7 +8,8 @@ var jwt = require('express-jwt');
 var bodyParser = require('body-parser'),    
     jsonParser = bodyParser.json();    
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
-var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
+var config = require('./../../env.json')[process.env.NODE_ENV || 'development'];
+var stripe = require('stripe')(config['STRIPE_SECRET_KEY']);
 
 // API controllers 
 // the Models are referenced in those files so we don't need to declare our models here

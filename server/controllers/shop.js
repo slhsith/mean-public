@@ -6,7 +6,8 @@
 var 
   mongoose = require('mongoose');
 var extend = require('util')._extend;
-var stripe = require('stripe')('sk_test_I2YXlsuXk91TBDtJelFxcuEt');
+var config = require('./../../env.json')[process.env.NODE_ENV || 'development'];
+var stripe = require('stripe')(config['STRIPE_SECRET_KEY']);
 
 // { foo: 'bar', another: 'attribute' }
 
