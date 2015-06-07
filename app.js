@@ -10,6 +10,7 @@ var nodemailer = require('nodemailer');
 var aws = require('aws-sdk');
 var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
 var http = require('http');
+var config = require('./env.json')[process.env.NODE_ENV || 'development'];
 
 // MODELS
 // posts
@@ -64,14 +65,6 @@ require('./server/controllers/settings');
 // CONFIG
 require('./server/config/passport');
 
-// app.configure('development', function() {
-  // mongoose.connect('mongodb://localhost/news');
-// });
-
-// app.configure('production', function() {
-mongoose.connect('mongodb://' + process.env.MONGOLAB_URI + '/news');
-// });
-
 // var db = mongoose.connection;
 // db.on('error', console.error.bind(console, 'connection error:'));
 
@@ -79,6 +72,8 @@ var routes = require('./server/routes/index');
 var users = require('./server/routes/users');
 
 var app = express();
+
+ mongoose.connect(config['MONGO_URI']);
 
 app.io = require('socket.io')();
 require('./server/config/socketio')(app.io);

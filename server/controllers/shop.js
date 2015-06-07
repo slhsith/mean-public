@@ -75,15 +75,13 @@ exports.deleteItem = function(req, res, next) {
   var item_id = req.params.item;
   Item.findByIdAndRemove(item_id, function (err, item) {
     if (err) { return next(err); }
-
     User.findByIdAndUpdate(item_id,
       { $pull: {items: {_id: item_id} }}, 
       function (err, items) {
         if(err){ return next(err); }
         console.log(items);
         res.json({message: 'Successfully deleted item ' + item_id, success: true});
-    });
-    
+    });    
   });
 };
 
