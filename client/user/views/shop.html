@@ -7,39 +7,8 @@
   </div>
 
   <button class="btn-default col-sm-12" ng-click="showproducts = !showproducts" ng-init="showproducts=false">Show/hide Items</button>
-      <div class="page-header">
-        <h1>Shop from the windows to the walls</h1>
-      </div>
-      <button ng-click="showproducts = !showproducts" ng-init="showproducts=false">Show/hide</button>
-      <div ng-repeat="item in items" ng-show="showproducts">
-          <h4><span>
-            {{item.name}}
-            {{item.price}}
-            {{item.duration? item.duration + ',' : '' }}
-            {{item.genre? item.genre + ',' : '' }}
-          </span></h4>
-        <span>
-          <a ng-hide="item.type === 'DietPlan' || item.type==='WorkoutPlan' || item.type==='Challenge'" href="#/items/{{item._id}}">Go to Item Page</a>
-          <a ng-if="item.type === 'DietPlan'" href="#/items/{{item._id}}/diet/">Go to Diet Page</a>
-          <a ng-if="item.type === 'Challenge'" href="#/items/challenge/{{item._id}}">Go to Challenge Page</a>
-          <a ng-if="item.type === 'WorkoutPlan'" href="#/items/workoutPlan/{{item._id}}">Go to Workout Plan Page</a>
-        </span>
-      </div>
-<!--         <div class="fb-like" data-href="https://developers.facebook.com/docs/plugins/" data-layout="standard" data-action="like" data-show-faces="false" data-share="false"></div> -->
-<!--       <div ng-repeat="video in videos">
-        <span>
-            {{video.duration}},
-            {{video.genre}},
-            {{video.language}},
-            {{video.studio}}
-        </span>
-      </div> -->
-      <form ng-submit="addItem()"
-        ng-show="isLoggedIn()"
-        style="margin-top:30px;">
-
-
-  <div ng-repeat="item in items" ng-show="showproducts">
+          
+  <div ng-hide="isContributor()" ng-repeat="item in items" ng-show="showproducts">
     <h4>  {{item.name}}
           {{item.price}}
           {{item.duration? item.duration + ',' : '' }}
@@ -48,8 +17,10 @@
           
     <a ng-hide="item.type === 'dietplan' || item.type==='workoutplan' || item.type==='challenge'" href="#/item/{{item._id}}">Go to Item Page</a>
     <a ng-if="item.type === 'dietplan'" ng-click="editItem(item)">Edit</a>
+    <!-- <a ng-if="item.type === 'DietPlan'" href="#/items/{{item._id}}/diet/">Go to Diet Page</a> -->
     <a ng-if="item.type === 'challenge'" href="#/items/challenge/{{item._id}}">Go to Challenge Page</a>
     <a ng-if="item.type === 'workoutplan'" href="#/items/workoutplan/{{item._id}}">Go to Workout Plan Page</a>
+
   </div>
 
   <div ng-hide="isContributor()" ng-repeat="item in items" ng-show="showproducts">
@@ -80,7 +51,7 @@
   </div>
 
   <!-- - - - - - - - - - - - - - WORKOUT - - - - - - - - - - - -->
-  <workout-plan item="item" ng-show="item.workoutplan"></workout-plan>
+  <workout-plan item="item" ng-if="item.type === 'workoutplan'"></workout-plan>
   <!-- - - - - - - - - - - - - - DIET - - - - - - - - - - - -->
   <diet-plan item="item" ng-if="item.type === 'dietplan'"></diet-plan>
   <!-- - - - - - - - - - - - - - MEDIA - - - - - - - - - - - -->

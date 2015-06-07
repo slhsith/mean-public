@@ -1,0 +1,82 @@
+<!-- META DATA -->
+<form name="dietMetaData" ng-submit="saveDiet()" style="margin-top:30px;">
+  <div class="col-sm-6">
+    <div class="form-group col-sm-12">
+      Title
+      <input type="text" class="form-control" placeholder="Title" 
+        ng-model="item.name" required>
+    </div>
+    <div class="form-group col-sm-6">
+      Hashtag
+      <input type="text" class="form-control" placeholder="Hashtag" 
+        ng-model="item.hashtag">
+    </div>
+    <div class="form-group col-sm-6">
+      Price
+      <input type="text" class="form-control" placeholder="Price" 
+        ng-model="item.price" required>
+    </div>
+    <div class="form-group col-sm-6">
+      Duration
+      <input type="text" class="form-control" placeholder="Duration" 
+        ng-model="item.duration">
+    </div>
+    <div class="form-group col-sm-6">
+      Type
+      <input type="text" class="form-control" placeholder="Type" 
+        ng-model="item.category">
+    </div>
+    <div class="form-group col-sm-6">
+      Demographic Gender
+      <input type="text" class="form-control" placeholder="Demo Gender" 
+        ng-model="item.gender">
+    </div>
+    <div class="form-group col-sm-3">
+      Age Range
+      <input type="number" class="form-control" placeholder="Min Age" 
+        ng-model="item.minage">
+    </div>
+    <div class="form-group col-sm-3">
+      &nbsp;
+      <input type="number" class="form-control" placeholder="Max Age" 
+        ng-model="item.maxage">
+    </div>
+  </div>
+
+  <div class="upload-photo col-sm-3">
+    <span class="upload-photo-title">Upload Item Pic</span></div>
+  <div class="upload-photo col-sm-3">
+    <span class="upload-photo-title">Upload Cover Photo</span></div>
+
+  <div class="form-group col-sm-12">
+    <textarea class="form-control" placeholder="Description" row="8"
+      ng-model="item.description"></textarea>
+  </div>
+
+  <button type="submit" class="diet-create col-sm-12 btn-default">{{item._id? 'Save Changes' : 'Create'}}</button>
+</form>
+
+
+<!-- Meal Itinerary -->
+<meal-itinerary></meal-itinerary>
+
+
+
+
+  <!-- <recipe-creator ng-show="recipe"></recipe-creator> -->
+
+</div> <!-- end row -->
+
+<div class="row">
+  <div class="col-sm-12" style="margin-top: 50px">
+    <pre>{{item.days[dayOrder-1]|json}}</pre>
+  </div>
+  <div class="col-sm-12" style="margin-top: 50px">
+    <div class="col-sm-4"> Meal <pre>{{meal|json}}</pre> </div>
+    <div class="col-sm-4"> Recipe <pre>{{recipe|json}}</pre> </div>
+    <div class="col-sm-4"> Ingredient <pre>{{ingredient|json}}</pre> </div>
+  </div>
+  <div class="col-sm-12" style="margin-top: 50px">
+    Item <pre>{{item|json}}</pre>
+  </div>
+</div><!-- diet plan meta -->
