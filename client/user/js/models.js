@@ -123,6 +123,11 @@ app.factory('items', function($http, auth){
     }
   }
 
+  o.delete = function(item_id) {
+    return $http.delete('/api/item/' + item_id, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
   o.getAllVideos = function () {
     return $http.get('/api/videos').success(function(data){
       angular.copy(data, o.videos);
@@ -134,7 +139,7 @@ app.factory('items', function($http, auth){
   // API hits specific to item type
   o.update = function(item) {
     // e.g. PUT diet @ /api/item/dietplan/dietplan_id, 
-    return $http.put('/api/item/' + item.type + '/' + item[item.type], item, {
+    return $http.put('/api/item/' + item._id, item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
@@ -194,6 +199,31 @@ app.factory('items', function($http, auth){
     });
   };
 
+  o.updateDietplan = function(item, object) {
+    var dietplan_id = item.dietplan;
+    var current_days_set = item.days_set;
+
+    var dietplanAPI = '/api/item/dietplan/' + dietplan_id + '/';
+
+    // saving the whole day, 
+    // basically a meal was added or changed
+    if (object.order) {
+      // this is a new day beyond those set before
+      if (current_days_set < object.order) {
+        object.days_set = current_days_set;
+        return $http.post(dietplanAPI + 'days', object, {
+          headers: {Authorization: 'Bearer '+auth.getToken()}
+        });
+      }
+      // this is an update of a previously set day
+      return $http.put(dietplanAPI + 'days', object, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      });
+    }
+
+
+  };
+
 
   // DELETE
   //  ...
@@ -221,8 +251,10 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
   };
   o.purchase = function(card) {
     console.log(card);
-    return $http.post('/api/transactions', {
+    return $http.post('/api/transactions', card, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      console.log(data);
     });
   };
   return o;
@@ -315,7 +347,7 @@ app.factory('auth', function($http, $window){
     };
     auth.logOut = function(){
       $window.localStorage.removeItem('admin-token');
-      $window.location = "http://localhost:3000";
+      $window.location = "/";
     };
     auth.getUser = function (){
       if(auth.isLoggedIn()){
@@ -365,8 +397,17 @@ app.factory('settings', function ($http, $window) {
         s.settings = data;
       });
    };
-   s.uploadAvatar = function (user){
-       
+   s.uploadAvatar = function (avatar){
+     return $http.get('/api/signedrequest?name='+avatar.name+'&type='+avatar.type).then(function(res) {
+       console.log(res.data);
+       return $http.put(res.data.signed_request, avatar, {
+        Header: { 'x-amz-acl': 'public-read'}
+       }).then(function(res){
+        console.log(res.data);
+       }).catch(function(err) {
+        console.log(err); 
+       });
+     }); 
    };
    s.get = function (handle) {
      return $http.get('/api/user/handle/' + handle).success(function(data){
@@ -390,7 +431,7 @@ app.factory('users', function ($http, $window, auth) {
 
   u.getRange = function(start, end) {
     return $http.get('/api/users/' + start + '/' + end, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
+     headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
 
@@ -522,3 +563,8 @@ app.factory('gcomments', ['$http', 'auth', function($http, auth){
   return o;
 }]); 
 
+app.service('popupService', function($window) {
+  this.showPopup = function(message) {
+    return $window.confirm(message);
+  };
+});

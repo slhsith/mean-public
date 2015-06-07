@@ -93,7 +93,11 @@
     </tr> 
     <tr>
       <td>Upload Avatar</td>
-      <td><input type="file" id="file_input"/></td>
+      <td><input file-upload type="file" id="file_input"/></td>
+    </tr>
+    <tr>
+      <td>Permissions</td>
+      <td><input ng-model="user.permissions" style="width:100%;"></td>
     </tr>
   </table>
   <input ng-model="user.avatar_url" type="hidden" id="avatar_url" name="avatar_url" value="/images/default.png" />

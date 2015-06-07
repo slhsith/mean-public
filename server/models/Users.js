@@ -15,13 +15,21 @@ var UserSchema = new mongoose.Schema({
   address: String,
   dob: String,
   handle: { type: String, unique: true },
-  stripeToken: String,
+  stripe_id: String,
+  stripe_card: [ { id: String, last4: String, name: String, brand: String, exp_month: Number, exp_year: Number }  ],
+  purchases: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
   created: { type: Date, default: Date.now },
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Follower' }],
   items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
   dietPlans: [{ type: mongoose.Schema.Types.ObjectId, ref: 'DietPlan'}],
   avatar_url: String,
-  facebookId: String,
+  facebook: {
+    id: String,
+    token: String,
+    email: String,
+    first_name: String,
+    last_name: String
+  }
 });
 
 UserSchema.methods.setPassword = function(password){
@@ -62,6 +70,7 @@ UserSchema.methods.generateJWT = function() {
     f_name: this.f_name,
     l_name: this.l_name,
     permissions: this.permissions,
+    stripe_id: this.stripe_id,
     exp: parseInt(exp.getTime() / 1000),
   }, 'SECRET');
 };

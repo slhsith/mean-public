@@ -3,9 +3,7 @@ var mongoose = require('mongoose');
 var Meal = mongoose.model('Meal');
 
 var DaySchema = new mongoose.Schema({
-  day: { name: String,
-         order: Number 
-       },
+  order: Number,
 
   title: String, // for diet days
   meals: [ Meal ], // for diet

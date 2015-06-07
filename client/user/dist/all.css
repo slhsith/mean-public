@@ -164,3 +164,9 @@ body {
   text-align: center;
 }
 
+.diet-meal-active {
+  display: visible;
+}
+.diet-meal {
+  display: none;
+}
