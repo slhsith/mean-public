@@ -72,7 +72,6 @@ app.directive('addWidgetForm', function () {
     restrict: 'E', 
     require: '^addWidget',
     transclude: true,
-    replace: true,
     template: tpl,
     link: function(scope, element, attrs, ctrl) {}
   };
@@ -84,7 +83,7 @@ app.directive('addWidgetForm', function () {
 
 // ------------ PLUS BUTTON
 app.directive('addWidgetPlus', function () {
-  var tpl = '<div class="text-center" style="height: 50px; border: 1px solid #999" title="Add {{item_type}}">'+
+  var tpl = '<div class="text-center" style="height: 50px; line-height: 57px; border: 1px solid #999" title="Add {{item_type}}">'+
             '<i class="fa fa-2x fa-plus"></i> {{item_type}}'+
             '</div>';
 
@@ -92,7 +91,6 @@ app.directive('addWidgetPlus', function () {
     restrict: 'E', 
     require: '^addWidget',
     template: tpl,
-    replace: true,
     link: function(scope, element, attrs, ctrl) {
       element.bind('click', function() {
         scope.$apply(scope.$parent.options.init());
