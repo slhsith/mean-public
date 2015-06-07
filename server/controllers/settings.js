@@ -5,6 +5,7 @@
 // --- Module Dependencies --- //
 var mongoose = require('mongoose');
 var aws = require('aws-sdk');
+var config = require('./../../env.json')[process.env.NODE_ENV || 'development'];
 
 // --- Models --- //
 var
@@ -13,9 +14,9 @@ var
   Follower      = mongoose.model('Follower');
 
 //access keys
-var AWS_ACCESS_KEY = 'AKIAJ6W52TL4QPDHDOPQ';
-var AWS_SECRET_KEY = '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';
-var S3_BUCKET = 'trainersvault2';
+var AWS_ACCESS_KEY = config['AWS_ACCESS_KEY'];
+var AWS_SECRET_KEY = config['AWS_SECRET_KEY'];
+var S3_BUCKET = config['S3_BUCKET'];
 
 
 // --- Exported Methods --- //
