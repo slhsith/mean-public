@@ -397,8 +397,17 @@ app.factory('settings', function ($http, $window) {
         s.settings = data;
       });
    };
-   s.uploadAvatar = function (user){
-       
+   s.uploadAvatar = function (avatar){
+     return $http.get('https://trainersvault2.s3.amazonaws.com/sign_s3?file_name='+avatar.name+'&file_type='+avatar.type).success(function(data) {
+//upload_file(file, response.signed_request, response.url);
+//Header('x-amz-acl', 'public-read')
+       console.log(data);
+       return $http.put(data.signed_request, {
+        headers: {'x-amz-acl': 'public-read'}
+       }).success(function(data){
+        return data.url;
+       });
+     }); 
    };
    s.get = function (handle) {
      return $http.get('/api/user/handle/' + handle).success(function(data){
@@ -422,7 +431,7 @@ app.factory('users', function ($http, $window, auth) {
 
   u.getRange = function(start, end) {
     return $http.get('/api/users/' + start + '/' + end, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
+     headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
 

@@ -448,6 +448,7 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   $scope.updateSettings = function() {
     console.log($scope.user);
     settings.update($scope.user);
+    settings.uploadAvatar($scope.user.avatar);
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings update",{"area":"settings", "page":"settings", "action":"update"});
@@ -957,8 +958,17 @@ app.factory('settings', function ($http, $window) {
         s.settings = data;
       });
    };
-   s.uploadAvatar = function (user){
-       
+   s.uploadAvatar = function (avatar){
+     return $http.get('https://trainersvault2.s3.amazonaws.com/sign_s3?file_name='+avatar.name+'&file_type='+avatar.type).success(function(data) {
+//upload_file(file, response.signed_request, response.url);
+//Header('x-amz-acl', 'public-read')
+       console.log(data);
+       return $http.put(data.signed_request, {
+        headers: {'x-amz-acl': 'public-read'}
+       }).success(function(data){
+        return data.url;
+       });
+     }); 
    };
    s.get = function (handle) {
      return $http.get('/api/user/handle/' + handle).success(function(data){
@@ -982,7 +992,7 @@ app.factory('users', function ($http, $window, auth) {
 
   u.getRange = function(start, end) {
     return $http.get('/api/users/' + start + '/' + end, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
+     headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
 
@@ -2029,3 +2039,19 @@ app.directive('slideDisplay', function () {
 //     }
 //   };
 // });
+
+app.directive('fileUpload', function() {
+  return {
+  	restrict: 'EA',
+  	link: function(scope, elem, attr) {
+  		console.log('directive fileUpload scope\n', scope);
+  		console.log('directive fileUpload elem\n', elem);
+  		elem.bind('change', function(event) {
+          scope.user.avatar = event.target.files[0];
+          console.log(scope.user, event);
+  		});
+  	}
+
+  };
+
+});
