@@ -40,9 +40,5 @@ Build Project Template:
 
 Things Left to do:
 
-* Deployable on Heroku
 * Integrate S3 for Image and File Upload
 * Make Notifications system
-* Make Events
-* Make Items
-* Make Support ticket system with zendesk
