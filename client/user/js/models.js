@@ -398,14 +398,14 @@ app.factory('settings', function ($http, $window) {
       });
    };
    s.uploadAvatar = function (avatar){
-     return $http.get('https://trainersvault2.s3.amazonaws.com/sign_s3?file_name='+avatar.name+'&file_type='+avatar.type).success(function(data) {
-//upload_file(file, response.signed_request, response.url);
-//Header('x-amz-acl', 'public-read')
-       console.log(data);
-       return $http.put(data.signed_request, {
-        headers: {'x-amz-acl': 'public-read'}
-       }).success(function(data){
-        return data.url;
+     return $http.get('/api/signedrequest?name='+avatar.name+'&type='+avatar.type).then(function(res) {
+       console.log(res.data);
+       return $http.put(res.data.signed_request, avatar, {
+        Header: { 'x-amz-acl': 'public-read'}
+       }).then(function(res){
+        console.log(res.data);
+       }).catch(function(err) {
+        console.log(err); 
        });
      }); 
    };

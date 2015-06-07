@@ -131,6 +131,9 @@ router.post('/api/user/:id/languages', settings.createLanguage );
 router.get('/api/settings', settings.getSettings );
 router.put('/api/settings', settings.updateSettings );
 
+//s3
+router.get('/api/signedrequest', settings.signRequest );
+
 //search
 router.get('/api/search/:query', settings.submitSearch );
 

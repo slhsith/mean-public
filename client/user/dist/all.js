@@ -449,6 +449,7 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
     console.log($scope.user);
     settings.update($scope.user);
     settings.uploadAvatar($scope.user.avatar);
+    console.log($scope.user.avatar);
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings update",{"area":"settings", "page":"settings", "action":"update"});
@@ -959,14 +960,14 @@ app.factory('settings', function ($http, $window) {
       });
    };
    s.uploadAvatar = function (avatar){
-     return $http.get('https://trainersvault2.s3.amazonaws.com/sign_s3?file_name='+avatar.name+'&file_type='+avatar.type).success(function(data) {
-//upload_file(file, response.signed_request, response.url);
-//Header('x-amz-acl', 'public-read')
-       console.log(data);
-       return $http.put(data.signed_request, {
-        headers: {'x-amz-acl': 'public-read'}
-       }).success(function(data){
-        return data.url;
+     return $http.get('/api/signedrequest?name='+avatar.name+'&type='+avatar.type).then(function(res) {
+       console.log(res.data);
+       return $http.put(res.data.signed_request, avatar, {
+        Header: { 'x-amz-acl': 'public-read'}
+       }).then(function(res){
+        console.log(res.data);
+       }).catch(function(err) {
+        console.log(err); 
        });
      }); 
    };
@@ -1472,6 +1473,21 @@ app.factory('Item', function() {
 
 });
 
+app.directive('digitalMedia', function () {
+
+  return {
+    restrict: 'E', 
+    scope: false,
+    templateUrl: 'digitalmedia.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
+
+
+
+
 /*  ----------------------  *
     CONTROLLER - DIETPLAN
  *  ----------------------  */
@@ -1804,21 +1820,6 @@ app.factory('dietplans', function ($http, auth) {
 });
 
 
-app.directive('digitalMedia', function () {
-
-  return {
-    restrict: 'E', 
-    scope: false,
-    templateUrl: 'digitalmedia.tpl.html',
-    link: function(scope, element, attrs) {
-    }
-  };
-
-});
-
-
-
-
 app.directive('workoutPlan', function () {
 
   return {
@@ -1958,6 +1959,21 @@ app.controller('addWidgetCtrl', function($scope) {
 
     };
 });
+app.directive('fileUpload', function() {
+  return {
+  	restrict: 'EA',
+  	link: function(scope, elem, attr) {
+  		console.log('directive fileUpload scope\n', scope);
+  		console.log('directive fileUpload elem\n', elem);
+  		elem.bind('change', function(event) {
+          scope.user.avatar = event.target.files[0];
+          console.log(scope.user, event);
+  		});
+  	}
+
+  };
+
+});
 /*
 
 SLIDES WIDGET TO VIEW CONTENT THAT CAN BE VIEWED LIKE CAROUSEL
@@ -2039,19 +2055,3 @@ app.directive('slideDisplay', function () {
 //     }
 //   };
 // });
-
-app.directive('fileUpload', function() {
-  return {
-  	restrict: 'EA',
-  	link: function(scope, elem, attr) {
-  		console.log('directive fileUpload scope\n', scope);
-  		console.log('directive fileUpload elem\n', elem);
-  		elem.bind('change', function(event) {
-          scope.user.avatar = event.target.files[0];
-          console.log(scope.user, event);
-  		});
-  	}
-
-  };
-
-});

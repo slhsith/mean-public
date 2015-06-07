@@ -65,11 +65,11 @@ require('./server/controllers/settings');
 require('./server/config/passport');
 
 // app.configure('development', function() {
-  mongoose.connect('mongodb://localhost/news');
+  // mongoose.connect('mongodb://localhost/news');
 // });
 
 // app.configure('production', function() {
-// mongoose.connect('mongodb://' + process.env.MONGOLAB_URI + '/news');
+mongoose.connect('mongodb://' + process.env.MONGOLAB_URI + '/news');
 // });
 
 // var db = mongoose.connection;
@@ -115,9 +115,15 @@ app.use('/users', users);
 
 //aws secret keys -- available in the .env and on heroku
 
-var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
-var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
-var S3_BUCKET = process.env.S3_BUCKET;
+
+//for heroku live
+// var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
+// var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
+// var S3_BUCKET = process.env.S3_BUCKET;
+
+var AWS_ACCESS_KEY = 'AKIAJ6W52TL4QPDHDOPQ';
+var AWS_SECRET_KEY = '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';
+var S3_BUCKET = 'trainersvault2';
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
