@@ -306,6 +306,8 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
 });
+
+// ----- SHOP ------ //
 app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 
   $scope.items = items.items;
@@ -1456,21 +1458,98 @@ app.factory('messageSocket', function(socketFactory) {
   
   return socket;
 });
+app.controller('ShopCtrl', function ($scope, items, Item, auth) {
+
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isUser = auth.isUser;
+  $scope.items = items.items;
+
+  // for purposes of capitalized and well spaced display from item.type field
+  $scope.itemTitles = {
+    workoutplan: 'Workout Plan',
+    dietplan: 'Diet Plan',
+    book: 'Book',
+    video: 'Video',
+    podcast: 'Podcast',
+    bootcamp: 'Bootcamp',
+    challenge: 'Online Challenge'
+  };
+
+  // Initialize a brand new item from constructor
+  $scope.initItem = function(type) {
+    $scope.item = new Item(type);
+  };
+
+  // CREATE-POST new item
+  $scope.addItem = function() {
+    items.create($scope.item).success(function(data){
+      console.log('success');
+      $scope.items = items.items;
+      $scope.item = new Item();
+      console.log(data);
+     }).error(function(){
+         console.log('failure');
+     });
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
+   // mixpanel.track("Shop Page: Added Item");
+  };
+
+  // PUT UPDATES - 
+  // Initialize the edit state -- ultimate save will be in the directive that
+  // handles the item type
+
+  $scope.isMine = function(item) {
+    return item.creator._id === $scope.user._id;
+  };
+  
+  $scope.editItem = function(item) {
+    $scope.item = item;
+  };
+
+  // for upvoting
+  $scope.incrementUpvotes = function(item){
+    items.upvoteItem(item);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
+    // mixpanel.track("Shop Page: Upvoted Comment");
+  };  
+
+
+});
+
 app.factory('Item', function() {
 
-  var ItemConstructor = function ItemConstructor () {
+  var ItemConstructor = function ItemConstructor (type) {
     this.name         = null;
     this.creator      = { username: null, _id: null };
 
     this.price        = null;
     this.upvotes      = null;
 
-    this.type         = null;
+    this.type         = type || null;
   };
 
   return ItemConstructor;
 
 });
+
+app.directive('digitalMedia', function () {
+
+  return {
+    restrict: 'E', 
+    scope: false,
+    templateUrl: 'digitalmedia.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
+
+
+
 
 /*  ----------------------  *
     CONTROLLER - DIETPLAN
@@ -1804,21 +1883,6 @@ app.factory('dietplans', function ($http, auth) {
 });
 
 
-app.directive('digitalMedia', function () {
-
-  return {
-    restrict: 'E', 
-    scope: false,
-    templateUrl: 'digitalmedia.tpl.html',
-    link: function(scope, element, attrs) {
-    }
-  };
-
-});
-
-
-
-
 app.directive('workoutPlan', function () {
 
   return {
@@ -1941,6 +2005,21 @@ app.controller('addWidgetCtrl', function($scope) {
 
     };
 });
+app.directive('fileUpload', function() {
+  return {
+  	restrict: 'EA',
+  	link: function(scope, elem, attr) {
+  		console.log('directive fileUpload scope\n', scope);
+  		console.log('directive fileUpload elem\n', elem);
+  		elem.bind('change', function(event) {
+          scope.user.avatar = event.target.files[0];
+          console.log(scope.user, event);
+  		});
+  	}
+
+  };
+
+});
 /*
 
 SLIDES WIDGET TO VIEW CONTENT THAT CAN BE VIEWED LIKE CAROUSEL
@@ -2022,19 +2101,3 @@ app.directive('slideDisplay', function () {
 //     }
 //   };
 // });
-
-app.directive('fileUpload', function() {
-  return {
-  	restrict: 'EA',
-  	link: function(scope, elem, attr) {
-  		console.log('directive fileUpload scope\n', scope);
-  		console.log('directive fileUpload elem\n', elem);
-  		elem.bind('change', function(event) {
-          scope.user.avatar = event.target.files[0];
-          console.log(scope.user, event);
-  		});
-  	}
-
-  };
-
-});
