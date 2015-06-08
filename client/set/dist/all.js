@@ -67,6 +67,16 @@ function($stateProvider, $urlRouterProvider, GoogleMapApi) {
           return users.get($stateParams.handle);
         }
       }
+    })
+    .state('item', {
+      url: '/item/:item',
+      templateUrl: 'item.html',
+      controller: 'ItemCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          return items.get($stateParams.item);
+        }
+      }
     });
   $urlRouterProvider.otherwise('home');
 }]);
@@ -137,6 +147,12 @@ app.controller('UserCtrl', function ($scope, users, $stateParams, userPromise, a
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isFollowing = auth.isFollowing;
 });
+
+app.controller('ItemCtrl', function ($scope, items, $stateParams, itemPromise, auth) {
+  $scope.item = itemPromise.data;
+});
+
+
 /*  ---------------  *
     FACTORIES - SET
  *  ---------------  */
@@ -194,6 +210,16 @@ app.factory('users', function ($http, $window) {
   };
   return u;
 });
+app.factory('items', function ($http, $window) {
+  var i = {
+    items:[]
+  };
+  i.get = function (item) {
+    return $http.get('/api/item' + item).success(function(data){
+      return data;
+    });
+  };
+}); 
 
 // AUTH
 app.factory('auth', function($http, $window){

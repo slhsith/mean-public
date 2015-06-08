@@ -55,6 +55,16 @@ app.factory('users', function ($http, $window) {
   };
   return u;
 });
+app.factory('items', function ($http, $window) {
+  var i = {
+    items:[]
+  };
+  i.get = function (item) {
+    return $http.get('/api/item' + item).success(function(data){
+      return data;
+    });
+  };
+}); 
 
 // AUTH
 app.factory('auth', function($http, $window){
