@@ -61,7 +61,10 @@ app.directive('addWidgetItems', function () {
 app.directive('addWidgetForm', function () {
 
   var tpl = '<div style="border: 1px solid #999" title="New {{item_type}}">'+
-                '<div class="col-sm-2"><i class="fa fa-2x fa-photo"></i></div>'+
+                '<div class="col-sm-2">'+
+                  '<input type="file" file-upload="item.image">'+
+                  '<img src="item.image" style="max-width: 100px">'+
+                '</div>'+
                 '<div class="col-sm-10">'+
                   '<ng-transclude></ng-transclude>'+
                   '<button class="btn btn-xs btn-default" ng-click="save()"><i class="fa fa-floppy-o"></i></button>'+

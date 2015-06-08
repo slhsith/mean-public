@@ -401,7 +401,7 @@ app.factory('settings', function ($http, $window) {
      return $http.get('/api/signedrequest?name='+avatar.name+'&type='+avatar.type).then(function(res) {
        console.log(res.data);
        return $http.put(res.data.signed_request, avatar, {
-        Header: { 'x-amz-acl': 'public-read'}
+         headers: { 'x-amz-acl': 'public-read', 'Content-Type': avatar.type }
        }).then(function(res){
         console.log(res.data);
        }).catch(function(err) {

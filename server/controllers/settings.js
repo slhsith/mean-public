@@ -160,12 +160,13 @@ exports.addFollower = function (req, res, next) {
 
 //s3
 exports.signRequest = function (req, res, next) {
+  console.log('sign request');
   aws.config.update({accessKeyId: AWS_ACCESS_KEY, secretAccessKey: AWS_SECRET_KEY});
     var s3 = new aws.S3();
     var s3_params = {
         Bucket: S3_BUCKET,
         Key: req.query.name,
-        Expires: 60,
+        Expires: 180,
         ContentType: req.query.type,
         ACL: 'public-read'
     };

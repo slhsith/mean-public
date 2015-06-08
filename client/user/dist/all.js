@@ -964,7 +964,7 @@ app.factory('settings', function ($http, $window) {
      return $http.get('/api/signedrequest?name='+avatar.name+'&type='+avatar.type).then(function(res) {
        console.log(res.data);
        return $http.put(res.data.signed_request, avatar, {
-        Header: { 'x-amz-acl': 'public-read'}
+         headers: { 'x-amz-acl': 'public-read', 'Content-Type': avatar.type }
        }).then(function(res){
         console.log(res.data);
        }).catch(function(err) {
@@ -1536,21 +1536,6 @@ app.factory('Item', function() {
 
 });
 
-app.directive('digitalMedia', function () {
-
-  return {
-    restrict: 'E', 
-    scope: false,
-    templateUrl: 'digitalmedia.tpl.html',
-    link: function(scope, element, attrs) {
-    }
-  };
-
-});
-
-
-
-
 /*  ----------------------  *
     CONTROLLER - DIETPLAN
  *  ----------------------  */
@@ -1883,6 +1868,21 @@ app.factory('dietplans', function ($http, auth) {
 });
 
 
+app.directive('digitalMedia', function () {
+
+  return {
+    restrict: 'E', 
+    scope: false,
+    templateUrl: 'digitalmedia.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
+
+
+
+
 app.directive('workoutPlan', function () {
 
   return {
@@ -1959,7 +1959,10 @@ app.directive('addWidgetItems', function () {
 app.directive('addWidgetForm', function () {
 
   var tpl = '<div style="border: 1px solid #999" title="New {{item_type}}">'+
-                '<div class="col-sm-2"><i class="fa fa-2x fa-photo"></i></div>'+
+                '<div class="col-sm-2">'+
+                  '<input type="file" file-upload="item.image">'+
+                  '<img src="item.image" style="max-width: 100px">'+
+                '</div>'+
                 '<div class="col-sm-10">'+
                   '<ng-transclude></ng-transclude>'+
                   '<button class="btn btn-xs btn-default" ng-click="save()"><i class="fa fa-floppy-o"></i></button>'+
@@ -2004,21 +2007,6 @@ app.controller('addWidgetCtrl', function($scope) {
         console.log('init child');
 
     };
-});
-app.directive('fileUpload', function() {
-  return {
-  	restrict: 'EA',
-  	link: function(scope, elem, attr) {
-  		console.log('directive fileUpload scope\n', scope);
-  		console.log('directive fileUpload elem\n', elem);
-  		elem.bind('change', function(event) {
-          scope.user.avatar = event.target.files[0];
-          console.log(scope.user, event);
-  		});
-  	}
-
-  };
-
 });
 /*
 
@@ -2101,3 +2089,39 @@ app.directive('slideDisplay', function () {
 //     }
 //   };
 // });
+
+app.directive('avatarUpload', function() {
+  return {
+    restrict: 'EA',
+    link: function(scope, elem, attr) {
+      console.log('directive fileUpload scope\n', scope);
+      console.log('directive fileUpload elem\n', elem);
+      elem.bind('change', function(event) {
+          scope.user.avatar = event.target.files[0];
+          console.log(scope.user, event);
+      });
+    }
+
+  };
+
+});
+
+/*
+ * For generic file uploading purposes
+ * Usage: <input type="file" file-upload="ingredient.image">
+ */
+app.directive('fileUpload', function() {
+  return {
+    restrict: 'A',
+    scope: {
+      target: '=fileUpload'
+    },
+    link: function(scope, elem, attr) {
+      elem.bind('change', function(event) {
+        target = event.target.files[0];
+        console.log(target);
+      });
+    }
+  };
+
+});
