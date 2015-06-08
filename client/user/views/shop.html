@@ -8,8 +8,7 @@
 
   <button class="btn-default col-sm-12" ng-click="showproducts = !showproducts" ng-init="showproducts=false">Show/hide Items</button>
           
-  <div ng-hide="isContributor()" ng-repeat="item in items" ng-show="showproducts">
-          
+  <div ng-hide="isContributor()" ng-repeat="item in items" ng-show="showproducts">          
     <a ng-hide="item.type === 'dietplan' || item.type==='workoutplan' || item.type==='challenge'" href="#/item/{{item._id}}">Go to Item Page</a>
     <a ng-if="item.type === 'dietplan'" ng-click="editItem(item)">Edit</a>
     <!-- <a ng-if="item.type === 'DietPlan'" href="#/items/{{item._id}}/diet/">Go to Diet Page</a> -->

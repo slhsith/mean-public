@@ -70,8 +70,6 @@ exports.getItems = function(req, res, next) {
       return res.json(result);
    });
 };
-
-
 exports.deleteItem = function(req, res, next) {
   var item_id = req.params.item;
   Item.findByIdAndRemove(item_id, function (err, item) {
