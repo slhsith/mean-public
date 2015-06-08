@@ -65,3 +65,8 @@ app.controller('UserCtrl', function ($scope, users, $stateParams, userPromise, a
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isFollowing = auth.isFollowing;
 });
+
+app.controller('ItemCtrl', function ($scope, items, $stateParams, itemPromise, auth) {
+  $scope.item = itemPromise.data;
+});
+

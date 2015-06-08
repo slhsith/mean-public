@@ -1,0 +1,27 @@
+<h3>{{item.name}} ({{item.type}})</h3>
+<table class="table" ng-show="item.type==='WorkoutPlan'">
+  <tr>
+  	<td>Trainer</td>
+    <td>{{item.creator.username}}</td>
+  </tr>
+  <tr>
+    <td>Price</td>
+    <td>{{item.price}}</td> 
+  </tr>
+  <tr>
+    <td>Type</td> 
+    <td>{{item.type}}</td>
+  </tr>
+  <tr>
+  	<td>Address</td> 
+    <td>{{user.address}}</td>
+  </tr>
+  <tr>
+  	<td>Date of Birth</td> 
+    <td>{{user.dob}}</td>
+  </tr>
+  <tr>
+  	<td>Handle</td> 
+    <td>{{user.handle}}</td>
+  </tr>
+</table>
