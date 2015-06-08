@@ -57,7 +57,6 @@ router.get('/api/item/:id', shop.getItemById );
 router.get('/api/items/:item', shop.getItemById );
 // router.delete('/api/items/:item', shop.deleteItem );
 router.delete('/api/item/:item', auth, shop.deleteItem );
-
 router.put('/api/items/:item/upvote', auth, shop.upvoteItem );
 
 router.get('/api/items/:item/exercises', shop.getExercises );
