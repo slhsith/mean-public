@@ -306,7 +306,6 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   $scope.isAdmin = auth.isAdmin;
   $scope.isUser = auth.isUser;
 });
-
 app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 
   $scope.items = items.items;
@@ -448,6 +447,8 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   $scope.updateSettings = function() {
     console.log($scope.user);
     settings.update($scope.user);
+    settings.uploadAvatar($scope.user.avatar);
+    console.log($scope.user.avatar);
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings update",{"area":"settings", "page":"settings", "action":"update"});
@@ -688,7 +689,6 @@ app.factory('items', function($http, auth){
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
-
   o.getAllVideos = function () {
     return $http.get('/api/videos').success(function(data){
       angular.copy(data, o.videos);
@@ -908,7 +908,7 @@ app.factory('auth', function($http, $window){
     };
     auth.logOut = function(){
       $window.localStorage.removeItem('admin-token');
-      $window.location = "http://localhost:3000";
+      $window.location = "/";
     };
     auth.getUser = function (){
       if(auth.isLoggedIn()){
@@ -958,8 +958,17 @@ app.factory('settings', function ($http, $window) {
         s.settings = data;
       });
    };
-   s.uploadAvatar = function (user){
-       
+   s.uploadAvatar = function (avatar){
+     return $http.get('/api/signedrequest?name='+avatar.name+'&type='+avatar.type).then(function(res) {
+       console.log(res.data);
+       return $http.put(res.data.signed_request, avatar, {
+        Header: { 'x-amz-acl': 'public-read'}
+       }).then(function(res){
+        console.log(res.data);
+       }).catch(function(err) {
+        console.log(err); 
+       });
+     }); 
    };
    s.get = function (handle) {
      return $http.get('/api/user/handle/' + handle).success(function(data){
@@ -983,7 +992,7 @@ app.factory('users', function ($http, $window, auth) {
 
   u.getRange = function(start, end) {
     return $http.get('/api/users/' + start + '/' + end, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
+     headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
 
@@ -2013,3 +2022,19 @@ app.directive('slideDisplay', function () {
 //     }
 //   };
 // });
+
+app.directive('fileUpload', function() {
+  return {
+  	restrict: 'EA',
+  	link: function(scope, elem, attr) {
+  		console.log('directive fileUpload scope\n', scope);
+  		console.log('directive fileUpload elem\n', elem);
+  		elem.bind('change', function(event) {
+          scope.user.avatar = event.target.files[0];
+          console.log(scope.user, event);
+  		});
+  	}
+
+  };
+
+});
