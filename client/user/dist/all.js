@@ -447,7 +447,7 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   $scope.updateSettings = function() {
     console.log($scope.user);
     settings.update($scope.user);
-    settings.uploadAvatar($scope.user.avatar);
+    settings.uploadAvatar($scope.user);
     console.log($scope.user.avatar);
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
@@ -958,13 +958,16 @@ app.factory('settings', function ($http, $window) {
         s.settings = data;
       });
    };
-   s.uploadAvatar = function (avatar){
-     return $http.get('/api/signedrequest?name='+avatar.name+'&type='+avatar.type).then(function(res) {
+   s.uploadAvatar = function (user){
+
+     return $http.get('/api/signedrequest?name='+user.avatar.name+'&type='+user.avatar.type).then(function(res) {
        console.log(res.data);
-       return $http.put(res.data.signed_request, avatar, {
-        Header: { 'x-amz-acl': 'public-read'}
+       user.avatar_url = res.data.url;
+       return $http.put(res.data.signed_request, user.avatar, {
+         headers: { 'x-amz-acl': 'public-read', 'Content-Type': user.avatar.type }
        }).then(function(res){
-        console.log(res.data);
+        console.log(res);
+        s.update(user);
        }).catch(function(err) {
         console.log(err); 
        });
@@ -1832,6 +1835,103 @@ app.directive('workoutPlan', function () {
 });
 
 
+app.directive('fileUpload', function() {
+  return {
+  	restrict: 'EA',
+  	link: function(scope, elem, attr) {
+  		console.log('directive fileUpload scope\n', scope);
+  		console.log('directive fileUpload elem\n', elem);
+  		elem.bind('change', function(event) {
+          scope.user.avatar = event.target.files[0];
+          console.log(scope.user, event);
+  		});
+  	}
+
+  };
+
+});
+/*
+
+SLIDES WIDGET TO VIEW CONTENT THAT CAN BE VIEWED LIKE CAROUSEL
+can tick through a single array
+data = 
+scope.item.days = [
+  { order: 1, meals: [ {}, {}, {} ] },
+  { order: 2, meals: [ {}, {}, {} ] },
+  { order: 3, meals: [ {}, {}, {} ] },
+]
+
+<slide-display data=item.days></slide-display>
+
+*/
+
+
+// ------------ CONTAINER
+app.directive('slideDisplay', function () {
+
+  var slideCtrl = function($scope) {
+    var self = this,
+        currentIndex = -1,
+        currentSlide;
+    var slides = [];
+
+    $scope.$watch($scope.viewingDay.meals, function(newval) {
+      meals = $scope.viewingDay.meals;
+    });
+
+    $scope.next = function() {
+      var newIndex = (self.getCurrentIndex() + 1) % meals.length;
+    };
+
+    $scope.prev = function() {
+      var newIndex = self.getCurrentIndex() -1 < 0? meals.length -1 : self.getCurrentIndex - 1;
+    };
+
+    $scope.isActive = function(meal) {
+      return self.currentMeal === meal;
+    };
+
+  };
+  return {
+    restrict: 'E',
+    scope: {
+      data: '=',
+      options: '=', 
+    },
+    transclude: true,
+    controller: 'slideCtrl',
+    template: '<div class="col-sm-12" ng-transclude></div>'
+  };
+
+});
+
+// app.directive('meal', function() {
+//   var template = '<div ng-class="{\'active\': active }" class="item text-center" ng-transclude></div>';
+//   return {
+//     require: '^mealDisplay',
+//     restrict: 'E',
+//     transclude: true,
+//     replace: true,
+//     scope: {
+//       active: '=?',
+//       index: '=?'
+//     },
+//     link: function (scope, element, attrs, dietCtrl) {
+//       dietCtrl.addSlide(scope, element);
+//       //when the scope is destroyed then remove the slide from the current slides array
+//       scope.$on('$destroy', function() {
+//         dietCtrl.removeMeal(scope);
+//       });
+
+//       scope.$watch('active', function(active) {
+//         if (active) {
+//           dietCtrl.select(scope);
+//         }
+//       });
+//     }
+//   };
+// });
+
 /*
 
 ROW WIDGET FOR ADDING UNITS TO SUBARRAYS OF ITEMS & EVENTS
@@ -1957,101 +2057,4 @@ app.controller('addWidgetCtrl', function($scope) {
         console.log('init child');
 
     };
-});
-/*
-
-SLIDES WIDGET TO VIEW CONTENT THAT CAN BE VIEWED LIKE CAROUSEL
-can tick through a single array
-data = 
-scope.item.days = [
-  { order: 1, meals: [ {}, {}, {} ] },
-  { order: 2, meals: [ {}, {}, {} ] },
-  { order: 3, meals: [ {}, {}, {} ] },
-]
-
-<slide-display data=item.days></slide-display>
-
-*/
-
-
-// ------------ CONTAINER
-app.directive('slideDisplay', function () {
-
-  var slideCtrl = function($scope) {
-    var self = this,
-        currentIndex = -1,
-        currentSlide;
-    var slides = [];
-
-    $scope.$watch($scope.viewingDay.meals, function(newval) {
-      meals = $scope.viewingDay.meals;
-    });
-
-    $scope.next = function() {
-      var newIndex = (self.getCurrentIndex() + 1) % meals.length;
-    };
-
-    $scope.prev = function() {
-      var newIndex = self.getCurrentIndex() -1 < 0? meals.length -1 : self.getCurrentIndex - 1;
-    };
-
-    $scope.isActive = function(meal) {
-      return self.currentMeal === meal;
-    };
-
-  };
-  return {
-    restrict: 'E',
-    scope: {
-      data: '=',
-      options: '=', 
-    },
-    transclude: true,
-    controller: 'slideCtrl',
-    template: '<div class="col-sm-12" ng-transclude></div>'
-  };
-
-});
-
-// app.directive('meal', function() {
-//   var template = '<div ng-class="{\'active\': active }" class="item text-center" ng-transclude></div>';
-//   return {
-//     require: '^mealDisplay',
-//     restrict: 'E',
-//     transclude: true,
-//     replace: true,
-//     scope: {
-//       active: '=?',
-//       index: '=?'
-//     },
-//     link: function (scope, element, attrs, dietCtrl) {
-//       dietCtrl.addSlide(scope, element);
-//       //when the scope is destroyed then remove the slide from the current slides array
-//       scope.$on('$destroy', function() {
-//         dietCtrl.removeMeal(scope);
-//       });
-
-//       scope.$watch('active', function(active) {
-//         if (active) {
-//           dietCtrl.select(scope);
-//         }
-//       });
-//     }
-//   };
-// });
-
-app.directive('fileUpload', function() {
-  return {
-  	restrict: 'EA',
-  	link: function(scope, elem, attr) {
-  		console.log('directive fileUpload scope\n', scope);
-  		console.log('directive fileUpload elem\n', elem);
-  		elem.bind('change', function(event) {
-          scope.user.avatar = event.target.files[0];
-          console.log(scope.user, event);
-  		});
-  	}
-
-  };
-
 });

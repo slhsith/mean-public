@@ -241,7 +241,7 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   $scope.updateSettings = function() {
     console.log($scope.user);
     settings.update($scope.user);
-    settings.uploadAvatar($scope.user.avatar);
+    settings.uploadAvatar($scope.user);
     console.log($scope.user.avatar);
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);

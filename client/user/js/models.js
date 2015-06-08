@@ -397,13 +397,16 @@ app.factory('settings', function ($http, $window) {
         s.settings = data;
       });
    };
-   s.uploadAvatar = function (avatar){
-     return $http.get('/api/signedrequest?name='+avatar.name+'&type='+avatar.type).then(function(res) {
+   s.uploadAvatar = function (user){
+
+     return $http.get('/api/signedrequest?name='+user.avatar.name+'&type='+user.avatar.type).then(function(res) {
        console.log(res.data);
-       return $http.put(res.data.signed_request, avatar, {
-        Header: { 'x-amz-acl': 'public-read'}
+       user.avatar_url = res.data.url;
+       return $http.put(res.data.signed_request, user.avatar, {
+         headers: { 'x-amz-acl': 'public-read', 'Content-Type': user.avatar.type }
        }).then(function(res){
-        console.log(res.data);
+        console.log(res);
+        s.update(user);
        }).catch(function(err) {
         console.log(err); 
        });

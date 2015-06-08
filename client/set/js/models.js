@@ -60,10 +60,11 @@ app.factory('items', function ($http, $window) {
     items:[]
   };
   i.get = function (item) {
-    return $http.get('/api/item' + item).success(function(data){
-      return data;
+    return $http.get('/api/item/' + item).then(function(res){
+      return res;
     });
   };
+  return i;
 }); 
 
 // AUTH

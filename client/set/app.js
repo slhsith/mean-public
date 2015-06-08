@@ -78,5 +78,5 @@ function($stateProvider, $urlRouterProvider, GoogleMapApi) {
         }
       }
     });
-  $urlRouterProvider.otherwise('home');
+  // $urlRouterProvider.otherwise('home');
 }]);
