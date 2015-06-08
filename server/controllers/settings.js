@@ -4,12 +4,19 @@
 
 // --- Module Dependencies --- //
 var mongoose = require('mongoose');
+var aws = require('aws-sdk');
+var config = require('./../../env.json')[process.env.NODE_ENV || 'development'];
 
 // --- Models --- //
 var
   User          = mongoose.model('User'),
   Language      = mongoose.model('Language'),
   Follower      = mongoose.model('Follower');
+
+//access keys
+var AWS_ACCESS_KEY = config['AWS_ACCESS_KEY'];
+var AWS_SECRET_KEY = config['AWS_SECRET_KEY'];
+var S3_BUCKET = config['S3_BUCKET'];
 
 
 // --- Exported Methods --- //
@@ -149,4 +156,26 @@ exports.addFollower = function (req, res, next) {
      res.json(user);
     });
   });
+}
+
+//s3
+exports.signRequest = function (req, res, next) {
+  aws.config.update({accessKeyId: AWS_ACCESS_KEY, secretAccessKey: AWS_SECRET_KEY});
+    var s3 = new aws.S3();
+    var s3_params = {
+        Bucket: S3_BUCKET,
+        Key: req.query.name,
+        Expires: 60,
+        ContentType: req.query.type,
+        ACL: 'public-read'
+    };
+    s3.getSignedUrl('putObject', s3_params, function(err, data){
+      if(err){ return next(err); }
+      console.log(data);
+      var return_data = {
+          signed_request: data,
+          url: 'https://'+S3_BUCKET+'.s3.amazonaws.com/'+req.query.name
+      };
+      res.json(return_data);
+    });
 }

@@ -128,7 +128,6 @@ app.factory('items', function($http, auth){
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
-
   o.getAllVideos = function () {
     return $http.get('/api/videos').success(function(data){
       angular.copy(data, o.videos);
@@ -348,7 +347,7 @@ app.factory('auth', function($http, $window){
     };
     auth.logOut = function(){
       $window.localStorage.removeItem('admin-token');
-      $window.location = "http://localhost:3000";
+      $window.location = "/";
     };
     auth.getUser = function (){
       if(auth.isLoggedIn()){
@@ -398,8 +397,17 @@ app.factory('settings', function ($http, $window) {
         s.settings = data;
       });
    };
-   s.uploadAvatar = function (user){
-       
+   s.uploadAvatar = function (avatar){
+     return $http.get('/api/signedrequest?name='+avatar.name+'&type='+avatar.type).then(function(res) {
+       console.log(res.data);
+       return $http.put(res.data.signed_request, avatar, {
+        Header: { 'x-amz-acl': 'public-read'}
+       }).then(function(res){
+        console.log(res.data);
+       }).catch(function(err) {
+        console.log(err); 
+       });
+     }); 
    };
    s.get = function (handle) {
      return $http.get('/api/user/handle/' + handle).success(function(data){
@@ -423,7 +431,7 @@ app.factory('users', function ($http, $window, auth) {
 
   u.getRange = function(start, end) {
     return $http.get('/api/users/' + start + '/' + end, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
+     headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
 

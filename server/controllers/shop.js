@@ -6,7 +6,8 @@
 var 
   mongoose = require('mongoose');
 var extend = require('util')._extend;
-var stripe = require('stripe')('sk_test_I2YXlsuXk91TBDtJelFxcuEt');
+var config = require('./../../env.json')[process.env.NODE_ENV || 'development'];
+var stripe = require('stripe')(config['STRIPE_SECRET_KEY']);
 
 // { foo: 'bar', another: 'attribute' }
 
@@ -75,15 +76,13 @@ exports.deleteItem = function(req, res, next) {
   var item_id = req.params.item;
   Item.findByIdAndRemove(item_id, function (err, item) {
     if (err) { return next(err); }
-
     User.findByIdAndUpdate(item_id,
       { $pull: {items: {_id: item_id} }}, 
       function (err, items) {
         if(err){ return next(err); }
         console.log(items);
         res.json({message: 'Successfully deleted item ' + item_id, success: true});
-    });
-    
+    });    
   });
 };
 

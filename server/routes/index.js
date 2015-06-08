@@ -8,7 +8,8 @@ var jwt = require('express-jwt');
 var bodyParser = require('body-parser'),    
     jsonParser = bodyParser.json();    
 var auth = jwt({secret: 'SECRET', userProperty: 'payload'});
-var stripe = require('stripe')('sk_test_z1OaqEIX71PB6nqiDgZ8bfLE');
+var config = require('./../../env.json')[process.env.NODE_ENV || 'development'];
+var stripe = require('stripe')(config['STRIPE_SECRET_KEY']);
 
 // API controllers 
 // the Models are referenced in those files so we don't need to declare our models here
@@ -50,6 +51,11 @@ router.param('comment', posts.getCommentByIdParam )
 router.get('/api/items', shop.getItems );
 router.get('/api/item/:item', shop.getItemById );
 router.post('/api/items', auth, shop.postItem );
+// router.param('/api/item', shop.getItemByIdParam );
+router.get('/api/item/:id', shop.getItemById );
+// router.param('/api/item', shop.getItemByIdParam );
+router.get('/api/items/:item', shop.getItemById );
+// router.delete('/api/items/:item', shop.deleteItem );
 router.delete('/api/item/:item', auth, shop.deleteItem );
 
 router.put('/api/items/:item/upvote', auth, shop.upvoteItem );
@@ -125,6 +131,9 @@ router.get('/api/languages', settings.getLanguages );
 router.post('/api/user/:id/languages', settings.createLanguage );
 router.get('/api/settings', settings.getSettings );
 router.put('/api/settings', settings.updateSettings );
+
+//s3
+router.get('/api/signedrequest', settings.signRequest );
 
 //search
 router.get('/api/search/:query', settings.submitSearch );

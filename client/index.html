@@ -179,7 +179,8 @@ for(g=0;g<i.length;g++)f(c,i[g]);b._i.push([a,e,d])};b.__SV=1.2;a=f.createElemen
  -->
  <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
  <script type="text/javascript">
-      Stripe.setPublishableKey('pk_test_frvzzSshe2kakqRi2C9W7HEM');
+      var config = require('./env.json')[process.env.NODE_ENV || 'development'];
+      Stripe.setPublishableKey(config['STRIPE_PUBLISHABLE_KEY']);
  </script> 
  <script src="dist/all.min.js"></script>
  <script src="dist/templates.js"></script>
