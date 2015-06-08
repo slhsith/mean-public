@@ -63,7 +63,7 @@ app.directive('addWidgetForm', function () {
   var tpl = '<div style="border: 1px solid #999" title="New {{item_type}}">'+
                 '<div class="col-sm-2">'+
                   '<input type="file" file-upload="item.image">'+
-                  '<img src="item.image" style="max-width: 100px">'+
+                  '<img ng-if="item.image" ng-src="item.image" style="max-width: 100px">'+
                 '</div>'+
                 '<div class="col-sm-10">'+
                   '<ng-transclude></ng-transclude>'+

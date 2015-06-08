@@ -86,10 +86,10 @@ app.factory('items', function($http, auth){
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
+    }).then(function(res) {
       // base item data comes back from API, extend it with
       // the item's original submitted descriptive parameters
-      var extendedItem = angular.extend(data, item);
+      var extendedItem = angular.extend(res.data, item);
       o.items.push(extendedItem);
       // will be added to the appropriate service object subarray
       // based on submitted type
@@ -318,7 +318,7 @@ app.factory('auth', function($http, $window){
       if(token){
        var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-        return payload.permissions === 'User' || 'Admin' || 'Contributor';
+        return payload.permissions === 'User' || 'Contributor' || 'Admin';
       } else {
         return false;
       }
@@ -329,7 +329,7 @@ app.factory('auth', function($http, $window){
       if(token){
        var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-        return payload.permissions === 'Admin' || 'Contributor';
+        return payload.permissions === 'Contributor' || 'Admin';
       } else {
         return false;
       }

@@ -10,8 +10,7 @@
   <button class="btn-default col-sm-12" ng-init="showproducts=false"
     ng-click="showproducts = !showproducts">Show/hide Items</button>
           
-
-  <div ng-hide="isContributor()" ng-repeat="item in items" ng-show="showproducts">
+  <div ng-hide="isContributor()" class="col-sm-12" ng-repeat="item in items" ng-show="showproducts">
     <h4>{{ item.name }} | 
         {{ item.price }}
         {{ item.duration? '|' + item.duration : '' }}
@@ -28,11 +27,12 @@
     <a ng-if="item.type === 'workoutplan'" 
       href="#/items/workoutplan/{{item._id}}">Go to Workout Plan Page</a>
 
-    <span ng-if="isMine(item)">| <a ng-if="" ng-click="editItem(item)">Edit</a></span>
+    <span ng-if="isMine(item)">| <a ng-click="editItem(item)">Edit</a></span>
   </div>
 
   <div class="fb-like" data-href="https://developers.facebook.com/docs/plugins/" data-layout="standard" data-action="like" data-show-faces="false" data-share="false"></div>
 
+<div ng-if="isContributor()">
   <div class="col-sm-6">
     <span class="item-title">Create Digital Item</span><span class="item-title" ng-hide="item.type === null"> - {{itemTitles[item.type]}}</span></span>
   </div>

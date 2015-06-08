@@ -98,6 +98,28 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
       return payload.username;
     }
   };
+  auth.isAdmin = function(){
+      var token = auth.getToken();
+
+      if(token){
+       var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.permissions === 'Admin';
+      } else {
+        return false;
+      }
+  };
+  auth.isContributor = function(){
+      var token = auth.getToken();
+
+      if(token){
+       var payload = JSON.parse($window.atob(token.split('.')[1]));
+
+        return payload.permissions === 'Contributor' || 'Admin';
+      } else {
+        return false;
+      }
+  };
   auth.register = function (user) {
     return $http.post('/api/register', user).success(function (data) {
       auth.saveToken(data.token);

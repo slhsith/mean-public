@@ -6,6 +6,9 @@ app.directive('avatarUpload', function() {
       console.log('directive fileUpload elem\n', elem);
       elem.bind('change', function(event) {
           scope.user.avatar = event.target.files[0];
+          var ext = '.' + scope.user.avatar.name.split('.').pop();
+          scope.user.avatar.name = 'user_avatar_' + scope.user._id + '_' 
+                                    + new Date().getTime() + ext;
           console.log(scope.user, event);
       });
     }
@@ -20,14 +23,16 @@ app.directive('avatarUpload', function() {
  */
 app.directive('fileUpload', function() {
   return {
-    restrict: 'A',
+    restrict: 'EA',
     scope: {
-      target: '=fileUpload'
+      target: '='
     },
     link: function(scope, elem, attr) {
+      console.log('file upload directive', scope, elem);
       elem.bind('change', function(event) {
-        target = event.target.files[0];
-        console.log(target);
+        attr.fileUpload = (event.srcElement || event.target).files[0];
+        console.log(attr.fileUpload);
+        console.log()
       });
     }
   };

@@ -11,22 +11,22 @@
           <a href="#/group_home/{{group._id}}">Go to Group Page</a>
         </span> -->
       </div>
+      <div ng-if="isContributor()">
+        <form ng-submit="addGroup()"
+          ng-show="isLoggedIn()"
+          style="margin-top:30px;">
 
-      <form ng-submit="addGroup()"
-        ng-show="isLoggedIn()"
-        style="margin-top:30px;">
+          <h3>Add a new group page</h3>
 
-        <h3>Add a new group page</h3>
-
-        <div class="form-group">
-          <input type="text"
-            class="form-control"
-            placeholder="Group Name"
-            ng-model="group.name"></input>
-        </div>
-        <button type="submit" class="btn btn-primary">Create Group</button>
-      </form>
-
+          <div class="form-group">
+            <input type="text"
+              class="form-control"
+              placeholder="Group Name"
+              ng-model="group.name"></input>
+          </div>
+          <button type="submit" class="btn btn-primary">Create Group</button>
+        </form>
+      </div>
         <div>
           <span>
             <a href="#/home">Home Page</a>

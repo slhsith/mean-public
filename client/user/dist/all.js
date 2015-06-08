@@ -1,8 +1,12 @@
 /*  -----------------  *
     APP MODULE - USER 
  *  -----------------  */
-var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
-// var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
+var app = angular.module('mainApp', [
+  'ui.router',
+  'templates',
+  'ngFileUpload',
+  'btford.socket-io'
+]);
 
 app.config([
 '$stateProvider',
@@ -268,6 +272,7 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
   };
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 
 });
@@ -304,59 +309,17 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   };
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 });
 
-// ----- SHOP ------ //
-app.controller('ShopCtrl', function ($scope, items, Item, auth) {
-
-  $scope.items = items.items;
-  $scope.addItem = function() {
-    items.create($scope.item).success(function(data){
-      console.log('success');
-      $scope.items = items.items;
-      $scope.item = new Item();
-      console.log(data);
-   }).error(function(){
-       console.log('failure');
-   });
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
-   // mixpanel.track("Shop Page: Added Item");
- };
-
-   $scope.itemTitles = {
-    workoutplan: 'Workout Plan',
-    dietplan: 'Diet Plan',
-    book: 'Book',
-    video: 'Video',
-    podcast: 'Podcast',
-    bootcamp: 'Bootcamp',
-    challenge: 'Online Challenge'
-   };
-
-  $scope.incrementUpvotes = function(item){
-    items.upvoteItem(item);
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
-    // mixpanel.track("Shop Page: Upvoted Comment");
-  };  
-
-  $scope.editItem = function(item) {
-    $scope.item = item;
-  };
-
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isUser = auth.isUser;
-});
 
 
 app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
 
   $scope.items = items.items;
   $scope.item = itemPromise.data;
+
   item = itemPromise;
   $scope.deleteItem = function () {
     console.log('delete', $scope.item._id);
@@ -380,8 +343,6 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Items Page: Upvoted Comment");
   };
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isUser = auth.isUser;
   $scope.addPlan = function() {
     items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
       console.log('success');
@@ -390,6 +351,9 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
        console.log('failure');
    });
   };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
 });
 
 app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
@@ -430,6 +394,7 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions, itemPro
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 });
 
@@ -459,6 +424,7 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   $scope.user = userPromise.data;
   console.log(userPromise);
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
   $scope.isThisUser = auth.isThisUser;
 });
@@ -477,6 +443,7 @@ function ($scope, groups, auth) {
   $scope.group = '';
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 });
 
@@ -513,6 +480,7 @@ function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
     console.log(gpost._id, gcomment);
   };
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
   
   // $scope.addComment = function(){
@@ -557,6 +525,7 @@ function($scope, $stateParams, gposts, gcomments, auth){
   };
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 }]);
 
@@ -649,10 +618,10 @@ app.factory('items', function($http, auth){
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
+    }).then(function(res) {
       // base item data comes back from API, extend it with
       // the item's original submitted descriptive parameters
-      var extendedItem = angular.extend(data, item);
+      var extendedItem = angular.extend(res.data, item);
       o.items.push(extendedItem);
       // will be added to the appropriate service object subarray
       // based on submitted type
@@ -881,7 +850,7 @@ app.factory('auth', function($http, $window){
       if(token){
        var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-        return payload.permissions === 'User' || 'Admin' || 'Contributor';
+        return payload.permissions === 'User' || 'Contributor' || 'Admin';
       } else {
         return false;
       }
@@ -892,7 +861,7 @@ app.factory('auth', function($http, $window){
       if(token){
        var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-        return payload.permissions === 'Admin' || 'Contributor';
+        return payload.permissions === 'Contributor' || 'Admin';
       } else {
         return false;
       }
@@ -1460,19 +1429,22 @@ app.factory('messageSocket', function(socketFactory) {
 });
 app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isUser = auth.isUser;
-  $scope.items = items.items;
+  $scope.isAdmin       = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser        = auth.isUser;
+  $scope.items         = items.items;
 
   // for purposes of capitalized and well spaced display from item.type field
   $scope.itemTitles = {
-    workoutplan: 'Workout Plan',
-    dietplan: 'Diet Plan',
-    book: 'Book',
-    video: 'Video',
-    podcast: 'Podcast',
-    bootcamp: 'Bootcamp',
-    challenge: 'Online Challenge'
+    workoutplan : 'Workout Plan',
+    dietplan    : 'Diet Plan',
+
+    bootcamp    : 'Bootcamp',
+    challenge   : 'Online Challenge',
+
+    book        : 'Book',
+    podcast     : 'Podcast',
+    video       : 'Video'
   };
 
   // Initialize a brand new item from constructor
@@ -1482,12 +1454,13 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 
   // CREATE-POST new item
   $scope.addItem = function() {
-    items.create($scope.item).success(function(data){
+    items.create($scope.item)
+    .then(function(data){
       console.log('success');
       $scope.items = items.items;
       $scope.item = new Item();
       console.log(data);
-     }).error(function(){
+     }).catch(function(){
          console.log('failure');
      });
     // mixpanel.alias($scope.user._id);
@@ -1503,7 +1476,7 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
   $scope.isMine = function(item) {
     return item.creator._id === $scope.user._id;
   };
-  
+
   $scope.editItem = function(item) {
     $scope.item = item;
   };
@@ -1961,7 +1934,7 @@ app.directive('addWidgetForm', function () {
   var tpl = '<div style="border: 1px solid #999" title="New {{item_type}}">'+
                 '<div class="col-sm-2">'+
                   '<input type="file" file-upload="item.image">'+
-                  '<img src="item.image" style="max-width: 100px">'+
+                  '<img ng-if="item.image" ng-src="item.image" style="max-width: 100px">'+
                 '</div>'+
                 '<div class="col-sm-10">'+
                   '<ng-transclude></ng-transclude>'+
@@ -2007,6 +1980,46 @@ app.controller('addWidgetCtrl', function($scope) {
         console.log('init child');
 
     };
+});
+app.directive('avatarUpload', function() {
+  return {
+    restrict: 'EA',
+    link: function(scope, elem, attr) {
+      console.log('directive fileUpload scope\n', scope);
+      console.log('directive fileUpload elem\n', elem);
+      elem.bind('change', function(event) {
+          scope.user.avatar = event.target.files[0];
+          var ext = '.' + scope.user.avatar.name.split('.').pop();
+          scope.user.avatar.name = 'user_avatar_' + scope.user._id + '_' 
+                                    + new Date().getTime() + ext;
+          console.log(scope.user, event);
+      });
+    }
+
+  };
+
+});
+
+/*
+ * For generic file uploading purposes
+ * Usage: <input type="file" file-upload="ingredient.image">
+ */
+app.directive('fileUpload', function() {
+  return {
+    restrict: 'EA',
+    scope: {
+      target: '='
+    },
+    link: function(scope, elem, attr) {
+      console.log('file upload directive', scope, elem);
+      elem.bind('change', function(event) {
+        attr.fileUpload = (event.srcElement || event.target).files[0];
+        console.log(attr.fileUpload);
+        console.log()
+      });
+    }
+  };
+
 });
 /*
 
@@ -2089,39 +2102,3 @@ app.directive('slideDisplay', function () {
 //     }
 //   };
 // });
-
-app.directive('avatarUpload', function() {
-  return {
-    restrict: 'EA',
-    link: function(scope, elem, attr) {
-      console.log('directive fileUpload scope\n', scope);
-      console.log('directive fileUpload elem\n', elem);
-      elem.bind('change', function(event) {
-          scope.user.avatar = event.target.files[0];
-          console.log(scope.user, event);
-      });
-    }
-
-  };
-
-});
-
-/*
- * For generic file uploading purposes
- * Usage: <input type="file" file-upload="ingredient.image">
- */
-app.directive('fileUpload', function() {
-  return {
-    restrict: 'A',
-    scope: {
-      target: '=fileUpload'
-    },
-    link: function(scope, elem, attr) {
-      elem.bind('change', function(event) {
-        target = event.target.files[0];
-        console.log(target);
-      });
-    }
-  };
-
-});
