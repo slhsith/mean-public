@@ -18,6 +18,16 @@
   </div>
 
   <div ng-hide="isContributor()" ng-repeat="item in items" ng-show="showproducts">
+          
+    <a ng-hide="item.type === 'dietplan' || item.type==='workoutplan' || item.type==='challenge'" href="#/item/{{item._id}}">Go to Item Page</a>
+    <a ng-if="item.type === 'dietplan'" ng-click="editItem(item)">Edit</a>
+    <!-- <a ng-if="item.type === 'DietPlan'" href="#/items/{{item._id}}/diet/">Go to Diet Page</a> -->
+    <a ng-if="item.type === 'challenge'" href="#/items/challenge/{{item._id}}">Go to Challenge Page</a>
+    <a ng-if="item.type === 'workoutplan'" href="#/items/workoutplan/{{item._id}}">Go to Workout Plan Page</a>
+
+  </div>
+
+  <div ng-hide="isContributor()" ng-repeat="item in items" ng-show="showproducts">
     <h4>  {{item.name}}
           {{item.price}}
           {{item.duration? item.duration + ',' : '' }}

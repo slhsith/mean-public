@@ -50,10 +50,15 @@
 
       <add-widget set="meal.recipes" options="addWidgetOptions['recipe']">
         <add-widget-items> 
-          {{recipe.name}}<br/>
-          {{recipe.yield}} Servings
+          {{item.name}}<br/>
+          {{item.yield}} Servings
         </add-widget-items>
-        <add-widget-form class="col-sm-6"></add-widget-form>
+        <add-widget-form class="col-sm-6">
+          <input class="col-sm-6" type="text" placeholder="Recipe" ng-model="item.name">
+          <div class="col-sm-6"><a ng-click="initRecipe()"><small>+ Create New Recipe</small></a></div>
+          <button class="btn btn-xs btn-default" ng-click="searchRecipes()"><i class="fa fa-search"></i></button>
+          <input type="text" placeholder="Servings" ng-model="item.yield">
+        </add-widget-form>
         <add-widget-plus class="col-sm-6"></add-widget-plus>
       </add-widget>
 
