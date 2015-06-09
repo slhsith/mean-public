@@ -1,13 +1,13 @@
 <div ng-show="isUser()">
 <!--   <div ng-show="isCurrentUser()"> -->
-    <div class="page-header" ng-if="isContributor()">
+    <div>
       <h3 class="text-center">Mean Starter</h3>
       <button class="btn-primary col-md-4">Create Post</button>
-      <a href="#/shop"><button class="btn-default col-md-4">Create Digital Item</button></a>
-      <a href="#/events"><button class="btn-default col-md-4">Create Event</button></a>
+      <a href="#/shop"><button class="page-header" ng-if="isContributor()" class="btn-default col-md-4">Create Digital Item</button></a>
+      <a href="#/events"><button class="btn-default class="page-header" ng-if="isContributor()" col-md-4">Create Event</button></a>
     </div>
 
-    <form ng-submit="addPost()" ng-show="isLoggedIn()" ng-if="isContributor()" style="margin-top:30px;">
+    <form ng-submit="addPost()" ng-show="isLoggedIn()" style="margin-top:30px;">
     <h3>Add a new post</h3>
       <div class="form-group">
         <input type="text"
@@ -41,7 +41,7 @@
       <a ng-href="#/shop">Shop</a>
   </div>
   <footer class="text-center" style="margin-top: 60px">
-    <a href="#/groups">Groups</a> || <a href="#/messenger">Messenger</a><span ng-if="isAdmin()"> || <a href="/admin/#/home">Administrator</a></span><br/>
+    <a href="#/groups">Groups</a> || <a href="#/messenger">Messenger</a> || <span ng-if="isAdmin()"><a href="/admin/#/home">Administrator</a></span><br/>
     You are logged in as {{ user.f_name }} {{ user.l_name}}. Not you? Click <a href="" ng-click="logOut()">here</a>.
   </footer>
 </div>

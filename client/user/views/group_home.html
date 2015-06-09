@@ -12,7 +12,7 @@
         <div>
           <span style="font-size:18px;">{{gpost.body}}</span>
           <span style="font-size:12px;">By {{gpost.author}}</span>
-          <form ng-show="isCurrentUser()" ng-if="isContributor()" ng-submit="addGcomment(gpost, gcomment)"
+          <form ng-if="isContributor()" ng-submit="addGcomment(gpost, gcomment)"
           style="margin-top:30px; border-top: 1px; border-style: solid; border-bottom:none; border-left: none; border-right:none; padding-top: 1px;  border-color: #eee">
             <div class="form-group">
             {{gpost}} {{gcomment}}
@@ -48,8 +48,7 @@
         </form>
         </div> -->
       </div>
-      <div ng-if="isCurrentUser()">
-       <div ng-show="isContributor()">
+      <div ng-if="isUser()">
           <form ng-show="view" ng-submit="addGcomment()"
           style="margin-top:30px; border-top: 1px; border-style: solid; border-bottom:none; border-left: none; border-right:none; padding-top: 1px;  border-color: #eee">
             <div class="form-group">

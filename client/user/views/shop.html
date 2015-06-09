@@ -10,7 +10,7 @@
   <button class="btn-default col-sm-12" ng-init="showproducts=false"
     ng-click="showproducts = !showproducts">Show/hide Items</button>
           
-  <div ng-hide="isContributor()" class="col-sm-12" ng-repeat="item in items" ng-show="showproducts">
+  <div class="col-sm-12" ng-repeat="item in items" ng-show="showproducts">
     <h4>{{ item.name }} | 
         {{ item.price }}
         {{ item.duration? '|' + item.duration : '' }}
