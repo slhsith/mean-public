@@ -1,8 +1,8 @@
 <h3>{{item.name}} ({{item.type}})</h3>
-<table class="table" ng-show="item.type==='WorkoutPlan'">
+<table class="table">
   <tr>
   	<td>Trainer</td>
-    <td>{{item.creator.username}}</td>
+    <td>{{item.creator.username}}</td> <!-- FOR LATER WE NEED F_NAME AND L_NAME-->
   </tr>
   <tr>
     <td>Price</td>
@@ -13,15 +13,7 @@
     <td>{{item.type}}</td>
   </tr>
   <tr>
-  	<td>Address</td> 
-    <td>{{user.address}}</td>
-  </tr>
-  <tr>
-  	<td>Date of Birth</td> 
-    <td>{{user.dob}}</td>
-  </tr>
-  <tr>
-  	<td>Handle</td> 
-    <td>{{user.handle}}</td>
+  	<td>Description</td> 
+    <td>{{item.description}}</td>
   </tr>
 </table>

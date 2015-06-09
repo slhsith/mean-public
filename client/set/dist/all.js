@@ -78,7 +78,7 @@ function($stateProvider, $urlRouterProvider, GoogleMapApi) {
         }
       }
     });
-  $urlRouterProvider.otherwise('home');
+  // $urlRouterProvider.otherwise('home');
 }]);
 /*  -----------------  *
     CONTROLLERS - SET
@@ -148,7 +148,7 @@ app.controller('UserCtrl', function ($scope, users, $stateParams, userPromise, a
   $scope.isFollowing = auth.isFollowing;
 });
 
-app.controller('ItemCtrl', function ($scope, items, $stateParams, itemPromise, auth) {
+app.controller('ItemCtrl', function ($scope, items, itemPromise, auth) {
   $scope.item = itemPromise.data;
 });
 
@@ -215,10 +215,11 @@ app.factory('items', function ($http, $window) {
     items:[]
   };
   i.get = function (item) {
-    return $http.get('/api/item' + item).success(function(data){
-      return data;
+    return $http.get('/api/item/' + item).then(function(res){
+      return res;
     });
   };
+  return i;
 }); 
 
 // AUTH
