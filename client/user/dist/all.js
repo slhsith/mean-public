@@ -1,8 +1,12 @@
 /*  -----------------  *
     APP MODULE - USER 
  *  -----------------  */
-var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
-// var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
+var app = angular.module('mainApp', [
+  'ui.router',
+  'templates',
+  'ngFileUpload',
+  'btford.socket-io'
+]);
 
 app.config([
 '$stateProvider',
@@ -268,6 +272,7 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
   };
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 
 });
@@ -304,57 +309,17 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   };
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 });
-app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 
-  $scope.items = items.items;
-  $scope.addItem = function() {
-    items.create($scope.item).success(function(data){
-      console.log('success');
-      $scope.items = items.items;
-      $scope.item = new Item();
-      console.log(data);
-   }).error(function(){
-       console.log('failure');
-   });
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
-   // mixpanel.track("Shop Page: Added Item");
- };
-
-   $scope.itemTitles = {
-    workoutplan: 'Workout Plan',
-    dietplan: 'Diet Plan',
-    book: 'Book',
-    video: 'Video',
-    podcast: 'Podcast',
-    bootcamp: 'Bootcamp',
-    challenge: 'Online Challenge'
-   };
-
-  $scope.incrementUpvotes = function(item){
-    items.upvoteItem(item);
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
-    // mixpanel.track("Shop Page: Upvoted Comment");
-  };  
-
-  $scope.editItem = function(item) {
-    $scope.item = item;
-  };
-
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isUser = auth.isUser;
-});
 
 
 app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
 
   $scope.items = items.items;
   $scope.item = itemPromise.data;
+
   item = itemPromise;
   $scope.deleteItem = function () {
     console.log('delete', $scope.item._id);
@@ -378,8 +343,6 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Items Page: Upvoted Comment");
   };
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isUser = auth.isUser;
   $scope.addPlan = function() {
     items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
       console.log('success');
@@ -388,6 +351,9 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
        console.log('failure');
    });
   };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
 });
 
 app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
@@ -428,6 +394,7 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions, itemPro
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 });
 
@@ -444,19 +411,21 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Languange",{"area":"settings", "page":"settings", "action":"add"});
   };
+
   $scope.updateSettings = function() {
     console.log($scope.user);
     settings.update($scope.user);
-    settings.uploadAvatar($scope.user.avatar);
-    console.log($scope.user.avatar);
+    if ($scope.user.avatar.length) {
+      settings.uploadAvatar($scope.user);
+    }
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings update",{"area":"settings", "page":"settings", "action":"update"});
     // mixpanel.track("Settings: Update User");
   };
-  $scope.user = userPromise.data;
-  console.log(userPromise);
+  $scope.user = userPromise;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
   $scope.isThisUser = auth.isThisUser;
 });
@@ -475,6 +444,7 @@ function ($scope, groups, auth) {
   $scope.group = '';
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 });
 
@@ -511,6 +481,7 @@ function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
     console.log(gpost._id, gcomment);
   };
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
   
   // $scope.addComment = function(){
@@ -555,6 +526,7 @@ function($scope, $stateParams, gposts, gcomments, auth){
   };
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 }]);
 
@@ -647,10 +619,10 @@ app.factory('items', function($http, auth){
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
+    }).then(function(res) {
       // base item data comes back from API, extend it with
       // the item's original submitted descriptive parameters
-      var extendedItem = angular.extend(data, item);
+      var extendedItem = angular.extend(res.data, item);
       o.items.push(extendedItem);
       // will be added to the appropriate service object subarray
       // based on submitted type
@@ -866,7 +838,7 @@ app.factory('auth', function($http, $window){
       }
     };
     auth.isThisUser = function() {
-      if(auth.isLoggedIn()){
+      if (auth.isLoggedIn()) {
         var token = auth.getToken();
         var payload = JSON.parse($window.atob(token.split('.')[1]));
 
@@ -879,7 +851,7 @@ app.factory('auth', function($http, $window){
       if(token){
        var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-        return payload.permissions === 'User' || 'Admin' || 'Contributor';
+        return payload.permissions === 'User' || 'Contributor' || 'Admin';
       } else {
         return false;
       }
@@ -890,7 +862,7 @@ app.factory('auth', function($http, $window){
       if(token){
        var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-        return payload.permissions === 'Admin' || 'Contributor';
+        return payload.permissions === 'Contributor' || 'Admin';
       } else {
         return false;
       }
@@ -945,37 +917,65 @@ app.factory('languages', ['$http', '$window', function($http, $window){
 
 // SETTINGS
 
-app.factory('settings', function ($http, $window) {
+app.factory('settings', function ($http, $window, auth) {
+
    var s = { settings : {} };
-   s.getAll = function (){
-    return $http.get('/api/settings').success(function(data){
-      angular.copy(data, s.settings);
+
+  s.getAll = function () {
+    return $http.get('/api/settings').then(function(res){
+      angular.copy(res.data, s.settings);
     });
-   };
-   s.update = function (user){
+  };
+
+  s.update = function (user) {
     console.log('updating user', user);
-    return $http.put('/api/settings', user).success(function(data){
-        s.settings = data;
+    return $http.put('/api/settings', user).then(function(res){
+      s.settings = res.data;
+    });
+  };
+
+  /*  1  get signed_request
+   *  2  put from client -> aws
+   *  3  send success back to back_end so it can put an update to filename & save to user
+   */
+  s.uploadAvatar = function (user) {
+    // file uploader is an array
+    user.avatar = user.avatar[0];
+
+    return $http.get('/api/user/' + user._id + '/avatar?name=' + user.avatar.name + '&type=' + user.avatar.type).then(function(res) {
+      return $http.put(res.data.signed_request, user.avatar, {
+        headers: { 
+          'x-amz-acl': 'public-read', 
+          'x-amz-meta-userid': user._id,
+          'x-amz-meta-role': 'avatar',
+          'Content-Type': user.avatar.type,
+        }
       });
-   };
-   s.uploadAvatar = function (avatar){
-     return $http.get('/api/signedrequest?name='+avatar.name+'&type='+avatar.type).then(function(res) {
-       console.log(res.data);
-       return $http.put(res.data.signed_request, avatar, {
-        Header: { 'x-amz-acl': 'public-read'}
-       }).then(function(res){
-        console.log(res.data);
-       }).catch(function(err) {
-        console.log(err); 
-       });
-     }); 
-   };
-   s.get = function (handle) {
-     return $http.get('/api/user/handle/' + handle).success(function(data){
-       console.log(data);
-       return data;
-     });
-   };
+    })
+    .then(function(res){
+      console.log('amazon putObject result', res);
+      var req = {
+        filename: user.avatar.name, 
+        headers: res.headers()
+      };
+      return $http.put('/api/user/' + user._id + '/avatar', req, {
+        headers: { 'Authorization': 'Bearer '+auth.getToken() }
+      }); 
+    }).then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      console.log(err); 
+      return err;
+    }); 
+  };
+
+  s.get = function (handle) {
+    return $http.get('/api/user/handle/' + handle).then(function(res){
+      console.log('user by handle', res.data);
+      return res.data;
+    });
+  };
+
    return s;
 });
 
@@ -985,8 +985,8 @@ app.factory('users', function ($http, $window, auth) {
   var u = { users: [], user: {} };
 
   u.getAll = function() {
-    return $http.get('/api/users').success(function(data) {
-      angular.copy(data, u.users);
+    return $http.get('/api/users').then(function(res) {
+      angular.copy(res.data, u.users);
     });
   };
 
@@ -997,27 +997,23 @@ app.factory('users', function ($http, $window, auth) {
   };
 
   u.search = function(query) {
-    return $http.get('/api/users/search/' + query).success(function(data) {
-      return data;
-    });
-  };
-  u.get = function (id) {
-    return $http.get('/api/user/' + id).success(function(data){
-      console.log(data);
-      return data;
-    });
-  };
-  u.update = function (user){
-    console.log('updating user', user);
-    return $http.put('/api/settings', user).success(function(data){
-        u.users = data;
+    return $http.get('/api/users/search/' + query).then(function(res) {
+      return res.data;
     });
   };
 
   u.get = function (id) {
-    return $http.get('/api/user/' + id).success(function(data){
-      u.user = data;
-      return data;
+    return $http.get('/api/user/' + id).then(function(res){
+      console.log('user get', res.data);
+      return res.data;
+    });
+  };
+
+  u.update = function (user){
+    console.log('updating user', user);
+    return $http.put('/api/settings', user).then(function(res){
+      // u.users = res.data;
+      return res.data;
     });
   };
 
@@ -1456,16 +1452,82 @@ app.factory('messageSocket', function(socketFactory) {
   
   return socket;
 });
+app.controller('ShopCtrl', function ($scope, items, Item, auth) {
+
+  $scope.isAdmin       = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser        = auth.isUser;
+  $scope.items         = items.items;
+
+  // for purposes of capitalized and well spaced display from item.type field
+  $scope.itemTitles = {
+    workoutplan : 'Workout Plan',
+    dietplan    : 'Diet Plan',
+
+    bootcamp    : 'Bootcamp',
+    challenge   : 'Online Challenge',
+
+    book        : 'Book',
+    podcast     : 'Podcast',
+    video       : 'Video'
+  };
+
+  // Initialize a brand new item from constructor
+  $scope.initItem = function(type) {
+    $scope.item = new Item(type);
+  };
+
+  // CREATE-POST new item
+  $scope.addItem = function() {
+    items.create($scope.item)
+    .then(function(data){
+      console.log('success');
+      $scope.items = items.items;
+      $scope.item = new Item();
+      console.log(data);
+     }).catch(function(){
+         console.log('failure');
+     });
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
+   // mixpanel.track("Shop Page: Added Item");
+  };
+
+  // PUT UPDATES - 
+  // Initialize the edit state -- ultimate save will be in the directive that
+  // handles the item type
+
+  $scope.isMine = function(item) {
+    return item.creator._id === $scope.user._id;
+  };
+
+  $scope.editItem = function(item) {
+    $scope.item = item;
+  };
+
+  // for upvoting
+  $scope.incrementUpvotes = function(item){
+    items.upvoteItem(item);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
+    // mixpanel.track("Shop Page: Upvoted Comment");
+  };  
+
+
+});
+
 app.factory('Item', function() {
 
-  var ItemConstructor = function ItemConstructor () {
+  var ItemConstructor = function ItemConstructor (type) {
     this.name         = null;
     this.creator      = { username: null, _id: null };
 
     this.price        = null;
     this.upvotes      = null;
 
-    this.type         = null;
+    this.type         = type || null;
   };
 
   return ItemConstructor;
@@ -1857,22 +1919,17 @@ app.directive('addWidget', function () {
     scope: {
       set: '=',
       options: '=', // array with fields and styling options objects
-      // save: '&',
-      // init: '&'
     },
     transclude: true,
     controller: 'addWidgetCtrl',
-    template: '<div class="col-sm-12"><div>{{options}}</div></div>',
+    template: '<div class="col-sm-12"></div>',
     link: function(scope, elem, attr, ctrl, transclude) {
       transclude(scope, function(clone) {
-        console.log(clone);
-        element.append(clone);
+        elem.append(clone);
       });
     }
   };
 });
-
-
 
 
 // ------------ ITEM REPEATS
@@ -1900,15 +1957,13 @@ app.directive('addWidgetItems', function () {
 app.directive('addWidgetForm', function () {
 
   var tpl = '<div style="border: 1px solid #999" title="New {{item_type}}">'+
-                '<div class="col-sm-2"><i class="fa fa-2x fa-photo"></i></div>'+
+                '<div class="col-sm-2">'+
+                  '<input type="file" file-upload="item.image">'+
+                  '<img ng-if="item.image" ng-src="item.image" style="max-width: 100px">'+
+                '</div>'+
                 '<div class="col-sm-10">'+
-                  '<span ng-transclude></span>'+
-                  '<input class="col-sm-{{options.searchable? \'8\' : \'12\'}}" type="text" placeholder="options.name" ng-model="item.name" ng-show="!!options.name">'+
-                  '<button class="btn-sm col-sm-4" ng-click="search()" ng-if="options.search">'+
-                    '<i class="fa fa-search"></i>'+
-                  '</button>'+
-                  '<input ng-class="field.class" type="text" ng-repeat="field in options.fields" placeholder="{{field.field}}" ng-model="item[field.field]">'+
-                  '<button class="form-control btn-xs" ng-click="save()"><i class="fa fa-floppy-o"></i></button>'+
+                  '<ng-transclude></ng-transclude>'+
+                  '<button class="btn btn-xs btn-default" ng-click="save()"><i class="fa fa-floppy-o"></i></button>'+
                 '</div>'+
              '</div>';
 
@@ -1916,14 +1971,8 @@ app.directive('addWidgetForm', function () {
     restrict: 'E', 
     require: '^addWidget',
     transclude: true,
-    replace: true,
     template: tpl,
-    link: function(scope, element, attrs, ctrl) {
-      // scope.$watch(scope.$parent.options, function(newVal) {
-        // console.log(newVal);
-        // scope.options = newVal;
-      // });
-    }
+    link: function(scope, element, attrs, ctrl) {}
   };
 });
 
@@ -1933,7 +1982,7 @@ app.directive('addWidgetForm', function () {
 
 // ------------ PLUS BUTTON
 app.directive('addWidgetPlus', function () {
-  var tpl = '<div class="text-center" style="height: 50px; border: 1px solid #999" title="Add {{item_type}}">'+
+  var tpl = '<div class="text-center" style="height: 50px; line-height: 57px; border: 1px solid #999" title="Add {{item_type}}">'+
             '<i class="fa fa-2x fa-plus"></i> {{item_type}}'+
             '</div>';
 
@@ -1941,7 +1990,6 @@ app.directive('addWidgetPlus', function () {
     restrict: 'E', 
     require: '^addWidget',
     template: tpl,
-    replace: true,
     link: function(scope, element, attrs, ctrl) {
       element.bind('click', function() {
         scope.$apply(scope.$parent.options.init());
@@ -2040,18 +2088,43 @@ app.directive('slideDisplay', function () {
 //   };
 // });
 
-app.directive('fileUpload', function() {
+app.directive('avatarUpload', function() {
   return {
-  	restrict: 'EA',
-  	link: function(scope, elem, attr) {
-  		console.log('directive fileUpload scope\n', scope);
-  		console.log('directive fileUpload elem\n', elem);
-  		elem.bind('change', function(event) {
+    restrict: 'EA',
+    link: function(scope, elem, attr) {
+      console.log('directive fileUpload scope\n', scope);
+      console.log('directive fileUpload elem\n', elem);
+      elem.bind('change', function(event) {
           scope.user.avatar = event.target.files[0];
+          var ext = '.' + scope.user.avatar.name.split('.').pop();
+          scope.user.avatar.name = 'user_avatar_' + scope.user._id + '_' +
+                                    new Date().getTime() + ext;
           console.log(scope.user, event);
-  		});
-  	}
+      });
+    }
 
   };
 
 });
+
+/*
+ * For generic file uploading purposes
+ * Usage: <input type="file" file-upload="ingredient.image">
+//  */
+// app.directive('fileUpload', function() {
+//   return {
+//     restrict: 'EA',
+//     scope: {
+//       target: '='
+//     },
+//     link: function(scope, elem, attr) {
+//       console.log('file upload directive', scope, elem);
+//       elem.bind('change', function(event) {
+//         attr.fileUpload = (event.srcElement || event.target).files[0];
+//         console.log(attr.fileUpload);
+//         console.log();
+//       });
+//     }
+//   };
+
+// });

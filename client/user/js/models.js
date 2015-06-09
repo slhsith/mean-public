@@ -86,10 +86,10 @@ app.factory('items', function($http, auth){
   o.create = function(item) {
     return $http.post('/api/items', item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
+    }).then(function(res) {
       // base item data comes back from API, extend it with
       // the item's original submitted descriptive parameters
-      var extendedItem = angular.extend(data, item);
+      var extendedItem = angular.extend(res.data, item);
       o.items.push(extendedItem);
       // will be added to the appropriate service object subarray
       // based on submitted type
@@ -305,7 +305,7 @@ app.factory('auth', function($http, $window){
       }
     };
     auth.isThisUser = function() {
-      if(auth.isLoggedIn()){
+      if (auth.isLoggedIn()) {
         var token = auth.getToken();
         var payload = JSON.parse($window.atob(token.split('.')[1]));
 
@@ -318,7 +318,7 @@ app.factory('auth', function($http, $window){
       if(token){
        var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-        return payload.permissions === 'User' || 'Admin' || 'Contributor';
+        return payload.permissions === 'User' || 'Contributor' || 'Admin';
       } else {
         return false;
       }
@@ -329,7 +329,7 @@ app.factory('auth', function($http, $window){
       if(token){
        var payload = JSON.parse($window.atob(token.split('.')[1]));
 
-        return payload.permissions === 'Admin' || 'Contributor';
+        return payload.permissions === 'Contributor' || 'Admin';
       } else {
         return false;
       }
@@ -384,37 +384,65 @@ app.factory('languages', ['$http', '$window', function($http, $window){
 
 // SETTINGS
 
-app.factory('settings', function ($http, $window) {
+app.factory('settings', function ($http, $window, auth) {
+
    var s = { settings : {} };
-   s.getAll = function (){
-    return $http.get('/api/settings').success(function(data){
-      angular.copy(data, s.settings);
+
+  s.getAll = function () {
+    return $http.get('/api/settings').then(function(res){
+      angular.copy(res.data, s.settings);
     });
-   };
-   s.update = function (user){
+  };
+
+  s.update = function (user) {
     console.log('updating user', user);
-    return $http.put('/api/settings', user).success(function(data){
-        s.settings = data;
+    return $http.put('/api/settings', user).then(function(res){
+      s.settings = res.data;
+    });
+  };
+
+  /*  1  get signed_request
+   *  2  put from client -> aws
+   *  3  send success back to back_end so it can put an update to filename & save to user
+   */
+  s.uploadAvatar = function (user) {
+    // file uploader is an array
+    user.avatar = user.avatar[0];
+
+    return $http.get('/api/user/' + user._id + '/avatar?name=' + user.avatar.name + '&type=' + user.avatar.type).then(function(res) {
+      return $http.put(res.data.signed_request, user.avatar, {
+        headers: { 
+          'x-amz-acl': 'public-read', 
+          'x-amz-meta-userid': user._id,
+          'x-amz-meta-role': 'avatar',
+          'Content-Type': user.avatar.type,
+        }
       });
-   };
-   s.uploadAvatar = function (avatar){
-     return $http.get('/api/signedrequest?name='+avatar.name+'&type='+avatar.type).then(function(res) {
-       console.log(res.data);
-       return $http.put(res.data.signed_request, avatar, {
-        Header: { 'x-amz-acl': 'public-read'}
-       }).then(function(res){
-        console.log(res.data);
-       }).catch(function(err) {
-        console.log(err); 
-       });
-     }); 
-   };
-   s.get = function (handle) {
-     return $http.get('/api/user/handle/' + handle).success(function(data){
-       console.log(data);
-       return data;
-     });
-   };
+    })
+    .then(function(res){
+      console.log('amazon putObject result', res);
+      var req = {
+        filename: user.avatar.name, 
+        headers: res.headers()
+      };
+      return $http.put('/api/user/' + user._id + '/avatar', req, {
+        headers: { 'Authorization': 'Bearer '+auth.getToken() }
+      }); 
+    }).then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      console.log(err); 
+      return err;
+    }); 
+  };
+
+  s.get = function (handle) {
+    return $http.get('/api/user/handle/' + handle).then(function(res){
+      console.log('user by handle', res.data);
+      return res.data;
+    });
+  };
+
    return s;
 });
 
@@ -424,8 +452,8 @@ app.factory('users', function ($http, $window, auth) {
   var u = { users: [], user: {} };
 
   u.getAll = function() {
-    return $http.get('/api/users').success(function(data) {
-      angular.copy(data, u.users);
+    return $http.get('/api/users').then(function(res) {
+      angular.copy(res.data, u.users);
     });
   };
 
@@ -436,27 +464,23 @@ app.factory('users', function ($http, $window, auth) {
   };
 
   u.search = function(query) {
-    return $http.get('/api/users/search/' + query).success(function(data) {
-      return data;
-    });
-  };
-  u.get = function (id) {
-    return $http.get('/api/user/' + id).success(function(data){
-      console.log(data);
-      return data;
-    });
-  };
-  u.update = function (user){
-    console.log('updating user', user);
-    return $http.put('/api/settings', user).success(function(data){
-        u.users = data;
+    return $http.get('/api/users/search/' + query).then(function(res) {
+      return res.data;
     });
   };
 
   u.get = function (id) {
-    return $http.get('/api/user/' + id).success(function(data){
-      u.user = data;
-      return data;
+    return $http.get('/api/user/' + id).then(function(res){
+      console.log('user get', res.data);
+      return res.data;
+    });
+  };
+
+  u.update = function (user){
+    console.log('updating user', user);
+    return $http.put('/api/settings', user).then(function(res){
+      // u.users = res.data;
+      return res.data;
     });
   };
 

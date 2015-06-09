@@ -62,6 +62,7 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
   };
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 
 });
@@ -98,57 +99,17 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   };
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 });
-app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 
-  $scope.items = items.items;
-  $scope.addItem = function() {
-    items.create($scope.item).success(function(data){
-      console.log('success');
-      $scope.items = items.items;
-      $scope.item = new Item();
-      console.log(data);
-   }).error(function(){
-       console.log('failure');
-   });
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
-   // mixpanel.track("Shop Page: Added Item");
- };
-
-   $scope.itemTitles = {
-    workoutplan: 'Workout Plan',
-    dietplan: 'Diet Plan',
-    book: 'Book',
-    video: 'Video',
-    podcast: 'Podcast',
-    bootcamp: 'Bootcamp',
-    challenge: 'Online Challenge'
-   };
-
-  $scope.incrementUpvotes = function(item){
-    items.upvoteItem(item);
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
-    // mixpanel.track("Shop Page: Upvoted Comment");
-  };  
-
-  $scope.editItem = function(item) {
-    $scope.item = item;
-  };
-
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isUser = auth.isUser;
-});
 
 
 app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
 
   $scope.items = items.items;
   $scope.item = itemPromise.data;
+
   item = itemPromise;
   $scope.deleteItem = function () {
     console.log('delete', $scope.item._id);
@@ -172,8 +133,6 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
     mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
     // mixpanel.track("Items Page: Upvoted Comment");
   };
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isUser = auth.isUser;
   $scope.addPlan = function() {
     items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
       console.log('success');
@@ -182,6 +141,9 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
        console.log('failure');
    });
   };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
 });
 
 app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
@@ -222,6 +184,7 @@ app.controller('TransCtrl', function ($scope, items, auth, transactions, itemPro
     // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
   };
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 });
 
@@ -238,19 +201,21 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Languange",{"area":"settings", "page":"settings", "action":"add"});
   };
+
   $scope.updateSettings = function() {
     console.log($scope.user);
     settings.update($scope.user);
-    settings.uploadAvatar($scope.user.avatar);
-    console.log($scope.user.avatar);
+    if ($scope.user.avatar.length) {
+      settings.uploadAvatar($scope.user);
+    }
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings update",{"area":"settings", "page":"settings", "action":"update"});
     // mixpanel.track("Settings: Update User");
   };
-  $scope.user = userPromise.data;
-  console.log(userPromise);
+  $scope.user = userPromise;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
   $scope.isThisUser = auth.isThisUser;
 });
@@ -269,6 +234,7 @@ function ($scope, groups, auth) {
   $scope.group = '';
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 });
 
@@ -305,6 +271,7 @@ function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
     console.log(gpost._id, gcomment);
   };
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
   
   // $scope.addComment = function(){
@@ -349,6 +316,7 @@ function($scope, $stateParams, gposts, gcomments, auth){
   };
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 }]);
 

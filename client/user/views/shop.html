@@ -1,4 +1,5 @@
 <div ng-show="isUser()">
+  
   <div class="page-header">
     <h3 class="text-center">Mean Starter</h3>
     <a href="#/home"><button class="btn-default col-sm-4">Create Post</button></a>
@@ -6,41 +7,42 @@
     <a href="#/events"><button class="btn-default col-sm-4">Create Event</button></a>
   </div>
 
-  <button class="btn-default col-sm-12" ng-click="showproducts = !showproducts" ng-init="showproducts=false">Show/hide Items</button>
+  <button class="btn-default col-sm-12" ng-init="showproducts=false"
+    ng-click="showproducts = !showproducts">Show/hide Items</button>
           
-  <div ng-hide="isContributor()" ng-repeat="item in items" ng-show="showproducts">          
-    <a ng-hide="item.type === 'dietplan' || item.type==='workoutplan' || item.type==='challenge'" href="#/item/{{item._id}}">Go to Item Page</a>
-    <a ng-if="item.type === 'dietplan'" ng-click="editItem(item)">Edit</a>
-    <!-- <a ng-if="item.type === 'DietPlan'" href="#/items/{{item._id}}/diet/">Go to Diet Page</a> -->
-    <a ng-if="item.type === 'challenge'" href="#/items/challenge/{{item._id}}">Go to Challenge Page</a>
-    <a ng-if="item.type === 'workoutplan'" href="#/items/workoutplan/{{item._id}}">Go to Workout Plan Page</a>
-
-  </div>
-
-  <div ng-hide="isContributor()" ng-repeat="item in items" ng-show="showproducts">
-    <h4>  {{item.name}}
-          {{item.price}}
-          {{item.duration? item.duration + ',' : '' }}
-          {{item.genre? item.genre + ',' : '' }}
+  <div ng-hide="isContributor()" class="col-sm-12" ng-repeat="item in items" ng-show="showproducts">
+    <h4>{{ item.name }} | 
+        {{ item.price }}
+        {{ item.duration? '|' + item.duration : '' }}
+        {{ item.genre?    '|' + item.genre    : '' }} 
+        {{ item.category? '|' + item.category : '' }}
     </h4>
           
-    <a ng-hide="item.type === 'dietplan' || item.type==='workoutplan' || item.type==='challenge'" href="#/items/{{item._id}}">Go to Item Page</a>
-    <a ng-if="item.type === 'challenge'" href="#/items/challenge/{{item._id}}">Go to Challenge Page</a>
-    <a ng-if="item.type === 'workoutplan'" href="#/items/workoutplan/{{item._id}}">Go to Workout Plan Page</a>
+    <a ng-if="item.type === 'video' || item.type==='podcast' || item.type==='book'" 
+      href="#/items/{{item._id}}">Go to Item Page</a>
+    <a ng-if="item.type === 'dietplan'" 
+      href="#/items/dietplan/{{item._id}}">Go to DietPlan Page</a>
+    <a ng-if="item.type === 'challenge'" 
+      href="#/items/challenge/{{item._id}}">Go to Challenge Page</a>
+    <a ng-if="item.type === 'workoutplan'" 
+      href="#/items/workoutplan/{{item._id}}">Go to Workout Plan Page</a>
+
+    <span ng-if="isMine(item)">| <a ng-click="editItem(item)">Edit</a></span>
   </div>
 
   <div class="fb-like" data-href="https://developers.facebook.com/docs/plugins/" data-layout="standard" data-action="like" data-show-faces="false" data-share="false"></div>
 
+<div ng-if="isContributor()">
   <div class="col-sm-6">
     <span class="item-title">Create Digital Item</span><span class="item-title" ng-hide="item.type === null"> - {{itemTitles[item.type]}}</span></span>
   </div>
   <div class="col-sm-6 text-center">
     <span class="item-types">
-      <a ng-click="item.type = 'workoutplan'">Workout Plan</a> | 
-      <a ng-click="item.type = 'dietplan'">Diet Plan</a> | 
-      <a ng-click="item.type = 'book'">Book</a> | 
-      <a ng-click="item.type = 'video'">Video</a> | 
-      <a ng-click="item.type = 'podcast'">Podcast</a>
+      <a ng-click="initItem('workoutplan')">Workout Plan</a> | 
+      <a ng-click="initItem('dietplan')">Diet Plan</a> | 
+      <a ng-click="initItem('book')">Book</a> | 
+      <a ng-click="initItem('video')">Video</a> | 
+      <a ng-click="initItem('podcast')">Podcast</a>
     </span>
   </div>
 

@@ -67,6 +67,16 @@ function($stateProvider, $urlRouterProvider, GoogleMapApi) {
           return users.get($stateParams.handle);
         }
       }
+    })
+    .state('item', {
+      url: '/item/:item',
+      templateUrl: 'item.html',
+      controller: 'ItemCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          return items.get($stateParams.item);
+        }
+      }
     });
-  $urlRouterProvider.otherwise('home');
+  // $urlRouterProvider.otherwise('home');
 }]);

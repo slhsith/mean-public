@@ -53,13 +53,15 @@ passport.use(new FacebookStrategy({
     });
   }));
 
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
+passport.serializeUser(function(user, callback) {
+  callback(null, user._id);
 });
 
 passport.deserializeUser(function(id, done) {
-  User.findById(id, function(err, user) {
-    done(err, user);
+  User.findById({
+    _id: id
+  }, function(err, user) {
+    callback(err, user);
   });
 });  
 
