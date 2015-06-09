@@ -13,38 +13,42 @@
         <span> {{step.description}} ({{step.length}})</span>
         <hr>
       </div>
-    <form ng-submit="addStep()">
-        <input type="text"
-              class="form-control"
-              placeholder="Step Title"
-              ng-model="step.title"></input>
-        <input type="text"
-              class="form-control"
-              placeholder="Step Description"
-              ng-model="step.description"></input>
-        <input type="text"
-              class="form-control"
-              placeholder="Step Time Length"
-              ng-model="step.length"></input>
-        <div class="form-group">
-          <select ng-model="step.order">
-            <option value="">Order Number</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-          </select>
-        </div>
-       <div>
 
-      </div> 
-    <button type="submit" class="btn btn-primary">Post</button>
-    </form>
-    </h3>
-    <span>
+    <div ng-if="isContributor()">
+        <div ng-show="isCurrentUser()">
+            <form ng-submit="addStep()">
+                <input type="text"
+                      class="form-control"
+                      placeholder="Step Title"
+                      ng-model="step.title"></input>
+                <input type="text"
+                      class="form-control"
+                      placeholder="Step Description"
+                      ng-model="step.description"></input>
+                <input type="text"
+                      class="form-control"
+                      placeholder="Step Time Length"
+                      ng-model="step.length"></input>
+                <div class="form-group">
+                  <select ng-model="step.order">
+                    <option value="">Order Number</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                  </select>
+                </div>
+           <div>
+
+          </div> 
+        <button type="submit" class="btn btn-primary">Post</button>
+        </form>
+      </div>
+    </div>
+    <span ng-show="!isCurrentUser()">
       <a href="#/transactions">Buy Item</a>
     </span>
 </div>

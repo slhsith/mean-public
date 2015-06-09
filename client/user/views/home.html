@@ -1,13 +1,13 @@
 <div ng-show="isUser()">
-  <div ng-if="isContributor()">
-    <div class="page-header">
+<!--   <div ng-show="isCurrentUser()"> -->
+    <div class="page-header" ng-if="isContributor()">
       <h3 class="text-center">Mean Starter</h3>
       <button class="btn-primary col-md-4">Create Post</button>
       <a href="#/shop"><button class="btn-default col-md-4">Create Digital Item</button></a>
       <a href="#/events"><button class="btn-default col-md-4">Create Event</button></a>
     </div>
 
-    <form ng-submit="addPost()" ng-show="isLoggedIn()" style="margin-top:30px;">
+    <form ng-submit="addPost()" ng-show="isLoggedIn()" ng-if="isContributor()" style="margin-top:30px;">
     <h3>Add a new post</h3>
       <div class="form-group">
         <input type="text"
