@@ -17,6 +17,8 @@ var
 var AWS_ACCESS_KEY = config['AWS_ACCESS_KEY'];
 var AWS_SECRET_KEY = config['AWS_SECRET_KEY'];
 var S3_BUCKET = config['S3_BUCKET'];
+aws.config.update({accessKeyId: AWS_ACCESS_KEY, secretAccessKey: AWS_SECRET_KEY});
+var s3 = new aws.S3();
 
 
 // --- Exported Methods --- //
@@ -57,30 +59,30 @@ exports.updateSettings = function (req, res, next) {
 };
 
 //s3
-exports.sign_s3 = function (req, res, next) {
-  aws.config.update({accessKeyId: AWS_ACCESS_KEY , secretAccessKey: AWS_SECRET_KEY });
-  var s3 = new aws.S3(); 
-  var s3_params = { 
-      Bucket: S3_BUCKET, 
-      Key: req.query.file_name, 
-      Expires: 60, 
-      ContentType: req.query.file_type, 
-      ACL: 'public-read'
-  }; 
-  s3.getSignedUrl('putObject', s3_params, function(err, data){ 
-      if(err){ 
-          console.log(err); 
-      }
-      else{ 
-          var return_data = {
-              signed_request: data,
-              url: 'https://'+S3_BUCKET+'.s3.amazonaws.com/'+req.query.file_name 
-          };
-          res.write(JSON.stringify(return_data));
-          res.end();
-      } 
-  });
-}
+// exports.sign_s3 = function (req, res, next) {
+//   aws.config.update({accessKeyId: AWS_ACCESS_KEY , secretAccessKey: AWS_SECRET_KEY });
+//   var s3 = new aws.S3(); 
+//   var s3_params = { 
+//       Bucket: S3_BUCKET, 
+//       Key: req.query.file_name, 
+//       Expires: 60, 
+//       ContentType: req.query.file_type, 
+//       ACL: 'public-read'
+//   }; 
+//   s3.getSignedUrl('putObject', s3_params, function(err, data){ 
+//       if(err){ 
+//           console.log(err); 
+//       }
+//       else{ 
+//           var return_data = {
+//               signed_request: data,
+//               url: 'https://'+S3_BUCKET+'.s3.amazonaws.com/'+req.query.file_name 
+//           };
+//           res.write(JSON.stringify(return_data));
+//           res.end();
+//       } 
+//   });
+// }
 
 //search
 
@@ -156,27 +158,68 @@ exports.addFollower = function (req, res, next) {
      res.json(user);
     });
   });
-}
+};
 
 //s3
-exports.signRequest = function (req, res, next) {
-  console.log('sign request');
-  aws.config.update({accessKeyId: AWS_ACCESS_KEY, secretAccessKey: AWS_SECRET_KEY});
-    var s3 = new aws.S3();
-    var s3_params = {
-        Bucket: S3_BUCKET,
-        Key: req.query.name,
-        Expires: 180,
-        ContentType: req.query.type,
-        ACL: 'public-read'
+exports.signedRequestForAvatar = function (req, res, next) {
+  console.log('sign request for', req.query);
+  var avatar = req.query;
+
+  var s3_params = {
+    Bucket: S3_BUCKET,
+    Key: 'images/avatar/' + avatar.name,
+    Expires: 120,
+    ContentType: avatar.type,
+    ACL: 'public-read',
+    Metadata: { 'userid': req.params.id, role: 'avatar' }
+  };
+  s3.getSignedUrl('putObject', s3_params, function(err, data){
+    if(err){ return next(err); }
+    console.log(data);
+
+    var return_data = {
+      signed_request: data,
+      url: 'https://'+S3_BUCKET+'.s3.amazonaws.com/'+avatar.name
     };
-    s3.getSignedUrl('putObject', s3_params, function(err, data){
-      if(err){ return next(err); }
-      console.log(data);
-      var return_data = {
-          signed_request: data,
-          url: 'https://'+S3_BUCKET+'.s3.amazonaws.com/'+req.query.name
-      };
-      res.json(return_data);
-    });
-}
+    res.json(return_data);
+  });
+};
+
+exports.updateAvatarSuccess = function(req, res, next) {
+  console.log('successful upload for ' + req.payload.f_name + ' ' + req.body._id, req.body.filename, req.body.headers);
+  var new_avatar_name = req.body.filename;
+  // need to rename file in aws
+  // need to update User object in mongo
+  // respond with ultimate URL so we can preview it over in front end
+  var extension = '.' + new_avatar_name.split('.').pop();
+  new_avatar_name = req.payload.l_name + '_' + req.payload.f_name +
+   '_' + req.params.id + '_' + new Date().getTime() + extension;
+  console.log('avatar to change to key', new_avatar_name);
+  var s3_params = {
+    Bucket: S3_BUCKET,
+    CopySource: S3_BUCKET + '/images/avatar/' + req.body.filename,
+    Key: 'images/avatar/' + new_avatar_name,
+    ACL: 'public-read'
+    // MetadataDirective: 'COPY'
+  };
+  s3.copyObject(s3_params, function(err, data){
+    if(err){ return next(err); }
+    console.log('copyObject data result', data); // data.CopyObjectResult.ETag to be compared
+    var url = 'https://'+S3_BUCKET+'.s3.amazonaws.com/images/avatar/'+new_avatar_name;
+    if (data.ETag === req.body.headers.etag) {
+      console.log('matching ETags!');
+      var deleteOrigFile = s3.deleteObject({
+        Bucket: S3_BUCKET,
+        Key: S3_BUCKET + '/images/avatar/' + req.body.filename });
+      deleteOrigFile.send();
+
+      User.findByIdAndUpdate(req.params.id, 
+        {$set: {avatar_url: url} }, 
+        {new: true}, 
+        function(err, user) {
+          if (err) return next(err);
+          res.json(user);
+      });
+    }
+  });
+};

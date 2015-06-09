@@ -411,18 +411,19 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Languange",{"area":"settings", "page":"settings", "action":"add"});
   };
+
   $scope.updateSettings = function() {
     console.log($scope.user);
     settings.update($scope.user);
-    settings.uploadAvatar($scope.user.avatar);
-    console.log($scope.user.avatar);
+    if ($scope.user.avatar.length) {
+      settings.uploadAvatar($scope.user);
+    }
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings update",{"area":"settings", "page":"settings", "action":"update"});
     // mixpanel.track("Settings: Update User");
   };
-  $scope.user = userPromise.data;
-  console.log(userPromise);
+  $scope.user = userPromise;
   $scope.isAdmin = auth.isAdmin;
   $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
@@ -837,7 +838,7 @@ app.factory('auth', function($http, $window){
       }
     };
     auth.isThisUser = function() {
-      if(auth.isLoggedIn()){
+      if (auth.isLoggedIn()) {
         var token = auth.getToken();
         var payload = JSON.parse($window.atob(token.split('.')[1]));
 
@@ -916,37 +917,65 @@ app.factory('languages', ['$http', '$window', function($http, $window){
 
 // SETTINGS
 
-app.factory('settings', function ($http, $window) {
+app.factory('settings', function ($http, $window, auth) {
+
    var s = { settings : {} };
-   s.getAll = function (){
-    return $http.get('/api/settings').success(function(data){
-      angular.copy(data, s.settings);
+
+  s.getAll = function () {
+    return $http.get('/api/settings').then(function(res){
+      angular.copy(res.data, s.settings);
     });
-   };
-   s.update = function (user){
+  };
+
+  s.update = function (user) {
     console.log('updating user', user);
-    return $http.put('/api/settings', user).success(function(data){
-        s.settings = data;
+    return $http.put('/api/settings', user).then(function(res){
+      s.settings = res.data;
+    });
+  };
+
+  /*  1  get signed_request
+   *  2  put from client -> aws
+   *  3  send success back to back_end so it can put an update to filename & save to user
+   */
+  s.uploadAvatar = function (user) {
+    // file uploader is an array
+    user.avatar = user.avatar[0];
+
+    return $http.get('/api/user/' + user._id + '/avatar?name=' + user.avatar.name + '&type=' + user.avatar.type).then(function(res) {
+      return $http.put(res.data.signed_request, user.avatar, {
+        headers: { 
+          'x-amz-acl': 'public-read', 
+          'x-amz-meta-userid': user._id,
+          'x-amz-meta-role': 'avatar',
+          'Content-Type': user.avatar.type,
+        }
       });
-   };
-   s.uploadAvatar = function (avatar){
-     return $http.get('/api/signedrequest?name='+avatar.name+'&type='+avatar.type).then(function(res) {
-       console.log(res.data);
-       return $http.put(res.data.signed_request, avatar, {
-         headers: { 'x-amz-acl': 'public-read', 'Content-Type': avatar.type }
-       }).then(function(res){
-        console.log(res.data);
-       }).catch(function(err) {
-        console.log(err); 
-       });
-     }); 
-   };
-   s.get = function (handle) {
-     return $http.get('/api/user/handle/' + handle).success(function(data){
-       console.log(data);
-       return data;
-     });
-   };
+    })
+    .then(function(res){
+      console.log('amazon putObject result', res);
+      var req = {
+        filename: user.avatar.name, 
+        headers: res.headers()
+      };
+      return $http.put('/api/user/' + user._id + '/avatar', req, {
+        headers: { 'Authorization': 'Bearer '+auth.getToken() }
+      }); 
+    }).then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      console.log(err); 
+      return err;
+    }); 
+  };
+
+  s.get = function (handle) {
+    return $http.get('/api/user/handle/' + handle).then(function(res){
+      console.log('user by handle', res.data);
+      return res.data;
+    });
+  };
+
    return s;
 });
 
@@ -956,8 +985,8 @@ app.factory('users', function ($http, $window, auth) {
   var u = { users: [], user: {} };
 
   u.getAll = function() {
-    return $http.get('/api/users').success(function(data) {
-      angular.copy(data, u.users);
+    return $http.get('/api/users').then(function(res) {
+      angular.copy(res.data, u.users);
     });
   };
 
@@ -968,27 +997,23 @@ app.factory('users', function ($http, $window, auth) {
   };
 
   u.search = function(query) {
-    return $http.get('/api/users/search/' + query).success(function(data) {
-      return data;
-    });
-  };
-  u.get = function (id) {
-    return $http.get('/api/user/' + id).success(function(data){
-      console.log(data);
-      return data;
-    });
-  };
-  u.update = function (user){
-    console.log('updating user', user);
-    return $http.put('/api/settings', user).success(function(data){
-        u.users = data;
+    return $http.get('/api/users/search/' + query).then(function(res) {
+      return res.data;
     });
   };
 
   u.get = function (id) {
-    return $http.get('/api/user/' + id).success(function(data){
-      u.user = data;
-      return data;
+    return $http.get('/api/user/' + id).then(function(res){
+      console.log('user get', res.data);
+      return res.data;
+    });
+  };
+
+  u.update = function (user){
+    console.log('updating user', user);
+    return $http.put('/api/settings', user).then(function(res){
+      // u.users = res.data;
+      return res.data;
     });
   };
 
@@ -1981,46 +2006,6 @@ app.controller('addWidgetCtrl', function($scope) {
 
     };
 });
-app.directive('avatarUpload', function() {
-  return {
-    restrict: 'EA',
-    link: function(scope, elem, attr) {
-      console.log('directive fileUpload scope\n', scope);
-      console.log('directive fileUpload elem\n', elem);
-      elem.bind('change', function(event) {
-          scope.user.avatar = event.target.files[0];
-          var ext = '.' + scope.user.avatar.name.split('.').pop();
-          scope.user.avatar.name = 'user_avatar_' + scope.user._id + '_' 
-                                    + new Date().getTime() + ext;
-          console.log(scope.user, event);
-      });
-    }
-
-  };
-
-});
-
-/*
- * For generic file uploading purposes
- * Usage: <input type="file" file-upload="ingredient.image">
- */
-app.directive('fileUpload', function() {
-  return {
-    restrict: 'EA',
-    scope: {
-      target: '='
-    },
-    link: function(scope, elem, attr) {
-      console.log('file upload directive', scope, elem);
-      elem.bind('change', function(event) {
-        attr.fileUpload = (event.srcElement || event.target).files[0];
-        console.log(attr.fileUpload);
-        console.log()
-      });
-    }
-  };
-
-});
 /*
 
 SLIDES WIDGET TO VIEW CONTENT THAT CAN BE VIEWED LIKE CAROUSEL
@@ -2101,4 +2086,45 @@ app.directive('slideDisplay', function () {
 //       });
 //     }
 //   };
+// });
+
+app.directive('avatarUpload', function() {
+  return {
+    restrict: 'EA',
+    link: function(scope, elem, attr) {
+      console.log('directive fileUpload scope\n', scope);
+      console.log('directive fileUpload elem\n', elem);
+      elem.bind('change', function(event) {
+          scope.user.avatar = event.target.files[0];
+          var ext = '.' + scope.user.avatar.name.split('.').pop();
+          scope.user.avatar.name = 'user_avatar_' + scope.user._id + '_' +
+                                    new Date().getTime() + ext;
+          console.log(scope.user, event);
+      });
+    }
+
+  };
+
+});
+
+/*
+ * For generic file uploading purposes
+ * Usage: <input type="file" file-upload="ingredient.image">
+//  */
+// app.directive('fileUpload', function() {
+//   return {
+//     restrict: 'EA',
+//     scope: {
+//       target: '='
+//     },
+//     link: function(scope, elem, attr) {
+//       console.log('file upload directive', scope, elem);
+//       elem.bind('change', function(event) {
+//         attr.fileUpload = (event.srcElement || event.target).files[0];
+//         console.log(attr.fileUpload);
+//         console.log();
+//       });
+//     }
+//   };
+
 // });
