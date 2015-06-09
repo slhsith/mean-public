@@ -14,6 +14,7 @@
         <span>Description: {{exercise.description}}</span>
         <hr>
       </div>
+    <div ng-if="isContributor()">
     <form ng-submit="addPlan()">
         <input type="text"
               class="form-control"
@@ -26,8 +27,9 @@
       </div> 
     <button type="submit" class="btn btn-primary">Post</button>
     </form>
+    </div>
     </h3>
-    <span>
+    <span ng-show="!isCurrentUser()">
       <a href="#/transactions">Buy Item</a>
     </span>
 </div>

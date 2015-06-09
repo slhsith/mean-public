@@ -12,7 +12,7 @@
         <div>
           <span style="font-size:18px;">{{gpost.body}}</span>
           <span style="font-size:12px;">By {{gpost.author}}</span>
-          <form ng-submit="addGcomment(gpost, gcomment)"
+          <form ng-show="isCurrentUser()" ng-if="isContributor()" ng-submit="addGcomment(gpost, gcomment)"
           style="margin-top:30px; border-top: 1px; border-style: solid; border-bottom:none; border-left: none; border-right:none; padding-top: 1px;  border-color: #eee">
             <div class="form-group">
             {{gpost}} {{gcomment}}
@@ -48,18 +48,21 @@
         </form>
         </div> -->
       </div>
-      <form ng-show="view" ng-submit="addGcomment()"
-      style="margin-top:30px; border-top: 1px; border-style: solid; border-bottom:none; border-left: none; border-right:none; padding-top: 1px;  border-color: #eee">
-        <div class="form-group">
-          <input type="text"
-            class="form-control"
-            placeholder="Comment Body"
-            ng-model="gcomment.body">
-          </input>
+      <div ng-if="isCurrentUser()">
+       <div ng-show="isContributor()">
+          <form ng-show="view" ng-submit="addGcomment()"
+          style="margin-top:30px; border-top: 1px; border-style: solid; border-bottom:none; border-left: none; border-right:none; padding-top: 1px;  border-color: #eee">
+            <div class="form-group">
+              <input type="text"
+                class="form-control"
+                placeholder="Comment Body"
+                ng-model="gcomment.body">
+              </input>
+            </div>
+            <button type="submit" class="btn btn-primary">Post</button>
+          </form>
         </div>
-        <button type="submit" class="btn btn-primary">Post</button>
-      </form>
-
+      </div>
       <form ng-submit="addGpost()"
         style="margin-top:30px; border-top: 1px; border-style: solid; border-bottom:none; border-left: none; border-right:none; padding-top: 1px;  border-color: #eee">
 

@@ -4,15 +4,24 @@
         {{item.name}}
       </span>
     </h3>
+    <span ng-show="!isCurrentUser()">
+      <a href="#/transactions">Buy Item</a>
     <span>
       <a ng-href="#/transactions/{{item._id}}">Buy Item</a>
     </span>
+<<<<<<< HEAD
     <a href="" ng-click="deleteItem()"><span>Delete Item<br></span></a>
     <a href="/set/#/item/{{item._id}}">View Public Page</a>
+=======
+    <div ng-show="isCurrentUser()" ng-if="isContributor()">
+      <a href="" ng-click="deleteItem()"><span>Delete Item</span></a>
+    </div>
+>>>>>>> kevin/master
 </div>
 
 <digital-media ng-if="item.video || item.book || item.podcast" item="item"></digital-media>
 <diet-plan ng-if="item.dietplan" item="item"></diet-plan>
+
     <span>
       <a href="#/home">Home Page</a>
     </span>

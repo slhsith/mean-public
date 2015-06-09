@@ -1,8 +1,12 @@
 /*  -----------------  *
     APP MODULE - USER 
  *  -----------------  */
-var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
-// var app = angular.module('mainApp', ['ui.router','templates', 'btford.socket-io']);
+var app = angular.module('mainApp', [
+  'ui.router',
+  'templates',
+  'ngFileUpload',
+  'btford.socket-io'
+]);
 
 app.config([
 '$stateProvider',
