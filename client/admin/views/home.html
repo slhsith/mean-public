@@ -3,11 +3,23 @@
         <h1>Mean Starter</h1>
       </div>
       <h3>Users</h3>
-      <div ng-repeat="user in users">
-        <span>{{user.l_name}},</span>
-        <span>{{user.f_name}}</span> |
-        <span>{{user.handle}}</span> | 
-        <a href="#/user/{{user._id}}">See More</a>
+      <div>
+        <table class="table">
+          <tr>
+            <td>First Name</td>
+            <td>Last Name</td>
+            <td>Handle</td>
+            <td></td>
+          </tr>
+          <tr ng-repeat="user in users">
+            <td>{{user.f_name}}</td> 
+            <td>{{user.l_name}}</td>
+            <td>{{user.handle}}</td>
+            <td href="#/user/{{user._id}}"><a>See More</a></td>
+          </tr>
+          <tr>
+          </tr>
+        </table>
       </div>
       <div class="text-center">
         <btn class="btn btn-primary">Daily</btn><btn class="btn btn-primary">Monthly</btn><btn class="btn btn-primary">Quarterly</btn><btn class="btn btn-primary">Annually</btn>
