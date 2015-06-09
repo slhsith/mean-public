@@ -21,10 +21,16 @@
   	<td>Handle</td> 
     <td>{{user.handle}}</td>
   </tr>
+  <tr>
+    <td>Permissions</td>
+    <td>{{user.permissions}}</td>
+  </tr>
 </table>
+<div ng-show="!isCurrentUser()">
 <form ng-submit="followUser()">
 <button ng-show="isLoggedIn()" ng-hide="isFollowing()" class="btn btn-primary">Follow</button>
 </form>
+</div>
 <button ng-show="isFollowing()" class="btn btn-primary" disabled>Following</button>
 
 <div ng-repeat="follower in user.followers">

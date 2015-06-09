@@ -132,7 +132,8 @@ router.get('/api/settings', settings.getSettings );
 router.put('/api/settings', settings.updateSettings );
 
 //s3
-router.get('/api/signedrequest', settings.signRequest );
+router.get('/api/user/:id/avatar', settings.signedRequestForAvatar );
+router.put('/api/user/:id/avatar', auth, settings.updateAvatarSuccess );
 
 //search
 router.get('/api/search/:query', settings.submitSearch );
