@@ -185,7 +185,7 @@ exports.updateAvatarSuccess = function(req, res, next) {
       console.log('matching ETags!');
       s3.deleteObject({
         Bucket: S3_BUCKET,
-        Key: S3_BUCKET + '/images/avatar/temp/' + req.body.filename 
+        Key: '/images/avatar/temp/' + req.body.filename 
       }, function(err, data) {
           console.log('S3 delete of ' + req.body.filename, data);
       });
