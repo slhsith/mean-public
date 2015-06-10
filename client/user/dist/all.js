@@ -49,15 +49,11 @@ function($stateProvider, $urlRouterProvider) {
     .state('events', {
       url: '/events',
       templateUrl: 'events.html',
-      controller: 'ShopCtrl',
+      controller: 'EventsCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
-          console.log($stateParams);
-          return items.get($stateParams.item);
+          return items.getAll();
         }
-        // , userPromise: function (auth, users) {
-        //   return users.get(auth.isThisUser());
-        // }
       }
     })
     .state('item', {
@@ -70,9 +66,31 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
+    .state('bootcamp', {
+      url: '/event/bootcamp/:id',
+      templateUrl: 'event.tpl.html',
+      controller: 'EventCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
     .state('challenge', {
-      url: '/items/challenge/:id',
-      templateUrl: 'challenge.html',
+      url: '/event/challenge/:id',
+      templateUrl: 'event.tpl.html',
+      controller: 'EventCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+    .state('dietplan', {
+      url: '/item/dietplan/:id',
+      templateUrl: 'item.html',
       controller: 'ItemsCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
@@ -82,7 +100,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('workoutPlan', {
-      url: '/items/workoutplan/:id',
+      url: '/item/workoutplan/:id',
       templateUrl: 'workoutPlan.html',
       controller: 'ItemsCtrl',
       resolve: {
@@ -212,6 +230,7 @@ function($stateProvider, $urlRouterProvider) {
     CONTROLLERS - USER
  *  ------------------  */
 
+
  app.controller('MainCtrl', function ($scope, auth, messageSocket) {
   
     $scope.user = auth.getUser();
@@ -233,7 +252,6 @@ function($stateProvider, $urlRouterProvider) {
   $scope.logOut = auth.logOut;
   $scope.isThisUser = auth.isThisUser;
 
-
   $scope.$on('socket:tokenrequest', function(event, data) {
     console.log('socket:tokenrequest', event.name, data);
     console.log(data.message);
@@ -244,6 +262,14 @@ function($stateProvider, $urlRouterProvider) {
     console.log('broadcast to socket', event.name, data);
   });
   
+});
+
+
+app.controller('NavCtrl', function ($scope, auth) {
+  $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.home = auth.isLoggedIn;
+  $scope.currentUser = auth.currentUser;
+  $scope.logOut = auth.logOut;
 });
 
 
@@ -314,500 +340,9 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 });
 
 
-
-app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
-
-  $scope.items = items.items;
-  $scope.item = itemPromise.data;
-
-  item = itemPromise;
-
-  $scope.deleteItem = function () {
-    console.log('delete', $scope.item._id);
-    if (popupService.showPopup('Are you sure you want to delete this item?')) {
-      items.delete($scope.item._id).success(function(data){
-        console.log(data.message);
-        $state.go('shop');
-      });
-    }
-  };
-
-  $scope.createDay = function(){
-    items.newDay($stateParams.id, $scope.day.day).success(function(day) {
-      $scope.item.days.push(day);
-    });
-  };
-  $scope.incrementUpvotes = function(item){
-    items.upvoteItem(item);
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
-    // mixpanel.track("Items Page: Upvoted Comment");
-  };
-  $scope.addPlan = function() {
-    items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
-      console.log('success');
-      $scope.item.exercises.push(data);
-   }).error(function(){
-       console.log('failure');
-   });
-  };
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-});
-
-app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
-  $scope.exercise = exercisePromise;
-  $scope.addStep = function() {
-    items.newStep($scope.step, $stateParams.exercise).success(function(data){
-      console.log('success');
-      $scope.step = null;
-      $scope.exercise.steps.push(data);
-   }).error(function(){
-       console.log('failure');
-   });
-  };
-});
-
-app.controller('StepCtrl', function ($scope, items, stepPromise, $stateParams) {
-  $scope.step = stepPromise;
-});
-
-
-app.controller('NavCtrl', function ($scope, auth) {
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.home = auth.isLoggedIn;
-  $scope.currentUser = auth.currentUser;
-  $scope.logOut = auth.logOut;
-});
-
-app.controller('TransCtrl', function ($scope, items, auth, transactions, itemPromise) {
-  $scope.item = itemPromise.data;
-
-  $scope.startTrans = function () {
-    console.log($scope.item);
-    transactions.purchase($scope.item);
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Start Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});
-    // mixpanel.track("Checkout: Purchase Item");
-    // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
-  };
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-});
-
-
-app.controller('SettingsCtrl', function ($scope, languages, settings, userPromise, auth) {
-  $scope.user = angular.extend($scope.user, settings.settings);
-  $scope.languages = languages.languages;
-  $scope.addLanguage = function(){
-    console.log($scope.language.name);
-    languages.addLanguage($scope.language.name).success(function(data) {
-    $scope.languages.push(data);
-    });
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Languange",{"area":"settings", "page":"settings", "action":"add"});
-  };
-
-  $scope.updateSettings = function() {
-    console.log($scope.user);
-    settings.update($scope.user);
-    if ($scope.user.avatar.length) {
-      settings.uploadAvatar($scope.user);
-    }
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Settings update",{"area":"settings", "page":"settings", "action":"update"});
-    // mixpanel.track("Settings: Update User");
-  };
-  $scope.user = userPromise;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-  $scope.isThisUser = auth.isThisUser;
-});
-
-app.controller('GroupsCtrl',
-function ($scope, groups, auth) {
-
-  $scope.groups = groups.groups;
-  $scope.addGroup = function(){
-    groups.create($scope.group);
-    console.log($scope.group);
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Group", {"area":"group", "page":"groups", "action":"create"});
-  };
-  $scope.group = '';
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-});
-
-app.controller('GHomeCtrl',
-function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
-  var group = groups.group[$stateParams.id];
-  var gpost = gposts.gpost[$stateParams.id];
-  // var gpost = gposts.gpost[$stateParams.id];
-  $scope.group = groupsPromise.data;
-  console.log(groupsPromise.data);
-  // $scope.gpost = gpostsPromise.data;
-  // console.log(gpostsPromise.data);
-
-  $scope.currentUser = auth.currentUser();
-  $scope.groups = groups.groups;
-  $scope.gposts = gposts.gposts;
-  $scope.gcomments = gcomments.gcomments;
-  $scope.addGpost = function(){
-    console.log($stateParams.id);
-    console.log($scope.gpost);
-    // if(!$scope.body || $scope.body === '') { return; }
-    groups.createGpost($scope.gpost, $stateParams.id).success(function(gpost) {
-      $scope.group.gposts.push(gpost);
-      $scope.gpost = null;
-    });
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
-  };
-  $scope.addGcomment = function (gpost, gcomment) {
-    console.log('in controller', gpost, gcomment);
-    gpost.gcomments.push(gcomment);
-    groups.createGcomment(gpost._id, gcomment); 
-    console.log(gpost._id, gcomment);
-  };
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-  
-  // $scope.addComment = function(){
-  //   console.log($scope.post);
-  //   // posts.addComment(posts.post._id, {
-  //   //   body: $scope.post.comment,
-  //   //   author: $scope.currentUser
-  //   // }).success(function(comment) {
-  //   //   $scope.post.comments.push(comment);
-  //   // });
-  //   // $scope.body = '';
-  // };
-  // $scope.incrementUpvotes = function(gpost){
-  //   gposts.upvoteGroupPost(gpost);
-  // };
-  $scope.isLoggedIn = auth.isLoggedIn;
-});
-
-app.controller('GpostCtrl', [
-'$scope',
-'$stateParams',
-'gposts',
-'gcomments',
-'auth',
-function($scope, $stateParams, gposts, gcomments, auth){
-  var gpost = gposts.gpost[$stateParams.id];
-  $scope.get(gpost._id);
-  $scope.gpost = gposts.gpost;
-  $scope.gcomments = gcomments.gcomments;
-  $scope.addGcomment = function(){
-    if(!scope.body || $scope.body === '') { return; }
-    gposts.addGcomment(gposts.gpost._id, {
-      body: $scope.body,
-      author: 'user',
-    }).success(function(gcomment) {
-      $scope.gpost.gcomments.push(gcomment);
-    });
-    $scope.body = '';
-  };
-  $scope.incrementUpvotes = function(gcomment){
-    gposts.upvoteGroupComment(gpost, gcomment);
-  };
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-}]);
-
-
-/*  ----------------  *
-    FACTORIES - USER
- *  ----------------  */
-
-// POSTS 
-app.factory('posts', function($http, auth){
-  var o = {
-    posts: [],
-    post: {}
-  };
-
-  o.getAll = function() {
-    return $http.get('/api/posts').success(function(data){
-      angular.copy(data, o.posts);
-    });
-  };
-
-  o.create = function(post) {
-    console.log(post);
-
-    return $http.post('/api/posts', post, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      o.posts.push(data);
-    });
-
-  };
-  o.upvote = function(post) {
-    return $http.put('/api/post/' + post._id + '/upvote', null, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      post.upvotes += 1;
-    });
-  };
-  o.get = function(id) {
-    return $http.get('/api/posts/' + id).then(function(data){
-       console.log(data);
-      return data;
-    });
-  };
-
-  o.addComment = function(post, comment) {
-    console.log(post, comment);
-    return $http.post('/api/post/' + post._id + '/comments', comment, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-  o.upvoteComment = function(post, comment) {
-    return $http.put('/api/post/' + post._id + '/comment/'+ comment._id + '/upvote', null, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      comment.upvotes += 1;
-    });
-  };
-
-  return o;
-});
-
-// COMMENTS
-app.factory('comments', ['$http', 'auth', function($http, auth){
-  var o = {
-    comments: []
-  };
-  o.getAll = function() {
-    return $http.get('/api/comments').success(function(data){
-      angular.copy(data, o.comments);
-    });
-  };
-  return o;
-}]);  
-
-// ITEMS
-
-app.factory('items', function($http, auth){
-
-  var o = {
-    items: [],
-    item: {}, 
-    videos: [],
-    video: {},
-    books: [],
-    book: {}
-  };
-
-  // CREATE
-  o.create = function(item) {
-    return $http.post('/api/items', item, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      // base item data comes back from API, extend it with
-      // the item's original submitted descriptive parameters
-      var extendedItem = angular.extend(res.data, item);
-      o.items.push(extendedItem);
-      // will be added to the appropriate service object subarray
-      // based on submitted type
-      return data;
-    });
-  };
-
-  // READ - basic getting of data
-  o.getAll = function() {
-    return $http.get('/api/items').success(function(data){
-      angular.forEach(data, function(item) {
-        item = flattenItem(item);
-      });
-      angular.copy(data, o.items);
-    });
-  };
-
-  o.get = function(item_id) {
-    return $http.get('/api/item/' + item_id).success(function(data){
-      return flattenItem(data);
-    });
-  };
-
-  function flattenItem (item) {
-    var subitem = item[item.type];
-    for (var k in subitem) {
-      if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
-        item[k] = subitem[k];
-        item[item.type] = subitem._id;
-      }
-    }
-  }
-
-  o.delete = function(item_id) {
-    return $http.delete('/api/item/' + item_id, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-  o.getAllVideos = function () {
-    return $http.get('/api/videos').success(function(data){
-      angular.copy(data, o.videos);
-    });
-  };
-
-  // UPDATE
-
-  // API hits specific to item type
-  o.update = function(item) {
-    // e.g. PUT diet @ /api/item/dietplan/dietplan_id, 
-    return $http.put('/api/item/' + item._id, item, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-
-  o.upvote = function(item) {
-    return $http.put('/api/items/' + item._id + '/upvote', null, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      item.upvotes += 1;
-    });
-  };
-
-  o.addTransaction = function(id, transaction) {
-    return $http.post('/api/items/' + id + '/transactions', transaction, {
-      headers: {Authorization: 'Bearer '+transactions.getToken()}
-    }).success(function(data){
-      transactions.push(data);
-    });
-  };
-
-  o.newPlan = function (plan, id) {
-    return $http.post('/api/workoutPlans/' + id, plan, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      // base item data comes back from API, extend it with
-      // the item's original submitted descriptive parameters
-      var extendedItem = angular.extend(data, plan);
-      o.items.push(extendedItem);
-    });
-  };
-  o.newStep = function (step, id) {
-    return $http.post('/api/item/exercise/' + id, step, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      // base item data comes back from API, extend it with
-      // the item's original submitted descriptive parameters
-      var extendedItem = angular.extend(data, step);
-      o.items.push(extendedItem);
-    });
-  };
-  o.getExercise = function(exercise) {
-    console.log(exercise);
-    return $http.get('/api/item/exercise/' + exercise).then(function(res){
-      return res.data;
-    });
-  };
-  o.getExercises = function(id) {
-    return $http.get('/api/items/' + id + '/exercises').success(function(data){
-      console.log(data);
-      angular.copy(data, o.items);
-    });
-  };
-  o.getStep = function(step) {
-    console.log(step);
-    return $http.get('/api/item/step/' + step).then(function(res){
-      return res.data;
-    });
-  };
-
-  o.updateDietplan = function(item, object) {
-    var dietplan_id = item.dietplan;
-    var current_days_set = item.days_set;
-
-    var dietplanAPI = '/api/item/dietplan/' + dietplan_id + '/';
-
-    // saving the whole day, 
-    // basically a meal was added or changed
-    if (object.order) {
-      // this is a new day beyond those set before
-      if (current_days_set < object.order) {
-        object.days_set = current_days_set;
-        return $http.post(dietplanAPI + 'days', object, {
-          headers: {Authorization: 'Bearer '+auth.getToken()}
-        });
-      }
-      // this is an update of a previously set day
-      return $http.put(dietplanAPI + 'days', object, {
-        headers: {Authorization: 'Bearer '+auth.getToken()}
-      });
-    }
-
-
-  };
-
-
-  // DELETE
-  //  ...
-
-  return o;
-  
-
-});
-
-
-// TRANSACTIONS
-app.factory('transactions', ['$http', 'auth', function($http, auth){
-  var o = {
-    transactions: []
-  };  
-  // o.getAll = function() {
-  //   return $http.get('/api/transactions').success(function(data){
-  //     angular.copy(data, o.transactions);
-  //   });
-  // };
-  o.get = function(id) {
-    return $http.get('/api/transactions/' + id).then(function(res){
-      return res.data;
-    });
-  };
-  o.purchase = function(card) {
-    console.log(card);
-    return $http.post('/api/transactions', card, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      console.log(data);
-    });
-  };
-  return o;
-}]);
-
-// CUSTOMERS
-
-app.factory('customers', ['$http', 'auth', function($http, auth){
-  var o = {
-    customers: []
-  };  
-  o.get = function(id) {
-    return $http.get('/api/customers/' + id).then(function(res){
-      return res.data;
-    });
-  };
-  return o;
-}]);  
-
+/*  ------------------------------------  *
+    FACTORIES - USER APP GLOBAL SERVICES
+ *  ------------------------------------  */
 
 // AUTH
 app.factory('auth', function($http, $window){
@@ -894,30 +429,75 @@ app.factory('auth', function($http, $window){
   return auth;
 });
 
+// POSTS 
+app.factory('posts', function($http, auth){
+  var o = {
+    posts: [],
+    post: {}
+  };
 
-// LANGUAGES
-app.factory('languages', ['$http', '$window', function($http, $window){
-  var lang = { languages : [] };
-                       // no function parameters -- function ()
-  lang.getAll = function () { 
-    return $http.get('/api/languages').success(function(data){
-      console.log(data); // <<-- does this print anything?
-      angular.copy(data, lang.languages);
+  o.getAll = function() {
+    return $http.get('/api/posts').success(function(data){
+      angular.copy(data, o.posts);
     });
   };
-  lang.addLanguage = function (language) {
-    console.log(language);
-    return $http.post('/api/user/:id/languages', { 'name': language }).success(function(data){
-      console.log(data);
-      lang.languages.push(data);
+
+  o.create = function(post) {
+    console.log(post);
+
+    return $http.post('/api/posts', post, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      o.posts.push(data);
     });
-  }; 
-  
-  return lang; 
-}]);
+
+  };
+  o.upvote = function(post) {
+    return $http.put('/api/post/' + post._id + '/upvote', null, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      post.upvotes += 1;
+    });
+  };
+  o.get = function(id) {
+    return $http.get('/api/posts/' + id).then(function(data){
+       console.log(data);
+      return data;
+    });
+  };
+
+  o.addComment = function(post, comment) {
+    console.log(post, comment);
+    return $http.post('/api/post/' + post._id + '/comments', comment, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  o.upvoteComment = function(post, comment) {
+    return $http.put('/api/post/' + post._id + '/comment/'+ comment._id + '/upvote', null, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      comment.upvotes += 1;
+    });
+  };
+
+  return o;
+});
+
+// COMMENTS
+app.factory('comments', ['$http', 'auth', function($http, auth){
+  var o = {
+    comments: []
+  };
+  o.getAll = function() {
+    return $http.get('/api/comments').success(function(data){
+      angular.copy(data, o.comments);
+    });
+  };
+  return o;
+}]);  
+
 
 // SETTINGS
-
 app.factory('settings', function ($http, $window, auth) {
 
    var s = { settings : {} };
@@ -981,7 +561,6 @@ app.factory('settings', function ($http, $window, auth) {
 });
 
 // USERS
-
 app.factory('users', function ($http, $window, auth) {
   var u = { users: [], user: {} };
 
@@ -1031,101 +610,34 @@ app.factory('users', function ($http, $window, auth) {
   return u;
 });
 
-
-// GROUPS
-app.factory('groups', ['$http', 'auth', function($http, auth){
-  var o = {
-    groups: [],
-    group: {}
+// LANGUAGES
+app.factory('languages', ['$http', '$window', function($http, $window){
+  var lang = { languages : [] };
+                       // no function parameters -- function ()
+  lang.getAll = function () { 
+    return $http.get('/api/languages').success(function(data){
+      console.log(data); // <<-- does this print anything?
+      angular.copy(data, lang.languages);
+    });
   };
-
-  o.getAll = function() {
-    return $http.get('/api/groups').success(function(data){
+  lang.addLanguage = function (language) {
+    console.log(language);
+    return $http.post('/api/user/:id/languages', { 'name': language }).success(function(data){
       console.log(data);
-      angular.copy(data, o.groups);
+      lang.languages.push(data);
     });
   }; 
-  o.create = function (group) {
-   console.log(group);
-   return $http.post('/api/groups', group ).success(function(data){
-     console.log(data);
-     o.groups.push(data);
-   });
-  };
-  o.get = function(id) {
-    return $http.get('/api/group/' + id).then(function(data){
-      console.log(data);
-      return data;
-    });
-  };
-  o.createGpost = function(gpost, id) {
-    console.log(gpost, id);
-    return $http.post('/api/group/' + id + '/gposts', gpost, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-  o.createGcomment = function (gpost_id, gcomment) {
-    console.log('gpost_id in factory', gpost_id);
-    console.log('gcomment in factory', gcomment);
-    return $http.post('/api/gpost/' + gpost_id + '/gcomments', gcomment, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-  return o;
+  
+  return lang; 
 }]);
 
+app.controller('EventsCtrl', function() {
 
-app.factory('gposts', ['$http', 'auth', function($http, auth){
-  var o = {
-    gposts: [],
-    gpost: {}
-  };
-
-  o.getAll = function(id) {
-    return $http.get('/api/group/' + id + '/gposts').success(function(data){
-      console.log(data);
-      angular.copy(data, o.gposts);
-    });
-  };
-
-  // o.upvote = function(gpost) {
-  //   return $http.put('/api/gposts/' + post._id + '/upvote', null, {
-  //     headers: {Authorization: 'Bearer '+auth.getToken()}
-  //   }).success(function(data){
-  //     gpost.upvotes += 1;
-  //   });
-  // };
-  // o.get = function(id) {
-  //   return $http.get('/api/gposts/' + id).then(function(res){
-  //     return res.data;
-  //   });
-  // };
-  // o.addGroupComment = function(id, gcomment) {
-  //   return $http.post('/api/gposts/' + id + '/gcomments', gcomment, {
-  //     headers: {Authorization: 'Bearer '+auth.getToken()}
-  //   });
-  // };
-  return o;
-}]);
-
-
-app.factory('gcomments', ['$http', 'auth', function($http, auth){
-  var o = {
-    gcomments: []
-  };  
-  o.getAll = function() {
-    return $http.get('/api/gcomments').success(function(data){
-      angular.copy(data, o.gcomments);
-    });
-  };
-  return o;
-}]); 
-
-app.service('popupService', function($window) {
-  this.showPopup = function(message) {
-    return $window.confirm(message);
-  };
 });
+app.factory('events', function($http, auth){
+});
+
+
 
 /*  ----------------------  *
     CONTROLLER - MESSENGER
@@ -1453,6 +965,245 @@ app.factory('messageSocket', function(socketFactory) {
   
   return socket;
 });
+
+app.controller('GroupsCtrl',
+function ($scope, groups, auth) {
+
+  $scope.groups = groups.groups;
+  $scope.addGroup = function(){
+    groups.create($scope.group);
+    console.log($scope.group);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Group", {"area":"group", "page":"groups", "action":"create"});
+  };
+  $scope.group = '';
+  $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
+});
+
+
+app.controller('GHomeCtrl',
+function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
+  var group = groups.group[$stateParams.id];
+  var gpost = gposts.gpost[$stateParams.id];
+  // var gpost = gposts.gpost[$stateParams.id];
+  $scope.group = groupsPromise.data;
+  console.log(groupsPromise.data);
+  // $scope.gpost = gpostsPromise.data;
+  // console.log(gpostsPromise.data);
+
+  $scope.currentUser = auth.currentUser();
+  $scope.groups = groups.groups;
+  $scope.gposts = gposts.gposts;
+  $scope.gcomments = gcomments.gcomments;
+  $scope.addGpost = function(){
+    console.log($stateParams.id);
+    console.log($scope.gpost);
+    // if(!$scope.body || $scope.body === '') { return; }
+    groups.createGpost($scope.gpost, $stateParams.id).success(function(gpost) {
+      $scope.group.gposts.push(gpost);
+      $scope.gpost = null;
+    });
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
+  };
+  $scope.addGcomment = function (gpost, gcomment) {
+    console.log('in controller', gpost, gcomment);
+    gpost.gcomments.push(gcomment);
+    groups.createGcomment(gpost._id, gcomment); 
+    console.log(gpost._id, gcomment);
+  };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
+  
+  // $scope.addComment = function(){
+  //   console.log($scope.post);
+  //   // posts.addComment(posts.post._id, {
+  //   //   body: $scope.post.comment,
+  //   //   author: $scope.currentUser
+  //   // }).success(function(comment) {
+  //   //   $scope.post.comments.push(comment);
+  //   // });
+  //   // $scope.body = '';
+  // };
+  // $scope.incrementUpvotes = function(gpost){
+  //   gposts.upvoteGroupPost(gpost);
+  // };
+  $scope.isLoggedIn = auth.isLoggedIn;
+});
+
+app.controller('GpostCtrl', [
+'$scope',
+'$stateParams',
+'gposts',
+'gcomments',
+'auth',
+function($scope, $stateParams, gposts, gcomments, auth){
+  var gpost = gposts.gpost[$stateParams.id];
+  $scope.get(gpost._id);
+  $scope.gpost = gposts.gpost;
+  $scope.gcomments = gcomments.gcomments;
+  $scope.addGcomment = function(){
+    if(!scope.body || $scope.body === '') { return; }
+    gposts.addGcomment(gposts.gpost._id, {
+      body: $scope.body,
+      author: 'user',
+    }).success(function(gcomment) {
+      $scope.gpost.gcomments.push(gcomment);
+    });
+    $scope.body = '';
+  };
+  $scope.incrementUpvotes = function(gcomment){
+    gposts.upvoteGroupComment(gpost, gcomment);
+  };
+  $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
+}]);
+
+
+// GROUPS
+app.factory('groups', ['$http', 'auth', function($http, auth){
+  var o = {
+    groups: [],
+    group: {}
+  };
+
+  o.getAll = function() {
+    return $http.get('/api/groups').success(function(data){
+      console.log(data);
+      angular.copy(data, o.groups);
+    });
+  }; 
+  o.create = function (group) {
+   console.log(group);
+   return $http.post('/api/groups', group ).success(function(data){
+     console.log(data);
+     o.groups.push(data);
+   });
+  };
+  o.get = function(id) {
+    return $http.get('/api/group/' + id).then(function(data){
+      console.log(data);
+      return data;
+    });
+  };
+  o.createGpost = function(gpost, id) {
+    console.log(gpost, id);
+    return $http.post('/api/group/' + id + '/gposts', gpost, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  o.createGcomment = function (gpost_id, gcomment) {
+    console.log('gpost_id in factory', gpost_id);
+    console.log('gcomment in factory', gcomment);
+    return $http.post('/api/gpost/' + gpost_id + '/gcomments', gcomment, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  return o;
+}]);
+
+app.factory('gposts', ['$http', 'auth', function($http, auth){
+  var o = {
+    gposts: [],
+    gpost: {}
+  };
+
+  o.getAll = function(id) {
+    return $http.get('/api/group/' + id + '/gposts').success(function(data){
+      console.log(data);
+      angular.copy(data, o.gposts);
+    });
+  };
+
+  // o.upvote = function(gpost) {
+  //   return $http.put('/api/gposts/' + post._id + '/upvote', null, {
+  //     headers: {Authorization: 'Bearer '+auth.getToken()}
+  //   }).success(function(data){
+  //     gpost.upvotes += 1;
+  //   });
+  // };
+  // o.get = function(id) {
+  //   return $http.get('/api/gposts/' + id).then(function(res){
+  //     return res.data;
+  //   });
+  // };
+  // o.addGroupComment = function(id, gcomment) {
+  //   return $http.post('/api/gposts/' + id + '/gcomments', gcomment, {
+  //     headers: {Authorization: 'Bearer '+auth.getToken()}
+  //   });
+  // };
+  return o;
+}]);
+
+
+app.factory('gcomments', ['$http', 'auth', function($http, auth){
+  var o = {
+    gcomments: []
+  };  
+  o.getAll = function() {
+    return $http.get('/api/gcomments').success(function(data){
+      angular.copy(data, o.gcomments);
+    });
+  };
+  return o;
+}]); 
+
+app.service('popupService', function($window) {
+  this.showPopup = function(message) {
+    return $window.confirm(message);
+  };
+});
+
+app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
+
+  $scope.items = items.items;
+  $scope.item = itemPromise.data;
+
+  item = itemPromise;
+
+  $scope.deleteItem = function () {
+    console.log('delete', $scope.item._id);
+    if (popupService.showPopup('Are you sure you want to delete this item?')) {
+      items.delete($scope.item._id).success(function(data){
+        console.log(data.message);
+        $state.go('shop');
+      });
+    }
+  };
+
+  $scope.createDay = function(){
+    items.newDay($stateParams.id, $scope.day.day).success(function(day) {
+      $scope.item.days.push(day);
+    });
+  };
+  $scope.incrementUpvotes = function(item){
+    items.upvoteItem(item);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
+    // mixpanel.track("Items Page: Upvoted Comment");
+  };
+  $scope.addPlan = function() {
+    items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
+      console.log('success');
+      $scope.item.exercises.push(data);
+   }).error(function(){
+       console.log('failure');
+   });
+  };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
+});
+
 app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 
   $scope.isAdmin       = auth.isAdmin;
@@ -1473,7 +1224,7 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
     video       : 'Video'
   };
 
-  // Initialize a brand new item from constructor
+  // Initialize a brand new item from Item constructor
   $scope.initItem = function(type) {
     $scope.item = new Item(type);
   };
@@ -1519,6 +1270,216 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 
 });
 
+// ITEMS
+app.factory('items', function($http, auth){
+
+  var o = {
+    items: []
+  };
+
+  // CREATE
+  o.create = function(item) {
+    return $http.post('/api/items', item, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(res.data, item);
+      o.items.push(extendedItem);
+      // will be added to the appropriate service object subarray
+      // based on submitted type
+      return data;
+    });
+  };
+
+  // READ - basic getting of data
+  o.getAll = function() {
+    return $http.get('/api/items').success(function(data){
+      angular.forEach(data, function(item) {
+        item = flattenItem(item);
+      });
+      angular.copy(data, o.items);
+    });
+  };
+
+  o.get = function(item_id) {
+    return $http.get('/api/item/' + item_id).success(function(data){
+      return flattenItem(data);
+    });
+  };
+
+// HELPER FUNCTION
+// the API gives us the whole subitem under the field of its name
+// like video: { duration: ... } so we want all the fields to be accessible
+// straight on the item, keeping the _id of the video in the video field
+  function flattenItem (item) {
+    var subitem = item[item.type];
+    for (var k in subitem) {
+      if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
+        item[k] = subitem[k];
+        item[item.type] = subitem._id;
+      }
+    }
+  }
+
+  o.delete = function(item_id) {
+    return $http.delete('/api/item/' + item_id, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  o.getAllVideos = function () {
+    return $http.get('/api/videos').success(function(data){
+      angular.copy(data, o.videos);
+    });
+  };
+
+  // UPDATE
+
+  // API hits specific to item type
+  o.update = function(item) {
+    // e.g. PUT diet @ /api/item/dietplan/dietplan_id, 
+    return $http.put('/api/item/' + item._id, item, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
+  o.upvote = function(item) {
+    return $http.put('/api/items/' + item._id + '/upvote', null, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      item.upvotes += 1;
+    });
+  };
+
+  o.addTransaction = function(id, transaction) {
+    return $http.post('/api/items/' + id + '/transactions', transaction, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).success(function(data){
+      transactions.push(data);
+    });
+  };
+
+  o.newPlan = function (plan, id) {
+    return $http.post('/api/workoutPlans/' + id, plan, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, plan);
+      o.items.push(extendedItem);
+    });
+  };
+  o.newStep = function (step, id) {
+    return $http.post('/api/item/exercise/' + id, step, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, step);
+      o.items.push(extendedItem);
+    });
+  };
+  o.getExercise = function(exercise) {
+    console.log(exercise);
+    return $http.get('/api/item/exercise/' + exercise).then(function(res){
+      return res.data;
+    });
+  };
+  o.getExercises = function(id) {
+    return $http.get('/api/items/' + id + '/exercises').success(function(data){
+      console.log(data);
+      angular.copy(data, o.items);
+    });
+  };
+  o.getStep = function(step) {
+    console.log(step);
+    return $http.get('/api/item/step/' + step).then(function(res){
+      return res.data;
+    });
+  };
+
+  o.updateDietplan = function(item, object) {
+    var dietplan_id = item.dietplan;
+    var current_days_set = item.days_set;
+
+    var dietplanAPI = '/api/item/dietplan/' + dietplan_id + '/';
+
+    // saving the whole day, 
+    // basically a meal was added or changed
+    if (object.order) {
+      // this is a new day beyond those set before
+      if (current_days_set < object.order) {
+        object.days_set = current_days_set;
+        return $http.post(dietplanAPI + 'days', object, {
+          headers: {Authorization: 'Bearer '+auth.getToken()}
+        });
+      }
+      // this is an update of a previously set day
+      return $http.put(dietplanAPI + 'days', object, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      });
+    }
+
+
+  };
+
+
+  // DELETE
+  //  ...
+
+  return o;
+  
+
+}); // </END OF ITEMS FACTORY>
+
+
+
+// TRANSACTIONS
+app.factory('transactions', ['$http', 'auth', function($http, auth){
+  var o = {
+    transactions: []
+  };  
+  // o.getAll = function() {
+  //   return $http.get('/api/transactions').success(function(data){
+  //     angular.copy(data, o.transactions);
+  //   });
+  // };
+  o.get = function(id) {
+    return $http.get('/api/transactions/' + id).then(function(res){
+      return res.data;
+    });
+  };
+  o.purchase = function(card) {
+    console.log(card);
+    return $http.post('/api/transactions', card, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data){
+      console.log(data);
+    });
+  };
+  return o;
+}]);
+
+
+
+
+// CUSTOMERS
+app.factory('customers', ['$http', 'auth', function($http, auth){
+  var o = {
+    customers: []
+  };  
+  o.get = function(id) {
+    return $http.get('/api/customers/' + id).then(function(res){
+      return res.data;
+    });
+  };
+  return o;
+}]);  
+
+
+
+
+/// CONSTRUCTOR OF NEW ITEMS
 app.factory('Item', function() {
 
   var ItemConstructor = function ItemConstructor (type) {
@@ -1535,6 +1496,56 @@ app.factory('Item', function() {
 
 });
 
+app.controller('TransCtrl', function ($scope, items, auth, transactions, itemPromise) {
+  $scope.item = itemPromise.data;
+
+  $scope.startTrans = function () {
+    console.log($scope.item);
+    transactions.purchase($scope.item);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Start Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});
+    // mixpanel.track("Checkout: Purchase Item");
+    // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
+  };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
+});
+
+
+app.controller('SettingsCtrl', function ($scope, languages, settings, userPromise, auth) {
+  $scope.user = angular.extend($scope.user, settings.settings);
+  $scope.languages = languages.languages;
+  $scope.addLanguage = function(){
+    console.log($scope.language.name);
+    languages.addLanguage($scope.language.name).success(function(data) {
+    $scope.languages.push(data);
+    });
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Languange",{"area":"settings", "page":"settings", "action":"add"});
+  };
+
+  $scope.updateSettings = function() {
+    console.log($scope.user);
+    settings.update($scope.user);
+    if ($scope.user.avatar.length) {
+      settings.uploadAvatar($scope.user);
+    }
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Settings update",{"area":"settings", "page":"settings", "action":"update"});
+    // mixpanel.track("Settings: Update User");
+  };
+  $scope.user = userPromise;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
+  $scope.isThisUser = auth.isThisUser;
+});
+
+
 /*  ----------------------  *
     CONTROLLER - DIETPLAN
  *  ----------------------  */
@@ -1546,12 +1557,12 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
 
   // ---- INIT SCOPE ----  //
   this.init = function(element) {
-    self.$element = element;
+    angular.extend($scope.dietplan, new Diet());
 
-    if ($scope.item.days.length === 0) {
-      $scope.item.days.push(new Day());
+    if ($scope.dietplan.days.length === 0) {
+      $scope.dietplan.days.push(new Day());
     } 
-    angular.forEach($scope.item.days, function(day) {
+    angular.forEach($scope.dietplan.days, function(day) {
       day.mealOrder = 1;
     });
     $scope.dayOrder = 1;
@@ -1562,7 +1573,7 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
   };
   $scope.incrementDay = function() {
     // a diet day index goes from 1 to duration
-    if ($scope.dayOrder < $scope.item.duration) {
+    if ($scope.dayOrder < $scope.dietplan.duration) {
       $scope.dayOrder++; 
     } else {
       alert('going over days, increase duration confirmation?');
@@ -1577,120 +1588,129 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
      day.mealOrder++;
   };
 
-  //$scope.item   = item comes from directive
-  $scope.meal         = null;
-  $scope.recipe       = null;
-  $scope.step         = null;
-  $scope.ingredient   = null;
 
-  $scope.initMeal     = function() {
-    $scope.meal = new Meal();
-    $scope.item.day[$scope.dayOrder-1].meals.push($scope.meal);
-  };
-  $scope.initRecipe   = function() {
-    $scope.recipe = new Recipe();
-    var day = $scope.item.days[$scope.dayOrder-1];
-    day.meals[day.mealOrder-1].recipes.push($scope.recipe);
-    $scope.addWidgetOptions.recipe.item = $scope.recipe;
-  };
-  $scope.initStep     = function() {
-    $scope.step = new CookingStep();
-    $scope.step.order = $scope.recipe.steps.length+1;
-    $scope.addWidgetOptions.cookingstep.item = $scope.step;
-  };
-  $scope.initIngredient = function() {
-    $scope.ingredient = new Ingredient();
-    $scope.addWidgetOptions.ingredient.item = $scope.step;
-  };
-
-  $scope.cancelMeal   = function() {
-    $scope.meal = null;
-  };
-  $scope.cancelRecipe = function() {
-    $scope.recipe = null;
-  };
-  $scope.cancelStep   = function() {
-    $scope.step = null;
-  };
-  $scope.cancelIngredient = function() {
-    $scope.ingredient = null;
-  };
 
   $scope.saveDiet     = function() {
-    if ($scope.item._id) {
-      items.update($scope.item);
+    if ($scope.dietplan._id) {
+      items.update($scope.dietplan);
     } else {
-      items.create($scope.item).success(function(data) {
-        $scope.item = data;
+      items.create($scope.dietplan).success(function(data) {
+        $scope.dietplan = data;
         $scope.initMeal();
         $scope.meal.day = 1;
       });
     }
   };
 
-  $scope.saveMeal     = function() {
-    items.updateDietplan($scope.item, $scope.item.days[$scope.dayOrder-1]).success(function(data) {
+//DAY
+$scope.saveDayTitle = function(day) {
+  dietplans.updateDay(day);
+};
+  $scope.saveDay = function(day) {
+    dietplans.updateDay($scope.dietplan, day).then(function(data) {
       console.log(data);
-      $scope.item.days_set = data.days_set;
-      $scope.item.days     = data.days;
+      $scope.dietplan.days = data;
     });
   };
+
+//MEAL
+  $scope.initMeal     = function() {
+    $scope.meal = new Meal();
+    $scope.dietplan.day[$scope.dayOrder-1].meals.push($scope.meal);
+  };
+  $scope.cancelMeal   = function() {
+    $scope.meal = null;
+  };
+
+// RECIPE
+  $scope.initRecipe   = function() {
+    $scope.recipe = new Recipe();
+  };
+  $scope.initNewRecipe   = function() {
+    $scope.newRecipe = new Recipe();
+  };
+  $scope.pushRecipe = function() {
+    if ($scope.recipe.name && $scope.recipe.yield) {
+      var day = $scope.dietplan.days[$scope.dayOrder-1];
+      day.meals[day.mealOrder-1].recipes.push($scope.recipe);
+    }
+  };
+  $scope.cancelRecipe = function() {
+    $scope.recipe = null;
+  };
   $scope.saveRecipe   = function() {
-    dietplans.createRecipe($scope.recipe);
     $scope.meal.recipes.push($scope.recipe);
     $scope.recipe = null;
   };
-  $scope.saveStep     = function() {
-    $scope.recipe.steps.push($scope.step);
-    $scope.step = null;
+  $scope.searchRecipes = function(query) {
+    dietplans.searchRecipes(query).then(function(data) {
+      $scope.recipe.results = data;
+    });
   };
-  $scope.saveIngredient = function() {
-    $scope.recipe.ingredients.push($scope.ingredient);
-    $scope.ingredient = null;
-  };
-
-
-  $scope.addWidgetOptions = {
-    ingredient: {
-      name: 'Ingredient',
-      type: 'ingredient',
-      searchable: true,
-      fields: [ {field: 'amount', class: 'col-sm-6'},
-                {field: 'preparation', class: 'col-sm-6'}, 
-                {field: 'note', class: 'col-sm-12'}],
-      item: $scope.ingredient
-    },
-
-    recipe    : {
-      name: 'Recipe',
-      type: 'recipe',
-      searchable: false,
-      save: $scope.saveMeal,
-      init: $scope.initRecipe,
-      //transclude: + create new recipe
-      fields  : [ {field: 'recipe', class: 'col-sm-6'},
-                  {field: 'servings', class: 'col-sm-6'} ],
-      item: null,
-    },
-
-    step      : {
-      show_name: false,
-      type: 'cookingstep',
-      searchable: false,
-      //transclude: Step #
-      fields: [ {field: 'description', class: 'col-sm-12'} ],
-      item: $scope.step
-    }
+  $scope.selectRecipe = function(recipe) {
+    $scope.recipe = recipe;
   };
 
 
 });
 
+app.controller('RecipeCtrl', function($scope, CookingStep, Ingredient, dietplans) {
+
+  $scope.createRecipe   = function() {
+    dietplans.createRecipe($scope.recipe).then(function(data) {
+      $scope.recipe._id = data._id;
+    });
+  };
+
+//COOKINGSTEP
+  $scope.initStep     = function() {
+    $scope.step = new CookingStep($scope.recipe.steps.length+1);
+  };
+  $scope.pushStep     = function() {
+    $scope.recipe.steps.push($scope.step);
+    $scope.step = null;
+  };
+  $scope.cancelStep   = function() {
+    $scope.step = null;
+  };
+
+//INGREDIENT
+  $scope.initNewIngredient = function() {
+    $scope.ingredient = new Ingredient();
+  };
+  $scope.cancelIngredient = function() {
+    $scope.ingredient = null;
+  };
+  $scope.pushIngredient = function() {
+    console.log($scope.recipe);
+    $scope.recipe.ingredients.push($scope.ingredient);
+    $scope.ingredient = null;
+  };
+  $scope.saveNewIngredient = function(ingredient) {
+    dietplans.createIngredient(ingredient);
+    $scope.ingredient.results = null;
+  };
+  $scope.searchIngredients = function(query) {
+    dietplans.searchIngredients(query).then(function(data) {
+      $scope.ingredient.results = data;
+    });
+  };
+  $scope.selectIngredient = function(ing) {
+    $scope.ingredient = ing;
+  };
+
+  $scope.units = [{'name': 'tsp'},
+                  {'name': 'Tbs'},
+                  {'name': 'C'},
+                  {'name': 'g'},
+                  {'name': 'lb'},
+                  {'name': 'ml'}];
+});
 app.directive('dietPlan', function () {
   
   return {
     restrict: 'E', 
-    scope: { item: '=item' },
+    scope: { dietplan: '=item'},
     controller: 'DietCtrl',
     templateUrl: 'dietplan.tpl.html',
     link: function(scope, element, attrs, DietCtrl) {
@@ -1704,10 +1724,7 @@ app.directive('mealItinerary', function () {
   
   return {
     restrict: 'E', 
-    controller: 'DietCtrl',
-    templateUrl: 'mealitinerary.tpl.html',
-    link: function(scope, element, attrs) {
-    }
+    templateUrl: 'mealitinerary.tpl.html'
   };
 
 });
@@ -1716,12 +1733,108 @@ app.directive('recipeCreator', function () {
   
   return {
     restrict: 'E', 
-    controller: 'DietCtrl',
+    scope: {
+      recipe: '='
+    },
+    controller: 'RecipeCtrl',
     templateUrl: 'recipecreator.tpl.html',
     link: function(scope, element, attrs) {
     }
   };
 
+});
+
+app.directive('recipeFinder', function () {
+  
+  return {
+    restrict: 'E', 
+    controller: 'RecipeCtrl',
+    templateUrl: 'recipefinder.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
+
+app.directive('ingredientFinder', function () {
+  
+  return {
+    restrict: 'E', 
+    controller: 'RecipeCtrl',
+    templateUrl: 'ingredientfinder.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
+app.factory('dietplans', function ($http, auth) {
+  var o = {};
+
+  o.get = function(diet_id) {
+    return $http.get('/api/item/dietplan/' + diet_id, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      return err;
+    });
+  };
+
+  o.update = function(diet) {
+    // diet._id
+    return $http.put('/api/item/dietplan/' + diet.dietplan, diet, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      return err;
+    });
+  };
+
+  o.updateDay = function(diet, day) {
+    var api_url = '/api/item/dietplan/' + diet.dietplan + '/day/' + day.order;
+    return $http.put(api_url, day, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+      console.log('update day res', res);
+      return res.data;
+    }).catch(function(err) {
+      return err;
+    });
+  };
+
+  o.searchRecipes = function(query) {
+    return $http.get('/api/item/dietplan/recipes/' + query)
+    .then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      return err;
+    });
+  };
+
+  o.searchIngredients = function(query) {
+    return $http.get('/api/item/dietplan/ingredients/' + query)
+    .then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      return err;
+    });
+  };
+
+  o.createRecipe = function(recipe) {
+    console.log('creating recipe', recipe)
+    return $http.post('/api/item/dietplan/recipes', recipe, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
+  o.createIngredient = function(ingredient) {
+    return $http.post('/api/item/dietplan/ingredients', ingredient, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+
+  return o;
 });
 
 
@@ -1737,6 +1850,7 @@ app.factory('Diet', function() {
     this.gender       = null;
     this.age          = null;
     this.meals        = [];
+    this.days         = [];
   };
 
   return DietConstructor;
@@ -1807,8 +1921,8 @@ app.factory('Recipe', function() {
 
 app.factory('CookingStep', function () {
 
-  var CookingStepConstructor = function CookingStepConstructor () {
-    this.order       = null;
+  var CookingStepConstructor = function CookingStepConstructor (step) {
+    this.order       = step || null;
     this.description = null;
     this.photo       = null;
   };
@@ -1823,49 +1937,15 @@ app.factory('Ingredient', function() {
   var IngredientConstructor = function IngredientConstructor () {
     this.name        = null;
     this.category    = null;
-    this.description = null;
+    this.note        = null;
     this.photo       = null;
 
-    this.value       = null;
-    this.unit        = null;
+    this.amount      = { value: null, unit: null };
     this.preparation = null;
   };
 
   return IngredientConstructor;
 });
-
-
-
-app.factory('dietplans', function ($http, auth) {
-  var o = {};
-
-  o.get = function(diet_id) {
-    return $http.get('/api/item/dietplan/' + diet_id, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-  o.update = function(diet) {
-    // diet._id
-    return $http.put('/api/item/dietplan/' + diet.dietplan, diet, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-
-  o.createRecipe = function(recipe) {
-    return $http.post('/api/item/dietplan/recipes', recipe, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-
-  o.createIngredient = function(ingredient) {
-    return $http.post('/api/item/dietplan/ingredients', ingredient, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-
-  return o;
-});
-
 
 app.directive('digitalMedia', function () {
 
@@ -1881,6 +1961,24 @@ app.directive('digitalMedia', function () {
 
 
 
+app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
+  $scope.exercise = exercisePromise;
+  $scope.addStep = function() {
+    items.newStep($scope.step, $stateParams.exercise).success(function(data){
+      console.log('success');
+      $scope.step = null;
+      $scope.exercise.steps.push(data);
+   }).error(function(){
+       console.log('failure');
+   });
+  };
+});
+
+app.controller('StepCtrl', function ($scope, items, stepPromise, $stateParams) {
+  $scope.step = stepPromise;
+});
+
+
 app.directive('workoutPlan', function () {
 
   return {
@@ -1894,6 +1992,46 @@ app.directive('workoutPlan', function () {
 });
 
 
+app.directive('avatarUpload', function() {
+  return {
+    restrict: 'EA',
+    link: function(scope, elem, attr) {
+      console.log('directive fileUpload scope\n', scope);
+      console.log('directive fileUpload elem\n', elem);
+      elem.bind('change', function(event) {
+          scope.user.avatar = event.target.files[0];
+          var ext = '.' + scope.user.avatar.name.split('.').pop();
+          scope.user.avatar.name = 'user_avatar_' + scope.user._id + '_' +
+                                    new Date().getTime() + ext;
+          console.log(scope.user, event);
+      });
+    }
+
+  };
+
+});
+
+/*
+ * For generic file uploading purposes
+ * Usage: <input type="file" file-upload="ingredient.image">
+//  */
+// app.directive('fileUpload', function() {
+//   return {
+//     restrict: 'EA',
+//     scope: {
+//       target: '='
+//     },
+//     link: function(scope, elem, attr) {
+//       console.log('file upload directive', scope, elem);
+//       elem.bind('change', function(event) {
+//         attr.fileUpload = (event.srcElement || event.target).files[0];
+//         console.log(attr.fileUpload);
+//         console.log();
+//       });
+//     }
+//   };
+
+// });
 /*
 
 ROW WIDGET FOR ADDING UNITS TO SUBARRAYS OF ITEMS & EVENTS
@@ -1908,45 +2046,21 @@ ROW WIDGET FOR ADDING UNITS TO SUBARRAYS OF ITEMS & EVENTS
 <add-widget parent="recipe" child="'ingredient'" children="recipe.ingredients"></add-widget>
 */
 
-
-
-
-
-// ------------ CONTAINER
-app.directive('addWidget', function () {
-  return {
-    restrict: 'E',
-    scope: {
-      set: '=',
-      options: '=', // array with fields and styling options objects
-    },
-    transclude: true,
-    controller: 'addWidgetCtrl',
-    template: '<div class="col-sm-12"></div>',
-    link: function(scope, elem, attr, ctrl, transclude) {
-      transclude(scope, function(clone) {
-        elem.append(clone);
-      });
-    }
-  };
-});
-
-
 // ------------ ITEM REPEATS
-app.directive('addWidgetItems', function () {
+app.directive('addWidgetItem', function () {
 
-  var tpl = '<div ng-repeat="item in set">'+
+  var tpl = '<div>'+ 
               '<div class="add-widget-photo">'+
-                '<i class="fa fa-3x fa-photo"></i>'+
+                '<img ng-src="{{item.photo}}"/>'+
               '</div>'+ 
-            // '<div class="add-widget-photo"><img src="item.photo"/></div>'+
-              '<div class="add-widget-title">{{item.name}}</div>'+
-              '<div class="add-widget-body" ng-transclude></div>'+
+              '<div class="add-widget-body item-body" ng-transclude></div>'+
               '</div>';
 
   return {
     restrict: 'E', 
-    require: '^addWidget',
+    scope: {
+      item: '='
+    },
     transclude: true,
     template: tpl
   };
@@ -1956,26 +2070,33 @@ app.directive('addWidgetItems', function () {
 // ------------ FORM FOR NEW ITEM
 app.directive('addWidgetForm', function () {
 
-  var tpl = '<div style="border: 1px solid #999" title="New {{item_type}}">'+
-                '<div class="col-sm-2">'+
-                  '<input type="file" file-upload="item.image">'+
-                  '<img ng-if="item.image" ng-src="item.image" style="max-width: 100px">'+
-                '</div>'+
-                '<div class="col-sm-10">'+
-                  '<ng-transclude></ng-transclude>'+
-                  '<button class="btn btn-xs btn-default" ng-click="save()"><i class="fa fa-floppy-o"></i></button>'+
-                '</div>'+
-             '</div>';
+  var tpl = '<div style="border: 1px solid #999" ng-show="item">'+
+              '<div class="col-sm-2" ngf-drop ngf-accept="\'image/*\'"' +
+                'ng-model="item.photo" style="border: 2px dotted lightgray">' +
+                '<button class="btn btn-xs btn-default" ngf-select ngf-accept="\'image/\'"' +
+                  'ng-model="item.photo">select photo</button>' +
+                '<img ng-if="item.photo" ngf-src="item.photo[0]" ngf-accept="\'image/*\'" style="max-height: 40px">' +
+              '</div>'+
+              '<div class="col-sm-10 item-form">'+
+                '<ng-transclude></ng-transclude>'+
+              '</div>'+
+           '</div>';
 
   return {
     restrict: 'E', 
-    require: '^addWidget',
+    scope: {
+      item: '='
+    },
     transclude: true,
     template: tpl,
-    link: function(scope, element, attrs, ctrl) {}
+    link: function(scope, element, attrs, ctrl, transcludeFn) {
+
+      // transcludeFn(scope.$parent.$parent, function(clone) {
+        // element.find('item-form').append(clone);
+      // });
+    }
   };
 });
-
 
 
 
@@ -1985,14 +2106,11 @@ app.directive('addWidgetPlus', function () {
   var tpl = '<div class="text-center" style="height: 50px; line-height: 57px; border: 1px solid #999" title="Add {{item_type}}">'+
             '<i class="fa fa-2x fa-plus"></i> {{item_type}}'+
             '</div>';
-
   return {
     restrict: 'E', 
-    require: '^addWidget',
     template: tpl,
     link: function(scope, element, attrs, ctrl) {
       element.bind('click', function() {
-        scope.$apply(scope.$parent.options.init());
         console.log('clicked');
       });
     }
@@ -2086,45 +2204,4 @@ app.directive('slideDisplay', function () {
 //       });
 //     }
 //   };
-// });
-
-app.directive('avatarUpload', function() {
-  return {
-    restrict: 'EA',
-    link: function(scope, elem, attr) {
-      console.log('directive fileUpload scope\n', scope);
-      console.log('directive fileUpload elem\n', elem);
-      elem.bind('change', function(event) {
-          scope.user.avatar = event.target.files[0];
-          var ext = '.' + scope.user.avatar.name.split('.').pop();
-          scope.user.avatar.name = 'user_avatar_' + scope.user._id + '_' +
-                                    new Date().getTime() + ext;
-          console.log(scope.user, event);
-      });
-    }
-
-  };
-
-});
-
-/*
- * For generic file uploading purposes
- * Usage: <input type="file" file-upload="ingredient.image">
-//  */
-// app.directive('fileUpload', function() {
-//   return {
-//     restrict: 'EA',
-//     scope: {
-//       target: '='
-//     },
-//     link: function(scope, elem, attr) {
-//       console.log('file upload directive', scope, elem);
-//       elem.bind('change', function(event) {
-//         attr.fileUpload = (event.srcElement || event.target).files[0];
-//         console.log(attr.fileUpload);
-//         console.log();
-//       });
-//     }
-//   };
-
 // });
