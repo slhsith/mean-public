@@ -9,19 +9,14 @@ var UserSchema = new mongoose.Schema({
   permissions: { type: String, default: 'User' },
   confirmation: Boolean,
   user_token: { type: String, lowercase: true, unique: true },
-  languages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Language' }],
+  created: { type: Date, default: Date.now },
+
   f_name: String,
   l_name: String,
   address: String,
   dob: String,
   handle: { type: String, unique: true },
-  stripe_id: String,
-  stripe_card: [ { id: String, last4: String, name: String, brand: String, exp_month: Number, exp_year: Number }  ],
-  purchases: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
-  created: { type: Date, default: Date.now },
-  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Follower' }],
-  items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
-  dietPlans: [{ type: mongoose.Schema.Types.ObjectId, ref: 'DietPlan'}],
+
   avatar_url: String,
   facebook: {
     id: String,
@@ -30,6 +25,18 @@ var UserSchema = new mongoose.Schema({
     first_name: String,
     last_name: String
   }
+
+  languages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Language' }],
+
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Follower' }],
+
+  stripe_id: String,
+  stripe_card: [ { id: String, last4: String, name: String, brand: String, exp_month: Number, exp_year: Number }  ],
+
+  purchases: [ { type: mongoose.Schema.Types.ObjectId, ref: 'Item' } ],
+  items: [ { type: mongoose.Schema.Types.ObjectId, ref: 'Item' } ],
+  dietPlans: [ { type: mongoose.Schema.Types.ObjectId, ref: 'DietPlan'} ],
+
 });
 
 UserSchema.methods.setPassword = function(password){

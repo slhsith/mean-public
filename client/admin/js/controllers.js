@@ -4,7 +4,7 @@ app.controller('MainCtrl', function ($scope, users, auth){
   $scope.users = users.users;
 });
 
-app.controller('UserCtrl', function ($scope, users, auth, userPromise) {
+app.controller('UserCtrl', function ($scope, users, auth, userPromise, popupService) {
   $scope.user = userPromise.data;
   $scope.isAdmin = auth.isAdmin;
   $scope.update = function() {
@@ -12,6 +12,15 @@ app.controller('UserCtrl', function ($scope, users, auth, userPromise) {
     users.update($scope.user);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings: Update User");
+  };
+  $scope.deleteUser = function () {
+    console.log('delete', $scope.user._id);
+    if (popupService.showPopup('Are you sure you want to delete this user?')) {
+      users.delete($scope.user._id).success(function(data){
+        console.log(data.message);
+        $state.go('home');
+      });
+    }
   };
 });
 

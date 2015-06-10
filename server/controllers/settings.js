@@ -87,6 +87,69 @@ exports.getUsers = function (req, res, next) {
     });
 };
 
+function findFollowers (err, user) {
+    user.find( {followers: [req.payload._id]} ) {
+    if(err){ return next(err); }
+    console.log('User Followers', user.followers, user._id);
+    return res.json(followers);
+  };
+}
+
+function getItems = function(req, res, next) {
+   Item.find({})
+   .populate('exercise workoutplan dietplan video book podcast')
+   .exec(function(err, items){
+      var result = [];
+      items.forEach(function(item) {
+        result.push(removeNullSubtypeFields(item));
+      });
+      if(err){ return next(err); }
+      return res.json(result);
+   });
+}
+// 1 User.find({followers: [req.payload._id]})
+//   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Follower' }, { _id: <deleted person> } ],
+// 2 items:     [ { type: mongoose.Schema.Types.ObjectId, ref: 'Item' } ],  
+// a) remove creator._id  if you need to -- some sort of ghost state??
+
+
+exports.deleteUser = function(req, res, next) {
+  var user_id = req.params.user;
+  var user = { _id: req.payload._id };
+  User.findById(user_id, function (err, user, follower) {
+    findFollowers(user._id, req.payload._id, followers,
+      { $pull: {followers: {_id: follower_id} }}),
+      function (err, followers) {
+        if(err){ return next(err); }
+        console.log(followers);
+      };
+    getItems(user_id, function (err, user, item){
+      var item_id = user.item_id;
+      { $pull: {items: {_id: item_id} }}, 
+      function (err, items) {
+        if(err){ return next(err); }
+        console.log(items);
+      };
+    });
+    function (err, user) {
+       user.remove();
+        if(err){ return next(err); }
+        console.log(users);
+        res.json({message: 'Successfully deleted user ' + user_id, success: true});
+    };
+  });
+};
+    // // user.remove();
+    // if (err) { return next(err); }
+    // User.findByIdAndUpdate(user_id,
+    //   { $pull: {items: {_id: item_id} }}, 
+    //   function (err, items) {
+    //     if(err){ return next(err); }
+    //     console.log(items);
+    //     res.json({message: 'Successfully deleted item ' + item_id, success: true});
+    // });    
+
+
 //get users paginated from start to end
 exports.getUsersByPage = function (req, res, next) {
   // paginate by start and end params

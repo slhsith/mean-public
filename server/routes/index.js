@@ -142,6 +142,7 @@ router.get('/api/search/:query', settings.submitSearch );
 router.get('/api/users', settings.getUsers );
 router.get('/api/users/:start/:end', settings.getUsersByPage );
 router.get('/api/user/:id', settings.getUserById );
+router.delete('/api/user/:id', settings.deleteUser );
 //for public profiles
 router.get('/api/user/handle/:handle', settings.getUserByHandle );
 router.post('/api/user/:handle/followers', settings.addFollower );
