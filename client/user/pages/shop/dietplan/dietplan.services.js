@@ -11,6 +11,7 @@ app.factory('Diet', function() {
     this.gender       = null;
     this.age          = null;
     this.meals        = [];
+    this.days         = [];
   };
 
   return DietConstructor;
@@ -81,8 +82,8 @@ app.factory('Recipe', function() {
 
 app.factory('CookingStep', function () {
 
-  var CookingStepConstructor = function CookingStepConstructor () {
-    this.order       = null;
+  var CookingStepConstructor = function CookingStepConstructor (step) {
+    this.order       = step || null;
     this.description = null;
     this.photo       = null;
   };
@@ -97,11 +98,10 @@ app.factory('Ingredient', function() {
   var IngredientConstructor = function IngredientConstructor () {
     this.name        = null;
     this.category    = null;
-    this.description = null;
+    this.note        = null;
     this.photo       = null;
 
-    this.value       = null;
-    this.unit        = null;
+    this.amount      = { value: null, unit: null };
     this.preparation = null;
   };
 
@@ -116,16 +116,56 @@ app.factory('dietplans', function ($http, auth) {
   o.get = function(diet_id) {
     return $http.get('/api/item/dietplan/' + diet_id, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      return err;
     });
   };
+
   o.update = function(diet) {
     // diet._id
     return $http.put('/api/item/dietplan/' + diet.dietplan, diet, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      return err;
+    });
+  };
+
+  o.updateDay = function(diet, day) {
+    var api_url = '/api/item/dietplan/' + diet.dietplan + '/day/' + day.order;
+    return $http.put(api_url, day, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+      console.log('update day res', res);
+      return res.data;
+    }).catch(function(err) {
+      return err;
+    });
+  };
+
+  o.searchRecipes = function(query) {
+    return $http.get('/api/item/dietplan/recipes/' + query)
+    .then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      return err;
+    });
+  };
+
+  o.searchIngredients = function(query) {
+    return $http.get('/api/item/dietplan/ingredients/' + query)
+    .then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      return err;
     });
   };
 
   o.createRecipe = function(recipe) {
+    console.log('creating recipe', recipe)
     return $http.post('/api/item/dietplan/recipes', recipe, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });

@@ -1,28 +1,36 @@
-<div class="col-xs-12" ng-repeat="day in item.days" ng-show="$index === (dayOrder-1)">
-  <h3>Day {{ $index+1 }} of {{item.duration}} / 
-    <input type="text" placeholder="title" ng-model="viewingDay.title">
+                           <!-- $index 0 based, day.mealOrder is 1 based -->
+<div class="col-xs-12" ng-show="$index === (dayOrder-1)" ng-repeat="day in dietplan.days" >
+  <h3>Day {{ $index+1 }} of {{dietplan.duration}} / 
+    <input type="text" placeholder="title" 
+      ng-model="viewingDay.title" ng-blur="saveDayTitle(day)">
     / {{day.meals.length}} Meals  
-    <button class="meal-add-btn btn-primary" ng-click="initMeal()"><i class="fa fa-plus"></i></button>
+    <button class="meal-add-btn btn-primary" 
+      ng-click="initMeal()"><i class="fa fa-plus"></i></button>
 
-    <button class="meal-day-btn btn-primary pull-right" ng-click="incrementDay()"><i class="fa fa-arrow-right"></i></button>
-    <button class="meal-day-btn btn-primary pull-right" ng-click="decrementDay()"><i class="fa fa-arrow-left"></i></button>
+    <button class="meal-day-btn btn-primary pull-right" 
+      ng-click="incrementDay()"><i class="fa fa-arrow-right"></i></button>
+    <button class="meal-day-btn btn-primary pull-right" 
+      ng-click="decrementDay()"><i class="fa fa-arrow-left"></i></button>
   </h3>
 
-  <!-- meal creation -->
-  <div ng-repeat="meal in day.meals" class="{{$index === day.mealOrder-1? '' : 'hidden'}}" >
+  <!-- meal creation -->                 <!-- $index 0 based, day.mealOrder is 1 based -->
+  <div class="{{$index === day.mealOrder-1? '' : 'hidden'}}" ng-repeat="meal in day.meals">
 
     <!-- meal header -->
     <div class="col-sm-12">
-      <h3 class="col-sm-10"><span class="diet-title">
-        Meal {{$index+1}} 
-        <button class="meal-day-btn btn-primary" ng-click="decrementMeal(day)"><i class="fa fa-arrow-left"></i></button>
-        <button class="meal-day-btn btn-primary" ng-click="incrementMeal(day)"><i class="fa fa-arrow-right"></i></button>
-      <!-- - Day {{ $parent.$index+1 }} of {{ item.duration }}</span> -->
+      <h3 class="col-sm-10">
+        <span class="diet-title"> Meal {{$index+1}} </span>
+        <button class="meal-day-btn btn-primary" 
+          ng-click="decrementMeal(day)"><i class="fa fa-arrow-left"></i></button>
+        <button class="meal-day-btn btn-primary" 
+          ng-click="incrementMeal(day)"><i class="fa fa-arrow-right"></i></button>
+      <!-- - Day {{ $parent.$index+1 }} of {{ dietplan.duration }}</span> -->
       </h3>
     </div>
 
     <!-- meal editor -->
-    <form ng-submit="saveMeal(meal)" class='col-sm-12'>
+    <form class="col-sm-12" ng-submit="saveDay(day)">
+
       <div class="col-sm-6">
         <div class="form-group col-sm-12">
           <input type="text" class="form-control" placeholder="Title"
@@ -39,28 +47,38 @@
       </div>
 
       <div class="col-sm-6">
-        <div class="form-group col-sm-12">
           <textarea 
             class="form-control"
             placeholder="Description"
             ng-model="meal.description" row="10">
           </textarea>
-        </div>
       </div>
 
-      <add-widget set="meal.recipes" options="addWidgetOptions['recipe']">
-        <add-widget-items> 
-          {{item.name}}<br/>
-          {{item.yield}} Servings
-        </add-widget-items>
-        <add-widget-form class="col-sm-6">
-          <input class="col-sm-6" type="text" placeholder="Recipe" ng-model="item.name">
-          <div class="col-sm-6"><a ng-click="initRecipe()"><small>+ Create New Recipe</small></a></div>
-          <button class="btn btn-xs btn-default" ng-click="searchRecipes()"><i class="fa fa-search"></i></button>
-          <input type="text" placeholder="Servings" ng-model="item.yield">
+      <div class="col-sm-12">
+
+        <add-widget-item class="col-sm-6" item="recipe" ng-repeat="recipe in meal.recipes"> 
+          {{recipe.name}}<br/>
+          {{recipe.yield}} Servings
+        </add-widget-item>
+
+        <add-widget-form class="col-sm-6" item="recipe">
+          <div class="col-sm-6">
+            <recipe-finder></recipe-finder>
+   <!--          <input class="col-sm-10" type="text" placeholder="Recipe" 
+              ng-model="recipe.name">
+            <button type="button" class="col-sm-2 btn btn-xs btn-default" 
+              ng-click="searchRecipes(recipe.name)"><i class="fa fa-search"></i></button> -->
+            <input class="col-sm-10" type="text" placeholder="Servings" 
+              ng-model="recipe.yield" required>
+            <button type="button" class="col-sm-2 btn btn-xs btn-default" 
+              ng-click="pushRecipe()"><i class="fa fa-floppy-o"></i></button>
+          </div>
+          <div class="col-sm-6"><a ng-click="initNewRecipe()"><small>+ Create New Recipe</small></a></div>
         </add-widget-form>
-        <add-widget-plus class="col-sm-6"></add-widget-plus>
-      </add-widget>
+
+        <add-widget-plus class="col-sm-6" ng-click="initRecipe()"></add-widget-plus>
+
+      </div>
 
       <button type="submit" class="form-control btn-default">Save Meal</button>
     </form>

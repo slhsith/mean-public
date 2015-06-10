@@ -233,6 +233,8 @@ app.factory('items', function($http, auth){
 
 });
 
+app.factory('events', function($http, auth){
+});
 
 // TRANSACTIONS
 app.factory('transactions', ['$http', 'auth', function($http, auth){

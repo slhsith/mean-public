@@ -38,7 +38,7 @@ var RecipeSchema = new mongoose.Schema({
                              unit: String  // Tbs
                             },
                    preparation: String, 
-                   description: String
+                   note: String
                   } 
                ],
 

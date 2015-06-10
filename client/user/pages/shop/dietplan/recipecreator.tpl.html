@@ -1,93 +1,140 @@
 <div>
-    <div class="col-sm-12"> <h3 class="diet-title">Recipe</h3> </div>
+  <div class="col-sm-12"> <h3 class="diet-title">Recipe</h3> </div>
 
-    <div class="col-sm-6">
-      <div class="form-group col-sm-12">
-        <input type="text" class="form-control" placeholder="Title" 
-          ng-model="recipe.title">
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control"
-        placeholder="Type" ng-model="recipe.type">
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control"
-        placeholder="Equipment" ng-model="recipe.equipment">
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control"
-        placeholder="Number of Servings" ng-model="recipe.yield">
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control"
-        placeholder="Estimated Cost" ng-model="recipe.cost">
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control"
-        placeholder="Calories" ng-model="recipe.calories">
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control"
-        placeholder="Prep Time" ng-model="recipe.preptime">
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control"
-        placeholder="Fats" ng-model="recipe.fats">
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control"
-        placeholder="Cooking Time" ng-model="recipe.cooktime">
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control"
-        placeholder="Carbs" ng-model="recipe.carbs">
-      </div>
-
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control"
-        placeholder="Proteins" ng-model="recipe.proteins">
-      </div>
+  <div class="col-sm-6">
+    <div class="form-group col-sm-12">
+      <input type="text" class="form-control" placeholder="Title" 
+        ng-model="recipe.title" required/>
+    </div>
+    <div class="form-group col-sm-6">
+      <input type="text" class="form-control"
+      placeholder="Type" ng-model="recipe.type">
+    </div>
+    <div class="form-group col-sm-6">
+      <input type="text" class="form-control"
+      placeholder="Equipment" ng-model="recipe.equipment">
+    </div>
+    <div class="form-group col-sm-6">
+      <input type="text" class="form-control"
+      placeholder="Number of Servings" ng-model="recipe.yield">
+    </div>
+    <div class="form-group col-sm-6">
+      <input type="text" class="form-control"
+      placeholder="Estimated Cost" ng-model="recipe.cost">
+    </div>
+    <div class="form-group col-sm-6">
+      <input type="text" class="form-control"
+      placeholder="Calories" ng-model="recipe.calories">
+    </div>
+    <div class="form-group col-sm-6">
+      <input type="text" class="form-control"
+      placeholder="Prep Time" ng-model="recipe.preptime">
+    </div>
+    <div class="form-group col-sm-6">
+      <input type="text" class="form-control"
+      placeholder="Fats" ng-model="recipe.fats">
+    </div>
+    <div class="form-group col-sm-6">
+      <input type="text" class="form-control"
+      placeholder="Cooking Time" ng-model="recipe.cooktime">
+    </div>
+    <div class="form-group col-sm-6">
+      <input type="text" class="form-control"
+      placeholder="Carbs" ng-model="recipe.carbs">
     </div>
 
-    <div class="col-sm-6">
-      <div class="form-group col-sm-12">
-        <textarea class="form-control" placeholder="Description"
-          ng-model="recipe.description" row="10"> </textarea>
-      </div>
-      <div class="diet-photo col-sm-6">Upload Pic</div>
-      <div class="diet-photo col-sm-6">Upload Cover Photo</div>
-      <div class="diet-photo col-sm-6">Upload Pic</div>
-      <div class="diet-photo col-sm-6">Upload Cooking Video</div>
+    <div class="form-group col-sm-6">
+      <input type="text" class="form-control"
+      placeholder="Proteins" ng-model="recipe.proteins">
     </div>
+  </div>
+
+  <div class="col-sm-6">
+    <div class="form-group col-sm-12">
+      <textarea class="form-control" placeholder="Description"
+        ng-model="recipe.description" row="10"> </textarea>
+    </div>
+
+    <div ngf-drop class="diet-photo col-sm-6" ngf-accept="'image/*'"
+      ng-model="recipe.photo" style="border: 2px dotted lightgray">
+      Upload Photo
+      <button class="btn btn-xs btn-default" ngf-select 
+        ng-model="recipe.photo">select or drag/drop</button>
+      <img ng-if="recipe.photo" ngf-src="recipe.photo[0]" ngf-accept="'image/*'" style="max-height: 40px">
+    </div>
+    <div ngf-drop class="diet-photo col-sm-6" ngf-accept="'image/*'"
+      ng-model="recipe.cover_photo" style="border: 2px dotted lightgray">
+      Upload Cover Photo
+      <button class="btn btn-xs btn-default" ngf-select 
+        ng-model="recipe.cover_photo">select or drag/drop</button>
+      <img ng-if="recipe.cover_photo" ngf-src="recipe.cover_photo[0]" ngf-accept="'image/*'" style="max-height: 40px">
+    </div>
+    <div ngf-drop class="diet-photo col-sm-6" ngf-accept="'image/*'"
+      ng-model="recipe.photo" style="border: 2px dotted lightgray">
+      Upload Photo
+      <button class="btn btn-xs btn-default" ngf-select 
+        ng-model="recipe.photo">select or drag/drop</button>
+      <img ng-if="recipe.photo" ngf-src="recipe.photo[0]" ngf-accept="'image/*'" style="max-height: 40px">
+    </div>
+    <div ngf-drop class="diet-photo col-sm-6" ngf-accept="'video/*'"
+      ng-model="recipe.video" style="border: 2px dotted lightgray">
+      Upload Cooking Video
+      <button class="btn btn-xs btn-default" ngf-select 
+        ng-model="recipe.video">select or drag/drop</button>
+      <!-- <img ng-if="recipe.video" ngf-src="recipe.video[0]" ngf-accept="'image/*'" style="max-height: 40px"> -->
+    </div>
+
+  </div>
 
   <!-- - - - - - - - - - - - - steps - - - - - - - - - - - - - - - - - - -->
-  <add-widget set="recipe.steps" widget-class="col-sm-6">
-    <add-widget-item class="col-sm-6" item="step" ng-repeat="step in recipe.steps">
+  <div class="col-sm-12">
+    <add-widget-item class="col-sm-6" ng-repeat="step in recipe.steps" item="step">
       Step {{step.order}}<br/>
       {{step.description}}
     </add-widget-item>
 
-    <add-widget-form class="col-sm-6" ng-show="step" fields="addWidgetFields['cookingstep']" save="saveStep()">
-      Step {{step.order}}
+    <add-widget-form class="col-sm-6" item="step">
+      <div class="col-sm-12">
+        Step {{step.order}}
+      </div>
+      <form ng-submit="pushStep()" class="col-sm-12">
+        <input class="col-sm-10" type="text" placeholder="Description" ng-model="step.description">
+        <button type="submit" class="col-sm-1"><i class="fa fa-floppy-o"></i></button>
+        <button type="button" class="col-sm-1" ng-click="cancelStep()"><i class="fa fa-times"></i></button>
+      </form>
     </add-widget-form>
 
-    <add-widget-plus class="diet-plus col-sm-6" item-type="cooking step" ng-click="initStep()">
-    </add-widget-plus>
+    <add-widget-plus class="diet-plus col-sm-6" ng-click="initStep()"></add-widget-plus>
   </div>
 
   <!-- - - - - - - - - - - - - ingredients - - - - - - - - - - - - -->
 
   <div class="col-sm-12">
-    <add-widget>
-      <add-widget-item class="col-sm-4" ng-repeat="ingredient in recipe.ingredients" item="ingredient">
-        {{ingredient.amount.value}} {{ingredient.amount.type}} {{ingredient.description}}
-      </add-widget-item>
+    <add-widget-item class="col-sm-4" ng-repeat="ingredient in recipe.ingredients" item="ingredient">
+      {{ingredient.name}}</br>
+      {{ingredient.amount.value}} {{ingredient.amount.unit}} {{ingredient.preparation}} {{ingredient.description}}
+    </add-widget-item>
 
-      <add-widget-form class="col-sm-4" item-type="ingredient" item="ingredient" fields="addWidgetFields[ingredient]" searchable="true"> </add-widget-form>
+    <add-widget-form class="col-sm-4" item="ingredient"> 
 
-      <add-widget-plus class="col-sm-4" init="initIngredient()" item-type="ingredient"> </add-widget-plus>
-    </add-widget>
+      <form ng-submit="pushIngredient()">
+        <ingredient-finder></ingredient-finder>
+
+        <div class="col-sm-12">
+          <input class="col-sm-2" type="text" placeholder="#" ng-model="ingredient.amount.value">
+          <select class="col-sm-2" ng-model="ingredient.amount.unit" ng-options="unit.name as unit.name for unit in units">
+            <option value="">Unit</option>
+          </select>
+          <input class="col-sm-8" type="text" placeholder="prep method" ng-model="ingredient.preparation">
+
+          <input class="col-sm-10" type="text" placeholder="note" ng-model="ingredient.note">
+          <button type="submit" class="col-sm-2"><i class="fa fa-floppy-o"></i></button>
+        </div>
+      </form>
+    </add-widget-form>
+
+    <add-widget-plus class="col-sm-4" ng-click="initNewIngredient()" item-type="ingredient"> </add-widget-plus>
   </div>
 
-  <button ng-click="saveRecipe()" class="diet-create col-sm-12 btn-primary ">Create</button>
+  <button ng-show="ng-click="createRecipe()" class="diet-create col-sm-12 btn-primary ">Create</button>
 </div>

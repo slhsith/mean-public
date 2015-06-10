@@ -28,8 +28,9 @@ gulp.task('lint', function() {
         'client/user/app.js','client/user/js/controllers.js','client/user/js/models.js','client/user/js/filters.js',
         'client/admin/app.js','client/admin/js/controllers.js','client/admin/js/models.js',
         'client/set/app.js','client/set/js/controllers.js','client/set/js/models.js',
-        'client/user/pages/messenger/*.js', 'client/user/pages/shop/*.js',
-        'client/user/pages/shop/*/*.js', 'client/user/elements/*/*.js'
+        // 'client/user/pages/messenger/*.js', 'client/user/pages/shop/*.js', 'client/user/pages/shop/*/*.js',
+        'client/user/pages/*/*.js',
+        'client/user/elements/*/*.js'
         ])
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
@@ -88,7 +89,9 @@ gulp.task('styles', function () {
 });
 
 gulp.task('userstyles', function () {
-    gulp.src(['client/user/css/*.css','client/user/pages/*/*.css','client/user/elements/*/*.css'])
+    gulp.src(['client/user/css/*.css',
+              'client/user/pages/*/*.css',
+              'client/user/elements/*/*.css'])
         .pipe(concat('all.css'))
         .pipe(gulp.dest('client/user/dist'))
         .pipe(minifyCSS())
@@ -124,9 +127,11 @@ gulp.task('markup', function () {
 
 gulp.task('usermarkup', function () {
     gulp.src(['client/user/*.html','client/user/views/*.html',
+        'client/user/pages/shop/*.html',
         'client/user/pages/shop/dietplan/*.html',
         'client/user/pages/shop/digitalmedia/*.html',
         'client/user/pages/shop/workoutplan/*.html',
+        'client/user/pages/events/*.html',
         'client/user/pages/messenger/*.html',
         'client/user/elements/itemmeta/*.html',
         'client/user/elements/addwidget/*.html',

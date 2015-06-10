@@ -19,6 +19,9 @@ var
   posts           = require('../controllers/posts'),
   groups          = require('../controllers/groups'),
   shop            = require('../controllers/shop'),
+  events          = require('../controllers/events'),
+  workoutplans    = require('../controllers/workoutplans'),
+  dietplans       = require('../controllers/dietplans'),
   settings        = require('../controllers/settings'),
   messaging       = require('../controllers/messaging');
 
@@ -59,19 +62,23 @@ router.get('/api/items/:item', shop.getItemById );
 router.delete('/api/item/:item', auth, shop.deleteItem );
 router.put('/api/items/:item/upvote', auth, shop.upvoteItem );
 
-router.get('/api/items/:item/exercises', shop.getExercises );
-router.post('/api/workoutPlans/:id', shop.createExercise );
-router.get('/api/item/exercise/:exercise', shop.getExercise );
-router.post('/api/item/exercise/:exercise', shop.newStep );
-router.get('/api/item/step/:step', shop.getStep );
+router.get('/api/items/:item/exercises', workoutplans.getExercises );
+router.post('/api/workoutPlans/:id', workoutplans.createExercise );
+router.get('/api/item/exercise/:exercise', workoutplans.getExercise );
+router.post('/api/item/exercise/:exercise', workoutplans.newStep );
+router.get('/api/item/step/:step', workoutplans.getStep );
 
-router.post('/api/item/dietplan/:id/days', auth, shop.createDay );
-router.put('/api/item/dietplan/:id/days', auth, shop.updateDay );
-// router.put('/api/item/dietplan/:id/meals', auth, shop.updateMeal);
-router.post('/api/item/dietplan/recipes', auth, shop.createRecipe );
-router.post('/api/item/dietplan/ingredients', auth, shop.createIngredient );
-router.get('/api/item/dietplan/recipes/:query', auth, shop.searchRecipes );
-router.get('/api/item/dietplan/ingredients/:query', auth, shop.searchIngredients );
+router.post('/api/item/dietplan/:id/days', auth, dietplans.createDay );
+router.put('/api/item/dietplan/:id/day/:order', auth, dietplans.updateDay );
+
+router.get('/api/item/dietplan/recipe/:id', dietplans.getRecipe );
+router.get('/api/item/dietplan/recipes/:query', dietplans.searchRecipes );
+router.post('/api/item/dietplan/recipes', auth, dietplans.createRecipe );
+router.put('/api/item/dietplan/recipe/:id', auth, dietplans.updateRecipe );
+
+router.get('/api/item/dietplan/ingredients/:query', dietplans.searchIngredients );
+router.post('/api/item/dietplan/ingredients', auth, dietplans.createIngredient );
+router.put('/api/item/dietplan/ingredient/:id', auth, dietplans.updateIngredient );
 
 // Item page & transaction
 router.post('/api/transactions', auth, shop.createTransaction );

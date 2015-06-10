@@ -1,0 +1,55 @@
+<div ng-show="isUser()">
+  
+  <div class="page-header">
+    <h3 class="text-center">Mean Starter</h3>
+    <a href="#/home"><button class="btn-default col-sm-4">Create Post</button></a>
+    <button class="btn-primary col-sm-4">Create Digital Item</button>
+    <a href="#/events"><button class="btn-default col-sm-4">Create Event</button></a>
+  </div>
+
+  <button class="btn-default col-sm-12" ng-init="showproducts=false"
+    ng-click="showproducts = !showproducts">Show/hide Items</button>
+          
+  <div ng-hide="isContributor()" class="col-sm-12" ng-repeat="item in items" ng-show="showproducts">
+    <h4>{{ item.name }} | 
+        {{ item.price }}
+        {{ item.duration? '|' + item.duration : '' }}
+        {{ item.genre?    '|' + item.genre    : '' }} 
+        {{ item.category? '|' + item.category : '' }}
+    </h4>
+          
+    <a ng-if="item.type === 'video' || item.type==='podcast' || item.type==='book'" 
+      href="#/item/{{item._id}}">Go to Item Page</a>
+    <a ng-if="item.type === 'dietplan'" 
+      href="#/item/dietplan/{{item._id}}">Go to DietPlan Page</a>
+    <a ng-if="item.type === 'challenge'" 
+      href="#/item/challenge/{{item._id}}">Go to Challenge Page</a>
+    <a ng-if="item.type === 'workoutplan'" 
+      href="#/item/workoutplan/{{item._id}}">Go to Workout Plan Page</a>
+
+    <span ng-if="isMine(item)">| <a ng-click="editItem(item)">Edit</a></span>
+  </div>
+
+  <div class="fb-like" data-href="https://developers.facebook.com/docs/plugins/" data-layout="standard" data-action="like" data-show-faces="false" data-share="false"></div>
+
+<div ng-if="isContributor()">
+  <div class="col-sm-6">
+    <span class="item-title">Create Digital Item</span><span class="item-title" ng-hide="item.type === null"> - {{itemTitles[item.type]}}</span></span>
+  </div>
+  <div class="col-sm-6 text-center">
+    <span class="item-types">
+      <a ng-click="initItem('workoutplan')">Workout Plan</a> | 
+      <a ng-click="initItem('dietplan')">Diet Plan</a> | 
+      <a ng-click="initItem('book')">Book</a> | 
+      <a ng-click="initItem('video')">Video</a> | 
+      <a ng-click="initItem('podcast')">Podcast</a>
+    </span>
+  </div>
+
+  <!-- - - - - - - - - - - - - - WORKOUT - - - - - - - - - - - -->
+  <workout-plan item="item" ng-if="item.type === 'workoutplan'"></workout-plan>
+  <!-- - - - - - - - - - - - - - DIET - - - - - - - - - - - -->
+  <diet-plan item="item" ng-if="item.type === 'dietplan'"></diet-plan>
+  <!-- - - - - - - - - - - - - - MEDIA - - - - - - - - - - - -->
+  <digital-media item="item" ng-if="item.type === 'video' || item.type === 'podcast' || item.type === 'book'"></digital-media>
+</div>  
