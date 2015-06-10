@@ -1,0 +1,14 @@
+<div class="col-sm-12">
+  <input class="col-sm-{{true? '10' : '12'}}" type="text" placeholder="Recipe" ng-model="recipe.name" ng-blur="searchRecipes(recipe.name)">
+</div>
+
+<div class="col-sm-12" ng-show="recipe.results.length"> Existing Recipes </div>
+<div class="col-sm-12" ng-repeat="rec in recipe.results">
+  {{rec.name}} <button class="btn btn-default btn-xs" ng-click="selectRecipe(rec)">Select</button>
+</div>
+<!-- <div class="col-sm-12" ng-show="ingredient.results.length === 0">
+  Ingredient not found, would you like to create it?
+  <input class="col-sm-5" type="text" placeholder="category" ng-model="ingredient.category"> 
+  <input class="col-sm-5" type="text" placeholder="keywords" ng-model="ingredient.keywords"> 
+  <button type="button" class="col-sm-2" ng-click="saveNewIngredient(ingredient)"><i class="fa fa-floppy-o"></i></button>
+</div> -->

@@ -5,7 +5,8 @@ var ItemSchema = new mongoose.Schema({
 
   name: String,
   creator: { username: String, 
-             _id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+             _id     : { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+
            },
 
   price   : Number, // in cents

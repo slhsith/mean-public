@@ -49,15 +49,11 @@ function($stateProvider, $urlRouterProvider) {
     .state('events', {
       url: '/events',
       templateUrl: 'events.html',
-      controller: 'ShopCtrl',
+      controller: 'EventsCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
-          console.log($stateParams);
-          return items.get($stateParams.item);
+          return items.getAll();
         }
-        // , userPromise: function (auth, users) {
-        //   return users.get(auth.isThisUser());
-        // }
       }
     })
     .state('item', {
@@ -70,9 +66,31 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
+    .state('bootcamp', {
+      url: '/event/bootcamp/:id',
+      templateUrl: 'event.tpl.html',
+      controller: 'EventCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
     .state('challenge', {
-      url: '/items/challenge/:id',
-      templateUrl: 'challenge.html',
+      url: '/event/challenge/:id',
+      templateUrl: 'event.tpl.html',
+      controller: 'EventCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+    .state('dietplan', {
+      url: '/item/dietplan/:id',
+      templateUrl: 'item.html',
       controller: 'ItemsCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
@@ -82,7 +100,7 @@ function($stateProvider, $urlRouterProvider) {
       }
     })
     .state('workoutPlan', {
-      url: '/items/workoutplan/:id',
+      url: '/item/workoutplan/:id',
       templateUrl: 'workoutPlan.html',
       controller: 'ItemsCtrl',
       resolve: {
