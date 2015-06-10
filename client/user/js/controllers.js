@@ -2,6 +2,7 @@
     CONTROLLERS - USER
  *  ------------------  */
 
+
  app.controller('MainCtrl', function ($scope, auth, messageSocket) {
   
     $scope.user = auth.getUser();
@@ -23,7 +24,6 @@
   $scope.logOut = auth.logOut;
   $scope.isThisUser = auth.isThisUser;
 
-
   $scope.$on('socket:tokenrequest', function(event, data) {
     console.log('socket:tokenrequest', event.name, data);
     console.log(data.message);
@@ -34,6 +34,14 @@
     console.log('broadcast to socket', event.name, data);
   });
   
+});
+
+
+app.controller('NavCtrl', function ($scope, auth) {
+  $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.home = auth.isLoggedIn;
+  $scope.currentUser = auth.currentUser;
+  $scope.logOut = auth.logOut;
 });
 
 
@@ -102,222 +110,4 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   $scope.isContributor = auth.isContributor;
   $scope.isUser = auth.isUser;
 });
-
-
-
-app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
-
-  $scope.items = items.items;
-  $scope.item = itemPromise.data;
-
-  item = itemPromise;
-
-  $scope.deleteItem = function () {
-    console.log('delete', $scope.item._id);
-    if (popupService.showPopup('Are you sure you want to delete this item?')) {
-      items.delete($scope.item._id).success(function(data){
-        console.log(data.message);
-        $state.go('shop');
-      });
-    }
-  };
-
-  $scope.createDay = function(){
-    items.newDay($stateParams.id, $scope.day.day).success(function(day) {
-      $scope.item.days.push(day);
-    });
-  };
-  $scope.incrementUpvotes = function(item){
-    items.upvoteItem(item);
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
-    // mixpanel.track("Items Page: Upvoted Comment");
-  };
-  $scope.addPlan = function() {
-    items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
-      console.log('success');
-      $scope.item.exercises.push(data);
-   }).error(function(){
-       console.log('failure');
-   });
-  };
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-});
-
-app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
-  $scope.exercise = exercisePromise;
-  $scope.addStep = function() {
-    items.newStep($scope.step, $stateParams.exercise).success(function(data){
-      console.log('success');
-      $scope.step = null;
-      $scope.exercise.steps.push(data);
-   }).error(function(){
-       console.log('failure');
-   });
-  };
-});
-
-app.controller('StepCtrl', function ($scope, items, stepPromise, $stateParams) {
-  $scope.step = stepPromise;
-});
-
-
-app.controller('NavCtrl', function ($scope, auth) {
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.home = auth.isLoggedIn;
-  $scope.currentUser = auth.currentUser;
-  $scope.logOut = auth.logOut;
-});
-
-app.controller('TransCtrl', function ($scope, items, auth, transactions, itemPromise) {
-  $scope.item = itemPromise.data;
-
-  $scope.startTrans = function () {
-    console.log($scope.item);
-    transactions.purchase($scope.item);
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Start Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});
-    // mixpanel.track("Checkout: Purchase Item");
-    // mixpanel.people.track_charge(10,{  item: $scope.item.name, type: $scope.item.type, "$time": new Date() });
-  };
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-});
-
-
-app.controller('SettingsCtrl', function ($scope, languages, settings, userPromise, auth) {
-  $scope.user = angular.extend($scope.user, settings.settings);
-  $scope.languages = languages.languages;
-  $scope.addLanguage = function(){
-    console.log($scope.language.name);
-    languages.addLanguage($scope.language.name).success(function(data) {
-    $scope.languages.push(data);
-    });
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Languange",{"area":"settings", "page":"settings", "action":"add"});
-  };
-
-  $scope.updateSettings = function() {
-    console.log($scope.user);
-    settings.update($scope.user);
-    if ($scope.user.avatar.length) {
-      settings.uploadAvatar($scope.user);
-    }
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Settings update",{"area":"settings", "page":"settings", "action":"update"});
-    // mixpanel.track("Settings: Update User");
-  };
-  $scope.user = userPromise;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-  $scope.isThisUser = auth.isThisUser;
-});
-
-app.controller('GroupsCtrl',
-function ($scope, groups, auth) {
-
-  $scope.groups = groups.groups;
-  $scope.addGroup = function(){
-    groups.create($scope.group);
-    console.log($scope.group);
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Group", {"area":"group", "page":"groups", "action":"create"});
-  };
-  $scope.group = '';
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-});
-
-app.controller('GHomeCtrl',
-function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
-  var group = groups.group[$stateParams.id];
-  var gpost = gposts.gpost[$stateParams.id];
-  // var gpost = gposts.gpost[$stateParams.id];
-  $scope.group = groupsPromise.data;
-  console.log(groupsPromise.data);
-  // $scope.gpost = gpostsPromise.data;
-  // console.log(gpostsPromise.data);
-
-  $scope.currentUser = auth.currentUser();
-  $scope.groups = groups.groups;
-  $scope.gposts = gposts.gposts;
-  $scope.gcomments = gcomments.gcomments;
-  $scope.addGpost = function(){
-    console.log($stateParams.id);
-    console.log($scope.gpost);
-    // if(!$scope.body || $scope.body === '') { return; }
-    groups.createGpost($scope.gpost, $stateParams.id).success(function(gpost) {
-      $scope.group.gposts.push(gpost);
-      $scope.gpost = null;
-    });
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
-  };
-  $scope.addGcomment = function (gpost, gcomment) {
-    console.log('in controller', gpost, gcomment);
-    gpost.gcomments.push(gcomment);
-    groups.createGcomment(gpost._id, gcomment); 
-    console.log(gpost._id, gcomment);
-  };
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-  
-  // $scope.addComment = function(){
-  //   console.log($scope.post);
-  //   // posts.addComment(posts.post._id, {
-  //   //   body: $scope.post.comment,
-  //   //   author: $scope.currentUser
-  //   // }).success(function(comment) {
-  //   //   $scope.post.comments.push(comment);
-  //   // });
-  //   // $scope.body = '';
-  // };
-  // $scope.incrementUpvotes = function(gpost){
-  //   gposts.upvoteGroupPost(gpost);
-  // };
-  $scope.isLoggedIn = auth.isLoggedIn;
-});
-
-app.controller('GpostCtrl', [
-'$scope',
-'$stateParams',
-'gposts',
-'gcomments',
-'auth',
-function($scope, $stateParams, gposts, gcomments, auth){
-  var gpost = gposts.gpost[$stateParams.id];
-  $scope.get(gpost._id);
-  $scope.gpost = gposts.gpost;
-  $scope.gcomments = gcomments.gcomments;
-  $scope.addGcomment = function(){
-    if(!scope.body || $scope.body === '') { return; }
-    gposts.addGcomment(gposts.gpost._id, {
-      body: $scope.body,
-      author: 'user',
-    }).success(function(gcomment) {
-      $scope.gpost.gcomments.push(gcomment);
-    });
-    $scope.body = '';
-  };
-  $scope.incrementUpvotes = function(gcomment){
-    gposts.upvoteGroupComment(gpost, gcomment);
-  };
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-}]);
 

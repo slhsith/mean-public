@@ -48,16 +48,12 @@ function($stateProvider, $urlRouterProvider) {
     })
     .state('events', {
       url: '/events',
-      templateUrl: 'events.tpl.html',
-      controller: 'ShopCtrl',
+      templateUrl: 'events.html',
+      controller: 'EventsCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
-          console.log($stateParams);
-          return items.get($stateParams.item);
+          return items.getAll();
         }
-        // , userPromise: function (auth, users) {
-        //   return users.get(auth.isThisUser());
-        // }
       }
     })
     .state('item', {

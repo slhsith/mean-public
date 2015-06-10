@@ -28,8 +28,7 @@ gulp.task('lint', function() {
         'client/user/app.js','client/user/js/controllers.js','client/user/js/models.js','client/user/js/filters.js',
         'client/admin/app.js','client/admin/js/controllers.js','client/admin/js/models.js',
         'client/set/app.js','client/set/js/controllers.js','client/set/js/models.js',
-        // 'client/user/pages/messenger/*.js', 'client/user/pages/shop/*.js', 'client/user/pages/shop/*/*.js',
-        'client/user/pages/*/*.js',
+        'client/user/pages/*/*.js','client/user/pages/*/*/*.js',
         'client/user/elements/*/*.js'
         ])
         .pipe(jshint())
@@ -91,6 +90,7 @@ gulp.task('styles', function () {
 gulp.task('userstyles', function () {
     gulp.src(['client/user/css/*.css',
               'client/user/pages/*/*.css',
+              'client/user/pages/*/*/*.css',
               'client/user/elements/*/*.css'])
         .pipe(concat('all.css'))
         .pipe(gulp.dest('client/user/dist'))
@@ -132,12 +132,13 @@ gulp.task('usermarkup', function () {
         'client/user/pages/shop/digitalmedia/*.html',
         'client/user/pages/shop/workoutplan/*.html',
         'client/user/pages/events/*.html',
+        'client/user/pages/groups/*.html',
         'client/user/pages/messenger/*.html',
-        'client/user/elements/itemmeta/*.html',
         'client/user/elements/addwidget/*.html',
-        'client/user/elements/slidedisplay/*.html',
+        // 'client/user/pages/fileupload/*.html',
         // 'client/user/elements/messengerwindow/*.html',
         // 'client/user/elements/searchbar/*.html'
+        // 'client/user/elements/usersearch/*.html'
         ])
         .pipe(htmlify())
         .pipe(templateCache({standalone:true}))
@@ -171,9 +172,9 @@ gulp.task('watch', function() {
     // javascript
     gulp.watch('client/js/*.js', ['lint', 'scripts']);
     gulp.watch('client/user/js/*.js', ['lint', 'userscripts']);
+    gulp.watch('client/user/elements/*/*.js', ['lint', 'userscripts']);
     gulp.watch('client/user/pages/*/*.js', ['lint', 'userscripts']);
     gulp.watch('client/user/pages/*/*/*.js', ['lint', 'userscripts']);
-    gulp.watch('client/user/elements/*/*.js', ['lint', 'userscripts']);
     gulp.watch('client/admin/js/*.js', ['lint', 'adminscripts']);
     gulp.watch('client/set/js/*.js', ['lint', 'setscripts']);
 
@@ -181,9 +182,9 @@ gulp.task('watch', function() {
     gulp.watch('client/*.html', ['markup']);
     gulp.watch('client/user/*.html', ['usermarkup']);
     gulp.watch('client/user/views/*.html', ['usermarkup']);
+    gulp.watch('client/user/elements/*/*.html', ['usermarkup']);
     gulp.watch('client/user/pages/*/*.html', ['usermarkup']);
     gulp.watch('client/user/pages/*/*/*.html', ['usermarkup']);
-    gulp.watch('client/user/elements/*/*.html', ['usermarkup']);
     gulp.watch('client/admin/*.html', ['adminmarkup']);
     gulp.watch('client/admin/views/*.html', ['adminmarkup']);
     gulp.watch('client/set/*.html', ['setmarkup']);
@@ -192,7 +193,9 @@ gulp.task('watch', function() {
     // stylesheets
     gulp.watch('client/css/*.css', ['styles']);
     gulp.watch('client/user/css/*.css', ['userstyles']);
+    gulp.watch('client/user/elements/*/*.css', ['userstyles']);
     gulp.watch('client/user/pages/*/*.css', ['userstyles']);
+    gulp.watch('client/user/pages/*/*/*.css', ['userstyles']);
     gulp.watch('client/admin/css/*.css', ['adminstyles']);
     gulp.watch('client/set/css/*.css', ['setstyles']);
 });

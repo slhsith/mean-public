@@ -2,9 +2,11 @@
 <!--   <div ng-show="isCurrentUser()"> -->
     <div>
       <h3 class="text-center">Mean Starter</h3>
-      <button class="btn-primary col-md-4">Create Post</button>
-      <a href="#/shop"><button class="page-header" ng-if="isContributor()" class="btn-default col-md-4">Create Digital Item</button></a>
-      <a href="#/events"><button class="btn-default class="page-header" ng-if="isContributor()" col-md-4">Create Event</button></a>
+      <button class="btn-primary col-sm-4">Create Post</button>
+      <a href="#/shop">
+        <button class="btn-default col-sm-4" ng-if="isContributor()">Create Digital Item</button></a>
+      <a href="#/events">
+        <button class="btn-default col-sm-4" ng-if="isContributor()">Create Event</button></a>
     </div>
 
     <form ng-submit="addPost()" ng-show="isLoggedIn()" style="margin-top:30px;">
