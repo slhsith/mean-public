@@ -1881,7 +1881,6 @@ app.directive('digitalMedia', function () {
 
 
 
-
 app.directive('workoutPlan', function () {
 
   return {
