@@ -142,3 +142,9 @@ app.factory('settings', ['$http', '$window', function($http, $window){
    
    return s;
 }]);
+
+app.service('popupService', function($window) {
+  this.showPopup = function(message) {
+    return $window.confirm(message);
+  };
+});

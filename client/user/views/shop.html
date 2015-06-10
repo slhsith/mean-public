@@ -19,13 +19,13 @@
     </h4>
           
     <a ng-if="item.type === 'video' || item.type==='podcast' || item.type==='book'" 
-      href="#/items/{{item._id}}">Go to Item Page</a>
+      href="#/item/{{item._id}}">Go to Item Page</a>
     <a ng-if="item.type === 'dietplan'" 
-      href="#/items/dietplan/{{item._id}}">Go to DietPlan Page</a>
+      href="#/item/dietplan/{{item._id}}">Go to DietPlan Page</a>
     <a ng-if="item.type === 'challenge'" 
-      href="#/items/challenge/{{item._id}}">Go to Challenge Page</a>
+      href="#/item/challenge/{{item._id}}">Go to Challenge Page</a>
     <a ng-if="item.type === 'workoutplan'" 
-      href="#/items/workoutplan/{{item._id}}">Go to Workout Plan Page</a>
+      href="#/item/workoutplan/{{item._id}}">Go to Workout Plan Page</a>
 
     <span ng-if="isMine(item)">| <a ng-click="editItem(item)">Edit</a></span>
   </div>

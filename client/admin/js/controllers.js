@@ -1,10 +1,20 @@
-app.controller('MainCtrl', function ($scope, users, auth){
+app.controller('MainCtrl', function ($scope, users, auth, popupService){
+
+  $scope.deleteUser = function (user) {
+    console.log('delete', user._id);
+    if (popupService.showPopup('Are you sure you want to delete this user?')) {
+      users.delete(user._id).success(function(data){
+        console.log(data.message);
+        $state.go('home');
+      });
+    }
+  };
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
   $scope.users = users.users;
 });
 
-app.controller('UserCtrl', function ($scope, users, auth, userPromise, popupService) {
+app.controller('UserCtrl', function ($scope, users, auth, userPromise) {
   $scope.user = userPromise.data;
   $scope.isAdmin = auth.isAdmin;
   $scope.update = function() {
@@ -12,15 +22,6 @@ app.controller('UserCtrl', function ($scope, users, auth, userPromise, popupServ
     users.update($scope.user);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Settings: Update User");
-  };
-  $scope.deleteUser = function () {
-    console.log('delete', $scope.user._id);
-    if (popupService.showPopup('Are you sure you want to delete this user?')) {
-      users.delete($scope.user._id).success(function(data){
-        console.log(data.message);
-        $state.go('home');
-      });
-    }
   };
 });
 

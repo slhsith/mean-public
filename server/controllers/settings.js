@@ -11,7 +11,9 @@ var config = require('./../../env.json')[process.env.NODE_ENV || 'development'];
 var
   User          = mongoose.model('User'),
   Language      = mongoose.model('Language'),
-  Follower      = mongoose.model('Follower');
+  Follower      = mongoose.model('Follower'),
+  Item          = mongoose.model('Item'),
+  Event         = mongoose.model('Event');
 
 //access keys
 var AWS_ACCESS_KEY = config['AWS_ACCESS_KEY'];
@@ -86,16 +88,16 @@ exports.getUsers = function (req, res, next) {
       res.json(users);
     });
 };
-
-function findFollowers (err, user) {
-    user.find( {followers: [req.payload._id]} );
+//find followers function
+var findFollowers = function (err, user) {
+    User.find( {followers: [req.payload._id]} );
     { if(err){ return next(err); }
     console.log('User Followers', user.followers, user._id);
     return res.json(followers);
   };
-}
-
-function getItems (req, res, next) {
+};
+// get items function
+var getItems = function (req, res, next) {
    Item.find({})
    .populate('exercise workoutplan dietplan video book podcast')
    .exec(function(err, items){
@@ -106,35 +108,39 @@ function getItems (req, res, next) {
       if(err){ return next(err); }
       return res.json(result);
    });
-}
+};
+
 // 1 User.find({followers: [req.payload._id]})
 //   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Follower' }, { _id: <deleted person> } ],
 // 2 items:     [ { type: mongoose.Schema.Types.ObjectId, ref: 'Item' } ],  
 // a) remove creator._id  if you need to -- some sort of ghost state??
 
 
+
 exports.deleteUser = function(req, res, next) {
-  var user_id = req.params.user;
-  var user = { _id: req.payload._id };
-  User.findById(user_id, function (err, user, follower) {
-    findFollowers(user._id, req.payload._id, followers,
-      { $pull: {followers: {_id: follower_id} }});
+  var user_id = req.params.id;
+  var user = new User({_id: req.params.id});
+
+  User.findById(user_id, function (err, user) {
+    // case: user.items: [ ref, ref, ref ]
+    Item.update(   
+      {'creator._id': user_id },
+      { $unset: { creator: '' } },
+      function(err, item) {
         if(err){ return next(err); }
-        console.log(followers);
-    getItems(user_id, function (err, user, item){
-      var item_id = user.item_id;
-      { $pull: {items: {_id: item_id} }}; 
-        if(err){ return next(err); }
-        console.log(items);
-      });
-    (function (err, user) {
-       user.remove();
-        if(err){ return next(err); }
-        console.log(users);
-        res.json({message: 'Successfully deleted user ' + user_id, success: true});
+        Event.update(
+          {'creator._id': user_id },
+          { $unset: { creator: '' } },
+          function(err, event) {
+            if(err){ return next(err); }
+              user.remove();
+              console.log(user);
+              res.json({message: 'Successfully deleted user ' + user_id, success: true});
+          });
     });
   });
 };
+
     // // user.remove();
     // if (err) { return next(err); }
     // User.findByIdAndUpdate(user_id,

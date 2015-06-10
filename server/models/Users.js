@@ -17,11 +17,16 @@ var UserSchema = new mongoose.Schema({
   handle: { type: String, unique: true },
   stripe_id: String,
   stripe_card: [ { id: String, last4: String, name: String, brand: String, exp_month: Number, exp_year: Number }  ],
+  
   purchases: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
+  
   created: { type: Date, default: Date.now },
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Follower' }],
-  items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }],
-  dietPlans: [{ type: mongoose.Schema.Types.ObjectId, ref: 'DietPlan'}],
+  
+  items: [ { type: mongoose.Schema.Types.ObjectId, ref: 'Item' } ], // created_by
+  dietPlans: [ { type: mongoose.Schema.Types.ObjectId, ref: 'DietPlan'} ], //create_by
+  events: [ { type: mongoose.Schema.Types.ObjectId, ref: 'Event' } ],
+
   avatar_url: String,
   facebook: {
     id: String,
