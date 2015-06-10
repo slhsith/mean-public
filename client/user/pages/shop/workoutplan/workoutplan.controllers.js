@@ -1,10 +1,10 @@
 app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
   $scope.exercise = exercisePromise;
   $scope.addStep = function() {
-    items.newStep($scope.step, $stateParams.exercise).success(function(data){
+    items.newStep($scope.step, $stateParams.exercise).then(function(res){
       console.log('success');
       $scope.step = null;
-      $scope.exercise.steps.push(data);
+      $scope.exercise.steps.push(res.data);
    }).error(function(){
        console.log('failure');
    });

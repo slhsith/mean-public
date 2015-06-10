@@ -23,15 +23,14 @@ function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
   var group = groups.group[$stateParams.id];
   var gpost = gposts.gpost[$stateParams.id];
   // var gpost = gposts.gpost[$stateParams.id];
-  $scope.group = groupsPromise.data;
-  console.log(groupsPromise.data);
-  // $scope.gpost = gpostsPromise.data;
-  // console.log(gpostsPromise.data);
+  $scope.group = groupsPromise;
+  console.log(groupsPromise);
 
   $scope.currentUser = auth.currentUser();
   $scope.groups = groups.groups;
   $scope.gposts = gposts.gposts;
   $scope.gcomments = gcomments.gcomments;
+  
   $scope.addGpost = function(){
     console.log($stateParams.id);
     console.log($scope.gpost);

@@ -4,86 +4,85 @@
 
 // AUTH
 app.factory('auth', function($http, $window){
-   var auth = {};
-   auth.saveToken = function (token){
-      $window.localStorage['admin-token'] = token;
-    };
+ var auth = {};
 
-    auth.getToken = function (){
-      return $window.localStorage['admin-token'];
-    };
-    auth.isLoggedIn = function(){
+ auth.saveToken = function (token){
+    $window.localStorage['admin-token'] = token;
+  };
+
+  auth.getToken = function (){
+    return $window.localStorage['admin-token'];
+  };
+
+  auth.isLoggedIn = function(){
+    var token = auth.getToken();
+    if (token) {
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload.exp > Date.now() / 1000;
+    } else {
+      return false;
+    }
+  };
+
+  auth.currentUser = function(){
+    if (auth.isLoggedIn()) {
       var token = auth.getToken();
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload.username;
+    }
+  };
 
-      if(token){
-        var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-        return payload.exp > Date.now() / 1000;
-      } else {
-        return false;
-      }
-    };
-    auth.currentUser = function(){
-      if(auth.isLoggedIn()){
-        var token = auth.getToken();
-        var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-        return payload.username;
-      }
-    };
-    auth.isThisUser = function() {
-      if (auth.isLoggedIn()) {
-        var token = auth.getToken();
-        var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-        return payload._id;
-      }
-    };
-    auth.isUser = function(){
+  auth.isThisUser = function() {
+    if (auth.isLoggedIn()) {
       var token = auth.getToken();
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload._id;
+    }
+  };
 
-      if(token){
-       var payload = JSON.parse($window.atob(token.split('.')[1]));
+  auth.isUser = function(){
+    var token = auth.getToken();
+    if(token){
+     var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload.permissions === 'User' || 'Contributor' || 'Admin';
+    } else {
+      return false;
+    }
+  };
 
-        return payload.permissions === 'User' || 'Contributor' || 'Admin';
-      } else {
-        return false;
-      }
-    };
-    auth.isContributor = function () {
+  auth.isContributor = function () {
+    var token = auth.getToken();
+    if (token) {
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload.permissions === 'Contributor' || 'Admin';
+    } else {
+      return false;
+    }
+  };
+
+  auth.isAdmin = function(){
+    var token = auth.getToken();
+    if (token) {
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload.permissions === 'Admin';
+    } else {
+      return false;
+    }
+  };
+
+  auth.logOut = function(){
+    $window.localStorage.removeItem('admin-token');
+    $window.location = "/";
+  };
+
+  auth.getUser = function (){
+    if (auth.isLoggedIn()) {
       var token = auth.getToken();
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload;
+    }
+  };
 
-      if(token){
-       var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-        return payload.permissions === 'Contributor' || 'Admin';
-      } else {
-        return false;
-      }
-    };
-    auth.isAdmin = function(){
-      var token = auth.getToken();
-
-      if(token){
-       var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-        return payload.permissions === 'Admin';
-      } else {
-        return false;
-      }
-    };
-    auth.logOut = function(){
-      $window.localStorage.removeItem('admin-token');
-      $window.location = "/";
-    };
-    auth.getUser = function (){
-      if(auth.isLoggedIn()){
-        var token = auth.getToken();
-        var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-        return payload;
-      }
-    };
   return auth;
 });
 
@@ -95,32 +94,32 @@ app.factory('posts', function($http, auth){
   };
 
   o.getAll = function() {
-    return $http.get('/api/posts').success(function(data){
-      angular.copy(data, o.posts);
+    return $http.get('/api/posts').then(function(res){
+      angular.copy(res.data, o.posts);
     });
   };
 
   o.create = function(post) {
     console.log(post);
-
     return $http.post('/api/posts', post, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      o.posts.push(data);
+    }).then(function(res){
+      o.posts.push(res.data);
     });
-
   };
+
   o.upvote = function(post) {
     return $http.put('/api/post/' + post._id + '/upvote', null, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    }).then(function(res){
       post.upvotes += 1;
     });
   };
+
   o.get = function(id) {
-    return $http.get('/api/posts/' + id).then(function(data){
-       console.log(data);
-      return data;
+    return $http.get('/api/post/' + id).then(function(res){
+      console.log(res.data);
+      return res.data;
     });
   };
 
@@ -130,10 +129,11 @@ app.factory('posts', function($http, auth){
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
+
   o.upvoteComment = function(post, comment) {
     return $http.put('/api/post/' + post._id + '/comment/'+ comment._id + '/upvote', null, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    }).then(function(res){
       comment.upvotes += 1;
     });
   };
@@ -157,7 +157,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 
 // SETTINGS
 app.factory('settings', function ($http, $window, auth) {
-  
+
   var s = { settings : {} };
 
   s.getAll = function () {

@@ -6,22 +6,22 @@ app.factory('groups', ['$http', 'auth', function($http, auth){
   };
 
   o.getAll = function() {
-    return $http.get('/api/groups').success(function(data){
-      console.log(data);
-      angular.copy(data, o.groups);
+    return $http.get('/api/groups').then(function(res){
+      console.log(res.data);
+      angular.copy(res.data, o.groups);
     });
   }; 
   o.create = function (group) {
    console.log(group);
-   return $http.post('/api/groups', group ).success(function(data){
-     console.log(data);
-     o.groups.push(data);
+   return $http.post('/api/groups', group ).then(function(res){
+     console.log(res.data);
+     o.groups.push(res.data);
    });
   };
   o.get = function(id) {
-    return $http.get('/api/group/' + id).then(function(data){
-      console.log(data);
-      return data;
+    return $http.get('/api/group/' + id).then(function(res){
+      console.log(res.data);
+      return res.data;
     });
   };
   o.createGpost = function(gpost, id) {
@@ -47,16 +47,16 @@ app.factory('gposts', ['$http', 'auth', function($http, auth){
   };
 
   o.getAll = function(id) {
-    return $http.get('/api/group/' + id + '/gposts').success(function(data){
-      console.log(data);
-      angular.copy(data, o.gposts);
+    return $http.get('/api/group/' + id + '/gposts').then(function(res){
+      console.log(res.data);
+      angular.copy(res.data, o.gposts);
     });
   };
 
   // o.upvote = function(gpost) {
   //   return $http.put('/api/gposts/' + post._id + '/upvote', null, {
   //     headers: {Authorization: 'Bearer '+auth.getToken()}
-  //   }).success(function(data){
+  //   }).then(function(res){
   //     gpost.upvotes += 1;
   //   });
   // };
@@ -74,17 +74,17 @@ app.factory('gposts', ['$http', 'auth', function($http, auth){
 }]);
 
 
-app.factory('gcomments', ['$http', 'auth', function($http, auth){
+app.factory('gcomments', function($http, auth){
   var o = {
     gcomments: []
   };  
   o.getAll = function() {
-    return $http.get('/api/gcomments').success(function(data){
-      angular.copy(data, o.gcomments);
+    return $http.get('/api/gcomments').then(function(res){
+      angular.copy(res.data, o.gcomments);
     });
   };
   return o;
-}]); 
+}); 
 
 app.service('popupService', function($window) {
   this.showPopup = function(message) {

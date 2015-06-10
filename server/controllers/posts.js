@@ -55,9 +55,8 @@ exports.getPostById = function(req, res, next) {
 };
 
 exports.upvotePost = function(req, res, next) {
-  req.post.upvote(function(err, post){
+  Post.update({_id: req.params.post}, {$inc: {upvotes: 1}}, function(err, post) {
     if (err) { return next(err); }
-
     res.json(post);
   });
 };
@@ -81,11 +80,9 @@ exports.createComment = function(req, res, next) {
 };
 
 exports.upvoteComment = function(req, res, next) {
-    // is this supposed to be comment not post upvote?
-  req.post.upvote(function(err, post){
-    if (err) { return next(err); }
-
-    res.json(post);
+  Comment.update({_id: req.params.comment}, {$inc: {upvotes: 1}}, function(err, comment) {
+    if (err) return next(err);
+    res.json({'message': 'comment upvoted'});
   });
 };
 

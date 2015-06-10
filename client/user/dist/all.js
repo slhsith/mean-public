@@ -29,7 +29,7 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'PostCtrl',
       resolve: {
         postPromise: function($stateParams, posts) {
-        return posts.get($stateParams.post);
+          return posts.get($stateParams.post);
         }
       }
     })
@@ -233,18 +233,18 @@ function($stateProvider, $urlRouterProvider) {
 
  app.controller('MainCtrl', function ($scope, auth, messageSocket) {
   
-    $scope.user = auth.getUser();
-    mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.people.set({
-    //     "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
-        "$email": $scope.user.username,
-    //     "$created": $scope.user.created,
-    //     "gender" : $scope.user.gender,
-    //     "age" : $scope.user.age,
-    //     "type" : $scope.user.permissions,
-        "$last_login": new Date()
-    });
+  $scope.user = auth.getUser();
+  mixpanel.alias($scope.user._id);
+  mixpanel.identify($scope.user._id);
+  mixpanel.people.set({
+  //     "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
+      "$email": $scope.user.username,
+  //     "$created": $scope.user.created,
+  //     "gender" : $scope.user.gender,
+  //     "age" : $scope.user.age,
+  //     "type" : $scope.user.permissions,
+      "$last_login": new Date()
+  });
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isUser = auth.isUser;
   $scope.isContributor = auth.isContributor;
@@ -306,7 +306,7 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
 
 app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 
-  $scope.post = postPromise.data;
+  $scope.post = postPromise;
   $scope.comment = { 
     post: $scope.post._id, 
     body: null, 
@@ -346,86 +346,85 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 
 // AUTH
 app.factory('auth', function($http, $window){
-   var auth = {};
-   auth.saveToken = function (token){
-      $window.localStorage['admin-token'] = token;
-    };
+ var auth = {};
 
-    auth.getToken = function (){
-      return $window.localStorage['admin-token'];
-    };
-    auth.isLoggedIn = function(){
+ auth.saveToken = function (token){
+    $window.localStorage['admin-token'] = token;
+  };
+
+  auth.getToken = function (){
+    return $window.localStorage['admin-token'];
+  };
+
+  auth.isLoggedIn = function(){
+    var token = auth.getToken();
+    if (token) {
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload.exp > Date.now() / 1000;
+    } else {
+      return false;
+    }
+  };
+
+  auth.currentUser = function(){
+    if (auth.isLoggedIn()) {
       var token = auth.getToken();
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload.username;
+    }
+  };
 
-      if(token){
-        var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-        return payload.exp > Date.now() / 1000;
-      } else {
-        return false;
-      }
-    };
-    auth.currentUser = function(){
-      if(auth.isLoggedIn()){
-        var token = auth.getToken();
-        var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-        return payload.username;
-      }
-    };
-    auth.isThisUser = function() {
-      if (auth.isLoggedIn()) {
-        var token = auth.getToken();
-        var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-        return payload._id;
-      }
-    };
-    auth.isUser = function(){
+  auth.isThisUser = function() {
+    if (auth.isLoggedIn()) {
       var token = auth.getToken();
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload._id;
+    }
+  };
 
-      if(token){
-       var payload = JSON.parse($window.atob(token.split('.')[1]));
+  auth.isUser = function(){
+    var token = auth.getToken();
+    if(token){
+     var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload.permissions === 'User' || 'Contributor' || 'Admin';
+    } else {
+      return false;
+    }
+  };
 
-        return payload.permissions === 'User' || 'Contributor' || 'Admin';
-      } else {
-        return false;
-      }
-    };
-    auth.isContributor = function () {
+  auth.isContributor = function () {
+    var token = auth.getToken();
+    if (token) {
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload.permissions === 'Contributor' || 'Admin';
+    } else {
+      return false;
+    }
+  };
+
+  auth.isAdmin = function(){
+    var token = auth.getToken();
+    if (token) {
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload.permissions === 'Admin';
+    } else {
+      return false;
+    }
+  };
+
+  auth.logOut = function(){
+    $window.localStorage.removeItem('admin-token');
+    $window.location = "/";
+  };
+
+  auth.getUser = function (){
+    if (auth.isLoggedIn()) {
       var token = auth.getToken();
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload;
+    }
+  };
 
-      if(token){
-       var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-        return payload.permissions === 'Contributor' || 'Admin';
-      } else {
-        return false;
-      }
-    };
-    auth.isAdmin = function(){
-      var token = auth.getToken();
-
-      if(token){
-       var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-        return payload.permissions === 'Admin';
-      } else {
-        return false;
-      }
-    };
-    auth.logOut = function(){
-      $window.localStorage.removeItem('admin-token');
-      $window.location = "/";
-    };
-    auth.getUser = function (){
-      if(auth.isLoggedIn()){
-        var token = auth.getToken();
-        var payload = JSON.parse($window.atob(token.split('.')[1]));
-
-        return payload;
-      }
-    };
   return auth;
 });
 
@@ -437,32 +436,32 @@ app.factory('posts', function($http, auth){
   };
 
   o.getAll = function() {
-    return $http.get('/api/posts').success(function(data){
-      angular.copy(data, o.posts);
+    return $http.get('/api/posts').then(function(res){
+      angular.copy(res.data, o.posts);
     });
   };
 
   o.create = function(post) {
     console.log(post);
-
     return $http.post('/api/posts', post, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
-      o.posts.push(data);
+    }).then(function(res){
+      o.posts.push(res.data);
     });
-
   };
+
   o.upvote = function(post) {
     return $http.put('/api/post/' + post._id + '/upvote', null, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    }).then(function(res){
       post.upvotes += 1;
     });
   };
+
   o.get = function(id) {
-    return $http.get('/api/posts/' + id).then(function(data){
-       console.log(data);
-      return data;
+    return $http.get('/api/post/' + id).then(function(res){
+      console.log(res.data);
+      return res.data;
     });
   };
 
@@ -472,10 +471,11 @@ app.factory('posts', function($http, auth){
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
   };
+
   o.upvoteComment = function(post, comment) {
     return $http.put('/api/post/' + post._id + '/comment/'+ comment._id + '/upvote', null, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    }).then(function(res){
       comment.upvotes += 1;
     });
   };
@@ -500,7 +500,7 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 // SETTINGS
 app.factory('settings', function ($http, $window, auth) {
 
-   var s = { settings : {} };
+  var s = { settings : {} };
 
   s.getAll = function () {
     return $http.get('/api/settings').then(function(res){
@@ -638,6 +638,202 @@ app.factory('events', function($http, auth){
 });
 
 
+
+
+app.controller('GroupsCtrl',
+function ($scope, groups, auth) {
+
+  $scope.groups = groups.groups;
+  $scope.addGroup = function(){
+    groups.create($scope.group);
+    console.log($scope.group);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Group", {"area":"group", "page":"groups", "action":"create"});
+  };
+  $scope.group = '';
+  $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
+});
+
+
+app.controller('GHomeCtrl',
+function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
+  var group = groups.group[$stateParams.id];
+  var gpost = gposts.gpost[$stateParams.id];
+  // var gpost = gposts.gpost[$stateParams.id];
+  $scope.group = groupsPromise;
+  console.log(groupsPromise);
+
+  $scope.currentUser = auth.currentUser();
+  $scope.groups = groups.groups;
+  $scope.gposts = gposts.gposts;
+  $scope.gcomments = gcomments.gcomments;
+  
+  $scope.addGpost = function(){
+    console.log($stateParams.id);
+    console.log($scope.gpost);
+    // if(!$scope.body || $scope.body === '') { return; }
+    groups.createGpost($scope.gpost, $stateParams.id).success(function(gpost) {
+      $scope.group.gposts.push(gpost);
+      $scope.gpost = null;
+    });
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
+  };
+  $scope.addGcomment = function (gpost, gcomment) {
+    console.log('in controller', gpost, gcomment);
+    gpost.gcomments.push(gcomment);
+    groups.createGcomment(gpost._id, gcomment); 
+    console.log(gpost._id, gcomment);
+  };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
+  
+  // $scope.addComment = function(){
+  //   console.log($scope.post);
+  //   // posts.addComment(posts.post._id, {
+  //   //   body: $scope.post.comment,
+  //   //   author: $scope.currentUser
+  //   // }).success(function(comment) {
+  //   //   $scope.post.comments.push(comment);
+  //   // });
+  //   // $scope.body = '';
+  // };
+  // $scope.incrementUpvotes = function(gpost){
+  //   gposts.upvoteGroupPost(gpost);
+  // };
+  $scope.isLoggedIn = auth.isLoggedIn;
+});
+
+app.controller('GpostCtrl', [
+'$scope',
+'$stateParams',
+'gposts',
+'gcomments',
+'auth',
+function($scope, $stateParams, gposts, gcomments, auth){
+  var gpost = gposts.gpost[$stateParams.id];
+  $scope.get(gpost._id);
+  $scope.gpost = gposts.gpost;
+  $scope.gcomments = gcomments.gcomments;
+  $scope.addGcomment = function(){
+    if(!scope.body || $scope.body === '') { return; }
+    gposts.addGcomment(gposts.gpost._id, {
+      body: $scope.body,
+      author: 'user',
+    }).success(function(gcomment) {
+      $scope.gpost.gcomments.push(gcomment);
+    });
+    $scope.body = '';
+  };
+  $scope.incrementUpvotes = function(gcomment){
+    gposts.upvoteGroupComment(gpost, gcomment);
+  };
+  $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
+}]);
+
+
+// GROUPS
+app.factory('groups', ['$http', 'auth', function($http, auth){
+  var o = {
+    groups: [],
+    group: {}
+  };
+
+  o.getAll = function() {
+    return $http.get('/api/groups').then(function(res){
+      console.log(res.data);
+      angular.copy(res.data, o.groups);
+    });
+  }; 
+  o.create = function (group) {
+   console.log(group);
+   return $http.post('/api/groups', group ).then(function(res){
+     console.log(res.data);
+     o.groups.push(res.data);
+   });
+  };
+  o.get = function(id) {
+    return $http.get('/api/group/' + id).then(function(res){
+      console.log(res.data);
+      return res.data;
+    });
+  };
+  o.createGpost = function(gpost, id) {
+    console.log(gpost, id);
+    return $http.post('/api/group/' + id + '/gposts', gpost, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  o.createGcomment = function (gpost_id, gcomment) {
+    console.log('gpost_id in factory', gpost_id);
+    console.log('gcomment in factory', gcomment);
+    return $http.post('/api/gpost/' + gpost_id + '/gcomments', gcomment, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  return o;
+}]);
+
+app.factory('gposts', ['$http', 'auth', function($http, auth){
+  var o = {
+    gposts: [],
+    gpost: {}
+  };
+
+  o.getAll = function(id) {
+    return $http.get('/api/group/' + id + '/gposts').then(function(res){
+      console.log(res.data);
+      angular.copy(res.data, o.gposts);
+    });
+  };
+
+  // o.upvote = function(gpost) {
+  //   return $http.put('/api/gposts/' + post._id + '/upvote', null, {
+  //     headers: {Authorization: 'Bearer '+auth.getToken()}
+  //   }).then(function(res){
+  //     gpost.upvotes += 1;
+  //   });
+  // };
+  // o.get = function(id) {
+  //   return $http.get('/api/gposts/' + id).then(function(res){
+  //     return res.data;
+  //   });
+  // };
+  // o.addGroupComment = function(id, gcomment) {
+  //   return $http.post('/api/gposts/' + id + '/gcomments', gcomment, {
+  //     headers: {Authorization: 'Bearer '+auth.getToken()}
+  //   });
+  // };
+  return o;
+}]);
+
+
+app.factory('gcomments', function($http, auth){
+  var o = {
+    gcomments: []
+  };  
+  o.getAll = function() {
+    return $http.get('/api/gcomments').then(function(res){
+      angular.copy(res.data, o.gcomments);
+    });
+  };
+  return o;
+}); 
+
+app.service('popupService', function($window) {
+  this.showPopup = function(message) {
+    return $window.confirm(message);
+  };
+});
 
 /*  ----------------------  *
     CONTROLLER - MESSENGER
@@ -965,203 +1161,6 @@ app.factory('messageSocket', function(socketFactory) {
   
   return socket;
 });
-
-app.controller('GroupsCtrl',
-function ($scope, groups, auth) {
-
-  $scope.groups = groups.groups;
-  $scope.addGroup = function(){
-    groups.create($scope.group);
-    console.log($scope.group);
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Group", {"area":"group", "page":"groups", "action":"create"});
-  };
-  $scope.group = '';
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-});
-
-
-app.controller('GHomeCtrl',
-function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
-  var group = groups.group[$stateParams.id];
-  var gpost = gposts.gpost[$stateParams.id];
-  // var gpost = gposts.gpost[$stateParams.id];
-  $scope.group = groupsPromise.data;
-  console.log(groupsPromise.data);
-  // $scope.gpost = gpostsPromise.data;
-  // console.log(gpostsPromise.data);
-
-  $scope.currentUser = auth.currentUser();
-  $scope.groups = groups.groups;
-  $scope.gposts = gposts.gposts;
-  $scope.gcomments = gcomments.gcomments;
-  $scope.addGpost = function(){
-    console.log($stateParams.id);
-    console.log($scope.gpost);
-    // if(!$scope.body || $scope.body === '') { return; }
-    groups.createGpost($scope.gpost, $stateParams.id).success(function(gpost) {
-      $scope.group.gposts.push(gpost);
-      $scope.gpost = null;
-    });
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
-  };
-  $scope.addGcomment = function (gpost, gcomment) {
-    console.log('in controller', gpost, gcomment);
-    gpost.gcomments.push(gcomment);
-    groups.createGcomment(gpost._id, gcomment); 
-    console.log(gpost._id, gcomment);
-  };
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-  
-  // $scope.addComment = function(){
-  //   console.log($scope.post);
-  //   // posts.addComment(posts.post._id, {
-  //   //   body: $scope.post.comment,
-  //   //   author: $scope.currentUser
-  //   // }).success(function(comment) {
-  //   //   $scope.post.comments.push(comment);
-  //   // });
-  //   // $scope.body = '';
-  // };
-  // $scope.incrementUpvotes = function(gpost){
-  //   gposts.upvoteGroupPost(gpost);
-  // };
-  $scope.isLoggedIn = auth.isLoggedIn;
-});
-
-app.controller('GpostCtrl', [
-'$scope',
-'$stateParams',
-'gposts',
-'gcomments',
-'auth',
-function($scope, $stateParams, gposts, gcomments, auth){
-  var gpost = gposts.gpost[$stateParams.id];
-  $scope.get(gpost._id);
-  $scope.gpost = gposts.gpost;
-  $scope.gcomments = gcomments.gcomments;
-  $scope.addGcomment = function(){
-    if(!scope.body || $scope.body === '') { return; }
-    gposts.addGcomment(gposts.gpost._id, {
-      body: $scope.body,
-      author: 'user',
-    }).success(function(gcomment) {
-      $scope.gpost.gcomments.push(gcomment);
-    });
-    $scope.body = '';
-  };
-  $scope.incrementUpvotes = function(gcomment){
-    gposts.upvoteGroupComment(gpost, gcomment);
-  };
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-}]);
-
-
-// GROUPS
-app.factory('groups', ['$http', 'auth', function($http, auth){
-  var o = {
-    groups: [],
-    group: {}
-  };
-
-  o.getAll = function() {
-    return $http.get('/api/groups').success(function(data){
-      console.log(data);
-      angular.copy(data, o.groups);
-    });
-  }; 
-  o.create = function (group) {
-   console.log(group);
-   return $http.post('/api/groups', group ).success(function(data){
-     console.log(data);
-     o.groups.push(data);
-   });
-  };
-  o.get = function(id) {
-    return $http.get('/api/group/' + id).then(function(data){
-      console.log(data);
-      return data;
-    });
-  };
-  o.createGpost = function(gpost, id) {
-    console.log(gpost, id);
-    return $http.post('/api/group/' + id + '/gposts', gpost, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-  o.createGcomment = function (gpost_id, gcomment) {
-    console.log('gpost_id in factory', gpost_id);
-    console.log('gcomment in factory', gcomment);
-    return $http.post('/api/gpost/' + gpost_id + '/gcomments', gcomment, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-  return o;
-}]);
-
-app.factory('gposts', ['$http', 'auth', function($http, auth){
-  var o = {
-    gposts: [],
-    gpost: {}
-  };
-
-  o.getAll = function(id) {
-    return $http.get('/api/group/' + id + '/gposts').success(function(data){
-      console.log(data);
-      angular.copy(data, o.gposts);
-    });
-  };
-
-  // o.upvote = function(gpost) {
-  //   return $http.put('/api/gposts/' + post._id + '/upvote', null, {
-  //     headers: {Authorization: 'Bearer '+auth.getToken()}
-  //   }).success(function(data){
-  //     gpost.upvotes += 1;
-  //   });
-  // };
-  // o.get = function(id) {
-  //   return $http.get('/api/gposts/' + id).then(function(res){
-  //     return res.data;
-  //   });
-  // };
-  // o.addGroupComment = function(id, gcomment) {
-  //   return $http.post('/api/gposts/' + id + '/gcomments', gcomment, {
-  //     headers: {Authorization: 'Bearer '+auth.getToken()}
-  //   });
-  // };
-  return o;
-}]);
-
-
-app.factory('gcomments', ['$http', 'auth', function($http, auth){
-  var o = {
-    gcomments: []
-  };  
-  o.getAll = function() {
-    return $http.get('/api/gcomments').success(function(data){
-      angular.copy(data, o.gcomments);
-    });
-  };
-  return o;
-}]); 
-
-app.service('popupService', function($window) {
-  this.showPopup = function(message) {
-    return $window.confirm(message);
-  };
-});
-
 app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
 
   $scope.items = items.items;
@@ -1289,30 +1288,43 @@ app.factory('items', function($http, auth){
       // will be added to the appropriate service object subarray
       // based on submitted type
       return data;
+    }).catch(function(err) {
+        console.log(err);
+        return err;
     });
   };
 
   // READ - basic getting of data
   o.getAll = function() {
-    return $http.get('/api/items').success(function(data){
-      angular.forEach(data, function(item) {
-        item = flattenItem(item);
+    return $http.get('/api/items').then(function(res){
+      angular.forEach(res.data, function(item) {
+        item = _flattenItem(item);
       });
-      angular.copy(data, o.items);
+      angular.copy(res.data, o.items);
+    }).catch(function(err) {
+        console.log(err);
+        return err;
     });
   };
 
   o.get = function(item_id) {
-    return $http.get('/api/item/' + item_id).success(function(data){
-      return flattenItem(data);
+    return $http.get('/api/item/' + item_id).then(function(res){
+      return _flattenItem(res.data);
+    }).catch(function(err) {
+        console.log(err);
+        return err;
     });
   };
 
-// HELPER FUNCTION
-// the API gives us the whole subitem under the field of its name
-// like video: { duration: ... } so we want all the fields to be accessible
-// straight on the item, keeping the _id of the video in the video field
-  function flattenItem (item) {
+  o.getMine = function() {
+    return $http.get('/api/items?creator=' + auth.geToken());
+  };
+
+  // HELPER FUNCTION
+  // the API gives us the whole subitem under the field of its name
+  // like video: { duration: ... } so we want all the fields to be accessible
+  // straight on the item, keeping the _id of the video in the video field
+  function _flattenItem (item) {
     var subitem = item[item.type];
     for (var k in subitem) {
       if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
@@ -1322,110 +1334,56 @@ app.factory('items', function($http, auth){
     }
   }
 
-  o.delete = function(item_id) {
-    return $http.delete('/api/item/' + item_id, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-  o.getAllVideos = function () {
-    return $http.get('/api/videos').success(function(data){
-      angular.copy(data, o.videos);
-    });
-  };
 
   // UPDATE
 
-  // API hits specific to item type
   o.update = function(item) {
-    // e.g. PUT diet @ /api/item/dietplan/dietplan_id, 
     return $http.put('/api/item/' + item._id, item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+        return res.data;
+    }).catch(function(err) {
+        return err;
     });
   };
 
   o.upvote = function(item) {
     return $http.put('/api/items/' + item._id + '/upvote', null, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data){
+    }).then(function(res){
       item.upvotes += 1;
+    }).catch(function(err) {
+      console.log(err);
+      return err;
     });
   };
 
   o.addTransaction = function(id, transaction) {
     return $http.post('/api/items/' + id + '/transactions', transaction, {
       headers: {Authorization: 'Bearer '+transactions.getToken()}
-    }).success(function(data){
-      transactions.push(data);
+    }).then(function(res){
+      transactions.push(res.data);
+    }).catch(function(err) {
+      console.log(err);
+      return err;
     });
   };
 
-  o.newPlan = function (plan, id) {
-    return $http.post('/api/workoutPlans/' + id, plan, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      // base item data comes back from API, extend it with
-      // the item's original submitted descriptive parameters
-      var extendedItem = angular.extend(data, plan);
-      o.items.push(extendedItem);
-    });
-  };
-  o.newStep = function (step, id) {
-    return $http.post('/api/item/exercise/' + id, step, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).success(function(data) {
-      // base item data comes back from API, extend it with
-      // the item's original submitted descriptive parameters
-      var extendedItem = angular.extend(data, step);
-      o.items.push(extendedItem);
-    });
-  };
-  o.getExercise = function(exercise) {
-    console.log(exercise);
-    return $http.get('/api/item/exercise/' + exercise).then(function(res){
-      return res.data;
-    });
-  };
-  o.getExercises = function(id) {
-    return $http.get('/api/items/' + id + '/exercises').success(function(data){
-      console.log(data);
-      angular.copy(data, o.items);
-    });
-  };
-  o.getStep = function(step) {
-    console.log(step);
-    return $http.get('/api/item/step/' + step).then(function(res){
-      return res.data;
-    });
-  };
 
-  o.updateDietplan = function(item, object) {
-    var dietplan_id = item.dietplan;
-    var current_days_set = item.days_set;
-
-    var dietplanAPI = '/api/item/dietplan/' + dietplan_id + '/';
-
-    // saving the whole day, 
-    // basically a meal was added or changed
-    if (object.order) {
-      // this is a new day beyond those set before
-      if (current_days_set < object.order) {
-        object.days_set = current_days_set;
-        return $http.post(dietplanAPI + 'days', object, {
-          headers: {Authorization: 'Bearer '+auth.getToken()}
-        });
-      }
-      // this is an update of a previously set day
-      return $http.put(dietplanAPI + 'days', object, {
-        headers: {Authorization: 'Bearer '+auth.getToken()}
-      });
-    }
-
-
-  };
 
 
   // DELETE
-  //  ...
+  o.delete = function(item_id) {
+    return $http.delete('/api/item/' + item_id, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+        console.log('Successfully deleted item.')
+    }).catch(function(err) {
+        console.log(err);
+        return err;
+    });
+  };
+
 
   return o;
   
@@ -1790,6 +1748,29 @@ app.factory('dietplans', function ($http, auth) {
       return err;
     });
   };
+  
+  // o.updateDietplan = function(item, object) {
+  //   var dietplan_id = item.dietplan;
+  //   var current_days_set = item.days_set;
+
+  //   var dietplanAPI = '/api/item/dietplan/' + dietplan_id + '/';
+
+  //   // saving the whole day, 
+  //   // basically a meal was added or changed
+  //   if (object.order) {
+  //     // this is a new day beyond those set before
+  //     if (current_days_set < object.order) {
+  //       object.days_set = current_days_set;
+  //       return $http.post(dietplanAPI + 'days', object, {
+  //         headers: {Authorization: 'Bearer '+auth.getToken()}
+  //       });
+  //     }
+  //     // this is an update of a previously set day
+  //     return $http.put(dietplanAPI + 'days', object, {
+  //       headers: {Authorization: 'Bearer '+auth.getToken()}
+  //     });
+  //   }
+  // };
 
   o.updateDay = function(diet, day) {
     var api_url = '/api/item/dietplan/' + diet.dietplan + '/day/' + day.order;
@@ -1822,7 +1803,7 @@ app.factory('dietplans', function ($http, auth) {
   };
 
   o.createRecipe = function(recipe) {
-    console.log('creating recipe', recipe)
+    console.log('creating recipe', recipe);
     return $http.post('/api/item/dietplan/recipes', recipe, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
@@ -1964,10 +1945,10 @@ app.directive('digitalMedia', function () {
 app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
   $scope.exercise = exercisePromise;
   $scope.addStep = function() {
-    items.newStep($scope.step, $stateParams.exercise).success(function(data){
+    items.newStep($scope.step, $stateParams.exercise).then(function(res){
       console.log('success');
       $scope.step = null;
-      $scope.exercise.steps.push(data);
+      $scope.exercise.steps.push(res.data);
    }).error(function(){
        console.log('failure');
    });
@@ -1992,46 +1973,51 @@ app.directive('workoutPlan', function () {
 });
 
 
-app.directive('avatarUpload', function() {
-  return {
-    restrict: 'EA',
-    link: function(scope, elem, attr) {
-      console.log('directive fileUpload scope\n', scope);
-      console.log('directive fileUpload elem\n', elem);
-      elem.bind('change', function(event) {
-          scope.user.avatar = event.target.files[0];
-          var ext = '.' + scope.user.avatar.name.split('.').pop();
-          scope.user.avatar.name = 'user_avatar_' + scope.user._id + '_' +
-                                    new Date().getTime() + ext;
-          console.log(scope.user, event);
-      });
-    }
+app.factory('workoutplans', function($http, auth) {
+  var o = {};
 
+  o.newPlan = function (plan, id) {
+    return $http.post('/api/workoutPlans/' + id, plan, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, plan);
+      o.items.push(extendedItem);
+    });
+  };
+  
+  o.newStep = function (step, id) {
+    return $http.post('/api/item/exercise/' + id, step, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).success(function(data) {
+      // base item data comes back from API, extend it with
+      // the item's original submitted descriptive parameters
+      var extendedItem = angular.extend(data, step);
+      o.items.push(extendedItem);
+    });
+  };
+  o.getExercise = function(exercise) {
+    console.log(exercise);
+    return $http.get('/api/item/exercise/' + exercise).then(function(res){
+      return res.data;
+    });
+  };
+  o.getExercises = function(id) {
+    return $http.get('/api/items/' + id + '/exercises').success(function(data){
+      console.log(data);
+      angular.copy(data, o.items);
+    });
+  };
+  o.getStep = function(step) {
+    console.log(step);
+    return $http.get('/api/item/step/' + step).then(function(res){
+      return res.data;
+    });
   };
 
+  return o;
 });
-
-/*
- * For generic file uploading purposes
- * Usage: <input type="file" file-upload="ingredient.image">
-//  */
-// app.directive('fileUpload', function() {
-//   return {
-//     restrict: 'EA',
-//     scope: {
-//       target: '='
-//     },
-//     link: function(scope, elem, attr) {
-//       console.log('file upload directive', scope, elem);
-//       elem.bind('change', function(event) {
-//         attr.fileUpload = (event.srcElement || event.target).files[0];
-//         console.log(attr.fileUpload);
-//         console.log();
-//       });
-//     }
-//   };
-
-// });
 /*
 
 ROW WIDGET FOR ADDING UNITS TO SUBARRAYS OF ITEMS & EVENTS
@@ -2124,6 +2110,46 @@ app.controller('addWidgetCtrl', function($scope) {
 
     };
 });
+app.directive('avatarUpload', function() {
+  return {
+    restrict: 'EA',
+    link: function(scope, elem, attr) {
+      console.log('directive fileUpload scope\n', scope);
+      console.log('directive fileUpload elem\n', elem);
+      elem.bind('change', function(event) {
+          scope.user.avatar = event.target.files[0];
+          var ext = '.' + scope.user.avatar.name.split('.').pop();
+          scope.user.avatar.name = 'user_avatar_' + scope.user._id + '_' +
+                                    new Date().getTime() + ext;
+          console.log(scope.user, event);
+      });
+    }
+
+  };
+
+});
+
+/*
+ * For generic file uploading purposes
+ * Usage: <input type="file" file-upload="ingredient.image">
+//  */
+// app.directive('fileUpload', function() {
+//   return {
+//     restrict: 'EA',
+//     scope: {
+//       target: '='
+//     },
+//     link: function(scope, elem, attr) {
+//       console.log('file upload directive', scope, elem);
+//       elem.bind('change', function(event) {
+//         attr.fileUpload = (event.srcElement || event.target).files[0];
+//         console.log(attr.fileUpload);
+//         console.log();
+//       });
+//     }
+//   };
+
+// });
 /*
 
 SLIDES WIDGET TO VIEW CONTENT THAT CAN BE VIEWED LIKE CAROUSEL

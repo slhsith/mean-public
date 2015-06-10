@@ -1,47 +1,55 @@
 <div ng-show="isUser()">
 <!--   <div ng-show="isCurrentUser()"> -->
-    <div>
-      <h3 class="text-center">Mean Starter</h3>
-      <button class="btn-primary col-sm-4">Create Post</button>
-      <a href="#/shop">
-        <button class="btn-default col-sm-4" ng-if="isContributor()">Create Digital Item</button></a>
-      <a href="#/events">
-        <button class="btn-default col-sm-4" ng-if="isContributor()">Create Event</button></a>
-    </div>
+  <h3 class="text-center">Mean Starter</h3>
+
+<!-- TBC: search bar -->
+
+<!-- item creation -->
+  <section>
+    <button class="btn-primary col-sm-4">Create Post</button>
+    <a href="#/shop">
+      <button class="btn-default col-sm-4" ng-if="isContributor()">Create Digital Item</button></a>
+    <a href="#/events">
+      <button class="btn-default col-sm-4" ng-if="isContributor()">Create Event</button></a>
 
     <form ng-submit="addPost()" ng-show="isLoggedIn()" style="margin-top:30px;">
-    <h3>Add a new post</h3>
+      <h3>Add a new post</h3>
       <div class="form-group">
-        <input type="text"
-            class="form-control"
-            placeholder="Title"
-            ng-model="title"></input>
+        <input type="text" class="form-control" placeholder="Title"
+          ng-model="title"></input>
       </div>
       <div class="form-group">
-        <textarea type="text"
-          class="form-control"
-          placeholder="Link"
-          ng-model="link" row="6"></textarea>
+        <textarea type="text" class="form-control" placeholder="Link"
+            ng-model="link" row="6"></textarea>
       </div>
       <button type="submit" class="btn btn-primary col-md-2 col-md-offset-10">Post</button>
     </form>
-  </div>  
-  <h3>Posts</h3>
-      <div ng-repeat="post in posts | orderBy:'-upvotes'">
-        <span class="glyphicon glyphicon-thumbs-up" ng-click="incrementUpvotes(post)"> </span>
-        {{post.upvotes}}
-        <span style="font-size:20px; margin-left:10px;"> 
-          <span ng-hide="post.link"><a ng-href="#/post/{{post._id}}"> {{post.title}} </a></span>
-          <span ng-show="post.link"><a href="{{post.link}}"> {{post.title}} </a></span> 
-        </span>
-        <span>
-          <a ng-href="#/post/{{post._id}}">Comments</a>
-        </span>
-      </div>
-  <div>
+  </section>
+
+<!-- TBC: Events -->
+<!-- TBC: Digital Items-->
+<!-- TBC: Orders -->
+<!-- TBC: Followers -->
+
+<!-- Posts -->
+  <section>
+    <h3>Posts</h3>
+    <div ng-repeat="post in posts | orderBy:'-upvotes'">
+      <i class="fa fa-thumbs-up" ng-click="incrementUpvotes(post)"></i>
+      {{post.upvotes}}
+      <span style="font-size:20px; margin-left:10px;"> 
+      <span ng-hide="post.link"><a ng-href="#/post/{{post._id}}"> {{post.title}} </a></span>
+      <span ng-show="post.link"><a href="{{post.link}}"> {{post.title}} </a></span> 
+      </span>
+      <span> <a ng-href="#/post/{{post._id}}">Comments</a> </span>
+    </div>
+  </section>
+
+  <section>
     <h3>Browse Items</h3>
       <a ng-href="#/shop">Shop</a>
-  </div>
+  </section>
+
   <footer class="text-center" style="margin-top: 60px">
     <a href="#/groups">Groups</a> || <a href="#/messenger">Messenger</a> || <span ng-if="isAdmin()"><a href="/admin/#/home">Administrator</a></span><br/>
     You are logged in as {{ user.f_name }} {{ user.l_name}}. Not you? Click <a href="" ng-click="logOut()">here</a>.

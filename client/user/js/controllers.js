@@ -5,18 +5,18 @@
 
  app.controller('MainCtrl', function ($scope, auth, messageSocket) {
   
-    $scope.user = auth.getUser();
-    mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.people.set({
-    //     "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
-        "$email": $scope.user.username,
-    //     "$created": $scope.user.created,
-    //     "gender" : $scope.user.gender,
-    //     "age" : $scope.user.age,
-    //     "type" : $scope.user.permissions,
-        "$last_login": new Date()
-    });
+  $scope.user = auth.getUser();
+  mixpanel.alias($scope.user._id);
+  mixpanel.identify($scope.user._id);
+  mixpanel.people.set({
+  //     "$name": $scope.user.firstname + ' ' + $scope.user.lastname,
+      "$email": $scope.user.username,
+  //     "$created": $scope.user.created,
+  //     "gender" : $scope.user.gender,
+  //     "age" : $scope.user.age,
+  //     "type" : $scope.user.permissions,
+      "$last_login": new Date()
+  });
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isUser = auth.isUser;
   $scope.isContributor = auth.isContributor;
@@ -78,7 +78,7 @@ app.controller('DashCtrl', function ($scope, posts, auth) {
 
 app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
 
-  $scope.post = postPromise.data;
+  $scope.post = postPromise;
   $scope.comment = { 
     post: $scope.post._id, 
     body: null, 

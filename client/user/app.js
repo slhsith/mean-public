@@ -29,7 +29,7 @@ function($stateProvider, $urlRouterProvider) {
       controller: 'PostCtrl',
       resolve: {
         postPromise: function($stateParams, posts) {
-        return posts.get($stateParams.post);
+          return posts.get($stateParams.post);
         }
       }
     })
