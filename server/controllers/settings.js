@@ -142,7 +142,7 @@ exports.signedRequestForAvatar = function (req, res, next) {
 
   var s3_params = {
     Bucket: S3_BUCKET,
-    Key: 'images/avatar/' + avatar.name,
+    Key: 'images/avatar/temp/' + avatar.name,
     Expires: 120,
     ContentType: avatar.type,
     ACL: 'public-read',
@@ -172,7 +172,7 @@ exports.updateAvatarSuccess = function(req, res, next) {
   console.log('avatar to change to key', new_avatar_name);
   var s3_params = {
     Bucket: S3_BUCKET,
-    CopySource: S3_BUCKET + '/images/avatar/' + req.body.filename,
+    CopySource: S3_BUCKET + '/images/avatar/temp/' + req.body.filename,
     Key: 'images/avatar/' + new_avatar_name,
     ACL: 'public-read'
     // MetadataDirective: 'COPY'
@@ -183,10 +183,12 @@ exports.updateAvatarSuccess = function(req, res, next) {
     var url = 'https://'+S3_BUCKET+'.s3.amazonaws.com/images/avatar/'+new_avatar_name;
     if (data.ETag === req.body.headers.etag) {
       console.log('matching ETags!');
-      var deleteOrigFile = s3.deleteObject({
+      s3.deleteObject({
         Bucket: S3_BUCKET,
-        Key: S3_BUCKET + '/images/avatar/' + req.body.filename });
-      deleteOrigFile.send();
+        Key: '/images/avatar/temp/' + req.body.filename 
+      }, function(err, data) {
+          console.log('S3 delete of ' + req.body.filename, data);
+      });
 
       User.findByIdAndUpdate(req.params.id, 
         {$set: {avatar_url: url} }, 
