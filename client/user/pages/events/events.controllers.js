@@ -1,0 +1,3 @@
+app.controller('EventsCtrl', function() {
+
+});

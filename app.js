@@ -47,6 +47,7 @@ require('./server/models/Transactions');
 require('./server/models/Customers');
 
 // events
+require('./server/models/Events');
 require('./server/models/Bootcamps');
 require('./server/models/Challenges');
 
@@ -59,6 +60,9 @@ require('./server/controllers/authentication');
 require('./server/controllers/settings');
 require('./server/controllers/posts');
 require('./server/controllers/shop');
+require('./server/controllers/events');
+require('./server/controllers/workoutplans');
+require('./server/controllers/dietplans');
 require('./server/controllers/groups');
 require('./server/controllers/messaging');
 require('./server/controllers/settings');

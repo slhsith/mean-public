@@ -1,54 +1,35 @@
 <div class="page-header">
     <h3>
       <span>
-        {{exercise.title}}, Day {{exercise.day}}
+        {{exercise.name}}, {{exercise.day}}
       </span>
     </h3>
     <h3><b>Steps</b></h3>
-      <div ng-repeat="step in exercise.steps | orderBy: 'order'">
+      <div ng-repeat="step in exercise.steps">
         <hr>
-        <a href="#/items/step/{{step._id}}"><h4>
-          {{step.order}}. {{step.title}}
+        <span>Day:{{exercise.day}}</span>
+        <a href="#/items/workoutPlan/{{item._id}}/exercise/{{exercise._id}}"><h4>
+          Title: {{exercise.title}}
         </h4></a>
-        <span> {{step.description}} ({{step.length}})</span>
+        <span>Description: {{exercise.description}}</span>
         <hr>
       </div>
-
     <div ng-if="isContributor()">
-        <div ng-show="isCurrentUser()">
-            <form ng-submit="addStep()">
-                <input type="text"
-                      class="form-control"
-                      placeholder="Step Title"
-                      ng-model="step.title"></input>
-                <input type="text"
-                      class="form-control"
-                      placeholder="Step Description"
-                      ng-model="step.description"></input>
-                <input type="text"
-                      class="form-control"
-                      placeholder="Step Time Length"
-                      ng-model="step.length"></input>
-                <div class="form-group">
-                  <select ng-model="step.order">
-                    <option value="">Order Number</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                  </select>
-                </div>
-           <div>
-
-          </div> 
-        <button type="submit" class="btn btn-primary">Post</button>
-        </form>
-      </div>
+    <form ng-submit="addPlan()">
+        <input type="text"
+              class="form-control"
+              placeholder="Exercise Title"
+              ng-model="workoutPlan.title"></input>
+        <input type="text"
+              class="form-control"
+              placeholder="Exercise Description"
+              ng-model="workoutPlan.description"></input>
+      </div> 
+    <button type="submit" class="btn btn-primary">Post</button>
+    </form>
     </div>
-    <span ng-show="!isCurrentUser()">
+    </h3>
+    <span>
       <a href="#/transactions">Buy Item</a>
     </span>
 </div>

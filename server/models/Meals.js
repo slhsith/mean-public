@@ -11,7 +11,9 @@ var MealSchema = new mongoose.Schema({
   preptime : Number,
   cost     : Number,
 
-  recipes  : [ Recipe ]
+  recipes  : [ { _id: {type: mongoose.Schema.Types.ObjectId, ref: 'Recipe'},
+                name: String,
+                yield: String } ]
 });
 
 mongoose.model('Meal', MealSchema);

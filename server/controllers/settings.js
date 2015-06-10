@@ -11,7 +11,9 @@ var config = require('./../../env.json')[process.env.NODE_ENV || 'development'];
 var
   User          = mongoose.model('User'),
   Language      = mongoose.model('Language'),
-  Follower      = mongoose.model('Follower');
+  Follower      = mongoose.model('Follower'),
+  Item          = mongoose.model('Item'),
+  Event         = mongoose.model('Event');
 
 //access keys
 var AWS_ACCESS_KEY = config['AWS_ACCESS_KEY'];
@@ -86,6 +88,69 @@ exports.getUsers = function (req, res, next) {
       res.json(users);
     });
 };
+//find followers function
+var findFollowers = function (err, user) {
+    User.find( {followers: [req.payload._id]} );
+    { if(err){ return next(err); }
+    console.log('User Followers', user.followers, user._id);
+    return res.json(followers);
+  };
+};
+// get items function
+var getItems = function (req, res, next) {
+   Item.find({})
+   .populate('exercise workoutplan dietplan video book podcast')
+   .exec(function(err, items){
+      var result = [];
+      items.forEach(function(item) {
+        result.push(removeNullSubtypeFields(item));
+      });
+      if(err){ return next(err); }
+      return res.json(result);
+   });
+};
+
+// 1 User.find({followers: [req.payload._id]})
+//   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Follower' }, { _id: <deleted person> } ],
+// 2 items:     [ { type: mongoose.Schema.Types.ObjectId, ref: 'Item' } ],  
+// a) remove creator._id  if you need to -- some sort of ghost state??
+
+
+
+exports.deleteUser = function(req, res, next) {
+  var user_id = req.params.id;
+  var user = new User({_id: req.params.id});
+
+  User.findById(user_id, function (err, user) {
+    // case: user.items: [ ref, ref, ref ]
+    Item.update(   
+      {'creator._id': user_id },
+      { $unset: { creator: '' } },
+      function(err, item) {
+        if(err){ return next(err); }
+        Event.update(
+          {'creator._id': user_id },
+          { $unset: { creator: '' } },
+          function(err, event) {
+            if(err){ return next(err); }
+              user.remove();
+              console.log(user);
+              res.json({message: 'Successfully deleted user ' + user_id, success: true});
+          });
+    });
+  });
+};
+
+    // // user.remove();
+    // if (err) { return next(err); }
+    // User.findByIdAndUpdate(user_id,
+    //   { $pull: {items: {_id: item_id} }}, 
+    //   function (err, items) {
+    //     if(err){ return next(err); }
+    //     console.log(items);
+    //     res.json({message: 'Successfully deleted item ' + item_id, success: true});
+    // });    
+
 
 //get users paginated from start to end
 exports.getUsersByPage = function (req, res, next) {

@@ -18,7 +18,7 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
     video       : 'Video'
   };
 
-  // Initialize a brand new item from constructor
+  // Initialize a brand new item from Item constructor
   $scope.initItem = function(type) {
     $scope.item = new Item(type);
   };

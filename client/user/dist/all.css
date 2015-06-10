@@ -34,6 +34,56 @@ img-crop canvas {
   -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
   /* mobile webkit */
 }
+.item-title {
+  font-size: 28px;
+  line-height: 36px;
+  padding: 10px 0;
+}
+.item-types {
+  font-size: 14px;
+  line-height: 36px;
+}
+.item-types a {
+  text-decoration: underline;
+}
+
+.upload-photo-title {
+    display: inline-block;
+    font-size: 12px;
+}
+
+.upload-photo {
+    border: 1px solid #999;
+    height: 60px;
+}
+
+.diet-days {
+  margin-top: 30px;
+  border: 1px solid #999;
+}
+.diet-plus {
+    height: 45px;
+    line-height: 45px;
+}
+
+.meal-day-btn {
+  display: inline-block;
+}
+
+.ingredient {
+  border: 1px solid #999;
+}
+.ingredient-parts {
+  display: inline-block;
+  text-align: center;
+}
+
+.diet-meal-active {
+  display: visible;
+}
+.diet-meal {
+  display: none;
+}
 body {
   color: #161616;
 }
@@ -119,54 +169,4 @@ body {
   padding-top: 10px;
   position: absolute;
   bottom: 0;
-}
-.item-title {
-  font-size: 28px;
-  line-height: 36px;
-  padding: 10px 0;
-}
-.item-types {
-  font-size: 14px;
-  line-height: 36px;
-}
-.item-types a {
-  text-decoration: underline;
-}
-
-.upload-photo-title {
-    display: inline-block;
-    font-size: 12px;
-}
-
-.upload-photo {
-    border: 1px solid #999;
-    height: 60px;
-}
-
-.diet-days {
-  margin-top: 30px;
-  border: 1px solid #999;
-}
-.diet-plus {
-    height: 45px;
-    line-height: 45px;
-}
-
-.meal-day-btn {
-  display: inline-block;
-}
-
-.ingredient {
-  border: 1px solid #999;
-}
-.ingredient-parts {
-  display: inline-block;
-  text-align: center;
-}
-
-.diet-meal-active {
-  display: visible;
-}
-.diet-meal {
-  display: none;
 }

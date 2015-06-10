@@ -14,9 +14,10 @@
 </div>
 
 <digital-media ng-if="item.video || item.book || item.podcast" item="item"></digital-media>
-<diet-plan ng-if="item.dietplan" item="item"></diet-plan>
 
-    <span>
-      <a href="#/home">Home Page</a>
-    </span>
-  </div>  
+<diet-plan ng-if="item.type === 'dietplan'" item="item"></diet-plan>
+
+  <span>
+    <a href="#/home">Home Page</a>
+  </span>
+</div>  

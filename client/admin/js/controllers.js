@@ -1,4 +1,14 @@
-app.controller('MainCtrl', function ($scope, users, auth){
+app.controller('MainCtrl', function ($scope, users, auth, popupService){
+
+  $scope.deleteUser = function (user) {
+    console.log('delete', user._id);
+    if (popupService.showPopup('Are you sure you want to delete this user?')) {
+      users.delete(user._id).success(function(data){
+        console.log(data.message);
+        $state.go('home');
+      });
+    }
+  };
   $scope.isLoggedIn = auth.isLoggedIn;
   $scope.isAdmin = auth.isAdmin;
   $scope.users = users.users;
