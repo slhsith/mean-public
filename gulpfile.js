@@ -133,6 +133,7 @@ gulp.task('usermarkup', function () {
         'client/user/pages/shop/workoutplan/*.html',
         'client/user/pages/events/*.html',
         'client/user/pages/groups/*.html',
+        'client/user/pages/settings/*.html',
         'client/user/pages/messenger/*.html',
         'client/user/elements/addwidget/*.html',
         // 'client/user/pages/fileupload/*.html',

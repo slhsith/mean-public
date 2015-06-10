@@ -157,8 +157,8 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 
 // SETTINGS
 app.factory('settings', function ($http, $window, auth) {
-
-   var s = { settings : {} };
+  
+  var s = { settings : {} };
 
   s.getAll = function () {
     return $http.get('/api/settings').then(function(res){

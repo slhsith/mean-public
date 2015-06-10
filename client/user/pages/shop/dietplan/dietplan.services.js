@@ -53,7 +53,7 @@ app.factory('dietplans', function ($http, auth) {
   };
 
   o.createRecipe = function(recipe) {
-    console.log('creating recipe', recipe)
+    console.log('creating recipe', recipe);
     return $http.post('/api/item/dietplan/recipes', recipe, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     });
