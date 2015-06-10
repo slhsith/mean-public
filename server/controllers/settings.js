@@ -88,14 +88,14 @@ exports.getUsers = function (req, res, next) {
 };
 
 function findFollowers (err, user) {
-    user.find( {followers: [req.payload._id]} ) {
-    if(err){ return next(err); }
+    user.find( {followers: [req.payload._id]} );
+    { if(err){ return next(err); }
     console.log('User Followers', user.followers, user._id);
     return res.json(followers);
   };
 }
 
-function getItems = function(req, res, next) {
+function getItems (req, res, next) {
    Item.find({})
    .populate('exercise workoutplan dietplan video book podcast')
    .exec(function(err, items){
@@ -118,25 +118,21 @@ exports.deleteUser = function(req, res, next) {
   var user = { _id: req.payload._id };
   User.findById(user_id, function (err, user, follower) {
     findFollowers(user._id, req.payload._id, followers,
-      { $pull: {followers: {_id: follower_id} }}),
-      function (err, followers) {
+      { $pull: {followers: {_id: follower_id} }});
         if(err){ return next(err); }
         console.log(followers);
-      };
     getItems(user_id, function (err, user, item){
       var item_id = user.item_id;
-      { $pull: {items: {_id: item_id} }}, 
-      function (err, items) {
+      { $pull: {items: {_id: item_id} }}; 
         if(err){ return next(err); }
         console.log(items);
-      };
-    });
-    function (err, user) {
+      });
+    (function (err, user) {
        user.remove();
         if(err){ return next(err); }
         console.log(users);
         res.json({message: 'Successfully deleted user ' + user_id, success: true});
-    };
+    });
   });
 };
     // // user.remove();
