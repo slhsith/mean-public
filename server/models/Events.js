@@ -4,7 +4,7 @@ var EventSchema = new mongoose.Schema({
 
   name    : String,
   creator : { name : String,
-               _id : { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+               _id : { type: mongoose.Schema.Types.ObjectId, ref: 'User' }},
 
   price: String,
   upvotes: {type: Number, default: 0},

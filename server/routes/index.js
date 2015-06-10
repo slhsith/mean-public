@@ -121,16 +121,17 @@ router.put('/api/resetpassword/:username/:user_token', authentication.doResetPas
 //Facebook Integration
 router.get('/auth/facebook', passport.authenticate('facebook', { scope : 'email' }));
 
-router.get('/auth/facebook/callback',
-        passport.authenticate('facebook', {
-            successRedirect : '/user/#/home',
-            failureRedirect : '/'
-        }));
-  // function(req, res) {
-  //   successRedirect: '/'
-  //   // Successful authentication, redirect home.
-  //   res.redirect('/');
-
+router.get('/auth/facebook/callback',  passport.authenticate('facebook', { 
+       successRedirect : '/', 
+       failureRedirect: '/login' 
+  }),
+  function(req, res) {
+    res.redirect('/');
+  });
+router.get('/logout', function(req, res){
+  req.logout();
+  res.redirect('/');
+});
 
 // ----------------------- USER and SETTINGS  --------------------------------//
 router.get('/api/languages', settings.getLanguages );
@@ -149,6 +150,7 @@ router.get('/api/search/:query', settings.submitSearch );
 router.get('/api/users', settings.getUsers );
 router.get('/api/users/:start/:end', settings.getUsersByPage );
 router.get('/api/user/:id', settings.getUserById );
+router.delete('/api/user/:id', auth, settings.deleteUser );
 //for public profiles
 router.get('/api/user/handle/:handle', settings.getUserByHandle );
 router.post('/api/user/:handle/followers', settings.addFollower );

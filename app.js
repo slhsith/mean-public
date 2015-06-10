@@ -47,6 +47,7 @@ require('./server/models/Transactions');
 require('./server/models/Customers');
 
 // events
+require('./server/models/Events');
 require('./server/models/Bootcamps');
 require('./server/models/Challenges');
 

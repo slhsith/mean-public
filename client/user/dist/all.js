@@ -321,13 +321,12 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
   $scope.item = itemPromise.data;
 
   item = itemPromise;
-  
+
   $scope.deleteItem = function () {
     console.log('delete', $scope.item._id);
     if (popupService.showPopup('Are you sure you want to delete this item?')) {
       items.delete($scope.item._id).success(function(data){
         console.log(data.message);
-        $scope.items = items.items;
         $state.go('shop');
       });
     }

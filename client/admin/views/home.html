@@ -3,6 +3,12 @@
         <h1>Mean Starter</h1>
       </div>
       <h3>Users</h3>
+      <div ng-repeat="user in users">
+        <span>{{user.l_name}},</span>
+        <span>{{user.f_name}}</span> |
+        <span>{{user.handle}}</span> | 
+        <span ng-click="deleteUser(user)"><a>Delete User</a></span><br>
+        <a href="#/user/{{user._id}}">See More</a>
       <div>
         <table class="table">
           <tr>
@@ -10,14 +16,6 @@
             <td>Last Name</td>
             <td>Handle</td>
             <td></td>
-          </tr>
-          <tr ng-repeat="user in users">
-            <td>{{user.f_name}}</td> 
-            <td>{{user.l_name}}</td>
-            <td>{{user.handle}}</td>
-            <td href="#/user/{{user._id}}"><a>See More</a></td>
-          </tr>
-          <tr>
           </tr>
         </table>
       </div>

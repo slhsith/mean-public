@@ -118,6 +118,11 @@ app.factory('users', function ($http, $window, auth) {
       return data;
     });
   };
+  u.delete = function(user_id) {
+    return $http.delete('/api/user/' + user_id, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
   u.update = function (user){
     console.log('updating user', user);
     return $http.put('/api/settings', user).success(function(data){
@@ -137,3 +142,9 @@ app.factory('settings', ['$http', '$window', function($http, $window){
    
    return s;
 }]);
+
+app.service('popupService', function($window) {
+  this.showPopup = function(message) {
+    return $window.confirm(message);
+  };
+});
