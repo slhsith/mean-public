@@ -51,5 +51,5 @@
   <!-- - - - - - - - - - - - - - DIET - - - - - - - - - - - -->
   <diet-plan item="item" ng-if="item.type === 'dietplan'"></diet-plan>
   <!-- - - - - - - - - - - - - - MEDIA - - - - - - - - - - - -->
-  <digital-media item="item" ng-if="item.type === 'video' || item.type === 'podcast' || item.type === 'book'"></digital-media>
+  <digital-media ng-if="item.type === 'video' || item.type === 'podcast' || item.type === 'book'"></digital-media>
 </div>  

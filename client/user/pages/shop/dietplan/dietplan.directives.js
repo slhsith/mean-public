@@ -2,7 +2,7 @@ app.directive('dietPlan', function () {
   
   return {
     restrict: 'E', 
-    scope: { dietplan: '=item' },
+    scope: false,
     controller: 'DietCtrl',
     templateUrl: 'dietplan.tpl.html',
     link: function(scope, element, attrs, DietCtrl) {
