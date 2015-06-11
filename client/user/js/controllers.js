@@ -17,12 +17,12 @@
   //     "type" : $scope.user.permissions,
       "$last_login": new Date()
   });
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.isUser = auth.isUser;
+  $scope.isLoggedIn    = auth.isLoggedIn;
+  $scope.isUser        = auth.isUser;
   $scope.isContributor = auth.isContributor;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.logOut = auth.logOut;
-  $scope.isThisUser = auth.isThisUser;
+  $scope.isAdmin       = auth.isAdmin;
+  $scope.logOut        = auth.logOut;
+  $scope.isThisUser    = auth.isThisUser;
 
   $scope.$on('socket:tokenrequest', function(event, data) {
     console.log('socket:tokenrequest', event.name, data);
@@ -73,10 +73,6 @@ app.controller('DashCtrl', function ($scope, posts, auth, items, itemsPromise, e
     mixpanel.track("Upvote Post",{"area":"group", "page":"groupHome", "action":"upvote"});
     // mixpanel.track("User Dashboard: Upvoted Comment");
   };
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
 
 });
 
@@ -110,9 +106,5 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   $scope.incrementUpvotes = function(comment) {
     posts.upvoteComment($scope.post, comment);
   };
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
 });
 

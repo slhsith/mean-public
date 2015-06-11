@@ -246,12 +246,12 @@ function($stateProvider, $urlRouterProvider) {
   //     "type" : $scope.user.permissions,
       "$last_login": new Date()
   });
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.isUser = auth.isUser;
+  $scope.isLoggedIn    = auth.isLoggedIn;
+  $scope.isUser        = auth.isUser;
   $scope.isContributor = auth.isContributor;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.logOut = auth.logOut;
-  $scope.isThisUser = auth.isThisUser;
+  $scope.isAdmin       = auth.isAdmin;
+  $scope.logOut        = auth.logOut;
+  $scope.isThisUser    = auth.isThisUser;
 
   $scope.$on('socket:tokenrequest', function(event, data) {
     console.log('socket:tokenrequest', event.name, data);
@@ -302,10 +302,6 @@ app.controller('DashCtrl', function ($scope, posts, auth, items, itemsPromise, e
     mixpanel.track("Upvote Post",{"area":"group", "page":"groupHome", "action":"upvote"});
     // mixpanel.track("User Dashboard: Upvoted Comment");
   };
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
 
 });
 
@@ -339,10 +335,6 @@ app.controller('PostCtrl', function ($scope, auth, posts, postPromise) {
   $scope.incrementUpvotes = function(comment) {
     posts.upvoteComment($scope.post, comment);
   };
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
 });
 
 
@@ -503,68 +495,6 @@ app.factory('comments', ['$http', 'auth', function($http, auth){
 }]);  
 
 
-// SETTINGS
-app.factory('settings', function ($http, $window, auth) {
-
-  var s = { settings : {} };
-
-  s.getAll = function () {
-    return $http.get('/api/settings').then(function(res){
-      angular.copy(res.data, s.settings);
-    });
-  };
-
-  s.update = function (user) {
-    console.log('updating user', user);
-    return $http.put('/api/settings', user).then(function(res){
-      s.settings = res.data;
-    });
-  };
-
-  /*  1  get signed_request
-   *  2  put from client -> aws
-   *  3  send success back to back_end so it can put an update to filename & save to user
-   */
-  s.uploadAvatar = function (user) {
-    // file uploader is an array
-    user.avatar = user.avatar[0];
-
-    return $http.get('/api/user/' + user._id + '/avatar?name=' + user.avatar.name + '&type=' + user.avatar.type).then(function(res) {
-      return $http.put(res.data.signed_request, user.avatar, {
-        headers: { 
-          'x-amz-acl': 'public-read', 
-          'x-amz-meta-userid': user._id,
-          'x-amz-meta-role': 'avatar',
-          'Content-Type': user.avatar.type,
-        }
-      });
-    })
-    .then(function(res){
-      console.log('amazon putObject result', res);
-      var req = {
-        filename: user.avatar.name, 
-        headers: res.headers()
-      };
-      return $http.put('/api/user/' + user._id + '/avatar', req, {
-        headers: { 'Authorization': 'Bearer '+auth.getToken() }
-      }); 
-    }).then(function(res) {
-      return res.data;
-    }).catch(function(err) {
-      console.log(err); 
-      return err;
-    }); 
-  };
-
-  s.get = function (handle) {
-    return $http.get('/api/user/handle/' + handle).then(function(res){
-      console.log('user by handle', res.data);
-      return res.data;
-    });
-  };
-
-   return s;
-});
 
 // USERS
 app.factory('users', function ($http, $window, auth) {
@@ -613,6 +543,10 @@ app.factory('users', function ($http, $window, auth) {
     return set;
   };
 
+  u.isCreator = function(thing) {
+    return thing.creator._id === auth.isThisUser();
+  };
+
   return u;
 });
 
@@ -637,8 +571,59 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   return lang; 
 }]);
 
-app.controller('EventsCtrl', function($scope, events) {
-  $scope.eventTitles = events.titles;
+app.controller('EventsCtrl', function($scope, users, events, Event) {
+
+
+  $scope.events        = events.events;
+  $scope.eventTitles   = events.titles;
+  $scope.isMine        = users.isCreator;
+
+  $scope.event = new Event();
+  // Initialize a brand new item from Item constructor
+  $scope.initEvent = function(type) {
+    $scope.event = new Event(type);
+  };
+
+  // POST new item OR PUT changes to item
+  // ultimate save button is in the directive that handles the item type
+  $scope.saveEvent = function() {
+    events.save($scope.event).then(
+      function(data) {
+        $scope.event = data;
+        // mixpanel.alias($scope.user._id);
+        mixpanel.identify($scope.user._id);
+        mixpanel.track("Add Item",{"area":"events", "page":"events", "action":"create"});
+       // mixpanel.track("Event Page: Added Item");
+    }, function(err) {
+      // deal with error for user in some way
+    });
+  };
+
+  // PUT UPDATES - 
+
+  // Initialize the edit state -- 
+  $scope.editEvent = function(event) {
+    $scope.event = event;
+  };
+
+  $scope.deleteEvent = function (event, index) {
+    console.log('delete', event._id);
+    if (popupService.showPopup('Are you sure you want to delete this event?')) {
+      events.delete(event._id).then(function(data){
+        console.log(data.message);
+        $scope.events.splice(index, 1);
+      });
+    }
+  };
+
+  // for upvoting
+  $scope.incrementUpvotes = function(events){
+    events.upvoteEvent(event);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Upvote Item",{"area":"event", "page":"event", "action":"upvote"});
+    // mixpanel.track("Shop Page: Upvoted Comment");
+  };  
 
 });
 app.factory('events', function($http, auth){
@@ -652,81 +637,37 @@ app.factory('events', function($http, auth){
     session     : 'Private Session'
   };
 
-  // CREATE
-  o.create = function(event) {
-    return $http.post('/api/events', event, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      var extendedItem = angular.extend(res.data, event);
-      o.items.push(extendedItem);
-      return extendedItem;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
-  };
 
   // READ - basic getting of data
-  o.getAll = function() {
-    return $http.get('/api/events').then(function(res){
-      angular.forEach(res.data, function(event) {
-        event = _flattenItem(event);
-      });
-      angular.copy(res.data, o.events);
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
+  o.getAll = function(type) {
+    // query string if we got a type, else blank
+    var queryString = type? '?type=' + type : '';
+    return $http.get('/api/events' + queryString)
+    .then(_eventsSuccessHandler).catch(_eventErrorHandler);
   };
 
   o.get = function(event_id) {
-    return $http.get('/api/event/' + event_id).then(function(res){
-      var event = _flattenItem(res.data);
-      console.log(event);
-      return event;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
+    return $http.get('/api/event/' + event_id)
+    .then(_eventSuccessHandler)
+    .catch(_eventErrorHandler);
   };
 
   o.getMine = function() {
     return $http.get('/api/events?creator=' + auth.isThisUser())
-    .then(function(res) {
-      console.log(res);
-      angular.forEach(res.data, function(event) {
-        event = _flattenItem(event);
-      });
-      return res.data;
-    });
+    .then(_eventsSuccessHandler).catch(_eventErrorHandler);
   };
 
-  o.isMine = function(event) {
-    return event.creator._id === auth.isThisUser();
-  };
-
-  // HELPER FUNCTION
-  function _flattenItem (event) {
-    var subitem = event[event.type];
-    for (var k in subitem) {
-      if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
-        event[k] = subitem[k];
-        event[item.type] = subitem._id;
-      }
+  // CREATE or UPDATE
+  o.save = function(event) {
+    if (!event._id) {
+      return $http.post('/api/events', event, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      }).then(_eventSuccessHandler).catch(_eventErrorHandler)
+    } else {
+      return $http.put('/api/event/'+event._id, event, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      }).then(_eventSuccessHandler).catch(_eventErrorHandler)
     }
-    return event;
-  }
-
-  // UPDATE
-
-  o.update = function(event) {
-    return $http.put('/api/event/' + event._id, event, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      return res.data;
-    }).catch(function(err) {
-      return err;
-    });
   };
 
   o.upvote = function(event) {
@@ -734,21 +675,7 @@ app.factory('events', function($http, auth){
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).then(function(res){
       event.upvotes += 1;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
-  };
-
-  o.addTransaction = function(id, transaction) {
-    return $http.post('/api/event/' + id + '/transactions', transaction, {
-      headers: {Authorization: 'Bearer '+transactions.getToken()}
-    }).then(function(res){
-      transactions.push(res.data);
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
+    }).catch(_eventErrorHandler)
   };
 
   // DELETE
@@ -758,10 +685,27 @@ app.factory('events', function($http, auth){
     }).then(function(res) {
       console.log('Successfully deleted event.');
       return res.data;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
+    }).catch(_eventErrorHandler);
+  };
+
+ // INTERNAL HELPER FUNCTIONS
+
+  // -- result handlers --
+  // plural
+  var _eventsSuccessHandler = function(res) {
+    angular.copy(res.data, o.events);
+    return res.data;
+  };
+
+  // singular
+  var _eventSuccessHandler = function(res) {
+    o.event = res.data;
+    return res.data;
+  };
+
+  var _eventErrorHandler = function(err) {
+    console.log('failure');
+    return err;
   };
 
   return o;
@@ -1396,35 +1340,35 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
 
 });
 
-app.controller('ShopCtrl', function ($scope, items, Item, auth, popupService) {
+app.controller('ShopCtrl', function ($scope, items, Item, users, auth, popupService) {
 
-  $scope.isAdmin       = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser        = auth.isUser;
+  $scope.isMine        = users.isCreator;
   $scope.items         = items.items;
-  $scope.isMine        = items.isMine;
-
-  // for purposes of capitalized and well spaced display from item.type field
   $scope.itemTitles = items.titles;
 
+  $scope.item = new Item();
   // Initialize a brand new item from Item constructor
   $scope.initItem = function(type) {
     $scope.item = new Item(type);
   };
 
-  // CREATE-POST new item
-  $scope.saveItem = items.saveItem($scope.item)
-  .then(function() {
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
-   // mixpanel.track("Shop Page: Added Item");
-  });
+  // POST new item OR PUT changes to item
+  // ultimate save button is in the directive that handles the item type
+  $scope.saveItem = function(item) {
+    items.save($scope.item).then(function(data) {
+      $scope.item = data;
+      // mixpanel.alias($scope.user._id);
+      mixpanel.identify($scope.user._id);
+      mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
+     // mixpanel.track("Shop Page: Added Item");
+    }, function(err) {
+    // deal with error for user in some way`
+    });
+  };
 
   // PUT UPDATES - 
-  // Initialize the edit state -- ultimate save will be in the directive that
-  // handles the item type
 
+  // Initialize the edit state -- 
   $scope.editItem = function(item) {
     $scope.item = item;
   };
@@ -1472,21 +1416,19 @@ app.factory('items', function($http, auth){
     if (!item._id) {
       return $http.post('/api/items', item, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).then(itemSuccessHandler).catch(itemErrorHandler);
+      }).then(_itemSuccessHandler).catch(_itemErrorHandler);
     } else {
       return $http.put('/api/item/' + item._id, item, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).then(itemSuccessHandler).catch(itemErrorHandler);
+      }).then(_itemSuccessHandler).catch(_itemErrorHandler);
     }
   };
 
   // READ - basic getting of data
   o.getAll = function(type) {
-    var api_url = '/api/items';
-    // append a query for a type if a string is passed through
-    if (type) { api_url += '?type=' + type; }
-    
-    return $http.get(api_url)
+    // query string if we got a type, else blank
+    var queryString = type? '?type=' + type : '';
+    return $http.get('/api/items' + queryString)
     .then(_itemSuccessHandler)
     .catch(_itemErrorHandler);
   };
@@ -1529,25 +1471,17 @@ app.factory('items', function($http, auth){
     }).catch(_itemErrorHandler);
   };
 
-  o.isMine = function(item) {
-    return item.creator._id === auth.isThisUser();
-  };
-
   // INTERNAL HELPER FUNCTIONS
 
   // -- result handlers --
   // plural
   var _itemsSuccessHandler = function(res) {
-    // angular.forEach(res.data, function(item) {
-    //   item = _flattenItem(item);
-    // });
     angular.copy(res.data, o.items);
     return res.data;
   };
 
   // singular
   var _itemSuccessHandler = function(res) {
-    // _flattenItem(res.data);
     o.item = res.data;
     return res.data;
   };
@@ -1557,18 +1491,6 @@ app.factory('items', function($http, auth){
     return err;
   };
 
-  function _flattenItem (item) {
-    if (item.subitem) {
-      var subitem = item[item.type];
-      for (var k in subitem) {
-        if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
-          item[k] = subitem[k];
-          item[item.type] = subitem._id;
-        }
-      }
-    }
-    return item;
-  }
 
   return o;
   

@@ -1,32 +1,32 @@
-app.controller('ShopCtrl', function ($scope, items, Item, auth, popupService) {
+app.controller('ShopCtrl', function ($scope, items, Item, users, auth, popupService) {
 
-  $scope.isAdmin       = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser        = auth.isUser;
+  $scope.isMine        = users.isCreator;
   $scope.items         = items.items;
-  $scope.isMine        = items.isMine;
-
-  // for purposes of capitalized and well spaced display from item.type field
   $scope.itemTitles = items.titles;
 
+  $scope.item = new Item();
   // Initialize a brand new item from Item constructor
   $scope.initItem = function(type) {
     $scope.item = new Item(type);
   };
 
-  // CREATE-POST new item
-  $scope.saveItem = items.saveItem($scope.item)
-  .then(function() {
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
-   // mixpanel.track("Shop Page: Added Item");
-  });
+  // POST new item OR PUT changes to item
+  // ultimate save button is in the directive that handles the item type
+  $scope.saveItem = function(item) {
+    items.save($scope.item).then(function(data) {
+      $scope.item = data;
+      // mixpanel.alias($scope.user._id);
+      mixpanel.identify($scope.user._id);
+      mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
+     // mixpanel.track("Shop Page: Added Item");
+    }, function(err) {
+    // deal with error for user in some way`
+    });
+  };
 
   // PUT UPDATES - 
-  // Initialize the edit state -- ultimate save will be in the directive that
-  // handles the item type
 
+  // Initialize the edit state -- 
   $scope.editItem = function(item) {
     $scope.item = item;
   };

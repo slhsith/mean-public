@@ -2,14 +2,17 @@
   <div>
     <div class="page-header">
       <h3 class="text-center">Mean Starter</h3>
-      <a href="#/home"><button ng-if="isContributor" class="btn-default col-sm-4">Create Post</button></a>
-      <a href="#/shop"><button ng-if="isContributor" class="btn-default col-sm-4">Create Digital Item</button></a>
-      <button ng-if="isContributor" class="btn-primary col-sm-4">Create Event</button>
+      <a href="#/home"><button class="btn-default col-sm-4">Create Post</button></a>
+      <a href="#/shop"><button ng-if="isContributor()" class="btn-default col-sm-4">Create Digital Item</button></a>
+      <button ng-if="isContributor()" class="btn-primary col-sm-4">Create Event</button>
     </div>
+  </div>
 
-    <div ng-if="isContributor" class="col-sm-6">
+  <div ng-if="isContributor()">
+    <div class="col-sm-6">
       <span class="item-title">Create Event</span><span class="item-title" ng-show="event.type"> - {{eventTitles[event.type]}}</span>
     </div>
+
     <div class="col-sm-6 text-center">
       <span class="item-types">
         <a ng-click="event.type = 'bootcamp'">Bootcamp</a> | 
@@ -18,7 +21,7 @@
       </span>
     </div>
     
-    <form ng-if="isContributor" ng-submit="addEvent()" ng-show="isLoggedIn()" style="margin-top:30px;">
+    <form ng-submit="saveEvent()" ng-show="isLoggedIn()" style="margin-top:30px;">
 
     <!-- - - - - - - - - - - - - - BOOTCAMP - - - - - - - - - - - -->
     <div ng-show="event.type==='bootcamp'">

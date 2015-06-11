@@ -19,21 +19,19 @@ app.factory('items', function($http, auth){
     if (!item._id) {
       return $http.post('/api/items', item, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).then(itemSuccessHandler).catch(itemErrorHandler);
+      }).then(_itemSuccessHandler).catch(_itemErrorHandler);
     } else {
       return $http.put('/api/item/' + item._id, item, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).then(itemSuccessHandler).catch(itemErrorHandler);
+      }).then(_itemSuccessHandler).catch(_itemErrorHandler);
     }
   };
 
   // READ - basic getting of data
   o.getAll = function(type) {
-    var api_url = '/api/items';
-    // append a query for a type if a string is passed through
-    if (type) { api_url += '?type=' + type; }
-    
-    return $http.get(api_url)
+    // query string if we got a type, else blank
+    var queryString = type? '?type=' + type : '';
+    return $http.get('/api/items' + queryString)
     .then(_itemSuccessHandler)
     .catch(_itemErrorHandler);
   };
@@ -76,25 +74,17 @@ app.factory('items', function($http, auth){
     }).catch(_itemErrorHandler);
   };
 
-  o.isMine = function(item) {
-    return item.creator._id === auth.isThisUser();
-  };
-
   // INTERNAL HELPER FUNCTIONS
 
   // -- result handlers --
   // plural
   var _itemsSuccessHandler = function(res) {
-    // angular.forEach(res.data, function(item) {
-    //   item = _flattenItem(item);
-    // });
     angular.copy(res.data, o.items);
     return res.data;
   };
 
   // singular
   var _itemSuccessHandler = function(res) {
-    // _flattenItem(res.data);
     o.item = res.data;
     return res.data;
   };
@@ -104,18 +94,6 @@ app.factory('items', function($http, auth){
     return err;
   };
 
-  function _flattenItem (item) {
-    if (item.subitem) {
-      var subitem = item[item.type];
-      for (var k in subitem) {
-        if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
-          item[k] = subitem[k];
-          item[item.type] = subitem._id;
-        }
-      }
-    }
-    return item;
-  }
 
   return o;
   

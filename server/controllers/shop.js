@@ -108,7 +108,7 @@ exports.postItem = function(req, res, next) {
             console.log('------>USER ITEMS ', user.items);
             item[item.type] = subitem._id;
             console.log('------>RESULT', item);
-            return res.json(item);
+            return res.json(_flattenItem(item));
           }
         );
       });
@@ -205,7 +205,8 @@ exports.deleteItem = function(req, res, next) {
   var item_id = req.params.item;
   Item.findByIdAndRemove(item_id, function (err, item) {
     if (err) { return next(err); }
-    User.findByIdAndUpdate(item_id,
+    User.findByIdAndUpdate(
+      req.params._id,
       { $pull: {items: {_id: item_id} }}, 
       function (err, items) {
         if(err){ return next(err); }
@@ -221,17 +222,14 @@ exports.deleteItem = function(req, res, next) {
 
 // ---------------  HELPER FUNCTIONS ------------------- //
 function _swapIds (item) {
-  // this is an Item, and we want Ids in <Subitem> format
-  if (!item.item) {
-    var  item_id  = item._id,
-      subitem_id  = item[item.type];
-        item._id  = subitem_id; // make sure what we post gets diet_id as _id
-        item.item = item_id;    // item gets item_id
+  // if this is an Item, and we want Ids in <Subitem> format
+  // with the main ObjectId(<subitem's _id>)
+  if (!item.item) { // no ref back to item yet
+    item.item = item._id;        // item field gets item_id
+    item._id  = item[item.type]; // make sure what we post gets subitem_id as _id
   } else {
-    var subitem_id = item._id,
-           item_id = item.item;
-          item._id = item_id;    // make sure what we post gets item_id as _id
-   item[item.type] = subitem_id; // item.Subitem gets subitem_id
+    item[item.type] = event._id; // item.Subitem gets subitem_id
+    item._id        = item.item; // make sure what we post gets item_id as _id
   }
 }
 
