@@ -1,169 +1,165 @@
 <div ng-show="isUser()">
+  <div>
+    <div class="page-header">
+      <h3 class="text-center">Mean Starter</h3>
+      <a href="#/home"><button ng-if="isContributor" class="btn-default col-sm-4">Create Post</button></a>
+      <a href="#/shop"><button ng-if="isContributor" class="btn-default col-sm-4">Create Digital Item</button></a>
+      <button ng-if="isContributor" class="btn-primary col-sm-4">Create Event</button>
+    </div>
 
-<div>
-  <div class="page-header">
-    <h3 class="text-center">Mean Starter</h3>
-    <a href="#/home"><button ng-if="isContributor" class="btn-default col-sm-4">Create Post</button></a>
-    <a href="#/shop"><button ng-if="isContributor" class="btn-default col-sm-4">Create Digital Item</button></a>
-    <button ng-if="isContributor" class="btn-primary col-sm-4">Create Event</button>
-  </div>
+    <div ng-if="isContributor" class="col-sm-6">
+      <span class="item-title">Create Event</span><span class="item-title" ng-show="event.type"> - {{eventTitles[event.type]}}</span>
+    </div>
+    <div class="col-sm-6 text-center">
+      <span class="item-types">
+        <a ng-click="event.type = 'bootcamp'">Bootcamp</a> | 
+        <a ng-click="event.type = 'challenge'">Online Challenge</a> | 
+        <a ng-click="event.type = 'session'">Private Session</a>
+      </span>
+    </div>
+    
+    <form ng-if="isContributor" ng-submit="addEvent()" ng-show="isLoggedIn()" style="margin-top:30px;">
 
-  <div ng-if="isContributor" class="col-sm-6">
-    <span class="item-title">Create Event</span><span class="item-title" ng-show="event.type"> - {{itemTitles[event.type]}}</span>
-  </div>
-  <div class="col-sm-6 text-center">
-    <span class="item-types">
-      <a ng-click="event.type = 'bootcamp'">Bootcamp</a> | 
-      <a ng-click="event.type = 'challenge'">Online Challenge</a> | 
-      <a ng-click="event.type = 'session'">Private Session</a>
-    </span>
-  </div>
-  
-  <form ng-if="isContributor" ng-submit="addEvent()" ng-show="isLoggedIn()" style="margin-top:30px;">
-
-  <!-- - - - - - - - - - - - - - BOOTCAMP - - - - - - - - - - - -->
-  <div ng-show="event.type==='bootcamp'">
-    <div class="col-sm-6">
-      <div class="form-group col-sm-12">
-        <input type="text" class="form-control" placeholder="title" 
-          ng-model="event.name"></input>
+    <!-- - - - - - - - - - - - - - BOOTCAMP - - - - - - - - - - - -->
+    <div ng-show="event.type==='bootcamp'">
+      <div class="col-sm-6">
+        <div class="form-group col-sm-12">
+          <input type="text" class="form-control" placeholder="title" 
+            ng-model="event.name"></input>
+        </div>
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="hashtag"
+            ng-model="event.hashtag"></input>
+        </div>
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="recurrence"
+            ng-model="event.recurrence"></input>
+        </div>
+        <div class="form-group col-sm-12">
+          <input type="text" class="form-control" placeholder="location"
+            ng-model="event.location"></input>
+        </div>
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="date"
+            ng-model="event.date"></input>
+        </div>
+        <div class="form-group col-sm-6">
+        <input type="text" class="form-control" placeholder="time"
+          ng-model="event.time"></input>
+        </div>
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="max attendance"
+          ng-model="event.max_attendance"></input>
+        </div>
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="duration"
+            ng-model="event.duration"></input>
+        </div>
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="demo gender"
+            ng-model="event.demo_gender"></input>
+        </div>
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="demo age"
+            ng-model="event.demo_age"></input>
+        </div>
       </div>
       <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="hashtag"
-          ng-model="event.hashtag"></input>
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="recurrence"
-          ng-model="event.recurrence"></input>
-      </div>
-      <div class="form-group col-sm-12">
-        <input type="text" class="form-control" placeholder="location"
-          ng-model="event.location"></input>
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="date"
-          ng-model="event.date"></input>
-      </div>
-      <div class="form-group col-sm-6">
-      <input type="text" class="form-control" placeholder="time"
-        ng-model="event.time"></input>
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="max attendance"
-        ng-model="event.max_attendance"></input>
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="duration"
-          ng-model="event.duration"></input>
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="demo gender"
-          ng-model="event.demo_gender"></input>
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="demo age"
-          ng-model="event.demo_age"></input>
+        <div class="upload-photo form-group col-sm-12">
+          <span class="upload-photo-title"> Upload Event Pic </span>
+        </div>
+        <div class="upload-photo form-group col-sm-12">
+          <span class="upload-photo-title"> Upload Cover Photo </span>
+        </div>
+        <div class="form-group col-sm-12">
+          <textarea class="form-control" placeholder="description"
+            ng-model="event.description" rows="6"></textarea>
+        </div>
       </div>
     </div>
-    <div class="form-group col-sm-6">
-      <div class="upload-photo form-group col-sm-12">
-        <span class="upload-photo-title"> Upload Event Pic </span>
+    <!-- - - - - - - - - - - - - - CHALLENGE - - - - - - - - - - - -->
+    <div ng-show="event.type==='challenge'">
+      <div class="col-sm-6">
+        <div class="form-group col-sm-12">
+          <input type="text" class="form-control" placeholder="Title" 
+            ng-model="event.name"></input>
+        </div>
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="hashtag"
+            ng-model="event.hashtag"></input>
+        </div>
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="price"
+            ng-model="event.price"></input>
+        </div>
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="start date"
+            ng-model="event.start_date"></input>
+        </div>
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="end date"
+            ng-model="event.end_date"></input>
+        </div>
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="demo gender"
+            ng-model="event.demo_gender"></input>
+        </div>
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="demo age"
+            ng-model="event.demo_age"></input>
+        </div>
       </div>
-      <div class="upload-photo form-group col-sm-12">
-        <span class="upload-photo-title"> Upload Cover Photo </span>
-      </div>
-      <div class="form-group col-sm-12">
-        <textarea class="form-control" placeholder="description"
-          ng-model="event.description" rows="6"></textarea>
-      </div>
-    </div>
-  </div>
-  <!-- - - - - - - - - - - - - - CHALLENGE - - - - - - - - - - - -->
-  <div ng-show="event.type==='challenge'">
-    <div class="col-sm-6">
-      <div class="form-group col-sm-12">
-        <input type="text" class="form-control" placeholder="Title" 
-          ng-model="event.name"></input>
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="hashtag"
-          ng-model="event.hashtag"></input>
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="price"
-          ng-model="event.price"></input>
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="start date"
-          ng-model="event.start_date"></input>
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="end date"
-          ng-model="event.end_date"></input>
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="demo gender"
-          ng-model="event.demo_gender"></input>
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="demo age"
-          ng-model="event.demo_age"></input>
-      </div>
-    </div>
-    <div class="col-sm-6">
-      <div class="upload-photo form-group col-sm-6">
-        <span class="upload-photo-title"> Upload Event Pic </span>
-      </div>
-      <div class="upload-photo form-group col-sm-6">
-        <span class="upload-photo-title"> Upload Cover Photo </span>
-      </div>
-    </div>
-    <div class="form-group col-sm-12">
-      <textarea class="form-control" placeholder="description"
-        ng-model="event.description" row="8"></textarea>
-    </div>
-  </div>
-  <!-- - - - - - - - - - - - - - PRIVATE SESSION - - - - - - - - - - - -->
-  <div ng-show="event.type==='session'">
-    <div class="col-sm-6">
-      <div class="form-group col-sm-12">
-        <input type="text" class="form-control" placeholder="Title" 
-          ng-model="event.name"></input>
-      </div>
-      <div class="form-group col-sm-12">
-        <input type="text" class="form-control" placeholder="price"
-          ng-model="event.price"></input>
-      </div>
-      <div class="form-group col-sm-12">
-        <input type="text" class="form-control" placeholder="location"
-          ng-model="event.location"></input>
-      </div>
-      <div class="form-group col-sm-12">
-        <input type="text" class="form-control" placeholder="type"
-          ng-model="event.category"></input>
-      </div>
-    </div>
-    <div class="col-sm-6">
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="demo gender"
-          ng-model="event.demo_gender"></input>
-      </div>
-      <div class="form-group col-sm-6">
-        <input type="text" class="form-control" placeholder="demo age"
-          ng-model="event.demo_age"></input>
+      <div class="col-sm-6">
+        <div class="upload-photo form-group col-sm-6">
+          <span class="upload-photo-title"> Upload Event Pic </span>
+        </div>
+        <div class="upload-photo form-group col-sm-6">
+          <span class="upload-photo-title"> Upload Cover Photo </span>
+        </div>
       </div>
       <div class="form-group col-sm-12">
         <textarea class="form-control" placeholder="description"
           ng-model="event.description" row="8"></textarea>
       </div>
     </div>
+    <!-- - - - - - - - - - - - - - PRIVATE SESSION - - - - - - - - - - - -->
+    <div ng-show="event.type==='session'">
+      <div class="col-sm-6">
+        <div class="form-group col-sm-12">
+          <input type="text" class="form-control" placeholder="Title" 
+            ng-model="event.name"></input>
+        </div>
+        <div class="form-group col-sm-12">
+          <input type="text" class="form-control" placeholder="price"
+            ng-model="event.price"></input>
+        </div>
+        <div class="form-group col-sm-12">
+          <input type="text" class="form-control" placeholder="location"
+            ng-model="event.location"></input>
+        </div>
+        <div class="form-group col-sm-12">
+          <input type="text" class="form-control" placeholder="type"
+            ng-model="event.category"></input>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="demo gender"
+            ng-model="event.demo_gender"></input>
+        </div>
+        <div class="form-group col-sm-6">
+          <input type="text" class="form-control" placeholder="demo age"
+            ng-model="event.demo_age"></input>
+        </div>
+        <div class="form-group col-sm-12">
+          <textarea class="form-control" placeholder="description"
+            ng-model="event.description" row="8"></textarea>
+        </div>
+      </div>
+    </div>
+
+    </form>
+
+    <button ng-if="isContributor" type="submit" style="margin-bottom: 20px" class="diet-create col-sm-12 btn-default" ng-show="event.type">{{event._id? 'Save' : 'Create'}}</button>
   </div>
-
-  </form>
-
-  <button ng-if="isContributor" type="submit" style="margin-bottom: 20px" class="diet-create col-sm-12 btn-default" ng-show="event.type">{{event._id? 'Save' : 'Create'}}</button>
-</div>
-</div>
-<div>
-  <a href="#/home">Home Page</a>
 </div>

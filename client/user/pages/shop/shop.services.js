@@ -9,7 +9,6 @@ app.factory('items', function($http, auth){
   o.titles = {
     workoutplan : 'Workout Plan',
     dietplan    : 'Diet Plan',
-
     book        : 'Book',
     podcast     : 'Podcast',
     video       : 'Video'

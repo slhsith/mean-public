@@ -4,9 +4,9 @@
 
 // AUTH
 app.factory('auth', function($http, $window){
- var auth = {};
+  var auth = {};
 
- auth.saveToken = function (token){
+  auth.saveToken = function (token){
     $window.localStorage['admin-token'] = token;
   };
 
@@ -21,6 +21,14 @@ app.factory('auth', function($http, $window){
       return payload.exp > Date.now() / 1000;
     } else {
       return false;
+    }
+  };
+
+  auth.getUser = function (){
+    if (auth.isLoggedIn()) {
+      var token = auth.getToken();
+      var payload = JSON.parse($window.atob(token.split('.')[1]));
+      return payload;
     }
   };
 
@@ -42,7 +50,7 @@ app.factory('auth', function($http, $window){
 
   auth.isUser = function(){
     var token = auth.getToken();
-    if(token){
+    if (token) {
      var payload = JSON.parse($window.atob(token.split('.')[1]));
       return payload.permissions === 'User' || 'Contributor' || 'Admin';
     } else {
@@ -73,14 +81,6 @@ app.factory('auth', function($http, $window){
   auth.logOut = function(){
     $window.localStorage.removeItem('admin-token');
     $window.location = "/";
-  };
-
-  auth.getUser = function (){
-    if (auth.isLoggedIn()) {
-      var token = auth.getToken();
-      var payload = JSON.parse($window.atob(token.split('.')[1]));
-      return payload;
-    }
   };
 
   return auth;

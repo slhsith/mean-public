@@ -139,12 +139,10 @@ router.get('/logout', function(req, res){
 });
 
 // ----------------------- USER and SETTINGS  --------------------------------//
-router.get('/api/languages', settings.getLanguages );
-router.post('/api/user/:id/languages', settings.createLanguage );
 router.get('/api/settings', settings.getSettings );
 router.put('/api/settings', settings.updateSettings );
-
-//s3
+router.get('/api/languages', settings.getLanguages );
+router.post('/api/user/:id/languages', settings.createLanguage );
 router.get('/api/user/:id/avatar', settings.signedRequestForAvatar );
 router.put('/api/user/:id/avatar', auth, settings.updateAvatarSuccess );
 

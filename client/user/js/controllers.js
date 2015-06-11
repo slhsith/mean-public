@@ -49,8 +49,8 @@ app.controller('DashCtrl', function ($scope, posts, auth, items, itemsPromise, e
 
   $scope.items = itemsPromise;
   $scope.itemTitles = items.titles;
-  // $scope.events = eventsPromise;
-  // $scope.eventTitles = events.titles;
+  $scope.events = eventsPromise;
+  $scope.eventTitles = events.titles;
 
   $scope.posts = posts.posts;
   $scope.addPost = function(){
