@@ -7,7 +7,7 @@
     <a href="#/events"><button class="btn-default col-sm-4">Create Event</button></a>
   </div>
 
-  <button class="btn-default col-sm-12" ng-init="showproducts=false"
+  <button class="btn-default col-sm-12" ng-init="showproducts=true"
     ng-click="showproducts = !showproducts">Show/hide Items</button>
           
   <div class="col-sm-12" ng-repeat="item in items" ng-show="showproducts">
@@ -21,13 +21,12 @@
     <a ng-if="item.type === 'video' || item.type==='podcast' || item.type==='book'" 
       href="#/item/{{item._id}}">Go to Item Page</a>
     <a ng-if="item.type === 'dietplan'" 
-      href="#/item/dietplan/{{item._id}}">Go to DietPlan Page</a>
-    <a ng-if="item.type === 'challenge'" 
-      href="#/item/challenge/{{item._id}}">Go to Challenge Page</a>
+      href="#/item/{{item._id}}">Go to DietPlan Page</a>
     <a ng-if="item.type === 'workoutplan'" 
-      href="#/item/workoutplan/{{item._id}}">Go to Workout Plan Page</a>
+      href="#/item/{{item._id}}">Go to Workout Plan Page</a>
 
-    <span ng-if="isMine(item)">| <a ng-click="editItem(item)">Edit</a></span>
+    <span ng-if="isMine(item)"> | 
+      <a ng-click="deleteItem(item, $index)"> &nbsp; Delete &nbsp; </a> </span>
   </div>
 
   <div class="fb-like" data-href="https://developers.facebook.com/docs/plugins/" data-layout="standard" data-action="like" data-show-faces="false" data-share="false"></div>
@@ -52,126 +51,4 @@
   <diet-plan item="item" ng-if="item.type === 'dietplan'"></diet-plan>
   <!-- - - - - - - - - - - - - - MEDIA - - - - - - - - - - - -->
   <digital-media item="item" ng-if="item.type === 'video' || item.type === 'podcast' || item.type === 'book'"></digital-media>
-        <!-- - - - - - - - - - - - - - BOOTCAMP - - - - - - - - - - - -->
-        <div ng-show="item.type==='Bootcamp'">
-          <h3>Is it a bootcamp?</h3>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="hashtag"
-              ng-model="item.hashtag"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="recurrence"
-              ng-model="item.recurrence"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="location"
-              ng-model="item.location"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="date"
-              ng-model="item.date"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="time"
-              ng-model="item.time"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="max attendance"
-              ng-model="item.max_attendance"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="duration"
-              ng-model="item.duration"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="demo gender"
-              ng-model="item.demo_gender"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="demo age"
-              ng-model="item.demo_age"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="description"
-              ng-model="item.description"></input>
-          </div>
-      </div>
-      <div ng-show="item.type==='Challenge'">
-          <h3>Is it an online challenge?</h3>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="hashtag"
-              ng-model="item.hashtag"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="recurrence"
-              ng-model="item.recurrence"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="date"
-              ng-model="item.date"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="time"
-              ng-model="item.time"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="max attendance"
-              ng-model="item.max_attendance"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="duration"
-              ng-model="item.duration"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="demo gender"
-              ng-model="item.demo_gender"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="demo age"
-              ng-model="item.demo_age"></input>
-          </div>
-          <div class="form-group">
-            <input type="text"
-              class="form-control"
-              placeholder="description"
-              ng-model="item.description"></input>
-          </div>
-      </div>
-  </form>
 </div>  

@@ -2,7 +2,17 @@
 app.factory('items', function($http, auth){
 
   var o = {
-    items: []
+    items: [],
+    item: {}
+  };
+
+  o.titles = {
+    workoutplan : 'Workout Plan',
+    dietplan    : 'Diet Plan',
+
+    book        : 'Book',
+    podcast     : 'Podcast',
+    video       : 'Video'
   };
 
   // CREATE
@@ -16,10 +26,10 @@ app.factory('items', function($http, auth){
       o.items.push(extendedItem);
       // will be added to the appropriate service object subarray
       // based on submitted type
-      return data;
+      return res.data;
     }).catch(function(err) {
-        console.log(err);
-        return err;
+      console.log(err);
+      return err;
     });
   };
 
@@ -31,22 +41,34 @@ app.factory('items', function($http, auth){
       });
       angular.copy(res.data, o.items);
     }).catch(function(err) {
-        console.log(err);
-        return err;
+      console.log(err);
+      return err;
     });
   };
 
   o.get = function(item_id) {
     return $http.get('/api/item/' + item_id).then(function(res){
-      return _flattenItem(res.data);
+      var item = _flattenItem(res.data);
+      console.log(item);
+      return item;
     }).catch(function(err) {
-        console.log(err);
-        return err;
+      console.log(err);
+      return err;
     });
   };
 
   o.getMine = function() {
-    return $http.get('/api/items?creator=' + auth.geToken());
+    return $http.get('/api/items?creator=' + auth.isThisUser())
+    .then(function(res) {
+      angular.forEach(res.data, function(item) {
+        item = _flattenItem(item);
+      });
+      return res.data;
+    });
+  };
+
+  o.isMine = function(item) {
+    return item.creator._id === auth.isThisUser();
   };
 
   // HELPER FUNCTION
@@ -61,6 +83,7 @@ app.factory('items', function($http, auth){
         item[item.type] = subitem._id;
       }
     }
+    return item;
   }
 
 
@@ -70,14 +93,14 @@ app.factory('items', function($http, auth){
     return $http.put('/api/item/' + item._id, item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).then(function(res) {
-        return res.data;
+      return res.data;
     }).catch(function(err) {
-        return err;
+      return err;
     });
   };
 
   o.upvote = function(item) {
-    return $http.put('/api/items/' + item._id + '/upvote', null, {
+    return $http.put('/api/item/' + item._id + '/upvote', null, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).then(function(res){
       item.upvotes += 1;
@@ -88,7 +111,7 @@ app.factory('items', function($http, auth){
   };
 
   o.addTransaction = function(id, transaction) {
-    return $http.post('/api/items/' + id + '/transactions', transaction, {
+    return $http.post('/api/item/' + id + '/transactions', transaction, {
       headers: {Authorization: 'Bearer '+transactions.getToken()}
     }).then(function(res){
       transactions.push(res.data);
@@ -106,10 +129,11 @@ app.factory('items', function($http, auth){
     return $http.delete('/api/item/' + item_id, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).then(function(res) {
-        console.log('Successfully deleted item.')
+      console.log('Successfully deleted item.');
+      return res.data;
     }).catch(function(err) {
-        console.log(err);
-        return err;
+      console.log(err);
+      return err;
     });
   };
 

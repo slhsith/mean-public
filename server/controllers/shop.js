@@ -50,15 +50,16 @@ var subItemModel = {
   book: Book,
   podcast: Podcast
 };
-var types = ['workoutplan', 'dietplan', 'video', 'book', 'podcast'];
 
 // --- Exported Methods --- //
 
 // ----------------------------- ITEMS --------------------------------- //
 exports.getItems = function(req, res, next) {
-   Item.find({})
+  var query = req.query.creator? {'creator._id': req.query.creator} : {};
+   Item.find(query)
    .populate('exercise workoutplan dietplan video book podcast')
    .exec(function(err, items){
+      console.log(items);
       if(err){ return next(err); }
       var result = [];
       items.forEach(function(item) {
@@ -66,19 +67,6 @@ exports.getItems = function(req, res, next) {
       });
       return res.json(result);
    });
-};
-exports.deleteItem = function(req, res, next) {
-  var item_id = req.params.item;
-  Item.findByIdAndRemove(item_id, function (err, item) {
-    if (err) { return next(err); }
-    User.findByIdAndUpdate(item_id,
-      { $pull: {items: {_id: item_id} }}, 
-      function (err, items) {
-        if(err){ return next(err); }
-        console.log(items);
-        res.json({message: 'Successfully deleted item ' + item_id, success: true});
-    });    
-  });
 };
 
 
@@ -201,15 +189,29 @@ exports.getItemById = function (req, res, next) {
  });
 };
 
-// also seems incomplete, to be implemented
 exports.upvoteItem = function(req, res, next) {
-  req.item.upvote(function(err, item){
-    if (err) { return next(err); }
-
-    res.json(item);
+  Item.update(
+    {_id: req.params.item},
+    {$inc: {upvotes: 1}},
+    function(err, item){
+      if (err) { return next(err); }
+      res.json(item);
   });
 };
 
+exports.deleteItem = function(req, res, next) {
+  var item_id = req.params.item;
+  Item.findByIdAndRemove(item_id, function (err, item) {
+    if (err) { return next(err); }
+    User.findByIdAndUpdate(item_id,
+      { $pull: {items: {_id: item_id} }}, 
+      function (err, items) {
+        if(err){ return next(err); }
+        console.log(items);
+        res.json({message: 'Successfully deleted item ' + item_id, success: true});
+    });    
+  });
+};
 
 
 
@@ -313,6 +315,7 @@ function swapIds (item) {
   }
 }
 
+var types = ['workoutplan', 'dietplan', 'video', 'book', 'podcast'];
 function removeNullSubtypeFields(item) {
   item = item.toObject();
   types.forEach(function(type) {

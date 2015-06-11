@@ -41,12 +41,11 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
   };
 
 
-
   $scope.saveDiet     = function() {
     if ($scope.dietplan._id) {
       items.update($scope.dietplan);
     } else {
-      items.create($scope.dietplan).success(function(data) {
+      items.create($scope.dietplan).then(function(data) {
         $scope.dietplan = data;
         $scope.initMeal();
         $scope.meal.day = 1;

@@ -20,6 +20,18 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         postsPromise: function(posts){
           return posts.getAll();
+        },
+        itemsPromise: function(items, auth){
+          if (auth.isContributor()) {
+            return items.getMine();
+          }
+          return items.getAll();
+        },
+        eventsPromise: function(events, auth){
+          if (auth.isContributor()) {
+            return events.getMine();
+          }
+          return events.getAll();
         }
       }
     })
@@ -81,17 +93,6 @@ function($stateProvider, $urlRouterProvider) {
       url: '/event/challenge/:id',
       templateUrl: 'event.tpl.html',
       controller: 'EventCtrl',
-      resolve: {
-        itemPromise: function($stateParams, items) {
-          console.log($stateParams.id);
-          return items.get($stateParams.id);
-        }
-      }
-    })
-    .state('dietplan', {
-      url: '/item/dietplan/:id',
-      templateUrl: 'item.html',
-      controller: 'ItemsCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
           console.log($stateParams.id);

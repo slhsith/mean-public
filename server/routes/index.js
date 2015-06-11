@@ -23,6 +23,7 @@ var
   workoutplans    = require('../controllers/workoutplans'),
   dietplans       = require('../controllers/dietplans'),
   settings        = require('../controllers/settings'),
+  transactions    = require('../controllers/transactions'),
   messaging       = require('../controllers/messaging');
 
 
@@ -54,13 +55,9 @@ router.param('comment', posts.getCommentByIdParam )
 router.get('/api/items', shop.getItems );
 router.get('/api/item/:item', shop.getItemById );
 router.post('/api/items', auth, shop.postItem );
-// router.param('/api/item', shop.getItemByIdParam );
-router.get('/api/item/:id', shop.getItemById );
-// router.param('/api/item', shop.getItemByIdParam );
-router.get('/api/items/:item', shop.getItemById );
-// router.delete('/api/items/:item', shop.deleteItem );
 router.delete('/api/item/:item', auth, shop.deleteItem );
-router.put('/api/items/:item/upvote', auth, shop.upvoteItem );
+router.put('/api/item/:item', auth, shop.updateItem );
+router.put('/api/item/:item/upvote', auth, shop.upvoteItem );
 
 router.get('/api/items/:item/exercises', workoutplans.getExercises );
 router.post('/api/workoutPlans/:id', workoutplans.createExercise );
@@ -80,15 +77,23 @@ router.get('/api/item/dietplan/ingredients/:query', dietplans.searchIngredients 
 router.post('/api/item/dietplan/ingredients', auth, dietplans.createIngredient );
 router.put('/api/item/dietplan/ingredient/:id', auth, dietplans.updateIngredient );
 
+router.get('/api/events', events.getEvents );
+router.get('/api/event/:event', events.getEventById );
+router.post('/api/events', auth, events.postEvent );
+router.delete('/api/event/:event', auth, events.deleteEvent );
+router.put('/api/event/:event', auth, events.updateEvent );
+router.put('/api/event/:event/upvote', auth, events.upvoteEvent );
+// router.put('/api/event/:event/review', auth, events.reviewEvent );
+
 // Item page & transaction
-router.post('/api/transactions', auth, shop.createTransaction );
+router.post('/api/transactions', auth, transactions.createTransaction );
 //transaction page & create customer
-router.get('/api/transactions', shop.getTransactions );
-router.get('/api/transactions/:transaction', shop.getTransactionById );
+router.get('/api/transactions', transactions.getTransactions );
+router.get('/api/transactions/:transaction', transactions.getTransactionById );
 
 //customers
-router.get('/api/customers', shop.getCustomers );
-router.get('/api/customers/:customer', shop.getCustomerById );
+router.get('/api/customers', transactions.getCustomers );
+router.get('/api/customers/:customer', transactions.getCustomerById );
 
 
 // ------------------------------- GROUPS   ----------------------------------//

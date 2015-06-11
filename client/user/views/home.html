@@ -26,15 +26,66 @@
     </form>
   </section>
 
-<!-- TBC: Events -->
-<!-- TBC: Digital Items-->
-<!-- TBC: Orders -->
-<!-- TBC: Followers -->
+  <!-- Events -->
+  <section class="row">
+    <div class="col-sm-12">
+      <h3>Events</h3>
+      <a ng-href="#/events"> Browse Events <i class="fa fa-arrow-right"></i> </a>
+    </div>
+    <div ng-repeat="event in events" class="col-sm-12"> 
+      <div class="col-sm-2"> <img ng-src="{{item.cover_photo? item.cover_photo : 'images/itemplaceholder.png'}}" style="max-height: 60px"> </div>
+      <div class="col-sm-4">
+        {{ item.name }} 
+        <br>Price: ${{ item.price/100 }}
+      </div>
+      </a>
+      <div class="col-sm-6 text-right">
+        <a ng-click="deleteItem(item, $index)">delete</a>
+        | <a href="#/item/{{item._id}}">edit</a> 
+        | <a href="#/item/{{item._id}}/orders">orders</a>
+        <br>
+        {{item.reviews.average? item.reviews.average : 'x'}} Stars - {{item.reviews.count}}
+        {{item.signups}}
+        <br>Type: {{ itemTitles[item.type] }}
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Digital Items-->
+  <section class="row">
+    <div class="col-sm-12">
+      <h3>Digital Items</h3>
+      <a ng-href="#/shop"> Browse Items <i class="fa fa-arrow-right"></i> </a>
+    </div>
+
+    <div ng-repeat="item in items" class="col-sm-12"> 
+      <div class="col-sm-2"> <img ng-src="{{item.cover_photo? item.cover_photo : 'images/itemplaceholder.png'}}" style="max-height: 60px"> </div>
+      <div class="col-sm-4">
+        {{ item.name }} 
+        <br>Price: ${{ item.price/100 }}
+      </div>
+      </a>
+      <div class="col-sm-6 text-right">
+        <a ng-click="deleteItem(item, $index)">delete</a>
+        | <a href="#/item/{{item._id}}">edit</a> 
+        | <a href="#/item/{{item._id}}/orders">orders</a>
+        <br>
+        {{item.reviews.average? item.reviews.average : 'x'}} Stars - {{item.reviews.count}}
+        {{item.signups}}
+        <br>Type: {{ itemTitles[item.type] }}
+      </div>
+    </div>
+  </section>
+  <!-- TBC: Orders -->
+  <!-- TBC: Followers -->
 
 <!-- Posts -->
-  <section>
-    <h3>Posts</h3>
-    <div ng-repeat="post in posts | orderBy:'-upvotes'">
+  <section class="row">
+    <div class="col-sm-12">
+      <h3>Posts</h3>
+    </div>
+    <div ng-repeat="post in posts | orderBy:'-upvotes'" class="col-sm-12">
       <i class="fa fa-thumbs-up" ng-click="incrementUpvotes(post)"></i>
       {{post.upvotes}}
       <span style="font-size:20px; margin-left:10px;"> 
@@ -45,10 +96,6 @@
     </div>
   </section>
 
-  <section>
-    <h3>Browse Items</h3>
-      <a ng-href="#/shop">Shop</a>
-  </section>
 
   <footer class="text-center" style="margin-top: 60px">
     <a href="#/groups">Groups</a> || <a href="#/messenger">Messenger</a> || <span ng-if="isAdmin()"><a href="/admin/#/home">Administrator</a></span><br/>

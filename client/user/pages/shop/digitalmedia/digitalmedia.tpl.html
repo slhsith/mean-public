@@ -1,4 +1,8 @@
-<form ng-submit="addItem()" style="margin-top:30px;">
+<div ng-hide="isMine(item)">
+  {{item.type}} | ${{ item.price / 100}} | {{ item.description }} 
+</div>
+
+<form ng-submit="addItem()" style="margin-top:30px;" ng-if="isMine(item)">
 
   <div class="col-sm-6">
     <div class="form-group col-sm-12">

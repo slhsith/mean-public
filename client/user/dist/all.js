@@ -20,6 +20,18 @@ function($stateProvider, $urlRouterProvider) {
       resolve: {
         postsPromise: function(posts){
           return posts.getAll();
+        },
+        itemsPromise: function(items, auth){
+          if (auth.isContributor()) {
+            return items.getMine();
+          }
+          return items.getAll();
+        },
+        eventsPromise: function(events, auth){
+          if (auth.isContributor()) {
+            return events.getMine();
+          }
+          return events.getAll();
         }
       }
     })
@@ -81,17 +93,6 @@ function($stateProvider, $urlRouterProvider) {
       url: '/event/challenge/:id',
       templateUrl: 'event.tpl.html',
       controller: 'EventCtrl',
-      resolve: {
-        itemPromise: function($stateParams, items) {
-          console.log($stateParams.id);
-          return items.get($stateParams.id);
-        }
-      }
-    })
-    .state('dietplan', {
-      url: '/item/dietplan/:id',
-      templateUrl: 'item.html',
-      controller: 'ItemsCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
           console.log($stateParams.id);
@@ -273,7 +274,12 @@ app.controller('NavCtrl', function ($scope, auth) {
 });
 
 
-app.controller('DashCtrl', function ($scope, posts, auth) {
+app.controller('DashCtrl', function ($scope, posts, auth, items, itemsPromise, events) {
+
+  $scope.items = itemsPromise;
+  $scope.itemTitles = items.titles;
+  // $scope.events = eventsPromise;
+  // $scope.eventTitles = events.titles;
 
   $scope.posts = posts.posts;
   $scope.addPost = function(){
@@ -635,9 +641,150 @@ app.controller('EventsCtrl', function() {
 
 });
 app.factory('events', function($http, auth){
+  var o = { 
+    events: []
+  };
+
+  o.titles = {
+    bootcamp    : 'Bootcamp',
+    challenge   : 'Online Challenge',
+    session     : 'Private Session'
+  };
+
+  // CREATE
+  o.create = function(event) {
+    return $http.post('/api/events', event, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+      var extendedItem = angular.extend(res.data, event);
+      o.items.push(extendedItem);
+      return extendedItem;
+    }).catch(function(err) {
+      console.log(err);
+      return err;
+    });
+  };
+
+  // READ - basic getting of data
+  o.getAll = function() {
+    return $http.get('/api/events').then(function(res){
+      angular.forEach(res.data, function(event) {
+        event = _flattenItem(event);
+      });
+      angular.copy(res.data, o.events);
+    }).catch(function(err) {
+      console.log(err);
+      return err;
+    });
+  };
+
+  o.get = function(event_id) {
+    return $http.get('/api/event/' + event_id).then(function(res){
+      var event = _flattenItem(res.data);
+      console.log(event);
+      return event;
+    }).catch(function(err) {
+      console.log(err);
+      return err;
+    });
+  };
+
+  o.getMine = function() {
+    return $http.get('/api/events?creator=' + auth.isThisUser())
+    .then(function(res) {
+      console.log(res);
+      angular.forEach(res.data, function(event) {
+        event = _flattenItem(event);
+      });
+      return res.data;
+    });
+  };
+
+  o.isMine = function(event) {
+    return event.creator._id === auth.isThisUser();
+  };
+
+  // HELPER FUNCTION
+  function _flattenItem (event) {
+    var subitem = event[event.type];
+    for (var k in subitem) {
+      if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
+        event[k] = subitem[k];
+        event[item.type] = subitem._id;
+      }
+    }
+    return event;
+  }
+
+  // UPDATE
+
+  o.update = function(event) {
+    return $http.put('/api/event/' + event._id, event, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      return err;
+    });
+  };
+
+  o.upvote = function(event) {
+    return $http.put('/api/event/' + item._id + '/upvote', null, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res){
+      event.upvotes += 1;
+    }).catch(function(err) {
+      console.log(err);
+      return err;
+    });
+  };
+
+  o.addTransaction = function(id, transaction) {
+    return $http.post('/api/event/' + id + '/transactions', transaction, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).then(function(res){
+      transactions.push(res.data);
+    }).catch(function(err) {
+      console.log(err);
+      return err;
+    });
+  };
+
+  // DELETE
+  o.delete = function(event_id) {
+    return $http.delete('/api/event/' + event_id, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+      console.log('Successfully deleted event.');
+      return res.data;
+    }).catch(function(err) {
+      console.log(err);
+      return err;
+    });
+  };
+
+  return o;
+
+}); // </END OF EVENTS FACTORY>
+
+
+
+/// CONSTRUCTOR OF NEW ITEMS
+app.factory('Event', function() {
+
+  var EventConstructor = function EventConstructor (type) {
+    this.name         = null;
+    this.creator      = { username: null, _id: null };
+
+    this.price        = null;
+    this.upvotes      = null;
+
+    this.type         = type || null;
+  };
+
+  return EventConstructor;
+
 });
-
-
 
 
 app.controller('GroupsCtrl',
@@ -1164,9 +1311,13 @@ app.factory('messageSocket', function(socketFactory) {
 app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
 
   $scope.items = items.items;
-  $scope.item = itemPromise.data;
+  $scope.item = itemPromise;
 
-  item = itemPromise;
+  $scope.isUser        = auth.isUser;
+  $scope.isContributor = auth.isContributor;
+  $scope.isAdmin       = auth.isAdmin;
+  $scope.isMine        = items.isMine;
+
 
   $scope.deleteItem = function () {
     console.log('delete', $scope.item._id);
@@ -1178,50 +1329,19 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
     }
   };
 
-  $scope.createDay = function(){
-    items.newDay($stateParams.id, $scope.day.day).success(function(day) {
-      $scope.item.days.push(day);
-    });
-  };
-  $scope.incrementUpvotes = function(item){
-    items.upvoteItem(item);
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
-    // mixpanel.track("Items Page: Upvoted Comment");
-  };
-  $scope.addPlan = function() {
-    items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
-      console.log('success');
-      $scope.item.exercises.push(data);
-   }).error(function(){
-       console.log('failure');
-   });
-  };
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
+
 });
 
-app.controller('ShopCtrl', function ($scope, items, Item, auth) {
+app.controller('ShopCtrl', function ($scope, items, Item, auth, popupService) {
 
   $scope.isAdmin       = auth.isAdmin;
   $scope.isContributor = auth.isContributor;
   $scope.isUser        = auth.isUser;
   $scope.items         = items.items;
+  $scope.isMine        = items.isMine;
 
   // for purposes of capitalized and well spaced display from item.type field
-  $scope.itemTitles = {
-    workoutplan : 'Workout Plan',
-    dietplan    : 'Diet Plan',
-
-    bootcamp    : 'Bootcamp',
-    challenge   : 'Online Challenge',
-
-    book        : 'Book',
-    podcast     : 'Podcast',
-    video       : 'Video'
-  };
+  $scope.itemTitles = items.titles;
 
   // Initialize a brand new item from Item constructor
   $scope.initItem = function(type) {
@@ -1249,12 +1369,18 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
   // Initialize the edit state -- ultimate save will be in the directive that
   // handles the item type
 
-  $scope.isMine = function(item) {
-    return item.creator._id === $scope.user._id;
-  };
-
   $scope.editItem = function(item) {
     $scope.item = item;
+  };
+
+  $scope.deleteItem = function (item, index) {
+    console.log('delete', item._id);
+    if (popupService.showPopup('Are you sure you want to delete this item?')) {
+      items.delete(item._id).then(function(data){
+        console.log(data.message);
+        $scope.items.splice(index, 1);
+      });
+    }
   };
 
   // for upvoting
@@ -1273,7 +1399,17 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth) {
 app.factory('items', function($http, auth){
 
   var o = {
-    items: []
+    items: [],
+    item: {}
+  };
+
+  o.titles = {
+    workoutplan : 'Workout Plan',
+    dietplan    : 'Diet Plan',
+
+    book        : 'Book',
+    podcast     : 'Podcast',
+    video       : 'Video'
   };
 
   // CREATE
@@ -1287,10 +1423,10 @@ app.factory('items', function($http, auth){
       o.items.push(extendedItem);
       // will be added to the appropriate service object subarray
       // based on submitted type
-      return data;
+      return res.data;
     }).catch(function(err) {
-        console.log(err);
-        return err;
+      console.log(err);
+      return err;
     });
   };
 
@@ -1302,22 +1438,34 @@ app.factory('items', function($http, auth){
       });
       angular.copy(res.data, o.items);
     }).catch(function(err) {
-        console.log(err);
-        return err;
+      console.log(err);
+      return err;
     });
   };
 
   o.get = function(item_id) {
     return $http.get('/api/item/' + item_id).then(function(res){
-      return _flattenItem(res.data);
+      var item = _flattenItem(res.data);
+      console.log(item);
+      return item;
     }).catch(function(err) {
-        console.log(err);
-        return err;
+      console.log(err);
+      return err;
     });
   };
 
   o.getMine = function() {
-    return $http.get('/api/items?creator=' + auth.geToken());
+    return $http.get('/api/items?creator=' + auth.isThisUser())
+    .then(function(res) {
+      angular.forEach(res.data, function(item) {
+        item = _flattenItem(item);
+      });
+      return res.data;
+    });
+  };
+
+  o.isMine = function(item) {
+    return item.creator._id === auth.isThisUser();
   };
 
   // HELPER FUNCTION
@@ -1332,6 +1480,7 @@ app.factory('items', function($http, auth){
         item[item.type] = subitem._id;
       }
     }
+    return item;
   }
 
 
@@ -1341,14 +1490,14 @@ app.factory('items', function($http, auth){
     return $http.put('/api/item/' + item._id, item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).then(function(res) {
-        return res.data;
+      return res.data;
     }).catch(function(err) {
-        return err;
+      return err;
     });
   };
 
   o.upvote = function(item) {
-    return $http.put('/api/items/' + item._id + '/upvote', null, {
+    return $http.put('/api/item/' + item._id + '/upvote', null, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).then(function(res){
       item.upvotes += 1;
@@ -1359,7 +1508,7 @@ app.factory('items', function($http, auth){
   };
 
   o.addTransaction = function(id, transaction) {
-    return $http.post('/api/items/' + id + '/transactions', transaction, {
+    return $http.post('/api/item/' + id + '/transactions', transaction, {
       headers: {Authorization: 'Bearer '+transactions.getToken()}
     }).then(function(res){
       transactions.push(res.data);
@@ -1377,10 +1526,11 @@ app.factory('items', function($http, auth){
     return $http.delete('/api/item/' + item_id, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).then(function(res) {
-        console.log('Successfully deleted item.')
+      console.log('Successfully deleted item.');
+      return res.data;
     }).catch(function(err) {
-        console.log(err);
-        return err;
+      console.log(err);
+      return err;
     });
   };
 
@@ -1547,12 +1697,11 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
   };
 
 
-
   $scope.saveDiet     = function() {
     if ($scope.dietplan._id) {
       items.update($scope.dietplan);
     } else {
-      items.create($scope.dietplan).success(function(data) {
+      items.create($scope.dietplan).then(function(data) {
         $scope.dietplan = data;
         $scope.initMeal();
         $scope.meal.day = 1;
@@ -1944,6 +2093,7 @@ app.directive('digitalMedia', function () {
 
 app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
   $scope.exercise = exercisePromise;
+  
   $scope.addStep = function() {
     items.newStep($scope.step, $stateParams.exercise).then(function(res){
       console.log('success');
@@ -1953,6 +2103,30 @@ app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateP
        console.log('failure');
    });
   };
+
+  $scope.createDay = function(){
+    items.newDay($stateParams.id, $scope.day.day).success(function(day) {
+      $scope.item.days.push(day);
+    });
+  };
+  
+  $scope.incrementUpvotes = function(item){
+    items.upvoteItem(item);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Upvote Item",{"area":"shop", "page":"shop", "action":"upvote"});
+    // mixpanel.track("Items Page: Upvoted Comment");
+  };
+
+  $scope.addPlan = function() {
+    items.newPlan($scope.workoutPlan, $stateParams.id).success(function(data){
+      console.log('success');
+      $scope.item.exercises.push(data);
+   }).error(function(){
+       console.log('failure');
+   });
+  };
+
 });
 
 app.controller('StepCtrl', function ($scope, items, stepPromise, $stateParams) {
@@ -2150,6 +2324,43 @@ app.directive('avatarUpload', function() {
 //   };
 
 // });
+app.directive("starRating", function() {
+  return {
+    restrict : "EA",
+    template : "<ul class='rating'>" +
+               "  <li ng-repeat='star in stars' ng-class='star' ng-click='toggle($index)'>" +
+               "    <i class='fa fa-star'></i>" +
+               "  </li>" +
+               "</ul>",
+    scope : {
+      ratingValue : "=ngModel",
+      max : "=?", //optional: default is 5
+      onRatingSelected : "&?",
+    },
+    link : function(scope, elem, attrs) {
+      if (scope.max == undefined) { scope.max = 5; }
+      function updateStars() {
+        scope.stars = [];
+        for (var i = 0; i < scope.max; i++) {
+          scope.stars.push({
+            filled : i < scope.ratingValue
+          });
+        }
+      };
+      scope.toggle = function(index) {
+        if (scope.readonly === undefined || scope.readonly === false){
+          scope.ratingValue = index + 1;
+          scope.onRatingSelected({
+            rating: index + 1
+          });
+        }
+      };
+      scope.$watch("ratingValue", function(oldVal, newVal) {
+        if (newVal) { updateStars(); }
+      });
+    }
+  };
+});
 /*
 
 SLIDES WIDGET TO VIEW CONTENT THAT CAN BE VIEWED LIKE CAROUSEL
