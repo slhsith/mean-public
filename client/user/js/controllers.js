@@ -45,7 +45,7 @@ app.controller('NavCtrl', function ($scope, auth) {
 });
 
 
-app.controller('DashCtrl', function ($scope, posts, auth, items, itemsPromise, events) {
+app.controller('DashCtrl', function ($scope, posts, auth, items, itemsPromise, events, eventsPromise) {
 
   $scope.items = itemsPromise;
   $scope.itemTitles = items.titles;
