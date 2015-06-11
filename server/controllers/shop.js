@@ -55,17 +55,19 @@ var subItemModel = {
 
 // ----------------------------- ITEMS --------------------------------- //
 exports.getItems = function(req, res, next) {
-  var query = req.query.creator? {'creator._id': req.query.creator} : {};
-   Item.find(query)
-   .populate('exercise workoutplan dietplan video book podcast')
-   .exec(function(err, items){
-      console.log(items);
+  var query = {};
+  if (req.query.creator) { query = {'creator._id': req.query.creator}; }
+  if (req.query.type) { query = {'type': req.query.type}; }
+  Item.find(query)
+    .populate('exercise workoutplan dietplan video book podcast')
+    .exec(function(err, items){
       if(err){ return next(err); }
-      var result = [];
+      // var result = [];
       items.forEach(function(item) {
-        result.push(removeNullSubtypeFields(item));
+        // result.push(_flattenItem(item));
+        _flattenItem(item);
       });
-      return res.json(result);
+      return res.json(items);
    });
 };
 
@@ -182,7 +184,7 @@ exports.getItemById = function (req, res, next) {
     if (err) { return next(err); }
     console.log('----> populated\n', item);
     if (item) {
-      return res.json(removeNullSubtypeFields(item));
+      return res.json(_flattenItem(item));
     } else {
       return res.json({message: 'no item found'});
     }
@@ -215,92 +217,10 @@ exports.deleteItem = function(req, res, next) {
 
 
 
-// ----------------------------- TRANSACTIONS ------------------------------- //
-
-// Item page & transaction
-exports.createTransaction = function(req, res, next) {
-  console.log(req.payload.stripe_id);
-  var source =  { object: 'card', number: req.body.number, exp_month: req.body.month, exp_year: req.body.year, cvc: req.body.cvc, name: req.body.cardholder_name };
-  stripe.customers.createSource(req.payload.stripe_id,
-    { source: source },
-    function(err, card) {
-      if(err) {return next(err); }
-      User.findByIdAndUpdate(req.payload._id, { $addToSet: { stripe_card: card } }, function(err, user) {
-        if(err){ return next(err); }
-        console.log('Success! Saved card');
-      });
-      stripe.charges.create({
-        amount: req.body.price,
-        currency: "usd", //to be changed
-        source: source
-      }, function(err, charge) {
-        if(err){ return  next(err); }
-        if(charge.paid){
-          User.findByIdAndUpdate(req.payload._id, { $addToSet: { purchases: req.body._id } }, function(err, user) {
-            if(err) { return next(err); }
-            console.log('Success! Saved item to user');
-          });
-        }
-      });
-      res.json(card);
-    });
-};
-
-//transaction page & create customer
-exports.getTransactions = function(req, res, next) {
-  Transaction.find({}, function(err, transactions){
-    if(err){ return next(err); }
-
-    res.json(transactions);
-  });
-};
-
-exports.getTransactionById = function(req, res, next) {
-  var id = req.params.transaction;
-  // to be completed
-  // Transaction,findById(id, ...)
-};
-
-
-
-
-
-// ----------------------------- CUSTOMERS  --------------------------------- //
-
-// for route: router.post('/api/transaction/:transaction/customers'
-exports.createCustomerOnTransaction = function(req, res, next) {
-  stripe.token.create({
-    card: {
-      "number": '4242424242424242',
-      "exp_month": 12,
-      "exp_year": 2016,
-      "cvc": '123'
-    }
-  }, function(err, token) {
-    // asynchronously called
-  });
-};
-
-
-
-exports.getCustomers = function(req, res, next) {
-  Customer.find({}, function(err, customers){
-    if(err){ return next(err); }
-
-    res.json(customers);
-  });
-};
-
-exports.getCustomerById = function(req, res, next) {
-  var id = req.params.customoer;
-  // to be completed
-  // Customer.findById(id, ...)
-};
-
 
 
 // ---------------  HELPER FUNCTIONS ------------------- //
-function swapIds (item) {
+function _swapIds (item) {
   // this is an Item, and we want Ids in <Subitem> format
   if (!item.item) {
     var  item_id  = item._id,
@@ -315,14 +235,27 @@ function swapIds (item) {
   }
 }
 
+// flatten out item so subitem fields are part of main level object hierarchy
+// keeping the _id of the subitem in the subitem typed field
 var types = ['workoutplan', 'dietplan', 'video', 'book', 'podcast'];
-function removeNullSubtypeFields(item) {
+function _flattenItem(item) {
   item = item.toObject();
+  // remove all the null 'populated' fields for types that are not this item
   types.forEach(function(type) {
     if (item[type] === null) {
       delete item[type];
     }
   });
+  // move all fields in the subitem except ID to the first level hierarchy of object
+  var subitem = item[item.type];
+  var subitem_id = subitem._id;
+  for (var key in subitem) {
+    if (subitem.hasOwnProperty(key) && subitem[key] !== subitem_id) {
+      item[key] = subitem[key];
+    }
+  }
+  // finally flatten the subitem_id also
+  item[item.type] = subitem_id;
   return item;
 }
 

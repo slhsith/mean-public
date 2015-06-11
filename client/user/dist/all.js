@@ -637,6 +637,156 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   return lang; 
 }]);
 
+app.controller('EventsCtrl', function($scope, events) {
+  $scope.eventTitles = events.titles;
+
+});
+app.factory('events', function($http, auth){
+  var o = { 
+    events: []
+  };
+
+  o.titles = {
+    bootcamp    : 'Bootcamp',
+    challenge   : 'Online Challenge',
+    session     : 'Private Session'
+  };
+
+  // CREATE
+  o.create = function(event) {
+    return $http.post('/api/events', event, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+      var extendedItem = angular.extend(res.data, event);
+      o.items.push(extendedItem);
+      return extendedItem;
+    }).catch(function(err) {
+      console.log(err);
+      return err;
+    });
+  };
+
+  // READ - basic getting of data
+  o.getAll = function() {
+    return $http.get('/api/events').then(function(res){
+      angular.forEach(res.data, function(event) {
+        event = _flattenItem(event);
+      });
+      angular.copy(res.data, o.events);
+    }).catch(function(err) {
+      console.log(err);
+      return err;
+    });
+  };
+
+  o.get = function(event_id) {
+    return $http.get('/api/event/' + event_id).then(function(res){
+      var event = _flattenItem(res.data);
+      console.log(event);
+      return event;
+    }).catch(function(err) {
+      console.log(err);
+      return err;
+    });
+  };
+
+  o.getMine = function() {
+    return $http.get('/api/events?creator=' + auth.isThisUser())
+    .then(function(res) {
+      console.log(res);
+      angular.forEach(res.data, function(event) {
+        event = _flattenItem(event);
+      });
+      return res.data;
+    });
+  };
+
+  o.isMine = function(event) {
+    return event.creator._id === auth.isThisUser();
+  };
+
+  // HELPER FUNCTION
+  function _flattenItem (event) {
+    var subitem = event[event.type];
+    for (var k in subitem) {
+      if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
+        event[k] = subitem[k];
+        event[item.type] = subitem._id;
+      }
+    }
+    return event;
+  }
+
+  // UPDATE
+
+  o.update = function(event) {
+    return $http.put('/api/event/' + event._id, event, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      return err;
+    });
+  };
+
+  o.upvote = function(event) {
+    return $http.put('/api/event/' + item._id + '/upvote', null, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res){
+      event.upvotes += 1;
+    }).catch(function(err) {
+      console.log(err);
+      return err;
+    });
+  };
+
+  o.addTransaction = function(id, transaction) {
+    return $http.post('/api/event/' + id + '/transactions', transaction, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).then(function(res){
+      transactions.push(res.data);
+    }).catch(function(err) {
+      console.log(err);
+      return err;
+    });
+  };
+
+  // DELETE
+  o.delete = function(event_id) {
+    return $http.delete('/api/event/' + event_id, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    }).then(function(res) {
+      console.log('Successfully deleted event.');
+      return res.data;
+    }).catch(function(err) {
+      console.log(err);
+      return err;
+    });
+  };
+
+  return o;
+
+}); // </END OF EVENTS FACTORY>
+
+
+
+/// CONSTRUCTOR OF NEW ITEMS
+app.factory('Event', function() {
+
+  var EventConstructor = function EventConstructor (type) {
+    this.name         = null;
+    this.creator      = { username: null, _id: null };
+
+    this.price        = null;
+    this.upvotes      = null;
+
+    this.type         = type || null;
+  };
+
+  return EventConstructor;
+
+});
+
 
 app.controller('GroupsCtrl',
 function ($scope, groups, auth) {
@@ -831,156 +981,6 @@ app.service('popupService', function($window) {
   this.showPopup = function(message) {
     return $window.confirm(message);
   };
-});
-
-app.controller('EventsCtrl', function($scope, events) {
-  $scope.eventTitles = events.titles;
-
-});
-app.factory('events', function($http, auth){
-  var o = { 
-    events: []
-  };
-
-  o.titles = {
-    bootcamp    : 'Bootcamp',
-    challenge   : 'Online Challenge',
-    session     : 'Private Session'
-  };
-
-  // CREATE
-  o.create = function(event) {
-    return $http.post('/api/events', event, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      var extendedItem = angular.extend(res.data, event);
-      o.items.push(extendedItem);
-      return extendedItem;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
-  };
-
-  // READ - basic getting of data
-  o.getAll = function() {
-    return $http.get('/api/events').then(function(res){
-      angular.forEach(res.data, function(event) {
-        event = _flattenItem(event);
-      });
-      angular.copy(res.data, o.events);
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
-  };
-
-  o.get = function(event_id) {
-    return $http.get('/api/event/' + event_id).then(function(res){
-      var event = _flattenItem(res.data);
-      console.log(event);
-      return event;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
-  };
-
-  o.getMine = function() {
-    return $http.get('/api/events?creator=' + auth.isThisUser())
-    .then(function(res) {
-      console.log(res);
-      angular.forEach(res.data, function(event) {
-        event = _flattenItem(event);
-      });
-      return res.data;
-    });
-  };
-
-  o.isMine = function(event) {
-    return event.creator._id === auth.isThisUser();
-  };
-
-  // HELPER FUNCTION
-  function _flattenItem (event) {
-    var subitem = event[event.type];
-    for (var k in subitem) {
-      if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
-        event[k] = subitem[k];
-        event[item.type] = subitem._id;
-      }
-    }
-    return event;
-  }
-
-  // UPDATE
-
-  o.update = function(event) {
-    return $http.put('/api/event/' + event._id, event, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      return res.data;
-    }).catch(function(err) {
-      return err;
-    });
-  };
-
-  o.upvote = function(event) {
-    return $http.put('/api/event/' + item._id + '/upvote', null, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res){
-      event.upvotes += 1;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
-  };
-
-  o.addTransaction = function(id, transaction) {
-    return $http.post('/api/event/' + id + '/transactions', transaction, {
-      headers: {Authorization: 'Bearer '+transactions.getToken()}
-    }).then(function(res){
-      transactions.push(res.data);
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
-  };
-
-  // DELETE
-  o.delete = function(event_id) {
-    return $http.delete('/api/event/' + event_id, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      console.log('Successfully deleted event.');
-      return res.data;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
-  };
-
-  return o;
-
-}); // </END OF EVENTS FACTORY>
-
-
-
-/// CONSTRUCTOR OF NEW ITEMS
-app.factory('Event', function() {
-
-  var EventConstructor = function EventConstructor (type) {
-    this.name         = null;
-    this.creator      = { username: null, _id: null };
-
-    this.price        = null;
-    this.upvotes      = null;
-
-    this.type         = type || null;
-  };
-
-  return EventConstructor;
-
 });
 
 /*  ----------------------  *
@@ -1309,6 +1309,69 @@ app.factory('messageSocket', function(socketFactory) {
   
   return socket;
 });
+// SETTINGS
+app.factory('settings', function ($http, $window, auth) {
+
+  var s = { settings : {} };
+
+  s.getAll = function () {
+    return $http.get('/api/settings').then(function(res){
+      angular.copy(res.data, s.settings);
+    });
+  };
+
+  s.update = function (user) {
+    console.log('updating user', user);
+    return $http.put('/api/settings', user).then(function(res){
+      s.settings = res.data;
+    });
+  };
+
+  /*  1  get signed_request
+   *  2  put from client -> aws
+   *  3  send success back to back_end so it can put an update to filename & save to user
+   */
+  s.uploadAvatar = function (user) {
+    // file uploader is an array
+    user.avatar = user.avatar[0];
+
+    return $http.get('/api/user/' + user._id + '/avatar?name=' + user.avatar.name + '&type=' + user.avatar.type).then(function(res) {
+      return $http.put(res.data.signed_request, user.avatar, {
+        headers: { 
+          'x-amz-acl': 'public-read', 
+          'x-amz-meta-userid': user._id,
+          'x-amz-meta-role': 'avatar',
+          'Content-Type': user.avatar.type,
+        }
+      });
+    })
+    .then(function(res){
+      console.log('amazon putObject result', res);
+      var req = {
+        filename: user.avatar.name, 
+        headers: res.headers()
+      };
+      return $http.put('/api/user/' + user._id + '/avatar', req, {
+        headers: { 'Authorization': 'Bearer '+auth.getToken() }
+      }); 
+    }).then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      console.log(err); 
+      return err;
+    }); 
+  };
+
+  s.get = function (handle) {
+    return $http.get('/api/user/handle/' + handle).then(function(res){
+      console.log('user by handle', res.data);
+      return res.data;
+    });
+  };
+
+   return s;
+});
+
 app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
 
   $scope.items = items.items;
@@ -1350,21 +1413,13 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth, popupService) {
   };
 
   // CREATE-POST new item
-  $scope.addItem = function() {
-    items.create($scope.item)
-    .then(function(data){
-      console.log('success');
-      $scope.items = items.items;
-      $scope.item = new Item();
-      console.log(data);
-     }).catch(function(){
-         console.log('failure');
-     });
+  $scope.saveItem = items.saveItem($scope.item)
+  .then(function() {
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
    // mixpanel.track("Shop Page: Added Item");
-  };
+  });
 
   // PUT UPDATES - 
   // Initialize the edit state -- ultimate save will be in the directive that
@@ -1413,87 +1468,47 @@ app.factory('items', function($http, auth){
   };
 
   // CREATE
-  o.create = function(item) {
-    return $http.post('/api/items', item, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      // base item data comes back from API, extend it with
-      // the item's original submitted descriptive parameters
-      var extendedItem = angular.extend(res.data, item);
-      o.items.push(extendedItem);
-      // will be added to the appropriate service object subarray
-      // based on submitted type
-      return res.data;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
+  o.save = function(item) {
+    if (!item._id) {
+      return $http.post('/api/items', item, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      }).then(itemSuccessHandler).catch(itemErrorHandler);
+    } else {
+      return $http.put('/api/item/' + item._id, item, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      }).then(itemSuccessHandler).catch(itemErrorHandler);
+    }
   };
 
   // READ - basic getting of data
-  o.getAll = function() {
-    return $http.get('/api/items').then(function(res){
-      angular.forEach(res.data, function(item) {
-        item = _flattenItem(item);
-      });
-      angular.copy(res.data, o.items);
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
+  o.getAll = function(type) {
+    var api_url = '/api/items';
+    // append a query for a type if a string is passed through
+    if (type) { api_url += '?type=' + type; }
+    
+    return $http.get(api_url)
+    .then(_itemSuccessHandler)
+    .catch(_itemErrorHandler);
   };
 
   o.get = function(item_id) {
-    return $http.get('/api/item/' + item_id).then(function(res){
-      var item = _flattenItem(res.data);
-      console.log(item);
-      return item;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
+    return $http.get('/api/item/' + item_id)
+    .then(_itemSuccessHandler)
+    .catch(_itemErrorHandler);
   };
 
   o.getMine = function() {
     return $http.get('/api/items?creator=' + auth.isThisUser())
-    .then(function(res) {
-      angular.forEach(res.data, function(item) {
-        item = _flattenItem(item);
-      });
-      return res.data;
-    });
+    .then(_itemsSuccessHandler)
+    .catch(_itemErrorHandler);
   };
-
-  o.isMine = function(item) {
-    return item.creator._id === auth.isThisUser();
-  };
-
-  // HELPER FUNCTION
-  // the API gives us the whole subitem under the field of its name
-  // like video: { duration: ... } so we want all the fields to be accessible
-  // straight on the item, keeping the _id of the video in the video field
-  function _flattenItem (item) {
-    var subitem = item[item.type];
-    for (var k in subitem) {
-      if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
-        item[k] = subitem[k];
-        item[item.type] = subitem._id;
-      }
-    }
-    return item;
-  }
-
 
   // UPDATE
-
   o.update = function(item) {
     return $http.put('/api/item/' + item._id, item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      return res.data;
-    }).catch(function(err) {
-      return err;
-    });
+    }).then(_itemSuccessHandler)
+    .catch(_itemErrorHandler);
   };
 
   o.upvote = function(item) {
@@ -1501,25 +1516,8 @@ app.factory('items', function($http, auth){
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).then(function(res){
       item.upvotes += 1;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
+    }).catch(_itemErrorHandler);
   };
-
-  o.addTransaction = function(id, transaction) {
-    return $http.post('/api/item/' + id + '/transactions', transaction, {
-      headers: {Authorization: 'Bearer '+transactions.getToken()}
-    }).then(function(res){
-      transactions.push(res.data);
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
-  };
-
-
-
 
   // DELETE
   o.delete = function(item_id) {
@@ -1528,12 +1526,49 @@ app.factory('items', function($http, auth){
     }).then(function(res) {
       console.log('Successfully deleted item.');
       return res.data;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
+    }).catch(_itemErrorHandler);
   };
 
+  o.isMine = function(item) {
+    return item.creator._id === auth.isThisUser();
+  };
+
+  // INTERNAL HELPER FUNCTIONS
+
+  // -- result handlers --
+  // plural
+  var _itemsSuccessHandler = function(res) {
+    // angular.forEach(res.data, function(item) {
+    //   item = _flattenItem(item);
+    // });
+    angular.copy(res.data, o.items);
+    return res.data;
+  };
+
+  // singular
+  var _itemSuccessHandler = function(res) {
+    // _flattenItem(res.data);
+    o.item = res.data;
+    return res.data;
+  };
+
+  var _itemErrorHandler = function(err) {
+    console.log('failure');
+    return err;
+  };
+
+  function _flattenItem (item) {
+    if (item.subitem) {
+      var subitem = item[item.type];
+      for (var k in subitem) {
+        if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
+          item[k] = subitem[k];
+          item[item.type] = subitem._id;
+        }
+      }
+    }
+    return item;
+  }
 
   return o;
   
@@ -1557,6 +1592,18 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
       return res.data;
     });
   };
+
+  o.addTransaction = function(id, transaction) {
+    return $http.post('/api/item/' + id + '/transactions', transaction, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).then(function(res){
+      o.transactions.push(res.data);
+    }).catch(function(err) {
+      console.log(err);
+      return err;
+    });
+  };
+
   o.purchase = function(card) {
     console.log(card);
     return $http.post('/api/transactions', card, {
@@ -2324,43 +2371,43 @@ app.directive('avatarUpload', function() {
 //   };
 
 // });
-app.directive("starRating", function() {
-  return {
-    restrict : "EA",
-    template : "<ul class='rating'>" +
-               "  <li ng-repeat='star in stars' ng-class='star' ng-click='toggle($index)'>" +
-               "    <i class='fa fa-star'></i>" +
-               "  </li>" +
-               "</ul>",
-    scope : {
-      ratingValue : "=ngModel",
-      max : "=?", //optional: default is 5
-      onRatingSelected : "&?",
-    },
-    link : function(scope, elem, attrs) {
-      if (scope.max == undefined) { scope.max = 5; }
-      function updateStars() {
-        scope.stars = [];
-        for (var i = 0; i < scope.max; i++) {
-          scope.stars.push({
-            filled : i < scope.ratingValue
-          });
-        }
-      };
-      scope.toggle = function(index) {
-        if (scope.readonly === undefined || scope.readonly === false){
-          scope.ratingValue = index + 1;
-          scope.onRatingSelected({
-            rating: index + 1
-          });
-        }
-      };
-      scope.$watch("ratingValue", function(oldVal, newVal) {
-        if (newVal) { updateStars(); }
-      });
-    }
-  };
-});
+// app.directive("starRating", function() {
+//   return {
+//     restrict : "EA",
+//     template : "<ul class='rating'>" +
+//                "  <li ng-repeat='star in stars' ng-class='star' ng-click='toggle($index)'>" +
+//                "    <i class='fa fa-star'></i>" +
+//                "  </li>" +
+//                "</ul>",
+//     scope : {
+//       ratingValue : "=ngModel",
+//       max : "=?", //optional: default is 5
+//       onRatingSelected : "&?",
+//     },
+//     link : function(scope, elem, attrs) {
+//       if (scope.max == undefined) { scope.max = 5; }
+//       function updateStars() {
+//         scope.stars = [];
+//         for (var i = 0; i < scope.max; i++) {
+//           scope.stars.push({
+//             filled : i < scope.ratingValue
+//           });
+//         }
+//       };
+//       scope.toggle = function(index) {
+//         if (scope.readonly === undefined || scope.readonly === false){
+//           scope.ratingValue = index + 1;
+//           scope.onRatingSelected({
+//             rating: index + 1
+//           });
+//         }
+//       };
+//       scope.$watch("ratingValue", function(oldVal, newVal) {
+//         if (newVal) { updateStars(); }
+//       });
+//     }
+//   };
+// });
 /*
 
 SLIDES WIDGET TO VIEW CONTENT THAT CAN BE VIEWED LIKE CAROUSEL

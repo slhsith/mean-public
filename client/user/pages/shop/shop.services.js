@@ -15,87 +15,47 @@ app.factory('items', function($http, auth){
   };
 
   // CREATE
-  o.create = function(item) {
-    return $http.post('/api/items', item, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      // base item data comes back from API, extend it with
-      // the item's original submitted descriptive parameters
-      var extendedItem = angular.extend(res.data, item);
-      o.items.push(extendedItem);
-      // will be added to the appropriate service object subarray
-      // based on submitted type
-      return res.data;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
+  o.save = function(item) {
+    if (!item._id) {
+      return $http.post('/api/items', item, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      }).then(itemSuccessHandler).catch(itemErrorHandler);
+    } else {
+      return $http.put('/api/item/' + item._id, item, {
+        headers: {Authorization: 'Bearer '+auth.getToken()}
+      }).then(itemSuccessHandler).catch(itemErrorHandler);
+    }
   };
 
   // READ - basic getting of data
-  o.getAll = function() {
-    return $http.get('/api/items').then(function(res){
-      angular.forEach(res.data, function(item) {
-        item = _flattenItem(item);
-      });
-      angular.copy(res.data, o.items);
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
+  o.getAll = function(type) {
+    var api_url = '/api/items';
+    // append a query for a type if a string is passed through
+    if (type) { api_url += '?type=' + type; }
+    
+    return $http.get(api_url)
+    .then(_itemSuccessHandler)
+    .catch(_itemErrorHandler);
   };
 
   o.get = function(item_id) {
-    return $http.get('/api/item/' + item_id).then(function(res){
-      var item = _flattenItem(res.data);
-      console.log(item);
-      return item;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
+    return $http.get('/api/item/' + item_id)
+    .then(_itemSuccessHandler)
+    .catch(_itemErrorHandler);
   };
 
   o.getMine = function() {
     return $http.get('/api/items?creator=' + auth.isThisUser())
-    .then(function(res) {
-      angular.forEach(res.data, function(item) {
-        item = _flattenItem(item);
-      });
-      return res.data;
-    });
+    .then(_itemsSuccessHandler)
+    .catch(_itemErrorHandler);
   };
-
-  o.isMine = function(item) {
-    return item.creator._id === auth.isThisUser();
-  };
-
-  // HELPER FUNCTION
-  // the API gives us the whole subitem under the field of its name
-  // like video: { duration: ... } so we want all the fields to be accessible
-  // straight on the item, keeping the _id of the video in the video field
-  function _flattenItem (item) {
-    var subitem = item[item.type];
-    for (var k in subitem) {
-      if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
-        item[k] = subitem[k];
-        item[item.type] = subitem._id;
-      }
-    }
-    return item;
-  }
-
 
   // UPDATE
-
   o.update = function(item) {
     return $http.put('/api/item/' + item._id, item, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
-    }).then(function(res) {
-      return res.data;
-    }).catch(function(err) {
-      return err;
-    });
+    }).then(_itemSuccessHandler)
+    .catch(_itemErrorHandler);
   };
 
   o.upvote = function(item) {
@@ -103,25 +63,8 @@ app.factory('items', function($http, auth){
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).then(function(res){
       item.upvotes += 1;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
+    }).catch(_itemErrorHandler);
   };
-
-  o.addTransaction = function(id, transaction) {
-    return $http.post('/api/item/' + id + '/transactions', transaction, {
-      headers: {Authorization: 'Bearer '+transactions.getToken()}
-    }).then(function(res){
-      transactions.push(res.data);
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
-  };
-
-
-
 
   // DELETE
   o.delete = function(item_id) {
@@ -130,12 +73,49 @@ app.factory('items', function($http, auth){
     }).then(function(res) {
       console.log('Successfully deleted item.');
       return res.data;
-    }).catch(function(err) {
-      console.log(err);
-      return err;
-    });
+    }).catch(_itemErrorHandler);
   };
 
+  o.isMine = function(item) {
+    return item.creator._id === auth.isThisUser();
+  };
+
+  // INTERNAL HELPER FUNCTIONS
+
+  // -- result handlers --
+  // plural
+  var _itemsSuccessHandler = function(res) {
+    // angular.forEach(res.data, function(item) {
+    //   item = _flattenItem(item);
+    // });
+    angular.copy(res.data, o.items);
+    return res.data;
+  };
+
+  // singular
+  var _itemSuccessHandler = function(res) {
+    // _flattenItem(res.data);
+    o.item = res.data;
+    return res.data;
+  };
+
+  var _itemErrorHandler = function(err) {
+    console.log('failure');
+    return err;
+  };
+
+  function _flattenItem (item) {
+    if (item.subitem) {
+      var subitem = item[item.type];
+      for (var k in subitem) {
+        if (subitem.hasOwnProperty(k) && subitem[k] !== subitem._id) {
+          item[k] = subitem[k];
+          item[item.type] = subitem._id;
+        }
+      }
+    }
+    return item;
+  }
 
   return o;
   
@@ -159,6 +139,18 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
       return res.data;
     });
   };
+
+  o.addTransaction = function(id, transaction) {
+    return $http.post('/api/item/' + id + '/transactions', transaction, {
+      headers: {Authorization: 'Bearer '+transactions.getToken()}
+    }).then(function(res){
+      o.transactions.push(res.data);
+    }).catch(function(err) {
+      console.log(err);
+      return err;
+    });
+  };
+
   o.purchase = function(card) {
     console.log(card);
     return $http.post('/api/transactions', card, {

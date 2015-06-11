@@ -15,21 +15,13 @@ app.controller('ShopCtrl', function ($scope, items, Item, auth, popupService) {
   };
 
   // CREATE-POST new item
-  $scope.addItem = function() {
-    items.create($scope.item)
-    .then(function(data){
-      console.log('success');
-      $scope.items = items.items;
-      $scope.item = new Item();
-      console.log(data);
-     }).catch(function(){
-         console.log('failure');
-     });
+  $scope.saveItem = items.saveItem($scope.item)
+  .then(function() {
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
    // mixpanel.track("Shop Page: Added Item");
-  };
+  });
 
   // PUT UPDATES - 
   // Initialize the edit state -- ultimate save will be in the directive that
