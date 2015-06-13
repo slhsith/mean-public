@@ -2,8 +2,22 @@ app.directive('dietPlan', function () {
   
   return {
     restrict: 'E', 
-    scope: { dietplan: '=item'},
+    controller: 'ShopCtrl',
+    templateUrl: 'dietplan.tpl.html',
+    link: function(scope, element, attrs, DietCtrl) {
+    }
+  };
+
+});
+
+app.directive('dietPlanEditor', function () {
+  
+  return {
+    restrict: 'E', 
     controller: 'DietCtrl',
+    scope: {
+      dietplan: '=item'
+    },
     templateUrl: 'dietplan.tpl.html',
     link: function(scope, element, attrs, DietCtrl) {
       DietCtrl.init( element );
@@ -11,7 +25,6 @@ app.directive('dietPlan', function () {
   };
 
 });
-
 app.directive('mealItinerary', function () {
   
   return {

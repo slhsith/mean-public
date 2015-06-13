@@ -21,7 +21,9 @@ var
 
 // Item page & transaction
 exports.createTransaction = function(req, res, next) {
-  console.log(req.payload.stripe_id);
+  console.log(req.payload);
+  console.log(req.body);
+
 
   if (req.body.type === 'item') {
     var purchase = new Item(req.body);
@@ -29,29 +31,42 @@ exports.createTransaction = function(req, res, next) {
     var purchase = new Event(req.body);
   }
 
-  var source =  { object: 'card', number: req.body.number, exp_month: req.body.month, exp_year: req.body.year, cvc: req.body.cvc, name: req.body.cardholder_name };
+  var source =  { 
+    object: 'card', 
+    number: req.body.number, 
+    exp_month: req.body.month, 
+    exp_year: req.body.year, 
+    cvc: req.body.cvc, 
+    name: req.body.cardholder_name 
+  };
   stripe.customers.createSource(req.payload.stripe_id,
     { source: source },
     function(err, card) {
-      if(err) {return next(err); }
+      if(err) { return next(err); }
+      console.log(card);
       User.findByIdAndUpdate(req.payload._id, { $addToSet: { stripe_card: card } }, function(err, user) {
         if(err){ return next(err); }
         console.log('Success! Saved card');
       });
       stripe.charges.create({
-        amount: req.body.price,
+        amount: req.body.price.value,
         currency: "usd", //to be changed
         source: source
       }, function(err, charge) {
         if(err){ return next(err); }
         if(charge.paid){
           // increment transaction count
-          purchase.update({$inc: {transactions: 1}});
-          User.findByIdAndUpdate(req.payload._id, { $addToSet: { purchases: req.body._id } }, function(err, user) {
-            if(err) { return next(err); }
-            console.log('Success! Saved item to user');
+          purchase.update({$inc: {transactions: 1}}, function(err, thing) {
+            console.log('transaction has been incremented');
           });
-        }
+          User.findByIdAndUpdate(
+            req.payload._id, 
+            { $addToSet: { purchases: req.body._id } }, 
+            function(err, user) {
+              if(err) { return next(err); }
+              console.log('Success! Saved item to user');
+            });
+          }
       });
       res.json(card);
     });

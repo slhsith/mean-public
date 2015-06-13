@@ -1,7 +1,12 @@
 app.controller('TransCtrl', function ($state, $scope, items, events, auth, transactions) {
 
-if ($state.is('transactionsitem')) $scope.transaction = items.item;
-if ($state.is('transactionsevent')) $scope.transaction = events.event;
+if ($state.is('transactionsitem')) {
+  $scope.transaction = items.item;
+  $scope.transaction.type = 'item';
+} else if ($state.is('transactionsevent')) {
+  $scope.transaction = events.event;
+  $scope.transaction.type = 'event';
+}
 
   $scope.startTrans = function () {
     console.log($scope.transaction);
