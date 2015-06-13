@@ -12,10 +12,10 @@
           
   <div class="col-sm-12" ng-repeat="item in items" ng-show="showproducts">
     <h4>{{ item.name }} | 
-        {{ item.price }}
-        {{ item.duration? '|' + item.duration : '' }}
-        {{ item.genre?    '|' + item.genre    : '' }} 
-        {{ item.category? '|' + item.category : '' }}
+        ${{ item.price.value/100 }}{{ item.price.currency === 'USD' ? '' : item.price.currency }}
+        {{ item.details.duration? '|' + item.details.duration : '' }}
+        {{ item.details.genre?    '|' + item.details.genre    : '' }} 
+        {{ item.details.category? '|' + item.details.category : '' }}
     </h4>
           
     <a ng-if="item.type === 'video' || item.type==='podcast' || item.type==='book'" 

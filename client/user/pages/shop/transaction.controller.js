@@ -1,9 +1,11 @@
-app.controller('TransCtrl', function ($scope, items, auth, transactions, itemPromise) {
-  $scope.item = itemPromise.data;
+app.controller('TransCtrl', function ($state, $scope, items, events, auth, transactions) {
+
+if ($state.is('transactionsitem')) $scope.transaction = items.item;
+if ($state.is('transactionsevent')) $scope.transaction = events.event;
 
   $scope.startTrans = function () {
-    console.log($scope.item);
-    transactions.purchase($scope.item);
+    console.log($scope.transaction);
+    transactions.purchase($scope.transaction);
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Start Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});

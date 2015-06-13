@@ -42,18 +42,12 @@ require('./server/models/Days');
 require('./server/models/WorkoutPlans');
 require('./server/models/DietPlans');
 
-require('./server/models/Videos');
-require('./server/models/Books');
-require('./server/models/Podcasts');
-
 require('./server/models/Transactions');
 require('./server/models/Customers');
 
 // events
 require('./server/models/Events');
-require('./server/models/Bootcamps');
 require('./server/models/Challenges');
-require('./server/models/Sessions');
 
 // messaging
 require('./server/models/Messages');
@@ -82,13 +76,10 @@ var users = require('./server/routes/users');
 
 var app = express();
 
- mongoose.connect(config['MONGO_URI']);
+mongoose.connect(config['MONGO_URI']);
 
 app.io = require('socket.io')();
 require('./server/config/socketio')(app.io);
-
-var jsonParser = bodyParser.json();
-
 
 
 

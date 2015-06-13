@@ -14,7 +14,9 @@ app.controller('ShopCtrl', function ($scope, items, Item, users, auth, popupServ
   // ultimate save button is in the directive that handles the item type
   $scope.saveItem = function(item) {
     items.save($scope.item).then(function(data) {
+      // if this was new, we push on array
       $scope.item = data;
+      $scope.items = items.items;
       // mixpanel.alias($scope.user._id);
       mixpanel.identify($scope.user._id);
       mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});

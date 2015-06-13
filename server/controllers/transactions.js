@@ -12,6 +12,8 @@ var stripe = require('stripe')(config['STRIPE_SECRET_KEY']);
 // --- Models --- //
 var
   User          = mongoose.model('User'),
+  Item          = mongoose.model('Item'),
+  Event         = mongoose.model('Event'),
   Transaction   = mongoose.model('Transaction'),
   Customer      = mongoose.model('Customer');
 
@@ -20,6 +22,13 @@ var
 // Item page & transaction
 exports.createTransaction = function(req, res, next) {
   console.log(req.payload.stripe_id);
+
+  if (req.body.type === 'item') {
+    var purchase = new Item(req.body);
+  } else {
+    var purchase = new Event(req.body);
+  }
+
   var source =  { object: 'card', number: req.body.number, exp_month: req.body.month, exp_year: req.body.year, cvc: req.body.cvc, name: req.body.cardholder_name };
   stripe.customers.createSource(req.payload.stripe_id,
     { source: source },
@@ -34,8 +43,10 @@ exports.createTransaction = function(req, res, next) {
         currency: "usd", //to be changed
         source: source
       }, function(err, charge) {
-        if(err){ return  next(err); }
+        if(err){ return next(err); }
         if(charge.paid){
+          // increment transaction count
+          purchase.update({$inc: {transactions: 1}});
           User.findByIdAndUpdate(req.payload._id, { $addToSet: { purchases: req.body._id } }, function(err, user) {
             if(err) { return next(err); }
             console.log('Success! Saved item to user');

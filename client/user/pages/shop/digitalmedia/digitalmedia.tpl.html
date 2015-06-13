@@ -1,4 +1,4 @@
-<form ng-submit="saveItem()" style="margin-top:30px;" ng-if="isMine(item) || !item._id">
+<form ng-submit="saveItem()" style="margin-top:30px;" ng-if="!item._id">
 
   <div class="col-sm-6">
     <div class="form-group col-sm-12">
@@ -9,50 +9,50 @@
     <div ng-show="item.type==='book'">
       <div class="form-group col-sm-6">
         <input type="text" class="form-control" placeholder="Number of Pages"
-          ng-model="item.pages"></input>
+          ng-model="item.detail.pages"></input>
       </div>
       <div class="form-group col-sm-6">
         <input type="text" class="form-control" placeholder="Price" 
-          ng-model="item.price"></input>
+          ng-model="item.price.value"></input>
       </div>
       <div class="form-group col-sm-12">
       <input type="text" class="form-control" placeholder="genre"
-        ng-model="item.genre"></input>
+        ng-model="item.detail.genre"></input>
       </div>
       <div class="form-group col-sm-12">
         <input type="text" class="form-control" placeholder="language"
-          ng-model="item.language"></input>
+          ng-model="item.detail.language"></input>
       </div>
       <div class="form-group col-sm-12">
         <input type="text" class="form-control" placeholder="publisher"
-          ng-model="item.publisher"></input>
+          ng-model="item.detail.publisher"></input>
       </div>
       <div class="form-group col-sm-12">
         <input type="text" class="form-control" placeholder="isbn"
-          ng-model="item.isbn"></input>
+          ng-model="item.detail.isbn"></input>
       </div>
     </div>   
 
     <div ng-show="item.type==='video'">
       <div class="form-group col-sm-6">
         <input type="text" class="form-control" placeholder="duration"
-          ng-model="item.duration"></input>
+          ng-model="item.detail.duration"></input>
       </div>
       <div class="form-group col-sm-6">
         <input type="text" class="form-control" placeholder="Price" 
-          ng-model="item.price"></input>
+          ng-model="item.price.value"></input>
       </div>
       <div class="form-group col-sm-12">
         <input type="text" class="form-control" placeholder="genre"
-          ng-model="item.genre"></input>
+          ng-model="item.detail.genre"></input>
       </div>
       <div class="form-group col-sm-12">
         <input type="text" class="form-control" placeholder="language"
-          ng-model="item.language"></input>
+          ng-model="item.detail.language"></input>
       </div>
       <div class="form-group col-sm-12">
         <input type="text" class="form-control" placeholder="studio"
-          ng-model="item.studio"></input>
+          ng-model="item.detail.studio"></input>
       </div>
     </div>
 
@@ -60,23 +60,23 @@
     <div ng-show="item.type==='podcast'">
       <div class="form-group col-sm-6">
         <input type="text" class="form-control" placeholder="duration"
-          ng-model="item.duration"></input>
+          ng-model="item.detail.duration"></input>
       </div>
       <div class="form-group col-sm-6">
         <input type="text" class="form-control" placeholder="Price" 
-          ng-model="item.price"></input>
+          ng-model="item.price.value"></input>
       </div>
       <div class="form-group col-sm-12">
         <input type="text" class="form-control" placeholder="genre"
-          ng-model="item.genre"></input>
+          ng-model="item.detail.genre"></input>
       </div>
       <div class="form-group col-sm-12">
         <input type="text" class="form-control" placeholder="language"
-          ng-model="item.language"></input>
+          ng-model="item.detail.language"></input>
       </div>
       <div class="form-group col-sm-12">
         <input type="text" class="form-control" placeholder="studio"
-          ng-model="item.studio"></input>
+          ng-model="item.detail.studio"></input>
       </div>
     </div>
 
@@ -112,6 +112,5 @@
     <input type="file" file-upload="item.file">
   </div>
 
-  <button type="submit" ng-hide="item._id" class="diet-create col-sm-12 btn-default">Create</button>
-  <button type="submit" ng-show="item._id" class="diet-create col-sm-12 btn-default">Save</button>
+  <button type="submit" class="col-sm-12 btn-default">{{item._id? 'Save' : 'Create'}}</button>
 </form>

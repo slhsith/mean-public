@@ -31,14 +31,15 @@ app.factory('events', function($http, auth){
 
   // CREATE or UPDATE
   o.save = function(event) {
+    console.log('saving', event);
     if (!event._id) {
       return $http.post('/api/events', event, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).then(_eventSuccessHandler).catch(_eventErrorHandler)
+      }).then(_eventSuccessHandler).catch(_eventErrorHandler);
     } else {
       return $http.put('/api/event/'+event._id, event, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).then(_eventSuccessHandler).catch(_eventErrorHandler)
+      }).then(_eventSuccessHandler).catch(_eventErrorHandler);
     }
   };
 
@@ -47,7 +48,7 @@ app.factory('events', function($http, auth){
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).then(function(res){
       event.upvotes += 1;
-    }).catch(_eventErrorHandler)
+    }).catch(_eventErrorHandler);
   };
 
   // DELETE

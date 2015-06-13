@@ -8,11 +8,9 @@ var app = angular.module('mainApp', [
   'btford.socket-io'
 ]);
 
-app.config([
-'$stateProvider',
-'$urlRouterProvider',
-function($stateProvider, $urlRouterProvider) {
+app.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
+    // ------- HOME / DASH ------- //
     .state('home', {
       url: '/home',
       templateUrl: 'home.html',
@@ -45,6 +43,8 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
+
+    // ------- ITEMS ------- //
     .state('shop', {
       url: '/shop',
       templateUrl: 'shop.html',
@@ -58,45 +58,13 @@ function($stateProvider, $urlRouterProvider) {
         // }
       }
     })
-    .state('events', {
-      url: '/events',
-      templateUrl: 'events.html',
-      controller: 'EventsCtrl',
-      resolve: {
-        itemPromise: function($stateParams, items) {
-          return items.getAll();
-        }
-      }
-    })
     .state('item', {
-      url: '/item/:id',
-      templateUrl: 'item.html',
+      url: '/item/:item_id',
+      templateUrl: 'item.tpl.html',
       controller: 'ItemCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
-          return items.get($stateParams.id);
-        }
-      }
-    })
-    .state('bootcamp', {
-      url: '/event/bootcamp/:id',
-      templateUrl: 'event.tpl.html',
-      controller: 'EventCtrl',
-      resolve: {
-        itemPromise: function($stateParams, items) {
-          console.log($stateParams.id);
-          return items.get($stateParams.id);
-        }
-      }
-    })
-    .state('challenge', {
-      url: '/event/challenge/:id',
-      templateUrl: 'event.tpl.html',
-      controller: 'EventCtrl',
-      resolve: {
-        itemPromise: function($stateParams, items) {
-          console.log($stateParams.id);
-          return items.get($stateParams.id);
+          return items.get($stateParams.item_id);
         }
       }
     })
@@ -133,13 +101,69 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
-    .state('transactions', {
-      url: '/transactions/:item',
+
+    // ------- EVENTS ------- //
+    .state('events', {
+      url: '/events',
+      templateUrl: 'events.tpl.html',
+      controller: 'EventsCtrl',
+      resolve: {
+        eventsPromise: function($stateParams, events) {
+          return events.getAll();
+        }
+      }
+    })
+    .state('event', {
+      url: '/event/:event_id',
+      templateUrl: 'event.tpl.html',
+      controller: 'EventsCtrl',
+      resolve: {
+        eventPromise: function($stateParams, events) {
+          return events.get($stateParams.event_id);
+        }
+      }
+    })    
+    .state('bootcamp', {
+      url: '/event/bootcamp/:id',
+      templateUrl: 'event.tpl.html',
+      controller: 'EventsCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+    .state('challenge', {
+      url: '/event/challenge/:id',
+      templateUrl: 'event.tpl.html',
+      controller: 'EventCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+
+    // ------- PURCHASING ------- //
+    .state('transactionsitem', {
+      url: '/transactions/item/:item_id',
       templateUrl: 'transactions.html',
       controller: 'TransCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
-          return items.get($stateParams.item);
+          return items.get($stateParams.item_id);
+        }
+      }    
+    })
+    .state('transactionsevent', {
+      url: '/transactions/event/:event_id',
+      templateUrl: 'transactions.html',
+      controller: 'TransCtrl',
+      resolve: {
+        eventPromise: function($stateParams, events) {
+          return events.get($stateParams.event_id);
         }
       }    
     })
@@ -153,6 +177,8 @@ function($stateProvider, $urlRouterProvider) {
         }]    
       }
     })  
+
+    // ------- GROUPS ------- //
     .state('groups', {
       url: '/groups',
       templateUrl: 'groups.html',
@@ -173,23 +199,6 @@ function($stateProvider, $urlRouterProvider) {
         }
       } 
     })
-    .state('messenger', {
-      url: '/messenger',
-      templateUrl: 'messenger.html',
-      controller: 'MessengerCtrl',
-      resolve: {
-        // userPromise: function(auth, users) {
-          // var _id = auth.isThisUser();
-          // return users.get(_id);
-        // },
-        usersPromise: function(users) {
-          return users.getAll();
-        },
-        conversationsPromise: function(messenger) {
-          return messenger.getAll();
-        }
-      }
-    })
     // .state('/gposts', {
     //   url: '/gposts/:gpost',
     //   templateUrl: 'gposts.html',
@@ -200,6 +209,24 @@ function($stateProvider, $urlRouterProvider) {
     //     }]
     //   }
     // })
+
+    // ------- MESSENGER ------- //
+    .state('messenger', {
+      url: '/messenger',
+      templateUrl: 'messenger.html',
+      controller: 'MessengerCtrl',
+      resolve: {
+        usersPromise: function(users) {
+          return users.getAll();
+        },
+        conversationsPromise: function(messenger) {
+          return messenger.getAll();
+        }
+      }
+    })
+
+
+    // ------- SETTINGS ------- //
     .state('settings', {
        url: '/settings/:id',
        templateUrl: 'settings.html',
@@ -224,8 +251,9 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     });
+
   $urlRouterProvider.otherwise('home');
-}]);
+});
 
 /*  ------------------  *
     CONTROLLERS - USER
@@ -571,14 +599,16 @@ app.factory('languages', ['$http', '$window', function($http, $window){
   return lang; 
 }]);
 
-app.controller('EventsCtrl', function($scope, users, events, Event) {
+app.controller('EventsCtrl', function($scope, $state, users, events, Event) {
 
-
+  console.log('events page');
   $scope.events        = events.events;
   $scope.eventTitles   = events.titles;
   $scope.isMine        = users.isCreator;
 
-  $scope.event = new Event();
+
+  if ($state.is('events')) $scope.event = new Event();
+  if ($state.is('event'))  $scope.event = events.event;
   // Initialize a brand new item from Item constructor
   $scope.initEvent = function(type) {
     $scope.event = new Event(type);
@@ -587,9 +617,11 @@ app.controller('EventsCtrl', function($scope, users, events, Event) {
   // POST new item OR PUT changes to item
   // ultimate save button is in the directive that handles the item type
   $scope.saveEvent = function() {
+    console.log('saving');
     events.save($scope.event).then(
       function(data) {
-        $scope.event = data;
+        $scope.event = new Event();
+        $scope.events = events.events;
         // mixpanel.alias($scope.user._id);
         mixpanel.identify($scope.user._id);
         mixpanel.track("Add Item",{"area":"events", "page":"events", "action":"create"});
@@ -626,6 +658,8 @@ app.controller('EventsCtrl', function($scope, users, events, Event) {
   };  
 
 });
+
+
 app.factory('events', function($http, auth){
   var o = { 
     events: []
@@ -659,14 +693,15 @@ app.factory('events', function($http, auth){
 
   // CREATE or UPDATE
   o.save = function(event) {
+    console.log('saving', event);
     if (!event._id) {
       return $http.post('/api/events', event, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).then(_eventSuccessHandler).catch(_eventErrorHandler)
+      }).then(_eventSuccessHandler).catch(_eventErrorHandler);
     } else {
       return $http.put('/api/event/'+event._id, event, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).then(_eventSuccessHandler).catch(_eventErrorHandler)
+      }).then(_eventSuccessHandler).catch(_eventErrorHandler);
     }
   };
 
@@ -675,7 +710,7 @@ app.factory('events', function($http, auth){
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).then(function(res){
       event.upvotes += 1;
-    }).catch(_eventErrorHandler)
+    }).catch(_eventErrorHandler);
   };
 
   // DELETE
@@ -925,69 +960,6 @@ app.service('popupService', function($window) {
   this.showPopup = function(message) {
     return $window.confirm(message);
   };
-});
-
-// SETTINGS
-app.factory('settings', function ($http, $window, auth) {
-
-  var s = { settings : {} };
-
-  s.getAll = function () {
-    return $http.get('/api/settings').then(function(res){
-      angular.copy(res.data, s.settings);
-    });
-  };
-
-  s.update = function (user) {
-    console.log('updating user', user);
-    return $http.put('/api/settings', user).then(function(res){
-      s.settings = res.data;
-    });
-  };
-
-  /*  1  get signed_request
-   *  2  put from client -> aws
-   *  3  send success back to back_end so it can put an update to filename & save to user
-   */
-  s.uploadAvatar = function (user) {
-    // file uploader is an array
-    user.avatar = user.avatar[0];
-
-    return $http.get('/api/user/' + user._id + '/avatar?name=' + user.avatar.name + '&type=' + user.avatar.type).then(function(res) {
-      return $http.put(res.data.signed_request, user.avatar, {
-        headers: { 
-          'x-amz-acl': 'public-read', 
-          'x-amz-meta-userid': user._id,
-          'x-amz-meta-role': 'avatar',
-          'Content-Type': user.avatar.type,
-        }
-      });
-    })
-    .then(function(res){
-      console.log('amazon putObject result', res);
-      var req = {
-        filename: user.avatar.name, 
-        headers: res.headers()
-      };
-      return $http.put('/api/user/' + user._id + '/avatar', req, {
-        headers: { 'Authorization': 'Bearer '+auth.getToken() }
-      }); 
-    }).then(function(res) {
-      return res.data;
-    }).catch(function(err) {
-      console.log(err); 
-      return err;
-    }); 
-  };
-
-  s.get = function (handle) {
-    return $http.get('/api/user/handle/' + handle).then(function(res){
-      console.log('user by handle', res.data);
-      return res.data;
-    });
-  };
-
-   return s;
 });
 
 /*  ----------------------  *
@@ -1316,10 +1288,74 @@ app.factory('messageSocket', function(socketFactory) {
   
   return socket;
 });
+// SETTINGS
+app.factory('settings', function ($http, $window, auth) {
+
+  var s = { settings : {} };
+
+  s.getAll = function () {
+    return $http.get('/api/settings').then(function(res){
+      angular.copy(res.data, s.settings);
+    });
+  };
+
+  s.update = function (user) {
+    console.log('updating user', user);
+    return $http.put('/api/settings', user).then(function(res){
+      s.settings = res.data;
+    });
+  };
+
+  /*  1  get signed_request
+   *  2  put from client -> aws
+   *  3  send success back to back_end so it can put an update to filename & save to user
+   */
+  s.uploadAvatar = function (user) {
+    // file uploader is an array
+    user.avatar = user.avatar[0];
+
+    return $http.get('/api/user/' + user._id + '/avatar?name=' + user.avatar.name + '&type=' + user.avatar.type).then(function(res) {
+      return $http.put(res.data.signed_request, user.avatar, {
+        headers: { 
+          'x-amz-acl': 'public-read', 
+          'x-amz-meta-userid': user._id,
+          'x-amz-meta-role': 'avatar',
+          'Content-Type': user.avatar.type,
+        }
+      });
+    })
+    .then(function(res){
+      console.log('amazon putObject result', res);
+      var req = {
+        filename: user.avatar.name, 
+        headers: res.headers()
+      };
+      return $http.put('/api/user/' + user._id + '/avatar', req, {
+        headers: { 'Authorization': 'Bearer '+auth.getToken() }
+      }); 
+    }).then(function(res) {
+      return res.data;
+    }).catch(function(err) {
+      console.log(err); 
+      return err;
+    }); 
+  };
+
+  s.get = function (handle) {
+    return $http.get('/api/user/handle/' + handle).then(function(res){
+      console.log('user by handle', res.data);
+      return res.data;
+    });
+  };
+
+   return s;
+});
+
 app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
 
   $scope.items = items.items;
-  $scope.item = itemPromise;
+  if ($state.is('items')) $scope.item = new Item();
+  if ($state.is('item')) $scope.item = items.item;
 
   $scope.isUser        = auth.isUser;
   $scope.isContributor = auth.isContributor;
@@ -1356,7 +1392,9 @@ app.controller('ShopCtrl', function ($scope, items, Item, users, auth, popupServ
   // ultimate save button is in the directive that handles the item type
   $scope.saveItem = function(item) {
     items.save($scope.item).then(function(data) {
+      // if this was new, we push on array
       $scope.item = data;
+      $scope.items = items.items;
       // mixpanel.alias($scope.user._id);
       mixpanel.identify($scope.user._id);
       mixpanel.track("Add Item",{"area":"shop", "page":"shop", "action":"create"});
@@ -1416,7 +1454,11 @@ app.factory('items', function($http, auth){
     if (!item._id) {
       return $http.post('/api/items', item, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).then(_itemSuccessHandler).catch(_itemErrorHandler);
+      }).then(_itemSuccessHandler)
+      .then(function(item) {
+        o.items.push(item);
+      })
+      .catch(_itemErrorHandler);
     } else {
       return $http.put('/api/item/' + item._id, item, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -1429,7 +1471,7 @@ app.factory('items', function($http, auth){
     // query string if we got a type, else blank
     var queryString = type? '?type=' + type : '';
     return $http.get('/api/items' + queryString)
-    .then(_itemSuccessHandler)
+    .then(_itemsSuccessHandler)
     .catch(_itemErrorHandler);
   };
 
@@ -1526,9 +1568,10 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
     });
   };
 
-  o.purchase = function(card) {
-    console.log(card);
-    return $http.post('/api/transactions', card, {
+  o.purchase = function(transaction) {
+    // $scope.item with card info attached
+    console.log(transaction);
+    return $http.post('/api/transactions', transaction, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data){
       console.log(data);
@@ -1573,12 +1616,14 @@ app.factory('Item', function() {
 
 });
 
-app.controller('TransCtrl', function ($scope, items, auth, transactions, itemPromise) {
-  $scope.item = itemPromise.data;
+app.controller('TransCtrl', function ($state, $scope, items, events, auth, transactions) {
+
+if ($state.is('transactionsitem')) $scope.transaction = items.item;
+if ($state.is('transactionsevent')) $scope.transaction = events.event;
 
   $scope.startTrans = function () {
-    console.log($scope.item);
-    transactions.purchase($scope.item);
+    console.log($scope.transaction);
+    transactions.purchase($scope.transaction);
     // mixpanel.alias($scope.user._id);
     mixpanel.identify($scope.user._id);
     mixpanel.track("Start Transaction",{"area":"shop", "page":"transactions", "action":"transaction"});
@@ -1670,8 +1715,9 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
     if ($scope.dietplan._id) {
       items.update($scope.dietplan);
     } else {
-      items.create($scope.dietplan).then(function(data) {
+      items.save($scope.dietplan).then(function(data) {
         $scope.dietplan = data;
+        $scope.$parent.items = items.items;
         $scope.initMeal();
         $scope.meal.day = 1;
       });

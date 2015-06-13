@@ -10,17 +10,38 @@ var EventSchema = new mongoose.Schema({
              _id     : { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
            },
 
-  price: String,
+  type: String,
+  description: String,
+
+  price: {
+           value: Number, // in cents
+           currency: { type: String, default: 'USD' }
+  },
+
   upvotes: {type: Number, default: 0},
 
-  type: String,
+  details  : {
+                hashtag  : String, 
+                recurrence : String, 
+                location : String, 
+                date     : { start: Date, end: Date },
+                time     : { start: Date, end: Date },
+                max_users: Number,
+                duration : Number,
+                demo_gender: String,
+                demo_age: { max: Number, min: Number },
+             },
 
-  bootcamp  : { type: mongoose.Schema.Types.ObjectId, ref: 'Bootcamp' },
+  assets : {
+       cover_photo_url: { front: String, back: String },
+       photo_urls     : [ String ], 
+       video_urls     : [ String ], 
+  },
+             
   challenge : { type: mongoose.Schema.Types.ObjectId, ref: 'Challenge' },
-  session   : { type: mongoose.Schema.Types.ObjectId, ref: 'Session' },
 
   // this could grow insane, maybe better to do Transactions.find({item_id: _id})
-  transactions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }],
+  transactions: Number  // this is a count for popularity display [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }],
 
 });
 

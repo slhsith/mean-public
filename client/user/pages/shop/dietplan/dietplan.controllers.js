@@ -45,8 +45,9 @@ app.controller('DietCtrl', function ($scope, $attrs, items, dietplans, Meal, Die
     if ($scope.dietplan._id) {
       items.update($scope.dietplan);
     } else {
-      items.create($scope.dietplan).then(function(data) {
+      items.save($scope.dietplan).then(function(data) {
         $scope.dietplan = data;
+        $scope.$parent.items = items.items;
         $scope.initMeal();
         $scope.meal.day = 1;
       });

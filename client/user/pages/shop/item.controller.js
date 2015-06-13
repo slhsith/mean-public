@@ -1,7 +1,8 @@
 app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
 
   $scope.items = items.items;
-  $scope.item = itemPromise;
+  if ($state.is('items')) $scope.item = new Item();
+  if ($state.is('item')) $scope.item = items.item;
 
   $scope.isUser        = auth.isUser;
   $scope.isContributor = auth.isContributor;

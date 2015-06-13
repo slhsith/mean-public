@@ -1,11 +1,13 @@
-app.controller('EventsCtrl', function($scope, users, events, Event) {
+app.controller('EventsCtrl', function($scope, $state, users, events, Event) {
 
-
+  console.log('events page');
   $scope.events        = events.events;
   $scope.eventTitles   = events.titles;
   $scope.isMine        = users.isCreator;
 
-  $scope.event = new Event();
+
+  if ($state.is('events')) $scope.event = new Event();
+  if ($state.is('event'))  $scope.event = events.event;
   // Initialize a brand new item from Item constructor
   $scope.initEvent = function(type) {
     $scope.event = new Event(type);
@@ -14,9 +16,11 @@ app.controller('EventsCtrl', function($scope, users, events, Event) {
   // POST new item OR PUT changes to item
   // ultimate save button is in the directive that handles the item type
   $scope.saveEvent = function() {
+    console.log('saving');
     events.save($scope.event).then(
       function(data) {
-        $scope.event = data;
+        $scope.event = new Event();
+        $scope.events = events.events;
         // mixpanel.alias($scope.user._id);
         mixpanel.identify($scope.user._id);
         mixpanel.track("Add Item",{"area":"events", "page":"events", "action":"create"});
@@ -53,3 +57,4 @@ app.controller('EventsCtrl', function($scope, users, events, Event) {
   };  
 
 });
+

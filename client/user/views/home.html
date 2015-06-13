@@ -33,20 +33,18 @@
       <a ng-href="#/events"> Browse Events <i class="fa fa-arrow-right"></i> </a>
     </div>
     <div ng-repeat="event in events" class="col-sm-12"> 
-      <div class="col-sm-2"> <img ng-src="{{item.cover_photo? item.cover_photo : 'images/itemplaceholder.png'}}" style="max-height: 60px"> </div>
+      <div class="col-sm-2"> <img ng-src="{{event.cover_photo_url? event.cover_photo_url.front : 'images/itemplaceholder.png'}}" style="max-height: 60px"> </div>
       <div class="col-sm-4">
-        {{ item.name }} 
-        <br>Price: ${{ item.price/100 }}
+        {{ event.name }} 
+        <br>Price: ${{ event.price.value/100 }}
       </div>
       </a>
       <div class="col-sm-6 text-right">
-        <a ng-click="deleteItem(item, $index)">delete</a>
-        | <a href="#/item/{{item._id}}">edit</a> 
-        | <a href="#/item/{{item._id}}/orders">orders</a>
-        <br>
-        {{item.reviews.average? item.reviews.average : 'x'}} Stars - {{item.reviews.count}}
-        {{item.signups}}
-        <br>Type: {{ itemTitles[item.type] }}
+        <a ng-click="deleteItem(event, $index)">delete</a>
+        | <a href="#/event/{{event._id}}">edit</a> 
+        | <a href="#/event/{{event._id}}/orders">orders</a>
+        <br>{{event.transactions}} signups
+        <br>Type: {{ eventTitles[event.type] }}
       </div>
     </div>
 
@@ -71,8 +69,7 @@
         | <a href="#/item/{{item._id}}">edit</a> 
         | <a href="#/item/{{item._id}}/orders">orders</a>
         <br>
-        {{item.reviews.average? item.reviews.average : 'x'}} Stars - {{item.reviews.count}}
-        {{item.signups}}
+        {{item.transactions}} purchases
         <br>Type: {{ itemTitles[item.type] }}
       </div>
     </div>

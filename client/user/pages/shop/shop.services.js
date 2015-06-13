@@ -19,7 +19,11 @@ app.factory('items', function($http, auth){
     if (!item._id) {
       return $http.post('/api/items', item, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).then(_itemSuccessHandler).catch(_itemErrorHandler);
+      }).then(_itemSuccessHandler)
+      .then(function(item) {
+        o.items.push(item);
+      })
+      .catch(_itemErrorHandler);
     } else {
       return $http.put('/api/item/' + item._id, item, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
@@ -32,7 +36,7 @@ app.factory('items', function($http, auth){
     // query string if we got a type, else blank
     var queryString = type? '?type=' + type : '';
     return $http.get('/api/items' + queryString)
-    .then(_itemSuccessHandler)
+    .then(_itemsSuccessHandler)
     .catch(_itemErrorHandler);
   };
 
@@ -129,9 +133,10 @@ app.factory('transactions', ['$http', 'auth', function($http, auth){
     });
   };
 
-  o.purchase = function(card) {
-    console.log(card);
-    return $http.post('/api/transactions', card, {
+  o.purchase = function(transaction) {
+    // $scope.item with card info attached
+    console.log(transaction);
+    return $http.post('/api/transactions', transaction, {
       headers: {Authorization: 'Bearer '+auth.getToken()}
     }).success(function(data){
       console.log(data);

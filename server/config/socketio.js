@@ -1,7 +1,6 @@
 /* users
  * { _id: user_id,
      socket_id: 
-  
  }
 
  */

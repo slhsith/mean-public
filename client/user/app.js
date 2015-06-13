@@ -8,11 +8,9 @@ var app = angular.module('mainApp', [
   'btford.socket-io'
 ]);
 
-app.config([
-'$stateProvider',
-'$urlRouterProvider',
-function($stateProvider, $urlRouterProvider) {
+app.config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
+    // ------- HOME / DASH ------- //
     .state('home', {
       url: '/home',
       templateUrl: 'home.html',
@@ -45,6 +43,8 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
+
+    // ------- ITEMS ------- //
     .state('shop', {
       url: '/shop',
       templateUrl: 'shop.html',
@@ -58,45 +58,13 @@ function($stateProvider, $urlRouterProvider) {
         // }
       }
     })
-    .state('events', {
-      url: '/events',
-      templateUrl: 'events.html',
-      controller: 'EventsCtrl',
-      resolve: {
-        itemPromise: function($stateParams, items) {
-          return items.getAll();
-        }
-      }
-    })
     .state('item', {
-      url: '/item/:id',
-      templateUrl: 'item.html',
+      url: '/item/:item_id',
+      templateUrl: 'item.tpl.html',
       controller: 'ItemCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
-          return items.get($stateParams.id);
-        }
-      }
-    })
-    .state('bootcamp', {
-      url: '/event/bootcamp/:id',
-      templateUrl: 'event.tpl.html',
-      controller: 'EventCtrl',
-      resolve: {
-        itemPromise: function($stateParams, items) {
-          console.log($stateParams.id);
-          return items.get($stateParams.id);
-        }
-      }
-    })
-    .state('challenge', {
-      url: '/event/challenge/:id',
-      templateUrl: 'event.tpl.html',
-      controller: 'EventCtrl',
-      resolve: {
-        itemPromise: function($stateParams, items) {
-          console.log($stateParams.id);
-          return items.get($stateParams.id);
+          return items.get($stateParams.item_id);
         }
       }
     })
@@ -133,13 +101,69 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     })
-    .state('transactions', {
-      url: '/transactions/:item',
+
+    // ------- EVENTS ------- //
+    .state('events', {
+      url: '/events',
+      templateUrl: 'events.tpl.html',
+      controller: 'EventsCtrl',
+      resolve: {
+        eventsPromise: function($stateParams, events) {
+          return events.getAll();
+        }
+      }
+    })
+    .state('event', {
+      url: '/event/:event_id',
+      templateUrl: 'event.tpl.html',
+      controller: 'EventsCtrl',
+      resolve: {
+        eventPromise: function($stateParams, events) {
+          return events.get($stateParams.event_id);
+        }
+      }
+    })    
+    .state('bootcamp', {
+      url: '/event/bootcamp/:id',
+      templateUrl: 'event.tpl.html',
+      controller: 'EventsCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+    .state('challenge', {
+      url: '/event/challenge/:id',
+      templateUrl: 'event.tpl.html',
+      controller: 'EventCtrl',
+      resolve: {
+        itemPromise: function($stateParams, items) {
+          console.log($stateParams.id);
+          return items.get($stateParams.id);
+        }
+      }
+    })
+
+    // ------- PURCHASING ------- //
+    .state('transactionsitem', {
+      url: '/transactions/item/:item_id',
       templateUrl: 'transactions.html',
       controller: 'TransCtrl',
       resolve: {
         itemPromise: function($stateParams, items) {
-          return items.get($stateParams.item);
+          return items.get($stateParams.item_id);
+        }
+      }    
+    })
+    .state('transactionsevent', {
+      url: '/transactions/event/:event_id',
+      templateUrl: 'transactions.html',
+      controller: 'TransCtrl',
+      resolve: {
+        eventPromise: function($stateParams, events) {
+          return events.get($stateParams.event_id);
         }
       }    
     })
@@ -153,6 +177,8 @@ function($stateProvider, $urlRouterProvider) {
         }]    
       }
     })  
+
+    // ------- GROUPS ------- //
     .state('groups', {
       url: '/groups',
       templateUrl: 'groups.html',
@@ -173,23 +199,6 @@ function($stateProvider, $urlRouterProvider) {
         }
       } 
     })
-    .state('messenger', {
-      url: '/messenger',
-      templateUrl: 'messenger.html',
-      controller: 'MessengerCtrl',
-      resolve: {
-        // userPromise: function(auth, users) {
-          // var _id = auth.isThisUser();
-          // return users.get(_id);
-        // },
-        usersPromise: function(users) {
-          return users.getAll();
-        },
-        conversationsPromise: function(messenger) {
-          return messenger.getAll();
-        }
-      }
-    })
     // .state('/gposts', {
     //   url: '/gposts/:gpost',
     //   templateUrl: 'gposts.html',
@@ -200,6 +209,24 @@ function($stateProvider, $urlRouterProvider) {
     //     }]
     //   }
     // })
+
+    // ------- MESSENGER ------- //
+    .state('messenger', {
+      url: '/messenger',
+      templateUrl: 'messenger.html',
+      controller: 'MessengerCtrl',
+      resolve: {
+        usersPromise: function(users) {
+          return users.getAll();
+        },
+        conversationsPromise: function(messenger) {
+          return messenger.getAll();
+        }
+      }
+    })
+
+
+    // ------- SETTINGS ------- //
     .state('settings', {
        url: '/settings/:id',
        templateUrl: 'settings.html',
@@ -224,5 +251,6 @@ function($stateProvider, $urlRouterProvider) {
         }
       }
     });
+
   $urlRouterProvider.otherwise('home');
-}]);
+});
