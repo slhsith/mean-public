@@ -37,9 +37,10 @@ var ItemSchema = new mongoose.Schema({
               },
 
   assets : {
-       cover_photo_url: { front: String, back: String },
-       photo_urls     : [ String ], 
-       video_urls     : [ String ], 
+       cover_photo_front: String,
+       cover_photo_back : String,
+       photos           : [ String ], 
+       videos           : [ String ], 
   },
              
   workoutplan : {type: mongoose.Schema.Types.ObjectId, ref: 'WorkoutPlan'},

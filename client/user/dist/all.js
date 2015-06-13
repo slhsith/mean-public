@@ -763,6 +763,202 @@ app.factory('Event', function() {
 
 });
 
+
+app.controller('GroupsCtrl',
+function ($scope, groups, auth) {
+
+  $scope.groups = groups.groups;
+  $scope.addGroup = function(){
+    groups.create($scope.group);
+    console.log($scope.group);
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Group", {"area":"group", "page":"groups", "action":"create"});
+  };
+  $scope.group = '';
+  $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
+});
+
+
+app.controller('GHomeCtrl',
+function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
+  var group = groups.group[$stateParams.id];
+  var gpost = gposts.gpost[$stateParams.id];
+  // var gpost = gposts.gpost[$stateParams.id];
+  $scope.group = groupsPromise;
+  console.log(groupsPromise);
+
+  $scope.currentUser = auth.currentUser();
+  $scope.groups = groups.groups;
+  $scope.gposts = gposts.gposts;
+  $scope.gcomments = gcomments.gcomments;
+  
+  $scope.addGpost = function(){
+    console.log($stateParams.id);
+    console.log($scope.gpost);
+    // if(!$scope.body || $scope.body === '') { return; }
+    groups.createGpost($scope.gpost, $stateParams.id).success(function(gpost) {
+      $scope.group.gposts.push(gpost);
+      $scope.gpost = null;
+    });
+    // mixpanel.alias($scope.user._id);
+    mixpanel.identify($scope.user._id);
+    mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
+  };
+  $scope.addGcomment = function (gpost, gcomment) {
+    console.log('in controller', gpost, gcomment);
+    gpost.gcomments.push(gcomment);
+    groups.createGcomment(gpost._id, gcomment); 
+    console.log(gpost._id, gcomment);
+  };
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
+  
+  // $scope.addComment = function(){
+  //   console.log($scope.post);
+  //   // posts.addComment(posts.post._id, {
+  //   //   body: $scope.post.comment,
+  //   //   author: $scope.currentUser
+  //   // }).success(function(comment) {
+  //   //   $scope.post.comments.push(comment);
+  //   // });
+  //   // $scope.body = '';
+  // };
+  // $scope.incrementUpvotes = function(gpost){
+  //   gposts.upvoteGroupPost(gpost);
+  // };
+  $scope.isLoggedIn = auth.isLoggedIn;
+});
+
+app.controller('GpostCtrl', [
+'$scope',
+'$stateParams',
+'gposts',
+'gcomments',
+'auth',
+function($scope, $stateParams, gposts, gcomments, auth){
+  var gpost = gposts.gpost[$stateParams.id];
+  $scope.get(gpost._id);
+  $scope.gpost = gposts.gpost;
+  $scope.gcomments = gcomments.gcomments;
+  $scope.addGcomment = function(){
+    if(!scope.body || $scope.body === '') { return; }
+    gposts.addGcomment(gposts.gpost._id, {
+      body: $scope.body,
+      author: 'user',
+    }).success(function(gcomment) {
+      $scope.gpost.gcomments.push(gcomment);
+    });
+    $scope.body = '';
+  };
+  $scope.incrementUpvotes = function(gcomment){
+    gposts.upvoteGroupComment(gpost, gcomment);
+  };
+  $scope.isLoggedIn = auth.isLoggedIn;
+  $scope.isAdmin = auth.isAdmin;
+  $scope.isContributor = auth.isContributor;
+  $scope.isUser = auth.isUser;
+}]);
+
+
+// GROUPS
+app.factory('groups', ['$http', 'auth', function($http, auth){
+  var o = {
+    groups: [],
+    group: {}
+  };
+
+  o.getAll = function() {
+    return $http.get('/api/groups').then(function(res){
+      console.log(res.data);
+      angular.copy(res.data, o.groups);
+    });
+  }; 
+  o.create = function (group) {
+   console.log(group);
+   return $http.post('/api/groups', group ).then(function(res){
+     console.log(res.data);
+     o.groups.push(res.data);
+   });
+  };
+  o.get = function(id) {
+    return $http.get('/api/group/' + id).then(function(res){
+      console.log(res.data);
+      return res.data;
+    });
+  };
+  o.createGpost = function(gpost, id) {
+    console.log(gpost, id);
+    return $http.post('/api/group/' + id + '/gposts', gpost, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  o.createGcomment = function (gpost_id, gcomment) {
+    console.log('gpost_id in factory', gpost_id);
+    console.log('gcomment in factory', gcomment);
+    return $http.post('/api/gpost/' + gpost_id + '/gcomments', gcomment, {
+      headers: {Authorization: 'Bearer '+auth.getToken()}
+    });
+  };
+  return o;
+}]);
+
+app.factory('gposts', ['$http', 'auth', function($http, auth){
+  var o = {
+    gposts: [],
+    gpost: {}
+  };
+
+  o.getAll = function(id) {
+    return $http.get('/api/group/' + id + '/gposts').then(function(res){
+      console.log(res.data);
+      angular.copy(res.data, o.gposts);
+    });
+  };
+
+  // o.upvote = function(gpost) {
+  //   return $http.put('/api/gposts/' + post._id + '/upvote', null, {
+  //     headers: {Authorization: 'Bearer '+auth.getToken()}
+  //   }).then(function(res){
+  //     gpost.upvotes += 1;
+  //   });
+  // };
+  // o.get = function(id) {
+  //   return $http.get('/api/gposts/' + id).then(function(res){
+  //     return res.data;
+  //   });
+  // };
+  // o.addGroupComment = function(id, gcomment) {
+  //   return $http.post('/api/gposts/' + id + '/gcomments', gcomment, {
+  //     headers: {Authorization: 'Bearer '+auth.getToken()}
+  //   });
+  // };
+  return o;
+}]);
+
+
+app.factory('gcomments', function($http, auth){
+  var o = {
+    gcomments: []
+  };  
+  o.getAll = function() {
+    return $http.get('/api/gcomments').then(function(res){
+      angular.copy(res.data, o.gcomments);
+    });
+  };
+  return o;
+}); 
+
+app.service('popupService', function($window) {
+  this.showPopup = function(message) {
+    return $window.confirm(message);
+  };
+});
+
 /*  ----------------------  *
     CONTROLLER - MESSENGER
  *  ----------------------  */
@@ -1152,203 +1348,7 @@ app.factory('settings', function ($http, $window, auth) {
    return s;
 });
 
-
-app.controller('GroupsCtrl',
-function ($scope, groups, auth) {
-
-  $scope.groups = groups.groups;
-  $scope.addGroup = function(){
-    groups.create($scope.group);
-    console.log($scope.group);
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Group", {"area":"group", "page":"groups", "action":"create"});
-  };
-  $scope.group = '';
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-});
-
-
-app.controller('GHomeCtrl',
-function ($scope, auth, groups, gposts, gcomments, groupsPromise, $stateParams){
-  var group = groups.group[$stateParams.id];
-  var gpost = gposts.gpost[$stateParams.id];
-  // var gpost = gposts.gpost[$stateParams.id];
-  $scope.group = groupsPromise;
-  console.log(groupsPromise);
-
-  $scope.currentUser = auth.currentUser();
-  $scope.groups = groups.groups;
-  $scope.gposts = gposts.gposts;
-  $scope.gcomments = gcomments.gcomments;
-  
-  $scope.addGpost = function(){
-    console.log($stateParams.id);
-    console.log($scope.gpost);
-    // if(!$scope.body || $scope.body === '') { return; }
-    groups.createGpost($scope.gpost, $stateParams.id).success(function(gpost) {
-      $scope.group.gposts.push(gpost);
-      $scope.gpost = null;
-    });
-    // mixpanel.alias($scope.user._id);
-    mixpanel.identify($scope.user._id);
-    mixpanel.track("Add Post", {"area":"group", "page":"groupHome", "action":"create"});
-  };
-  $scope.addGcomment = function (gpost, gcomment) {
-    console.log('in controller', gpost, gcomment);
-    gpost.gcomments.push(gcomment);
-    groups.createGcomment(gpost._id, gcomment); 
-    console.log(gpost._id, gcomment);
-  };
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-  
-  // $scope.addComment = function(){
-  //   console.log($scope.post);
-  //   // posts.addComment(posts.post._id, {
-  //   //   body: $scope.post.comment,
-  //   //   author: $scope.currentUser
-  //   // }).success(function(comment) {
-  //   //   $scope.post.comments.push(comment);
-  //   // });
-  //   // $scope.body = '';
-  // };
-  // $scope.incrementUpvotes = function(gpost){
-  //   gposts.upvoteGroupPost(gpost);
-  // };
-  $scope.isLoggedIn = auth.isLoggedIn;
-});
-
-app.controller('GpostCtrl', [
-'$scope',
-'$stateParams',
-'gposts',
-'gcomments',
-'auth',
-function($scope, $stateParams, gposts, gcomments, auth){
-  var gpost = gposts.gpost[$stateParams.id];
-  $scope.get(gpost._id);
-  $scope.gpost = gposts.gpost;
-  $scope.gcomments = gcomments.gcomments;
-  $scope.addGcomment = function(){
-    if(!scope.body || $scope.body === '') { return; }
-    gposts.addGcomment(gposts.gpost._id, {
-      body: $scope.body,
-      author: 'user',
-    }).success(function(gcomment) {
-      $scope.gpost.gcomments.push(gcomment);
-    });
-    $scope.body = '';
-  };
-  $scope.incrementUpvotes = function(gcomment){
-    gposts.upvoteGroupComment(gpost, gcomment);
-  };
-  $scope.isLoggedIn = auth.isLoggedIn;
-  $scope.isAdmin = auth.isAdmin;
-  $scope.isContributor = auth.isContributor;
-  $scope.isUser = auth.isUser;
-}]);
-
-
-// GROUPS
-app.factory('groups', ['$http', 'auth', function($http, auth){
-  var o = {
-    groups: [],
-    group: {}
-  };
-
-  o.getAll = function() {
-    return $http.get('/api/groups').then(function(res){
-      console.log(res.data);
-      angular.copy(res.data, o.groups);
-    });
-  }; 
-  o.create = function (group) {
-   console.log(group);
-   return $http.post('/api/groups', group ).then(function(res){
-     console.log(res.data);
-     o.groups.push(res.data);
-   });
-  };
-  o.get = function(id) {
-    return $http.get('/api/group/' + id).then(function(res){
-      console.log(res.data);
-      return res.data;
-    });
-  };
-  o.createGpost = function(gpost, id) {
-    console.log(gpost, id);
-    return $http.post('/api/group/' + id + '/gposts', gpost, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-  o.createGcomment = function (gpost_id, gcomment) {
-    console.log('gpost_id in factory', gpost_id);
-    console.log('gcomment in factory', gcomment);
-    return $http.post('/api/gpost/' + gpost_id + '/gcomments', gcomment, {
-      headers: {Authorization: 'Bearer '+auth.getToken()}
-    });
-  };
-  return o;
-}]);
-
-app.factory('gposts', ['$http', 'auth', function($http, auth){
-  var o = {
-    gposts: [],
-    gpost: {}
-  };
-
-  o.getAll = function(id) {
-    return $http.get('/api/group/' + id + '/gposts').then(function(res){
-      console.log(res.data);
-      angular.copy(res.data, o.gposts);
-    });
-  };
-
-  // o.upvote = function(gpost) {
-  //   return $http.put('/api/gposts/' + post._id + '/upvote', null, {
-  //     headers: {Authorization: 'Bearer '+auth.getToken()}
-  //   }).then(function(res){
-  //     gpost.upvotes += 1;
-  //   });
-  // };
-  // o.get = function(id) {
-  //   return $http.get('/api/gposts/' + id).then(function(res){
-  //     return res.data;
-  //   });
-  // };
-  // o.addGroupComment = function(id, gcomment) {
-  //   return $http.post('/api/gposts/' + id + '/gcomments', gcomment, {
-  //     headers: {Authorization: 'Bearer '+auth.getToken()}
-  //   });
-  // };
-  return o;
-}]);
-
-
-app.factory('gcomments', function($http, auth){
-  var o = {
-    gcomments: []
-  };  
-  o.getAll = function() {
-    return $http.get('/api/gcomments').then(function(res){
-      angular.copy(res.data, o.gcomments);
-    });
-  };
-  return o;
-}); 
-
-app.service('popupService', function($window) {
-  this.showPopup = function(message) {
-    return $window.confirm(message);
-  };
-});
-
-app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
+app.controller('ItemCtrl', function ($scope, $state, items, auth, users, Item, itemPromise, popupService) {
 
   $scope.items = items.items;
   if ($state.is('items')) $scope.item = new Item();
@@ -1357,7 +1357,9 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
   $scope.isUser        = auth.isUser;
   $scope.isContributor = auth.isContributor;
   $scope.isAdmin       = auth.isAdmin;
-  $scope.isMine        = items.isMine;
+  $scope.isMine        = users.isCreator;
+
+  console.log($scope.isMine($scope.item));
 
 
   $scope.deleteItem = function () {
@@ -1447,12 +1449,25 @@ app.factory('items', function($http, auth){
     video       : 'Video'
   };
 
+
+
   // CREATE
   o.save = function(item) {
+
+    var reservedAssets = [];
+
     if (!item._id) {
+      // remove files from the item object, set aside
+      // send backend the metadata
+      // so we can generate AWS signed request URLs for uploading
+      item.req_signed_req = _extractAssets(item, reservedAssets);
+      console.log('attached signed request request', item.req_signed_req);
       return $http.post('/api/items', item, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).then(_itemSuccessHandler)
+      })
+      .then(_itemSuccessHandler)
+      .then(_uploadAssets(item, reservedAssets))
+      .then(_updateItemAssets)
       .then(function(item) {
         o.items.push(item);
       })
@@ -1500,6 +1515,63 @@ app.factory('items', function($http, auth){
       item.upvotes += 1;
     }).catch(_itemErrorHandler);
   };
+
+
+  // helper function to extract assets from scope.item object
+  function _extractAssets (item, reservedFiles) {
+    console.log('assets', item.assets);
+    var assets = item.assets, 
+        payload_to_aws = [], asset = {}, reservedCopy = {};
+    if (assets) {
+      for (var key in assets) {
+        if (assets.hasOwnProperty(key)) {
+          asset.role = key;
+          asset.name = assets[key][0].name;
+          asset.type = assets[key][0].type;
+          console.log('asset to request a signed reqest for', asset);
+          payload_to_aws.push(asset);
+          angular.copy(asset, reservedCopy);
+          console.log(reservedCopy);
+          reservedCopy.file = assets[key][0];
+          reservedFiles.push(reservedCopy);
+          delete assets[key];
+        }
+      }
+    }
+    console.log('reservedFiles', reservedFiles);
+    return payload_to_aws;
+  }
+
+// should really Q.all this set of promises or something
+  function _uploadAssets (item, assets) {
+    var requests = item.signed_request_payload;
+    angular.forEach(requests, function(req, i) {
+      $http.put(req, assets[i], {
+        headers: { 
+         'x-amz-acl': 'public-read', 
+         'x-amz-meta-itemid': item._id,
+         'x-amz-meta-role': assets[i].role,
+         'Content-Type': assets[i].type,
+        }
+      }).then(function(data) {
+        // update the item.assets as appropriate and prepare for
+        // sending confirmation to backend
+      });
+    });
+  }
+
+  function _updateItemAssets (item) {
+  //   .then(function(res){
+  //     console.log('amazon putObject result', res);
+  //     var req = {
+  //       filename: user.avatar.name, 
+  //       headers: res.headers()
+  //     };
+  //     return $http.put('/api/user/' + user._id + '/avatar', req, {
+  //       headers: { 'Authorization': 'Bearer '+auth.getToken() }
+  //     }); 
+
+  }
 
   // DELETE
   o.delete = function(item_id) {
@@ -1669,20 +1741,6 @@ app.controller('SettingsCtrl', function ($scope, languages, settings, userPromis
   $scope.isUser = auth.isUser;
   $scope.isThisUser = auth.isThisUser;
 });
-
-
-app.directive('digitalMedia', function () {
-
-  return {
-    restrict: 'E', 
-    scope: false,
-    templateUrl: 'digitalmedia.tpl.html',
-    link: function(scope, element, attrs) {
-    }
-  };
-
-});
-
 
 
 /*  ----------------------  *
@@ -2121,6 +2179,33 @@ app.factory('Ingredient', function() {
 
   return IngredientConstructor;
 });
+
+app.directive('digitalMedia', function () {
+
+  return {
+    restrict: 'E', 
+    scope: false,
+    templateUrl: 'digitalmedia.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
+
+app.directive('digitalMediaEditor', function () {
+
+  return {
+    restrict: 'E', 
+    scope: false,
+    templateUrl: 'digitalmedia.editor.tpl.html',
+    link: function(scope, element, attrs) {
+    }
+  };
+
+});
+
+
+
 
 app.controller('ExerciseCtrl', function ($scope, items, exercisePromise, $stateParams) {
   $scope.exercise = exercisePromise;

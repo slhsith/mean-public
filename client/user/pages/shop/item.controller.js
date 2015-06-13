@@ -1,4 +1,4 @@
-app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, Item, itemPromise, popupService) {
+app.controller('ItemCtrl', function ($scope, $state, items, auth, users, Item, itemPromise, popupService) {
 
   $scope.items = items.items;
   if ($state.is('items')) $scope.item = new Item();
@@ -7,7 +7,9 @@ app.controller('ItemCtrl', function ($scope, $state, $stateParams, items, auth, 
   $scope.isUser        = auth.isUser;
   $scope.isContributor = auth.isContributor;
   $scope.isAdmin       = auth.isAdmin;
-  $scope.isMine        = items.isMine;
+  $scope.isMine        = users.isCreator;
+
+  console.log($scope.isMine($scope.item));
 
 
   $scope.deleteItem = function () {

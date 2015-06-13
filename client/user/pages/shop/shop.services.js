@@ -14,12 +14,25 @@ app.factory('items', function($http, auth){
     video       : 'Video'
   };
 
+
+
   // CREATE
   o.save = function(item) {
+
+    var reservedAssets = [];
+
     if (!item._id) {
+      // remove files from the item object, set aside
+      // send backend the metadata
+      // so we can generate AWS signed request URLs for uploading
+      item.req_signed_req = _extractAssets(item, reservedAssets);
+      console.log('attached signed request request', item.req_signed_req);
       return $http.post('/api/items', item, {
         headers: {Authorization: 'Bearer '+auth.getToken()}
-      }).then(_itemSuccessHandler)
+      })
+      .then(_itemSuccessHandler)
+      .then(_uploadAssets(item, reservedAssets))
+      .then(_updateItemAssets)
       .then(function(item) {
         o.items.push(item);
       })
@@ -67,6 +80,63 @@ app.factory('items', function($http, auth){
       item.upvotes += 1;
     }).catch(_itemErrorHandler);
   };
+
+
+  // helper function to extract assets from scope.item object
+  function _extractAssets (item, reservedFiles) {
+    console.log('assets', item.assets);
+    var assets = item.assets, 
+        payload_to_aws = [], asset = {}, reservedCopy = {};
+    if (assets) {
+      for (var key in assets) {
+        if (assets.hasOwnProperty(key)) {
+          asset.role = key;
+          asset.name = assets[key][0].name;
+          asset.type = assets[key][0].type;
+          console.log('asset to request a signed reqest for', asset);
+          payload_to_aws.push(asset);
+          angular.copy(asset, reservedCopy);
+          console.log(reservedCopy);
+          reservedCopy.file = assets[key][0];
+          reservedFiles.push(reservedCopy);
+          delete assets[key];
+        }
+      }
+    }
+    console.log('reservedFiles', reservedFiles);
+    return payload_to_aws;
+  }
+
+// should really Q.all this set of promises or something
+  function _uploadAssets (item, assets) {
+    var requests = item.signed_request_payload;
+    angular.forEach(requests, function(req, i) {
+      $http.put(req, assets[i], {
+        headers: { 
+         'x-amz-acl': 'public-read', 
+         'x-amz-meta-itemid': item._id,
+         'x-amz-meta-role': assets[i].role,
+         'Content-Type': assets[i].type,
+        }
+      }).then(function(data) {
+        // update the item.assets as appropriate and prepare for
+        // sending confirmation to backend
+      });
+    });
+  }
+
+  function _updateItemAssets (item) {
+  //   .then(function(res){
+  //     console.log('amazon putObject result', res);
+  //     var req = {
+  //       filename: user.avatar.name, 
+  //       headers: res.headers()
+  //     };
+  //     return $http.put('/api/user/' + user._id + '/avatar', req, {
+  //       headers: { 'Authorization': 'Bearer '+auth.getToken() }
+  //     }); 
+
+  }
 
   // DELETE
   o.delete = function(item_id) {

@@ -1,6 +1,8 @@
+<form ng-submit="saveItem()" style="margin-top:30px;">
+
   <div class="col-sm-6">
     <div class="form-group col-sm-12">
-      Title {{ item.name }}
+      <input type="text" class="form-control" placeholder="Title" 
         ng-model="item.name"></input>
     </div>
 
@@ -81,21 +83,25 @@
   </div> <!-- end col-sm-6 left side of form -->
 
   <div class="col-sm-6"> 
-    <div ngf-drop ngf-drag-over-class="dragover" 
-      ngf-multiple="false" ngf-allow-dir="false"
-      ngf-accept="'image/*'"
-      ng-model="item.assets.cover_photos.front" style="height: 60px; width: 100%; border: 3px dotted lightgray" 
-      >Upload Front Cover Pic
-      <div class="btn btn-xs btn-default" ngf-select>select or drag/drop</div>
-      <img ng-show="item.assets.cover_photos.front" ngf-src="item.assets.cover_photos.front[0]" ngf-accept="'image/*'" style="max-height: 40px">
+    <div ngf-drop ngf-drag-over-class="dragover" ngf-accept="'image/*'"
+      ng-model="item.assets.cover_photo_front" 
+      style="height: 100px; width: 100%; border: 1px dotted lightgray; ">
+      <h6 style="margin: -12px 0 12px 15px; padding: 4px; width: 150px; background-color: white">Upload Front Cover Pic</h6>
+      <div class="btn btn-xs btn-default" style="margin-left: 20px" 
+        ngf-select>select or drag/drop</div>
+      <img ng-show="item.assets.cover_photo_front" 
+        ngf-src="item.assets.cover_photo_front[0]" 
+        ngf-accept="'image/*'" 
+        style="max-height: 40px">
     </div>
     <div ngf-drop ngf-drag-over-class="dragover" 
-      ngf-multiple="false" ngf-allow-dir="false"
       ngf-accept="'image/*'"
-      ng-model="item.assets.cover_photos.back" style="height: 60px; width: 100%; border: 3px dotted lightgray" 
-      >Upload Back Cover Pic
-      <div class="btn btn-xs btn-default" ngf-select>select or drag/drop</div>
-      <img ng-show="item.assets.cover_photos.back" ngf-src="item.assets.cover_photos.back[0]" ngf-accept="'image/*'" style="max-height: 40px">
+      ng-model="item.assets.cover_photos.back" 
+      style="height: 100px; width: 100%; border: 1px dotted lightgray; margin-top: 20px"> 
+      <h6 style="margin: -12px 0 12px 15px; padding: 4px; width: 150px; background-color: white">Upload Back Cover Pic</h6>
+      <div class="btn btn-xs btn-default" style="margin-left: 20px" 
+        ngf-select>select or drag/drop</div>
+      <img ng-show="item.assets.cover_photo_back" ngf-src="item.assets.cover_photo_back[0]" ngf-accept="'image/*'" style="max-height: 40px">
     </div>
   </div>
 
@@ -106,8 +112,17 @@
   </div>
 
   <div class="form-group col-sm-12">
-    Upload {{item.type==='book'? 'Book PDF' : (item.type === 'Video' ? 'Video' : 'Podcast')}}
-    <input type="file" file-upload="item.file">
+    <div ngf-drop ngf-drag-over-class="dragover" ngf-accept="'image/*'"
+      ng-model="item.assets.main" 
+      style="height: 100px; width: 100%; border: 1px dotted lightgray; ">
+      <h6 style="margin: -12px 0 12px 15px; padding: 4px; width: 150px; background-color: white">Upload {{item.type==='book'? 'Book PDF' : (item.type === 'Video' ? 'Video' : 'Podcast')}}</h6>
+      <div class="btn btn-xs btn-default" style="margin-left: 20px" 
+        ngf-select>select or drag/drop</div>
+      <img ng-show="item.assets.main" 
+        ngf-src="item.assets.main[0]" 
+        ngf-accept="'image/*'" 
+        style="max-height: 40px">
+    </div>
   </div>
 
   <button type="submit" class="col-sm-12 btn-default">{{item._id? 'Save' : 'Create'}}</button>

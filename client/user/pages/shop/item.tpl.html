@@ -1,4 +1,4 @@
-<div class="page-header">
+<div class="page-header" ng-init="showEdit = false">
     <h3>
       <span>
         {{item.name}}
@@ -11,14 +11,21 @@
 
     | ${{item.price.value/100}} | {{item.description}}
 
-<!--     <div ng-show="isCurrentUser()" ng-if="isContributor() && isMine(item)" >
+    <div ng-show="isCurrentUser()" ng-if="isContributor() && isMine(item)" >
       <a href="" ng-click="deleteItem()"><span>Delete Item<br></span></a>
       <a href="/set/#/item/{{item._id}}">View Public Page</a>
-    </div> -->
+    </div>
 </div>
 
-<digital-media ng-if="isMine(item) && item.video || item.book || item.podcast" item="item"></digital-media>
+<button class="btn btn-default form-control" 
+  ng-show="isMine(item)"
+  ng-click="showEdit = !showEdit">
+  Edit Item </button>
 
-<diet-plan ng-if="isMine(item) && item.type === 'dietplan'" item="item"></diet-plan>
+<digital-media ng-show="!showEdit && item.video || item.book || item.podcast" item="item"></digital-media>
+<digital-media-editor ng-show="showEdit && isMine(item) && item.video || item.book || item.podcast" item="item"></digital-media>
+
+<diet-plan ng-if="!showEdit && isMine(item) && item.type === 'dietplan'" item="item"></diet-plan>
+<diet-plan-editor ng-if="isMine(item) && item.type === 'dietplan'" item="item"></diet-plan>
 
 <workout-plan ng-if="isMine(item) && item.type === 'workoutplan'" item="item"></workout-plan>
