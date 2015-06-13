@@ -41,7 +41,7 @@ var EventSchema = new mongoose.Schema({
   challenge : { type: mongoose.Schema.Types.ObjectId, ref: 'Challenge' },
 
   // this could grow insane, maybe better to do Transactions.find({item_id: _id})
-  transactions: Number  // this is a count for popularity display [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }],
+  transactions: { type: Number, default: 0 }  // this is a count for popularity display [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaction' }],
 
 });
 

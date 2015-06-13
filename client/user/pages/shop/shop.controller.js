@@ -1,8 +1,9 @@
 app.controller('ShopCtrl', function ($scope, items, Item, users, auth, popupService) {
+  console.log('shop state');
 
   $scope.isMine        = users.isCreator;
   $scope.items         = items.items;
-  $scope.itemTitles = items.titles;
+  $scope.itemTitles    = items.titles;
 
   $scope.item = new Item();
   // Initialize a brand new item from Item constructor

@@ -50,12 +50,9 @@ app.config(function($stateProvider, $urlRouterProvider) {
       templateUrl: 'shop.html',
       controller: 'ShopCtrl',
       resolve: {
-        itemPromise: function (items) {
+        itemsPromise: function (items) {
           return items.getAll();
         }
-        // , userPromise: function (auth, users) {
-        //   return users.get(auth.isThisUser());
-        // }
       }
     })
     .state('item', {

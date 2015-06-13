@@ -45,9 +45,11 @@ exports.getItems = function(req, res, next) {
   var query = {};
   if (req.query.creator) { query = {'creator._id': req.query.creator}; }
   if (req.query.type) { query = {'type': req.query.type}; }
+  console.log('query', query);
   Item.find(query)
-    .populate('exercise workoutplan dietplan')
+    // .populate('exercise workoutplan dietplan')
     .exec(function(err, items){
+      console.log(items);
       if(err){ return next(err); }
       return res.json(items);
    });
