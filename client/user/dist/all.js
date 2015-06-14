@@ -448,6 +448,10 @@ app.factory('auth', function($http, $window){
     $window.location = "/";
   };
 
+  auth.header = function() {
+    return { headers: { Authorization: 'Bearer ' + auth.getToken() } };
+  };
+
   return auth;
 });
 
@@ -1434,7 +1438,7 @@ app.controller('ShopCtrl', function ($scope, items, Item, users, auth, popupServ
 });
 
 // ITEMS
-app.factory('items', function($http, auth){
+app.factory('items', function($http, auth, $q){
 
   var o = {
     items: [],
@@ -1449,26 +1453,25 @@ app.factory('items', function($http, auth){
     video       : 'Video'
   };
 
-
-
-  // CREATE
+  // SAVE / CREATE
   o.save = function(item) {
 
-    var reservedAssets = [];
+    var reservedFiles = [];
 
     if (!item._id) {
-      // remove files from the item object, set aside
-      // send backend the metadata
-      // so we can generate AWS signed request URLs for uploading
-      item.req_signed_req = _extractAssets(item, reservedAssets);
-      console.log('attached signed request request', item.req_signed_req);
-      return $http.post('/api/items', item, {
-        headers: {Authorization: 'Bearer '+auth.getToken()}
-      })
-      .then(_itemSuccessHandler)
-      .then(_uploadAssets(item, reservedAssets))
-      .then(_updateItemAssets)
+      item.creator = { _id: auth.isThisUser(), username: auth.getUser() };
+
+      // send backend only metadata to generate AWS signed request URLs for uploading
+      // files will be reserved for direct upload to AWS
+      item.req_signed_req = _extractAll(item, reservedFiles);
+
+      return $http.post('/api/items', item, auth.header()).then(_itemSuccessHandler)
       .then(function(item) {
+        // if there were assets, item will include AWS signed req in payload
+         return _uploadAll(item, reservedFiles);
+      })
+      .then(function(result) {
+        console.log('after PUT success confirm', result);
         o.items.push(item);
       })
       .catch(_itemErrorHandler);
@@ -1478,6 +1481,57 @@ app.factory('items', function($http, auth){
       }).then(_itemSuccessHandler).catch(_itemErrorHandler);
     }
   };
+
+  function _extractAll (item, files) {
+    var meta = [], asset = {}, copy = {};
+    if (item.assets) {
+      for (var key in item.assets) {
+        if (item.assets.hasOwnProperty(key)) {
+          asset = {role: key,
+                   name: item.assets[key][0].name,
+                   type: item.assets[key][0].type };
+          angular.copy(asset, copy);
+          copy.file = item.assets[key][0];
+          meta.push(asset);
+          files.push(copy);
+          delete item.assets[key]; 
+        }
+      }
+    }
+    return meta;
+  }
+
+  function _uploadAll (item, files) {
+    // returns the resolved array of promises to upload files to AWS
+    // results are each processed into meta data only and PUT update to item assets
+    return $q.all(
+
+      item.signed_request_payload.map( function(req, i) {
+        return $http.put(req.signed_request, files[i], {
+            headers: { 
+             'x-amz-acl'         : 'public-read', 
+             'x-amz-meta-itemid' : item._id,
+             'x-amz-meta-role'   : req.role,
+             'Content-Type'      : req.type, }
+        }).then(function(res) {
+          var object = res.config.data;  // file that was uploaded
+          object.ETag = res.headers().etag;
+          object.item_id = item._id;
+          delete object.file;
+          console.log('asset object for our PUT then', object);
+          return object;
+        }); 
+     }) 
+
+    ).then(function(result) {
+      if (result.length) {
+        return $http.put('/api/item/' + item._id + '/assets', result, auth.header());
+      } else {
+        return {};
+      }
+    });
+  }
+
 
   // READ - basic getting of data
   o.getAll = function(type) {
@@ -1517,61 +1571,6 @@ app.factory('items', function($http, auth){
   };
 
 
-  // helper function to extract assets from scope.item object
-  function _extractAssets (item, reservedFiles) {
-    console.log('assets', item.assets);
-    var assets = item.assets, 
-        payload_to_aws = [], asset = {}, reservedCopy = {};
-    if (assets) {
-      for (var key in assets) {
-        if (assets.hasOwnProperty(key)) {
-          asset.role = key;
-          asset.name = assets[key][0].name;
-          asset.type = assets[key][0].type;
-          console.log('asset to request a signed reqest for', asset);
-          payload_to_aws.push(asset);
-          angular.copy(asset, reservedCopy);
-          console.log(reservedCopy);
-          reservedCopy.file = assets[key][0];
-          reservedFiles.push(reservedCopy);
-          delete assets[key];
-        }
-      }
-    }
-    console.log('reservedFiles', reservedFiles);
-    return payload_to_aws;
-  }
-
-// should really Q.all this set of promises or something
-  function _uploadAssets (item, assets) {
-    var requests = item.signed_request_payload;
-    angular.forEach(requests, function(req, i) {
-      $http.put(req, assets[i], {
-        headers: { 
-         'x-amz-acl': 'public-read', 
-         'x-amz-meta-itemid': item._id,
-         'x-amz-meta-role': assets[i].role,
-         'Content-Type': assets[i].type,
-        }
-      }).then(function(data) {
-        // update the item.assets as appropriate and prepare for
-        // sending confirmation to backend
-      });
-    });
-  }
-
-  function _updateItemAssets (item) {
-  //   .then(function(res){
-  //     console.log('amazon putObject result', res);
-  //     var req = {
-  //       filename: user.avatar.name, 
-  //       headers: res.headers()
-  //     };
-  //     return $http.put('/api/user/' + user._id + '/avatar', req, {
-  //       headers: { 'Authorization': 'Bearer '+auth.getToken() }
-  //     }); 
-
-  }
 
   // DELETE
   o.delete = function(item_id) {
@@ -2308,6 +2307,46 @@ app.factory('workoutplans', function($http, auth) {
 
   return o;
 });
+app.directive('avatarUpload', function() {
+  return {
+    restrict: 'EA',
+    link: function(scope, elem, attr) {
+      console.log('directive fileUpload scope\n', scope);
+      console.log('directive fileUpload elem\n', elem);
+      elem.bind('change', function(event) {
+          scope.user.avatar = event.target.files[0];
+          var ext = '.' + scope.user.avatar.name.split('.').pop();
+          scope.user.avatar.name = 'user_avatar_' + scope.user._id + '_' +
+                                    new Date().getTime() + ext;
+          console.log(scope.user, event);
+      });
+    }
+
+  };
+
+});
+
+/*
+ * For generic file uploading purposes
+ * Usage: <input type="file" file-upload="ingredient.image">
+//  */
+// app.directive('fileUpload', function() {
+//   return {
+//     restrict: 'EA',
+//     scope: {
+//       target: '='
+//     },
+//     link: function(scope, elem, attr) {
+//       console.log('file upload directive', scope, elem);
+//       elem.bind('change', function(event) {
+//         attr.fileUpload = (event.srcElement || event.target).files[0];
+//         console.log(attr.fileUpload);
+//         console.log();
+//       });
+//     }
+//   };
+
+// });
 /*
 
 ROW WIDGET FOR ADDING UNITS TO SUBARRAYS OF ITEMS & EVENTS
@@ -2400,46 +2439,6 @@ app.controller('addWidgetCtrl', function($scope) {
 
     };
 });
-app.directive('avatarUpload', function() {
-  return {
-    restrict: 'EA',
-    link: function(scope, elem, attr) {
-      console.log('directive fileUpload scope\n', scope);
-      console.log('directive fileUpload elem\n', elem);
-      elem.bind('change', function(event) {
-          scope.user.avatar = event.target.files[0];
-          var ext = '.' + scope.user.avatar.name.split('.').pop();
-          scope.user.avatar.name = 'user_avatar_' + scope.user._id + '_' +
-                                    new Date().getTime() + ext;
-          console.log(scope.user, event);
-      });
-    }
-
-  };
-
-});
-
-/*
- * For generic file uploading purposes
- * Usage: <input type="file" file-upload="ingredient.image">
-//  */
-// app.directive('fileUpload', function() {
-//   return {
-//     restrict: 'EA',
-//     scope: {
-//       target: '='
-//     },
-//     link: function(scope, elem, attr) {
-//       console.log('file upload directive', scope, elem);
-//       elem.bind('change', function(event) {
-//         attr.fileUpload = (event.srcElement || event.target).files[0];
-//         console.log(attr.fileUpload);
-//         console.log();
-//       });
-//     }
-//   };
-
-// });
 // app.directive("starRating", function() {
 //   return {
 //     restrict : "EA",

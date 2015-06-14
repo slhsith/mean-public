@@ -104,10 +104,10 @@
           <td>Upload Avatar</td>
           <td>
             <div id="file_input" ngf-drop ngf-drag-over-class="dragover" 
-              ngf-accept="'image/*'" ngf-max-size='15000'
+              ngf-accept="'image/*'" 
               ng-model="user.avatar" 
               style="height: 40px; width: 100%; border: 2px dotted lightgray">
-              <button class="btn btn-xs btn-default" ngf-select ngf-accept="'image/*'" ngf-max-size='15000'
+              <button class="btn btn-xs btn-default" ngf-select ngf-accept="'image/*'" 
               ng-model="user.avatar">select or drag/drop</button>
               <img ng-if="user.avatar" ngf-src="user.avatar[0]" ngf-accept="'image/*'" style="max-height: 40px">
             </div>

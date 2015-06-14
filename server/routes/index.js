@@ -57,6 +57,7 @@ router.get('/api/item/:item', shop.getItemById );
 router.post('/api/items', auth, shop.postItem );
 router.delete('/api/item/:item', auth, shop.deleteItem );
 router.put('/api/item/:item', auth, shop.updateItem );
+router.put('/api/item/:item/assets', auth, shop.updateItemAssets);
 router.put('/api/item/:item/upvote', auth, shop.upvoteItem );
 
 router.get('/api/items/:item/exercises', workoutplans.getExercises );

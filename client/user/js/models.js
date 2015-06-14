@@ -83,6 +83,10 @@ app.factory('auth', function($http, $window){
     $window.location = "/";
   };
 
+  auth.header = function() {
+    return { headers: { Authorization: 'Bearer ' + auth.getToken() } };
+  };
+
   return auth;
 });
 

@@ -105,12 +105,13 @@ exports.postItem = function(req, res, next) {
           Expires: 120,
           ContentType: asset.type,
           ACL: 'public-read',
-          Metadata: { 'itemid': item._id, role: asset.role }
+          Metadata: { 'itemid': item._id.toString(), role: asset.role }
         };
         console.log('__________>', s3_params, '\n\n');
 
+        // need to Q array this to make sure to return on Q.all
         s3.getSignedUrl('putObject', s3_params, function(err, data){
-          // if(err){ return next(err); }
+          if(err){ return next(err); }
           console.log('asset ' + asset.role + ' ' + asset.name + '\n', data);
           asset.signed_request = data;
           asset.url = 'https://'+S3_BUCKET+'.s3.amazonaws.com/items/assets/temp/' + item._id + "/" + asset.name
@@ -200,70 +201,64 @@ exports.deleteItem = function(req, res, next) {
 };
 
 
+// successful file uploads ?action="confirmfile" ?
+// maybe for new file uploads if we use query params ?action="newfile"
+exports.updateItemAssets = function(req, res, next) {
+  var awsUploads = req.body; // array of asset objects with Etags
+  var item = {_id: req.params.item};
+  var updates = {};
+  console.log(awsUploads.length + ' successful upload(s) for item ' + item._id);
+  console.log(awsUploads);
 
-// //assets for items
-exports.signedRequestForAssets = function (req, res, next) {
-  console.log('sign request for', req.query);
-  var asset = req.query;
+  var promises = [];
+  var base_url = 'https://'+S3_BUCKET+'.s3.amazonaws.com/';
+  awsUploads.forEach(function(asset) {
+    asset.key = 'items/assets/'+item._id+'/item_' + asset.role + '_' 
+                + new Date().getTime() + '.' + asset.name.split('.').pop();
+    asset.url = base_url + asset.key;
+    promises.push(_copyFile(asset));
+  });
 
-  var s3_params = {
-    Bucket: S3_BUCKET,
-    Key: 'images/items/temp/' + asset.name,
-    Expires: 120,
-    ContentType: asset.type,
-    ACL: 'public-read',
-    Metadata: { 'userid': req.params.id, role: 'item_asset' }
-  };
-  s3.getSignedUrl('putObject', s3_params, function(err, data){
-    if(err){ return next(err); }
-    console.log(data);
+  Q.allSettled(promises).done(function(results) {
+    console.log('q all result', results);
+    results.forEach(function(result, i) {
+      console.log('index', i);
+      if (result.state === 'fulfilled') {
+        console.log('result after copy file\n', result, awsUploads[i]);
+        if (awsUploads[i].role === 'photos') {
+          updates.$push.assets.photos = awsUploads[i].url;
+        } else if (awsUploads[i].role === 'videos') {
+          updates.$push.assets.videos = awsUploads[i].url;
+        } else {
+          var key = 'assets.' + awsUploads[i].role;
+          var update = {}; update[key] = awsUploads[i].url;
+          updates.$set = update;
+        }
+      }
+    });
+    console.log('updates', updates);
 
-    var return_data = {
-      signed_request: data,
-      url: 'https://'+S3_BUCKET+'.s3.amazonaws.com/'+asset.name
-    };
-    res.json(return_data);
+    Item.findByIdAndUpdate(
+      item._id, 
+      updates, 
+      {new: true}, 
+      function(err, item) {
+      if (err) return next(err);
+        console.log('item after asset urls');
+        res.json(item);
+    });
   });
 };
 
-exports.updateAssetSuccess = function(req, res, next) {
-  console.log('successful upload for ' + req.payload.f_name + ' ' + req.body._id, req.body.filename, req.body.headers);
-  var new_asset_filename = req.body.filename;
-
-  // need to rename file in aws
-  // need to update item object in mongo
-  // respond with ultimate URL so we can preview it over in front end
-  var extension = '.' + new_asset_filename.split('.').pop();
-  new_asset_filename = req.payload.l_name + '_' + req.payload.f_name +
-   '_' + req.params.id + '_' + new Date().getTime() + extension;
-  console.log('avatar to change to key', new_avatar_name);
+function _copyFile(asset) {
+  console.log('===> move copy of asset', asset);
   var s3_params = {
     Bucket: S3_BUCKET,
-    CopySource: S3_BUCKET + '/images/avatar/temp/' + req.body.filename,
-    Key: 'images/avatar/' + new_avatar_name,
+    CopySource: S3_BUCKET + '/items/assets/temp/' + asset.item_id + '/' + asset.name,
+    Key: asset.key,
     ACL: 'public-read'
-    // MetadataDirective: 'COPY'
   };
-  s3.copyObject(s3_params, function(err, data){
-    if(err){ return next(err); }
-    console.log('copyObject data result', data); // data.CopyObjectResult.ETag to be compared
-    var url = 'https://'+S3_BUCKET+'.s3.amazonaws.com/images/avatar/'+new_avatar_name;
-    if (data.ETag === req.body.headers.etag) {
-      console.log('matching ETags!');
-      s3.deleteObject({
-        Bucket: S3_BUCKET,
-        Key: '/images/avatar/temp/' + req.body.filename 
-      }, function(err, data) {
-          console.log('S3 delete of ' + req.body.filename, data);
-      });
-
-      User.findByIdAndUpdate(req.params.id, 
-        {$set: {avatar_url: url} }, 
-        {new: true}, 
-        function(err, user) {
-          if (err) return next(err);
-          res.json(user);
-      });
-    }
-  });
-};
+  console.log('s3_params', s3_params);
+  // return the promise
+  return Q.nbind( s3.copyObject(s3_params) );
+}

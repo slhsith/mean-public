@@ -213,6 +213,7 @@ exports.signedRequestForAvatar = function (req, res, next) {
     ACL: 'public-read',
     Metadata: { 'userid': req.params.id, role: 'avatar' }
   };
+  console.log(s3_params);
   s3.getSignedUrl('putObject', s3_params, function(err, data){
     if(err){ return next(err); }
     console.log(data);
